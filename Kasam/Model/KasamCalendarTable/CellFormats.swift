@@ -1,0 +1,126 @@
+//
+//  DiscoverBlockFormat.swift
+//  Kasam
+//
+//  Created by Vance Basilio on 2019-05-05.
+//  Copyright © 2019 Vance Basilio. All rights reserved.
+//
+
+import Foundation
+import UIKit
+
+class freeKasamFormat {
+    var image: URL
+    var title: String
+    var rating: String
+    var creator: String
+    var kasamID: String
+    
+    init(title: String, image: URL, rating: String, creator: String, kasamID: String){
+        self.image = image
+        self.title = title
+        self.rating = rating
+        self.creator = creator
+        self.kasamID = kasamID
+    }
+}
+
+class expertKasamFormat {
+    var image: URL
+    var title: String
+    var rating: String
+    var creator: String
+    var kasamID: String
+    
+    init(title: String, image: URL, rating: String, creator: String, kasamID: String){
+        self.image = image
+        self.title = title
+        self.rating = rating
+        self.creator = creator
+        self.kasamID = kasamID
+    }
+}
+
+class SquareKasamFormat {
+    
+    var image: URL
+    var title: String
+    var type: String
+    var duration: String
+    var kasamID: String
+    
+    init(title: String, type: String, duration: String, image: URL, kasamID: String){
+        self.image = image
+        self.title = title
+        self.type = type
+        self.duration = duration
+        self.kasamID = kasamID
+    }
+}
+
+class KasamCalendarBlockFormat {
+    
+    var image: URL
+    var title: String
+    var hour: String
+    var minute: String
+    var duration: String
+    var url: String
+    var creator: String
+    
+    init(title: String, hour: String, minute: String, duration: String, image: URL, url: String, creator: String){
+        self.image = image
+        self.title = title
+        self.hour = hour
+        self.minute = minute
+        self.duration = duration
+        self.url = url
+        self.creator = creator
+    }
+}
+
+class BlockFormat {
+    
+    var image: URL
+    var title: String
+    var order: String
+    var duration: String
+    var url: String
+    
+    init(title: String, order: String, duration: String, image: URL, url: String){
+        self.image = image
+        self.title = title
+        self.order = order
+        self.duration = duration
+        self.url = url
+    }
+}
+
+class Tracker {
+    
+    var userName: String
+    var progress: Int
+    
+    init(userName: String, progress: Int) {
+        self.userName = userName
+        self.progress = progress
+    }
+    
+}
+
+class TrackerTableView: UITableView {
+    
+    var maxHeight: CGFloat = UIScreen.main.bounds.size.height
+    
+    override func reloadData() {
+        super.reloadData()
+        self.invalidateIntrinsicContentSize()
+        self.layoutIfNeeded()
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        let height = min(contentSize.height, maxHeight)
+        return CGSize(width: contentSize.width, height: height)
+    }
+    
+}
