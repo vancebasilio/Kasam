@@ -21,6 +21,7 @@ pod 'FacebookShare'
 pod 'MXSegmentedPager'
 pod 'Cosmos', '~> 19.0'
 pod 'SkeletonView'
+pod 'SwiftIcons'
 
 end
 

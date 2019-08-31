@@ -10,11 +10,10 @@ import UIKit
 import Firebase
 import AVKit
 
-let offset_HeaderStop:CGFloat = 200 - 54  // At this offset the Header stops its transformations
+let offset_HeaderStop:CGFloat = 140.0  // At this offset the Header stops its transformations
 let distance_W_LabelHeader:CGFloat = 30.0 // The distance between the top of the screen and the top of the White Label
 
 class KasamHolder: UIViewController, UIScrollViewDelegate {
-    // MARK: Outlet properties
     
     @IBOutlet weak var tableView: UITableView! {didSet {tableView.estimatedRowHeight = 100}}
     @IBOutlet var headerView : UIView!
