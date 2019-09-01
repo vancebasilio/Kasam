@@ -17,7 +17,6 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var calendar: FSCalendar!
     @IBOutlet weak var tableHeight: NSLayoutConstraint!
-    @IBOutlet weak var tableHeader: UIView!
     @IBOutlet weak var greetingLabel: UILabel!
     
     var kasamBlocks: [KasamCalendarBlockFormat] = []
@@ -35,10 +34,16 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupGreeting()
+        setupTableAndHeader()
         getPreferences {self.retrieveKasams()}
-        self.tableView.layer.cornerRadius = 10
-        self.tableView.layer.masksToBounds = true
-        self.navigationItem.title = "Today"
+        
+    }
+    
+    func setupTableAndHeader(){
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 150
+        tableView.reloadData()
+        self.navigationItem.title = ""
         let calendarUpdate = NSNotification.Name("KasamCalendarUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(KasamCalendar.getContinuedPreferences), name: calendarUpdate, object: nil)
     }
@@ -48,15 +53,8 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
     }
     
     func setupGreeting(){
-        let hour = Calendar.current.component(.hour, from: Date())
-        var timeOfDay = ""
-        switch hour {
-        case 1..<12 : timeOfDay = "Morning"
-        case 12..<17 : timeOfDay = "Afternoon"
-        default: timeOfDay = "Evening"
-        }
         if let truncUserFirst = Auth.auth().currentUser?.displayName?.split(separator: " ").first.map(String.init) {
-            greetingLabel.text = timeOfDay + " " + truncUserFirst
+            greetingLabel.text = "Kasams"
         }
     }
     
@@ -80,6 +78,7 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
                 var dateJoined = Date()
                 var startTime = ""
                 let kasamID = snapshot.key
+                var kasamName = ""
                 
                 for child in snapshot.children {
                     let snap = child as! DataSnapshot
@@ -87,10 +86,12 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
                         dateJoined = self.dateConverter(datein: snap.value as! String)
                     } else if snap.key == "Time" {
                         startTime = snap.value as! String
+                    } else if snap.key == "Kasam Name" {
+                        kasamName = snap.value as! String
                     }
                 }
-                let perference = KasamPreference(kasamID: kasamID, joinedDate: dateJoined, startTime: startTime)
-                self.kasamPrefernce.append(perference)
+                let preference = KasamPreference(kasamID: kasamID, kasamName: kasamName, joinedDate: dateJoined, startTime: startTime)
+                self.kasamPrefernce.append(preference)
                 if self.kasamPrefernce.count == count {completion()}
             }
         })
@@ -115,7 +116,7 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
                     self.blockUserRef = Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks")
                     self.blockUserRefHandle = self.blockUserRef.observe(.value, with: { (snapshot: DataSnapshot!) in
                         let finalOrder = String(diff % Int(snapshot.childrenCount) + 1)
-                
+
                         //Seeing which blocks are needed for the day
                         self.orderUserRef = self.blockUserRef.queryOrdered(byChild: "Order").queryEqual(toValue : finalOrder)
                         self.orderUserRefHandle = self.orderUserRef.observe(.value, with: { (snapshot: DataSnapshot) in
@@ -136,7 +137,7 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
                                 guard let minute = kasam.startTime.slice(from: ":", to: " ") else {
                                     return
                                     }
-                                    let block = KasamCalendarBlockFormat(title: value["Title"] ?? "", hour: hour , minute: minute, duration: value["Duration"] ?? "", image: blockURL!, url: value["Link"] ?? "", creator: "Shawn T")
+                                let block = KasamCalendarBlockFormat(kasamName: kasam.kasamName, title: value["Title"] ?? "", hour: hour , minute: minute, duration: value["Duration"] ?? "", image: blockURL!, url: value["Link"] ?? "", creator: "Shawn T")
                                     self.kasamBlocks.append(block)
                                     sem.signal()
                                     self.tableView.reloadData()
@@ -204,6 +205,12 @@ extension KasamCalendar: UITableViewDataSource, UITableViewDelegate {
         return kasamBlocks.count
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let height = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 150
+        return height
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let block = kasamBlocks[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "CalendarKasamBlock") as! KasamCalendarCell
@@ -213,12 +220,6 @@ extension KasamCalendar: UITableViewDataSource, UITableViewDelegate {
             cell.setBlock(block: block, end: true)
         }
         return cell
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let height = CGFloat(100)
-        self.tableHeight.constant = (height * CGFloat(kasamBlocks.count)) + self.tableHeader.frame.height
-        return height
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

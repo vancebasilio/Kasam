@@ -183,7 +183,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 print(error!)
             } else {
                 //STEP 4: Adds the user preferences to the kasam they just followed
-                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following").child(self.kasamID).updateChildValues(["Date Joined": self.startDate, "Day Joined": self.startDay, "Repeat":self.chosenRepeat, "Time": self.chosenTime, "Days": self.chosenDate]) {(error, reference) in
+                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following").child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Day Joined": self.startDay, "Repeat":self.chosenRepeat, "Time": self.chosenTime, "Days": self.chosenDate]) {(error, reference) in
                     if error != nil {
                         print(error!)
                     } else {

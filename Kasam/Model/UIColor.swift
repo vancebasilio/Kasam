@@ -16,6 +16,7 @@ extension UIColor {
     static let colorThree = UIColor(red: 234, green: 200, blue: 112)
     static let colorFour = UIColor(red: 229, green: 187, blue: 88) //gold
     static let colorFive = UIColor(red: 195, green: 150, blue: 45) //dark gold
+    static let greyBackground = UIColor(hex: 0xF6F6F8) //light grey background
     
     static let seemuBlue = UIColor(hex: 0x00adf7)
     static let transparentBlack = UIColor(hex: 0x000000, a: 0.5)

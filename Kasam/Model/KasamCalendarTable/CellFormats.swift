@@ -42,7 +42,6 @@ class expertKasamFormat {
 }
 
 class SquareKasamFormat {
-    
     var image: URL
     var title: String
     var type: String
@@ -59,7 +58,6 @@ class SquareKasamFormat {
 }
 
 class KasamCalendarBlockFormat {
-    
     var image: URL
     var title: String
     var hour: String
@@ -67,8 +65,10 @@ class KasamCalendarBlockFormat {
     var duration: String
     var url: String
     var creator: String
+    var kasamName: String
     
-    init(title: String, hour: String, minute: String, duration: String, image: URL, url: String, creator: String){
+    init(kasamName: String, title: String, hour: String, minute: String, duration: String, image: URL, url: String, creator: String){
+        self.kasamName = kasamName
         self.image = image
         self.title = title
         self.hour = hour
@@ -80,7 +80,6 @@ class KasamCalendarBlockFormat {
 }
 
 class BlockFormat {
-    
     var image: URL
     var title: String
     var order: String
@@ -97,7 +96,6 @@ class BlockFormat {
 }
 
 class Tracker {
-    
     var userName: String
     var progress: Int
     
@@ -109,7 +107,6 @@ class Tracker {
 }
 
 class TrackerTableView: UITableView {
-    
     var maxHeight: CGFloat = UIScreen.main.bounds.size.height
     
     override func reloadData() {
@@ -123,4 +120,26 @@ class TrackerTableView: UITableView {
         return CGSize(width: contentSize.width, height: height)
     }
     
+}
+
+class KasamFormat {
+    var kasamTitle : String = ""
+    var kasamTiming: String = ""
+    var kasamImage: String = ""
+    var kasamID: String = ""
+    
+}
+
+class KasamPreference {
+    var kasamID: String
+    var kasamName: String
+    var joinedDate: Date
+    var startTime: String
+    
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String){
+        self.kasamID = kasamID
+        self.kasamName = kasamName
+        self.joinedDate = joinedDate
+        self.startTime = startTime
+    }
 }

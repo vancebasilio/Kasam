@@ -22,6 +22,7 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationItem.title = ""
         getFreeKasams()
         getExpertKasams()
         let sendValue = ProfileViewController()

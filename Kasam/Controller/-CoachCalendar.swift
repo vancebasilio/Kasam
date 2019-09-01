@@ -122,7 +122,7 @@ class CoachCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
                         startTime = snap.value as! String
                     }
                 }
-                let perference = KasamPreference(kasamID: kasamID, joinedDate: dateJoined, startTime: startTime)
+                let perference = KasamPreference(kasamID: kasamID, kasamName: "", joinedDate: dateJoined, startTime: startTime)
                 self.kasamPrefernce.append(perference)
                 if self.kasamPrefernce.count == count {completion()}
             }
@@ -172,7 +172,7 @@ class CoachCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
 //                                    print("minute was nil")
 //                                    return
 //                                }
-                                let block = KasamCalendarBlockFormat(title: value["Title"] ?? "", hour: hour , minute: am, duration: value["Duration"] ?? "", image: blockURL!, url: value["Link"] ?? "", creator: "Shawn T")
+                                let block = KasamCalendarBlockFormat(kasamName: value["KasamName"] ?? "", title: value["Title"] ?? "", hour: hour , minute: am, duration: value["Duration"] ?? "", image: blockURL!, url: value["Link"] ?? "", creator: "Shawn T")
                                 self.kasamBlocks.append(block)
                                 sem.signal()
                                 self.tableView.reloadData()
