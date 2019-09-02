@@ -133,14 +133,15 @@ extension UINavigationItem {
         //Remove the standard tints
         UINavigationBar.appearance().backIndicatorImage = finalImage
         UINavigationBar.appearance().backIndicatorTransitionMaskImage = finalImage
-        UINavigationBar.appearance().tintColor = UIColor.baseColor
         UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: .normal)
         UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: UIControl.State.highlighted)
         
-        //Set the navigation bar title to gold
-        let titleDict: NSDictionary = [NSAttributedString.Key.foregroundColor: UIColor.colorFive]
-        UINavigationBar.appearance().titleTextAttributes = titleDict as? [NSAttributedString.Key : Any]
-        
+        //Set the navigation bar title to gold and text color to white        
+        let navigationFont = UIFont.systemFont(ofSize: 20, weight: .semibold)
+        UINavigationBar.appearance().isTranslucent = false
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.init(hex: 0x4b3b00), NSAttributedStringKey.font: navigationFont]
+//        UINavigationBar.appearance().barTintColor = UIColor.init(hex: 0xffc900)
+        UINavigationBar.appearance().barTintColor = UIColor.white
     }
 }
 

@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     override init() {
         super.init()
         FirebaseApp.configure()
-        UITabBar.appearance().tintColor = UIColor.baseColor
+        UITabBar.appearance().tintColor = UIColor.colorFour
     }
     
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {

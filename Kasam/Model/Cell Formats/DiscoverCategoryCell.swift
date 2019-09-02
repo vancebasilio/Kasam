@@ -20,7 +20,5 @@ class DiscoverCategoryCell: UICollectionViewCell {
         topImage.sd_setImage(with: cell.image, placeholderImage: UIImage(named: "placeholder.png"))
         categoryTitle.text = cell.title
         kasamCreator.text = cell.creator
-        topImage.layer.cornerRadius = 8.0
-        topImage.clipsToBounds = true
     }
 }

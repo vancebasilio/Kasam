@@ -43,7 +43,11 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 150
         tableView.reloadData()
-        self.navigationItem.title = ""
+        self.navigationItem.title = "KASAM"
+//        let logo = UIImage(named: "kasam-logo")
+//        let imageView = UIImageView(image:logo)
+//        imageView.contentMode = .scaleAspectFit
+//        self.navigationItem.titleView = imageView
         let calendarUpdate = NSNotification.Name("KasamCalendarUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(KasamCalendar.getContinuedPreferences), name: calendarUpdate, object: nil)
     }
@@ -54,7 +58,6 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
     
     func setupGreeting(){
         if let truncUserFirst = Auth.auth().currentUser?.displayName?.split(separator: " ").first.map(String.init) {
-            greetingLabel.text = "Kasams"
         }
     }
     

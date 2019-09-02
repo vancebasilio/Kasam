@@ -10,33 +10,57 @@ import UIKit
 import Firebase
 import SkeletonView
 
-class DiscoverViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+class DiscoverViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     @IBOutlet weak var discoverCollection: UICollectionView!
     @IBOutlet weak var categoryCollection: UICollectionView!
+    @IBOutlet weak var expertPageControl: UIPageControl!
+    @IBOutlet weak var expertHeight: NSLayoutConstraint!
     
     var freeKasamArray: [freeKasamFormat] = []
     var expertKasamArray: [expertKasamFormat] = []
     var kasamIDGlobal: String = ""
     var kasamTitleGlobal: String = ""
+    var timer = Timer()
+    var counter = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationItem.title = ""
         getFreeKasams()
         getExpertKasams()
         let sendValue = ProfileViewController()
         sendValue.profilePicture()
+        DispatchQueue.main.async {
+            self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
+    @objc func changeImage() {
+        if counter < expertKasamArray.count {
+            let index = IndexPath.init(item: counter, section: 0)
+            self.categoryCollection.scrollToItem(at: index, at: .centeredHorizontally, animated: true)
+            expertPageControl.currentPage = counter
+            counter += 1
+        } else {
+            counter = 0
+            let index = IndexPath.init(item: counter, section: 0)
+            self.categoryCollection.scrollToItem(at: index, at: .centeredHorizontally, animated: false)
+            expertPageControl.currentPage = counter
+            counter = 1
+        }
+    }
+    
     //Number of cells
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == discoverCollection {
-            return freeKasamArray.count
+            let count = freeKasamArray.count
+            expertPageControl.numberOfPages = count
+            expertPageControl.isHidden = !(count > 1)
+            return count
         } else {
             return expertKasamArray.count
         }
@@ -48,6 +72,8 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
             let block = freeKasamArray[indexPath.row]
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FreeKasamCell", for: indexPath) as! DiscoverHorizontalCell
             cell.setBlock(cell: block)
+            cell.topImage.layer.cornerRadius = 8.0
+            cell.topImage.clipsToBounds = true
             return cell
         } else {
             let block = expertKasamArray[indexPath.row]
@@ -71,6 +97,23 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
             kasamIDGlobal = kasamID
             self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if collectionView == categoryCollection {
+            expertHeight.constant = (view.bounds.size.width * (8/13))
+            return CGSize(width: view.bounds.size.width, height: view.bounds.size.width * (8/13))
+        } else {
+            return CGSize(width: view.bounds.size.width / 2, height: view.bounds.size.width / 2.3)
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        expertPageControl?.currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
+    }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        expertPageControl?.currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
