@@ -8,6 +8,7 @@
 
 import UIKit
 import Foundation
+import Firebase
 import AVKit
 
 extension UIViewController {
@@ -20,6 +21,24 @@ extension UIViewController {
     
     @objc func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    func setupGreeting() -> String {
+        let truncUserFirst = Auth.auth().currentUser?.displayName?.split(separator: " ").first.map(String.init) ?? "Username"
+        return truncUserFirst
+    }
+    
+    func navBarShadow(){
+        let logo = UIImage(named: "Kasam-logo7")
+        let imageView = UIImageView(image:logo)
+        imageView.contentMode = .scaleAspectFit
+        self.navigationItem.titleView = imageView
+        
+        self.navigationController?.navigationBar.layer.shadowColor = UIColor.colorFive.cgColor
+        self.navigationController?.navigationBar.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
+        self.navigationController?.navigationBar.layer.shadowRadius = 1.0
+        self.navigationController?.navigationBar.layer.shadowOpacity = 0.5
+        self.navigationController?.navigationBar.layer.masksToBounds = false
     }
     
     func getBlockVideo (url: String){
@@ -76,6 +95,24 @@ extension UIViewController {
             perc -= 0.5
         }
         return blend(from: start, to: end, percent: perc * 2.0)
+    }
+    
+    func getCurrentDateTime() -> String? {
+        let currentDateTime = Date()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .medium
+        formatter.dateStyle = .long
+        let finalDate = formatter.string(from: currentDateTime)
+        return finalDate
+    }
+    
+    func getCurrentDate() -> String? {
+        let currentDateTime = Date()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateStyle = .long
+        let finalDate = formatter.string(from: currentDateTime)
+        return finalDate
     }
 }
 
@@ -140,7 +177,6 @@ extension UINavigationItem {
         let navigationFont = UIFont.systemFont(ofSize: 20, weight: .semibold)
         UINavigationBar.appearance().isTranslucent = false
         UINavigationBar.appearance().titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.init(hex: 0x4b3b00), NSAttributedStringKey.font: navigationFont]
-//        UINavigationBar.appearance().barTintColor = UIColor.init(hex: 0xffc900)
         UINavigationBar.appearance().barTintColor = UIColor.white
     }
 }

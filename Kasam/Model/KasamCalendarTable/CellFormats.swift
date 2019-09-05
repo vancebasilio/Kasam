@@ -58,6 +58,7 @@ class SquareKasamFormat {
 }
 
 class KasamCalendarBlockFormat {
+    var kasamID: String
     var image: URL
     var title: String
     var hour: String
@@ -66,8 +67,11 @@ class KasamCalendarBlockFormat {
     var url: String
     var creator: String
     var kasamName: String
+    var statusType: String
+    var displayStatus: String
     
-    init(kasamName: String, title: String, hour: String, minute: String, duration: String, image: URL, url: String, creator: String){
+    init(kasamID: String, kasamName: String, title: String, hour: String, minute: String, duration: String, image: URL, url: String, creator: String, statusType: String, displayStatus: String){
+        self.kasamID = kasamID
         self.kasamName = kasamName
         self.image = image
         self.title = title
@@ -76,6 +80,8 @@ class KasamCalendarBlockFormat {
         self.duration = duration
         self.url = url
         self.creator = creator
+        self.statusType = statusType
+        self.displayStatus = displayStatus
     }
 }
 

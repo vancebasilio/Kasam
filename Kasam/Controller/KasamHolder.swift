@@ -58,29 +58,27 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         registeredCheck()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-    self.navigationController?.setNavigationBarHidden(false, animated: true)
-    }
-    
     func setupLoad(){
         //setup radius for kasam info block
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
         tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)     //setup floating header
-        constraintHeightHeaerImages.constant = UIScreen.main.bounds.width * 0.568       //setup floating header
-        
-        //change floating navigation bar font
-        self.title = ""
-        headerLabel.textColor = UIColor.colorFive
-        headerLabel.font = UIFont(name: "HelveticaNeue-Bold", size: 17)
+        constraintHeightHeaerImages.constant = UIScreen.main.bounds.width * 0.568                             //setup floating header
 
         if let navBar = self.navigationController?.navigationBar {
             extendedLayoutIncludesOpaqueBars = true
             navBar.isTranslucent = true
-            navBar.backgroundColor = UIColor.clear
+            navBar.backgroundColor = UIColor.white.withAlphaComponent(0)
             navBar.setBackgroundImage(UIImage(), for: .default)
             navBar.shadowImage = UIImage()         //remove bottom border on navigation bar
             navBar.tintColor = UIColor.white       //change back arrow to white
+        }
+    }
+    
+    //puts the navigation bar back for the Discover page
+    override func viewWillDisappear(_ animated: Bool) {
+        if let navBar = self.navigationController?.navigationBar {
+            navBar.backgroundColor = UIColor.white.withAlphaComponent(100)
         }
     }
     

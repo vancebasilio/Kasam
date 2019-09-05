@@ -39,7 +39,7 @@ class RegisterController: UIViewController {
             } else {
                 let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
                 
-                let userDictionary = ["Name": self.firstName.text!, "ProfileImage": "", "UserID": Auth.auth().currentUser?.uid, "Following": "", "Type": "User", "Wins": "5", "Blocks": "7"]
+                let userDictionary = ["Name": self.firstName.text!, "ProfileImage": "", "Score": "0", "History" : "", "UserID": Auth.auth().currentUser?.uid, "Following": "", "Type": "User", "Wins": "5", "Blocks": "7"]
                 
                 newUser.setValue(userDictionary) {
                     (error, reference) in

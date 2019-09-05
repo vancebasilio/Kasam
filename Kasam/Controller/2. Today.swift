@@ -17,7 +17,7 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var calendar: FSCalendar!
     @IBOutlet weak var tableHeight: NSLayoutConstraint!
-    @IBOutlet weak var greetingLabel: UILabel!
+    @IBOutlet weak var kasamsNumber: UILabel!
     
     var kasamBlocks: [KasamCalendarBlockFormat] = []
     var kasamPrefernce: [KasamPreference] = []
@@ -33,21 +33,15 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupGreeting()
         setupTableAndHeader()
+        navBarShadow()
         getPreferences {self.retrieveKasams()}
-        
     }
     
     func setupTableAndHeader(){
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 150
         tableView.reloadData()
-        self.navigationItem.title = "KASAM"
-//        let logo = UIImage(named: "kasam-logo")
-//        let imageView = UIImageView(image:logo)
-//        imageView.contentMode = .scaleAspectFit
-//        self.navigationItem.titleView = imageView
         let calendarUpdate = NSNotification.Name("KasamCalendarUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(KasamCalendar.getContinuedPreferences), name: calendarUpdate, object: nil)
     }
@@ -56,17 +50,14 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
         print("\(#function)")
     }
     
-    func setupGreeting(){
-        if let truncUserFirst = Auth.auth().currentUser?.displayName?.split(separator: " ").first.map(String.init) {
-        }
-    }
-    
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamUserRefHandle: DatabaseHandle!
     var blockUserRef: DatabaseReference!
     var blockUserRefHandle: DatabaseHandle!
     var orderUserRef: DatabaseQuery!
     var orderUserRefHandle: DatabaseHandle!
+    var userHistoryRef: DatabaseReference!
+    var userHistoryRefHandle: DatabaseHandle!
     
     @objc func getContinuedPreferences(){
         getPreferences {self.retrieveKasams()}
@@ -113,37 +104,44 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
             DispatchQueue.global().async {
                 sem.wait()
                 var diff = 0
+                var displayStatus: String?
                 //Going through the blocks under a Kasam
                 if selectedDate >= kasam.joinedDate {
                     diff = Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: selectedDate).day!
                     self.blockUserRef = Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks")
                     self.blockUserRefHandle = self.blockUserRef.observe(.value, with: { (snapshot: DataSnapshot!) in
                         let finalOrder = String(diff % Int(snapshot.childrenCount) + 1)
+                        let currentDate = self.getCurrentDate()
 
                         //Seeing which blocks are needed for the day
                         self.orderUserRef = self.blockUserRef.queryOrdered(byChild: "Order").queryEqual(toValue : finalOrder)
                         self.orderUserRefHandle = self.orderUserRef.observe(.value, with: { (snapshot: DataSnapshot) in
-            
                             //Gets all the info for one block
                             for blockSnap in snapshot.children {
-                                print("In blockSnap with \(kasam.kasamID)")
                                 let valueSnapshot = blockSnap as! DataSnapshot
                                 let value = valueSnapshot.value as! [String:String]
                                 let blockURL = URL(string: value["Image"] ?? "")
                                 var hour = ""
-                
-                                if let range = kasam.startTime.range(of: ":") {
-                                    let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
-                                    hour = String(format: "%02d", Int(firstPart)!)
-                                }
-        //              let am = String(startTime.suffix(2))
-                                guard let minute = kasam.startTime.slice(from: ":", to: " ") else {
-                                    return
-                                    }
-                                let block = KasamCalendarBlockFormat(kasamName: kasam.kasamName, title: value["Title"] ?? "", hour: hour , minute: minute, duration: value["Duration"] ?? "", image: blockURL!, url: value["Link"] ?? "", creator: "Shawn T")
-                                    self.kasamBlocks.append(block)
-                                    sem.signal()
-                                    self.tableView.reloadData()
+                                
+                                //Checks if user has completed Kasam for the current day
+                                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).observeSingleEvent(of: .value, with: { (snapshot) in
+                                    displayStatus = "Check"
+                                        if snapshot.hasChild(currentDate ?? ""){
+                                                displayStatus = "Check" //Kasam has been completed today
+                                            } else {
+                                                displayStatus = value["Status"] ?? "BlockStatus" //Kasam has NOT been completed today
+                                            }
+                                            if let range = kasam.startTime.range(of: ":") {
+                                                let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
+                                                hour = String(format: "%02d", Int(firstPart)!)
+                                            }
+                                            guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
+                                    let block = KasamCalendarBlockFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, title: value["Title"] ?? "", hour: hour , minute: minute, duration: value["Duration"] ?? "", image: blockURL!, url: value["Link"] ?? "", creator: "Shawn T", statusType: value["Status"] ?? "Status Type", displayStatus: displayStatus ?? "Display Status")
+                                            print("block value sent is \(displayStatus!)")
+                                            self.kasamBlocks.append(block)
+                                            sem.signal()
+                                            self.tableView.reloadData()
+                                        })
                                     }
                                 })
                             })
@@ -161,6 +159,7 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
         stopObserving(ref: kasamUserRef, handle: kasamUserRefHandle)
         stopObserving(ref: blockUserRef, handle: blockUserRefHandle)
         stopObserving(ref: orderUserRef, handle: orderUserRefHandle)
+        stopObserving(ref: userHistoryRef, handle: userHistoryRefHandle)
     }
     
     func stopObserving(ref: AnyObject?, handle: DatabaseHandle?) {
@@ -203,8 +202,14 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
 }
 
 extension KasamCalendar: UITableViewDataSource, UITableViewDelegate {
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if kasamBlocks.count == 0 {
+            self.kasamsNumber.text = "You have no kasams today"
+        } else if kasamBlocks.count > 1 {
+            self.kasamsNumber.text = "You have \(kasamBlocks.count) kasams to keep today"
+        } else {
+            self.kasamsNumber.text = "You have \(kasamBlocks.count) kasam to keep today"
+        }
         return kasamBlocks.count
     }
     
@@ -217,6 +222,7 @@ extension KasamCalendar: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let block = kasamBlocks[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "CalendarKasamBlock") as! KasamCalendarCell
+        cell.delegate = self
         if indexPath.row != kasamBlocks.count - 1 {
             cell.setBlock(block: block, end: false)
         } else {
@@ -229,5 +235,18 @@ extension KasamCalendar: UITableViewDataSource, UITableViewDelegate {
         let blockID = kasamBlocks[indexPath.row].url
         blockURLGlobal = blockID
         getBlockVideo(url: blockID)
+    }
+}
+
+extension KasamCalendar: KasamCalendarCellDelegate {
+    func clickedButton(kasamID: String, blockID: String, status: String) {
+        let statusDateTime = getCurrentDateTime()
+        let statusDate = getCurrentDate()
+        print(status)
+        //Adds the status data as a subset of the Status
+        if status == "Check" { Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime"]) {(error, reference) in}
+        } else {
+            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDateTime").removeValue()
+        }
     }
 }

@@ -16,6 +16,7 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
     @IBOutlet weak var categoryCollection: UICollectionView!
     @IBOutlet weak var expertPageControl: UIPageControl!
     @IBOutlet weak var expertHeight: NSLayoutConstraint!
+    @IBOutlet weak var popularHeight: NSLayoutConstraint!
     
     var freeKasamArray: [freeKasamFormat] = []
     var expertKasamArray: [expertKasamFormat] = []
@@ -28,15 +29,10 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
         super.viewDidLoad()
         getFreeKasams()
         getExpertKasams()
-        let sendValue = ProfileViewController()
-        sendValue.profilePicture()
+        navBarShadow()
         DispatchQueue.main.async {
             self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
         }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
     @objc func changeImage() {
@@ -104,6 +100,7 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
             expertHeight.constant = (view.bounds.size.width * (8/13))
             return CGSize(width: view.bounds.size.width, height: view.bounds.size.width * (8/13))
         } else {
+            popularHeight.constant = (view.bounds.size.width / 2.3)
             return CGSize(width: view.bounds.size.width / 2, height: view.bounds.size.width / 2.3)
         }
     }

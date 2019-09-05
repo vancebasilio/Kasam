@@ -35,19 +35,38 @@ class ViewController: UIViewController {
     }
     
     @objc func CustomFBLogin(){
-        LoginManager().logIn(permissions: ["email", "public_profile"], from: self)
-        { (result: LoginManagerLoginResult?, error: Error?) in
+        LoginManager().logIn(permissions: ["email", "public_profile"], from: self) { (result: LoginManagerLoginResult?, error: Error?) in
             if error == nil {
-                if result!.isCancelled {
-                    return
-                }
+                if result!.isCancelled {return}
                 let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.tokenString)
                 Auth.auth().signIn(with: credential) { (authResult, error) in
                     if let error = error {
+                        //error signing new user in
                         print(error.localizedDescription)
                         return
                     }
-                    print(authResult?.user.displayName! as Any)
+                    let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
+                    let userDictionary = ["Name": authResult?.user.displayName!, "ProfileImage": "", "Score": "0", "History" : "", "UserID": Auth.auth().currentUser?.uid, "Following": "", "Type": "User", "Wins": "5", "Blocks": "7"]
+                    
+                    newUser.setValue(userDictionary) {
+                        (error, reference) in
+                        if error != nil {
+                            print(error!)
+                        } else {
+                            print ("Registration Successful!")
+                        }
+                    }
+                    
+                    let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
+                    changeRequest?.displayName = authResult?.user.displayName!
+                    changeRequest?.commitChanges { (error) in
+                        if error != nil{
+                            print(error!)
+                        } else {
+                            print ("username update successful!")
+                            self.performSegue(withIdentifier: "goToMainUser", sender: self)
+                        }
+                    }
                     self.dismiss(animated: true, completion: nil)
                 }
             } else {
