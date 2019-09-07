@@ -57,7 +57,7 @@ class SquareKasamFormat {
     }
 }
 
-class KasamCalendarBlockFormat {
+class TodayBlockFormat {
     var kasamID: String
     var image: URL
     var title: String
@@ -82,6 +82,24 @@ class KasamCalendarBlockFormat {
         self.creator = creator
         self.statusType = statusType
         self.displayStatus = displayStatus
+    }
+}
+
+class KasamActivityCellFormat {
+    var kasamID: String
+    var blockID: String
+    var activityTitle: String
+    var activityDescription: String
+    var totalNo: String
+    var image: String
+    
+    init(kasamID: String, blockID: String, title: String, description: String, totalNo: String, image: String){
+        self.kasamID = kasamID
+        self.blockID = blockID
+        self.activityTitle = title
+        self.activityDescription = description
+        self.totalNo = totalNo
+        self.image = image
     }
 }
 

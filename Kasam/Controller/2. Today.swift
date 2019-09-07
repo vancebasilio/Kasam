@@ -11,19 +11,23 @@ import Foundation
 import FSCalendar
 import Firebase
 import SDWebImage
+import Lottie
 
-class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate, UIGestureRecognizerDelegate {
+class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalendarDelegate, UIGestureRecognizerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var calendar: FSCalendar!
     @IBOutlet weak var tableHeight: NSLayoutConstraint!
     @IBOutlet weak var kasamsNumber: UILabel!
     
-    var kasamBlocks: [KasamCalendarBlockFormat] = []
+    var kasamBlocks: [TodayBlockFormat] = []
     var kasamPrefernce: [KasamPreference] = []
     var blockURLGlobal = ""
     var dateSelected = ""
+    var kasamIDGlobal = ""
+    var blockIDGlobal = ""
     let semaphore = DispatchSemaphore(value: 1)
+    let animationView = AnimationView()
     
     fileprivate lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -36,6 +40,8 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
         setupTableAndHeader()
         navBarShadow()
         getPreferences {self.retrieveKasams()}
+        let stopLoadingAnimation = NSNotification.Name("RemoveLoadingAnimation")
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
     }
     
     func setupTableAndHeader(){
@@ -43,7 +49,7 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
         tableView.estimatedRowHeight = 150
         tableView.reloadData()
         let calendarUpdate = NSNotification.Name("KasamCalendarUpdate")
-        NotificationCenter.default.addObserver(self, selector: #selector(KasamCalendar.getContinuedPreferences), name: calendarUpdate, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.getContinuedPreferences), name: calendarUpdate, object: nil)
     }
 
     deinit {
@@ -56,11 +62,14 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
     var blockUserRefHandle: DatabaseHandle!
     var orderUserRef: DatabaseQuery!
     var orderUserRefHandle: DatabaseHandle!
-    var userHistoryRef: DatabaseReference!
-    var userHistoryRefHandle: DatabaseHandle!
     
     @objc func getContinuedPreferences(){
         getPreferences {self.retrieveKasams()}
+    }
+    
+    @objc func stopLoadingAnimation(){
+        animationView.removeFromSuperview()
+        print("hello")
     }
     
     func getPreferences(_ completion: @escaping () -> ()) {
@@ -86,7 +95,10 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
                 }
                 let preference = KasamPreference(kasamID: kasamID, kasamName: kasamName, joinedDate: dateJoined, startTime: startTime)
                 self.kasamPrefernce.append(preference)
-                if self.kasamPrefernce.count == count {completion()}
+                if self.kasamPrefernce.count == count {
+                    completion()
+                    print ("kasamPreferences stopped observing")
+                }
             }
         })
     }
@@ -119,8 +131,8 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
                             //Gets all the info for one block
                             for blockSnap in snapshot.children {
                                 let valueSnapshot = blockSnap as! DataSnapshot
-                                let value = valueSnapshot.value as! [String:String]
-                                let blockURL = URL(string: value["Image"] ?? "")
+                                let value = valueSnapshot.value as! [String:Any]
+                                let blockURL = URL(string: value["Image"] as! String)
                                 var hour = ""
                                 
                                 //Checks if user has completed Kasam for the current day
@@ -129,14 +141,14 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
                                         if snapshot.hasChild(currentDate ?? ""){
                                                 displayStatus = "Check" //Kasam has been completed today
                                             } else {
-                                                displayStatus = value["Status"] ?? "BlockStatus" //Kasam has NOT been completed today
+                                                displayStatus = value["Status"] as?  String //Kasam has NOT been completed today
                                             }
                                             if let range = kasam.startTime.range(of: ":") {
                                                 let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
                                                 hour = String(format: "%02d", Int(firstPart)!)
                                             }
                                             guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
-                                    let block = KasamCalendarBlockFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, title: value["Title"] ?? "", hour: hour , minute: minute, duration: value["Duration"] ?? "", image: blockURL!, url: value["Link"] ?? "", creator: "Shawn T", statusType: value["Status"] ?? "Status Type", displayStatus: displayStatus ?? "Display Status")
+                                    let block = TodayBlockFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, title: value["Title"] as! String, hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL!, url: value["Link"] as! String, creator: "Shawn T", statusType: value["Status"] as! String, displayStatus: displayStatus ?? "Display Status")
                                             print("block value sent is \(displayStatus!)")
                                             self.kasamBlocks.append(block)
                                             sem.signal()
@@ -150,17 +162,8 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
                         }
                     }
                 }
-            self.tableView.reloadData()
+                self.tableView.reloadData()
             }
-    
-    //Stops the observer
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        stopObserving(ref: kasamUserRef, handle: kasamUserRefHandle)
-        stopObserving(ref: blockUserRef, handle: blockUserRefHandle)
-        stopObserving(ref: orderUserRef, handle: orderUserRefHandle)
-        stopObserving(ref: userHistoryRef, handle: userHistoryRefHandle)
-    }
     
     func stopObserving(ref: AnyObject?, handle: DatabaseHandle?) {
         guard ref != nil else {
@@ -199,9 +202,23 @@ class KasamCalendar: UIViewController, FSCalendarDataSource, FSCalendarDelegate,
         let joinedDate = dateFormatter.date(from: datein)
         return joinedDate!
     }
+    
+    func loadingAnimation(){
+        animationView.animation = Animation.named("690-loading")
+        animationView.contentMode = .scaleAspectFit
+        view.addSubview(animationView)
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        animationView.centerXAnchor.constraint(lessThanOrEqualTo: self.view.centerXAnchor).isActive = true
+        animationView.centerYAnchor.constraint(lessThanOrEqualTo: self.view.centerYAnchor).isActive = true
+        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 100).isActive = true
+        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 100).isActive = true
+        animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
+        animationView.play()
+        animationView.loopMode = .loop
+    }
 }
 
-extension KasamCalendar: UITableViewDataSource, UITableViewDelegate {
+extension TodayBlocksViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if kasamBlocks.count == 0 {
             self.kasamsNumber.text = "You have no kasams today"
@@ -221,7 +238,7 @@ extension KasamCalendar: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let block = kasamBlocks[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CalendarKasamBlock") as! KasamCalendarCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CalendarKasamBlock") as! TodayBlockCell
         cell.delegate = self
         if indexPath.row != kasamBlocks.count - 1 {
             cell.setBlock(block: block, end: false)
@@ -232,13 +249,23 @@ extension KasamCalendar: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let blockID = kasamBlocks[indexPath.row].url
-        blockURLGlobal = blockID
-        getBlockVideo(url: blockID)
+        loadingAnimation()
+        UIApplication.shared.beginIgnoringInteractionEvents()
+        kasamIDGlobal = kasamBlocks[indexPath.row].kasamID
+        blockIDGlobal = kasamBlocks[indexPath.row].title
+        performSegue(withIdentifier: "goToKasamViewer", sender: indexPath)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToKasamViewer" {
+            let kasamActivityHolder = segue.destination as! KasamViewer
+            kasamActivityHolder.kasamID = kasamIDGlobal
+            kasamActivityHolder.blockID = blockIDGlobal
+        }
     }
 }
 
-extension KasamCalendar: KasamCalendarCellDelegate {
+extension TodayBlocksViewController: TodayCellDelegate {
     func clickedButton(kasamID: String, blockID: String, status: String) {
         let statusDateTime = getCurrentDateTime()
         let statusDate = getCurrentDate()

@@ -21,6 +21,8 @@
 		BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC3AAA1F227D46BA00D098E1 /* TabBar.swift */; };
 		BC40C43622BC380900BCBA8D /* -CoachCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC40C43522BC380900BCBA8D /* -CoachCalendar.swift */; };
 		BC40C43822BC386700BCBA8D /* -CoachKasams.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC40C43722BC386700BCBA8D /* -CoachKasams.swift */; };
+		BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC45558C2321F6D300F1227B /* KasamViewerCell.swift */; };
+		BC47E18423241DC800842ADF /* 690-loading.json in Resources */ = {isa = PBXBuildFile; fileRef = BC47E18323241DC800842ADF /* 690-loading.json */; };
 		BC520BBB227413E100553C6B /* Transitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC520BBA227413E100553C6B /* Transitions.swift */; };
 		BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD1226D6EF900D707CC /* 1. Discover.swift */; };
 		BC554BD6226D8BDB00D707CC /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD5226D8BDB00D707CC /* UIColor.swift */; };
@@ -31,8 +33,9 @@
 		BC5C499C228122BB00EC0EA8 /* KasamSquareCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */; };
 		BC68BC5F22838A8800240CE9 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC68BC5E22838A8800240CE9 /* ImageService.swift */; };
 		BC68BC6122838B3700240CE9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BC68BC6022838B3700240CE9 /* GoogleService-Info.plist */; };
+		BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6E97842321DF7800698EB9 /* KasamViewer.swift */; };
 		BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */; };
-		BC96F8482292085200E161FC /* KasamCalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC96F8462292085200E161FC /* KasamCalendarCell.swift */; };
+		BC96F8482292085200E161FC /* TodayBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC96F8462292085200E161FC /* TodayBlockCell.swift */; };
 		BC9C2424226FD6FF00E7B64B /* NewKasam.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C2423226FD6FF00E7B64B /* NewKasam.swift */; };
 		BC9C7841228CD2DB000C8D0A /* 2. Today.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C7840228CD2DB000C8D0A /* 2. Today.swift */; };
 		BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06122A9D22E008C5A7D /* AppContainer.swift */; };
@@ -70,6 +73,8 @@
 		BC3AAA1F227D46BA00D098E1 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
 		BC40C43522BC380900BCBA8D /* -CoachCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-CoachCalendar.swift"; sourceTree = "<group>"; };
 		BC40C43722BC386700BCBA8D /* -CoachKasams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-CoachKasams.swift"; sourceTree = "<group>"; };
+		BC45558C2321F6D300F1227B /* KasamViewerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewerCell.swift; sourceTree = "<group>"; };
+		BC47E18323241DC800842ADF /* 690-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "690-loading.json"; path = "../../../../../../Downloads/690-loading.json"; sourceTree = "<group>"; };
 		BC520BBA227413E100553C6B /* Transitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transitions.swift; sourceTree = "<group>"; };
 		BC554BD1226D6EF900D707CC /* 1. Discover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "1. Discover.swift"; sourceTree = "<group>"; };
 		BC554BD5226D8BDB00D707CC /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
@@ -80,8 +85,9 @@
 		BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamSquareCell.swift; sourceTree = "<group>"; };
 		BC68BC5E22838A8800240CE9 /* ImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		BC68BC6022838B3700240CE9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		BC6E97842321DF7800698EB9 /* KasamViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewer.swift; sourceTree = "<group>"; };
 		BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+constraints.swift"; sourceTree = "<group>"; };
-		BC96F8462292085200E161FC /* KasamCalendarCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KasamCalendarCell.swift; sourceTree = "<group>"; };
+		BC96F8462292085200E161FC /* TodayBlockCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayBlockCell.swift; sourceTree = "<group>"; };
 		BC9C2423226FD6FF00E7B64B /* NewKasam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewKasam.swift; sourceTree = "<group>"; };
 		BC9C7840228CD2DB000C8D0A /* 2. Today.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "2. Today.swift"; sourceTree = "<group>"; };
 		BCA9A06122A9D22E008C5A7D /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
@@ -179,7 +185,8 @@
 				BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */,
 				BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */,
 				BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */,
-				BC96F8462292085200E161FC /* KasamCalendarCell.swift */,
+				BC96F8462292085200E161FC /* TodayBlockCell.swift */,
+				BC45558C2321F6D300F1227B /* KasamViewerCell.swift */,
 				BCF2A76A227F08F0009D2368 /* BlocksCell.swift */,
 				BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */,
 				BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */,
@@ -220,11 +227,12 @@
 				BCA9A06122A9D22E008C5A7D /* AppContainer.swift */,
 				BC1FAF2C2269FAFA006A9245 /* AppDelegate.swift */,
 				BCED16E72283A166008DF3EC /* AddKasamPopup.swift */,
-				BCE50BDC22D0497B000F2534 /* KasamHolder.swift */,
 				BC01664422D53E970073186D /* CoachHolder.swift */,
 				BC554BD1226D6EF900D707CC /* 1. Discover.swift */,
 				BC9C7840228CD2DB000C8D0A /* 2. Today.swift */,
 				BC554BD7226E079100D707CC /* 3. User-Profile.swift */,
+				BCE50BDC22D0497B000F2534 /* KasamHolder.swift */,
+				BC6E97842321DF7800698EB9 /* KasamViewer.swift */,
 				BC207A7B228BABBE00C14317 /* -Calendar.swift */,
 				BC1955E1228780B100CBF842 /* -Following.swift */,
 				BC40C43522BC380900BCBA8D /* -CoachCalendar.swift */,
@@ -240,6 +248,7 @@
 		BCC79A00226BD50600B72D65 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BC47E18323241DC800842ADF /* 690-loading.json */,
 				BC1FAF382269FAFA006A9245 /* Info.plist */,
 				BC68BC6022838B3700240CE9 /* GoogleService-Info.plist */,
 			);
@@ -318,6 +327,7 @@
 			files = (
 				BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */,
 				BC1FAF372269FAFA006A9245 /* LaunchScreen.storyboard in Resources */,
+				BC47E18423241DC800842ADF /* 690-loading.json in Resources */,
 				BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */,
 				BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */,
 				BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */,
@@ -375,6 +385,7 @@
 				"${BUILT_PRODUCTS_DIR}/SkeletonView/SkeletonView.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftIcons/SwiftIcons.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/lottie-ios/Lottie.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -400,6 +411,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SkeletonView.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftIcons.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Lottie.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -415,6 +427,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC1FAF2F2269FAFA006A9245 /* LogIn.swift in Sources */,
+				BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */,
 				BCFCB43522AF02C900DC2DD7 /* DiscoverHCell.swift in Sources */,
 				BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */,
 				BCE50BE022D04A37000F2534 /* FXBlurView.m in Sources */,
@@ -427,7 +440,7 @@
 				BCFCB43722AF04EA00DC2DD7 /* DiscoverCategoryCell.swift in Sources */,
 				BC554BD6226D8BDB00D707CC /* UIColor.swift in Sources */,
 				BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */,
-				BC96F8482292085200E161FC /* KasamCalendarCell.swift in Sources */,
+				BC96F8482292085200E161FC /* TodayBlockCell.swift in Sources */,
 				BC207A7C228BABBE00C14317 /* -Calendar.swift in Sources */,
 				BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */,
 				BC01664522D53E970073186D /* CoachHolder.swift in Sources */,
@@ -446,6 +459,7 @@
 				BC554BD8226E079100D707CC /* 3. User-Profile.swift in Sources */,
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
 				BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */,
+				BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

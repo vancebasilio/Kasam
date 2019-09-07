@@ -11,6 +11,18 @@ import Foundation
 import Firebase
 import AVKit
 
+class ProgessView: UIProgressView {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        let maskLayerPath = UIBezierPath(roundedRect: bounds, cornerRadius: 4.0)
+        let maskLayer = CAShapeLayer()
+        maskLayer.frame = self.bounds
+        maskLayer.path = maskLayerPath.cgPath
+        layer.mask = maskLayer
+    }
+}
+
 extension UIViewController {
     //func to hide keyboard when screen tapped
     func hideKeyboardWhenTappedAround() {
