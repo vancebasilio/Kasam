@@ -75,13 +75,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    //puts the navigation bar back for the Discover page
-    override func viewWillDisappear(_ animated: Bool) {
-        if let navBar = self.navigationController?.navigationBar {
-            navBar.backgroundColor = UIColor.white.withAlphaComponent(100)
-        }
-    }
-    
     @IBAction func coachNamePress(_ sender: Any) {
         self.performSegue(withIdentifier: "goToCoach", sender: self)
     }

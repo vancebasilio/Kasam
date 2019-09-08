@@ -35,6 +35,13 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        if let navBar = self.navigationController?.navigationBar {
+            navBar.backgroundColor = UIColor.white.withAlphaComponent(100)
+        }
+    }
+
+    
     @objc func changeImage() {
         if counter < expertKasamArray.count {
             let index = IndexPath.init(item: counter, section: 0)

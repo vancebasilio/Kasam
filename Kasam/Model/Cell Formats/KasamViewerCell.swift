@@ -16,23 +16,27 @@ class KasamViewerCell: UITableViewCell {
     @IBOutlet weak var activityDescription: UILabel!
     @IBOutlet weak var startButton: UIButton!
     @IBOutlet weak var pickerView: UIPickerView!
+    @IBOutlet weak var doneButton: UIButton!
+    @IBOutlet weak var metricTotal: UILabel!
     
     var animatedImageLocation: String?
-    let dataSource = ["1", "2", "3","4","5"]
+    var buttoncheck = 0
+    var pickerMetric = 0
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        print("hello")
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
         pickerView.delegate = self
         pickerView.dataSource = self
-        startButton.backgroundColor = UIColor.black
         startButton.layer.cornerRadius = 20.0
+        doneButton.layer.cornerRadius = 20.0
     }
     
     func setKasamViewer(activity: KasamActivityCellFormat) {
         activityTitle.text = activity.activityTitle
         activityDescription.text = activity.activityDescription
+        metricTotal.text = activity.totalNo
+        pickerMetric = Int(activity.totalNo) ?? 20
         animatedImageView.sd_setImage(with: URL(string: activity.image)) { (image, error, cache, url) in
             if image != nil {
                 self.animatedImageView.stopAnimating()
@@ -45,8 +49,16 @@ class KasamViewerCell: UITableViewCell {
         animatedImageView.stopAnimating()
     }
     
-    @IBAction func startButton(_ sender: UIButton) {
-        animatedImageView.startAnimating()
+    @IBAction func startButton(_ sender: Any) {
+        if buttoncheck == 0 {
+            animatedImageView.startAnimating()
+            startButton.setTitle("Stop", for: .normal)
+            buttoncheck = 1
+        } else if buttoncheck == 1 {
+            animatedImageView.stopAnimating()
+            startButton.setTitle("Start", for: .normal)
+            buttoncheck = 0
+        }
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -61,21 +73,19 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return 5
+        return pickerMetric
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return dataSource[row]
+        return String(row+1)
     }
     
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         var label = UILabel()
         if let v = view as? UILabel { label = v }
-        label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-        label.text =  dataSource[row]
+        label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
+        label.text =  String(row+1)
         label.textAlignment = .right
         return label
     }
-    
-    
 }
