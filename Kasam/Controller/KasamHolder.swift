@@ -227,11 +227,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             if snapshot.hasChild((Auth.auth().currentUser?.uid)!){
                 //registered
                 self.registerCheck = 1
-                self.addButton.setBackgroundImage(UIImage(named: "check_mark.png"), for: UIControlState.normal)
+                self.addButton.setBackgroundImage(UIImage(named: "check_mark.png"), for: UIControl.State.normal)
             } else{
                 //not registered
                 self.registerCheck = 0
-                self.addButton.setBackgroundImage(UIImage(named: "add-icon.png"), for: UIControlState.normal)
+                self.addButton.setBackgroundImage(UIImage(named: "add-icon.png"), for: UIControl.State.normal)
             }
         })
     }
@@ -239,7 +239,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func setupBlurImage(){
         headerBlurImageView = UIImageView(frame: headerView.bounds)
         headerBlurImageView?.backgroundColor = UIColor.white
-        headerBlurImageView?.contentMode = UIViewContentMode.scaleAspectFill
+        headerBlurImageView?.contentMode = UIView.ContentMode.scaleAspectFill
         headerBlurImageView?.alpha = 0.0
         headerView.clipsToBounds = true
         headerView.insertSubview(headerBlurImageView, belowSubview: headerLabel)

@@ -23,6 +23,7 @@ pod 'Cosmos', '~> 19.0'
 pod 'SkeletonView'
 pod 'SwiftIcons'
 pod 'lottie-ios'
+pod 'SwiftEntryKit'
 
 end
 

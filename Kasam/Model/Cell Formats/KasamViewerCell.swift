@@ -8,6 +8,7 @@
 
 import UIKit
 import SDWebImage
+import SwiftEntryKit
 
 class KasamViewerCell: UITableViewCell {
 
@@ -59,6 +60,10 @@ class KasamViewerCell: UITableViewCell {
             startButton.setTitle("Start", for: .normal)
             buttoncheck = 0
         }
+    }
+    
+    @IBAction func doneButton(_ sender: Any) {
+        
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {

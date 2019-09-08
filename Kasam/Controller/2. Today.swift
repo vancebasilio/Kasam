@@ -45,7 +45,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     }
     
     func setupTableAndHeader(){
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 150
         tableView.reloadData()
         let calendarUpdate = NSNotification.Name("KasamCalendarUpdate")
@@ -231,7 +231,7 @@ extension TodayBlocksViewController: UITableViewDataSource, UITableViewDelegate 
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let height = UITableViewAutomaticDimension
+        let height = UITableView.automaticDimension
         tableView.estimatedRowHeight = 150
         return height
     }

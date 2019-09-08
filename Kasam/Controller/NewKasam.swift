@@ -56,7 +56,7 @@ class NewKasamViewController: UIViewController {
     //Saves Kasam Image in Firebase Storage
         let storageRef = Storage.storage().reference().child("kasam/\(kasamID.key!)")
         guard let image = self.profileImage.image else { return }
-        guard let imageData = UIImageJPEGRepresentation(image, 0.2) else { return }
+        guard let imageData = image.jpegData(compressionQuality: 0.2) else { return }
         let metaData = StorageMetadata()
         metaData.contentType = "image/jpg"
         
@@ -94,9 +94,9 @@ extension NewKasamViewController: UIImagePickerControllerDelegate, UINavigationC
         picker.dismiss(animated: true, completion: nil)
     }
     
-    private func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    private func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {        
         
-        if let pickedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
+        if let pickedImage = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage {
             self.profileImage.image = pickedImage
         }
         picker.dismiss(animated: true, completion :nil)

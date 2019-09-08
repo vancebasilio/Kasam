@@ -74,7 +74,7 @@ class CalendarViewController: UIViewController, UITableViewDelegate, UITableView
     
     func configureTableView(){
         kasamTableView.estimatedRowHeight = kasamTableView.rowHeight
-        kasamTableView.rowHeight = UITableViewAutomaticDimension
+        kasamTableView.rowHeight = UITableView.automaticDimension
     }
     
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")

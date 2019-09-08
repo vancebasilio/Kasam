@@ -17,6 +17,7 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
     @IBOutlet weak var expertPageControl: UIPageControl!
     @IBOutlet weak var expertHeight: NSLayoutConstraint!
     @IBOutlet weak var popularHeight: NSLayoutConstraint!
+    @IBOutlet weak var scrollView: UIScrollView!
     
     var freeKasamArray: [freeKasamFormat] = []
     var expertKasamArray: [expertKasamFormat] = []
@@ -35,13 +36,18 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
         }
     }
     
+    //Puts the nav bars back
     override func viewWillAppear(_ animated: Bool) {
         if let navBar = self.navigationController?.navigationBar {
             navBar.backgroundColor = UIColor.white.withAlphaComponent(100)
         }
     }
+    override func viewDidAppear(_ animated: Bool) {
+        if let navBar = self.navigationController?.navigationBar {
+            navBar.isTranslucent = false
+        }
+    }
 
-    
     @objc func changeImage() {
         if counter < expertKasamArray.count {
             let index = IndexPath.init(item: counter, section: 0)

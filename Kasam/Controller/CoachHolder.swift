@@ -140,7 +140,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     func setupBlurImage(){
         headerBlurImageView = UIImageView(frame: headerView.bounds)
         headerBlurImageView?.backgroundColor = UIColor.white
-        headerBlurImageView?.contentMode = UIViewContentMode.scaleAspectFill
+        headerBlurImageView?.contentMode = UIView.ContentMode.scaleAspectFill
         headerBlurImageView?.alpha = 0.0
         headerView.clipsToBounds = true
         headerView.insertSubview(headerBlurImageView, belowSubview: headerLabel)

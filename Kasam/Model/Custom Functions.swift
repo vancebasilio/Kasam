@@ -188,7 +188,7 @@ extension UINavigationItem {
         //Set the navigation bar title to gold and text color to white        
         let navigationFont = UIFont.systemFont(ofSize: 20, weight: .semibold)
         UINavigationBar.appearance().isTranslucent = false
-        UINavigationBar.appearance().titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.init(hex: 0x4b3b00), NSAttributedStringKey.font: navigationFont]
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.init(hex: 0x4b3b00), NSAttributedString.Key.font: navigationFont]
         UINavigationBar.appearance().barTintColor = UIColor.white
     }
 }
