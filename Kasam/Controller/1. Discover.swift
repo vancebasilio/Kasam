@@ -17,7 +17,6 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
     @IBOutlet weak var expertPageControl: UIPageControl!
     @IBOutlet weak var expertHeight: NSLayoutConstraint!
     @IBOutlet weak var popularHeight: NSLayoutConstraint!
-    @IBOutlet weak var scrollView: UIScrollView!
     
     var freeKasamArray: [freeKasamFormat] = []
     var expertKasamArray: [expertKasamFormat] = []

@@ -56,6 +56,8 @@ class TodayBlockCell: UITableViewCell {
             statusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: 30, color: UIColor.colorFour, forState: .normal)
         } else if block.displayStatus == "Check" {
             statusButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: 30, color: UIColor.init(hex: 0x007f00), forState: .normal)
+        } else if block.displayStatus == "Progress" {
+            statusButton?.setIcon(icon: .fontAwesomeSolid(.spinner), iconSize: 30, color: UIColor.colorFour, forState: .normal)
         }
 
         //Cell formatting

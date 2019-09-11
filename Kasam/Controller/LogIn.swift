@@ -44,7 +44,15 @@ class ViewController: UIViewController {
                         //error signing new user in
                         print(error.localizedDescription)
                         return
-                    }
+                    } else {
+                    
+                    let ref = Database.database().reference().child("Users")
+                    ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                    //if the user exists, don't add data
+                    if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {return}
+                        else {
+                    
+                    //for new registration
                     let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
                     let userDictionary = ["Name": authResult?.user.displayName!, "ProfileImage": "", "Score": "0", "History" : "", "UserID": Auth.auth().currentUser?.uid, "Following": "", "Type": "User", "Wins": "5", "Blocks": "7"]
                     
@@ -65,12 +73,17 @@ class ViewController: UIViewController {
                         } else {
                             print ("username update successful!")
                             self.performSegue(withIdentifier: "goToMainUser", sender: self)
-                        }
+                            //end of new registration section
+                            }
+                            }
+                            }
+                        })
                     }
-                    self.dismiss(animated: true, completion: nil)
                 }
-            } else {
+                    self.dismiss(animated: true, completion: nil)
+                } else { //else for first error
                 print(error?.localizedDescription as Any)
+                return
             }
         }
     }

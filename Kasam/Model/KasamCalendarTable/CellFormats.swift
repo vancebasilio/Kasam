@@ -67,10 +67,11 @@ class TodayBlockFormat {
     var url: String
     var creator: String
     var kasamName: String
+    var totalMetric: String
     var statusType: String
     var displayStatus: String
     
-    init(kasamID: String, kasamName: String, title: String, hour: String, minute: String, duration: String, image: URL, url: String, creator: String, statusType: String, displayStatus: String){
+    init(kasamID: String, kasamName: String, title: String, hour: String, minute: String, duration: String, image: URL, url: String, creator: String, totalMetric: String, statusType: String, displayStatus: String){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.image = image
@@ -80,6 +81,7 @@ class TodayBlockFormat {
         self.duration = duration
         self.url = url
         self.creator = creator
+        self.totalMetric = totalMetric
         self.statusType = statusType
         self.displayStatus = displayStatus
     }
@@ -90,15 +92,17 @@ class KasamActivityCellFormat {
     var blockID: String
     var activityTitle: String
     var activityDescription: String
-    var totalNo: String
+    var totalMetric: String
+    var currentMetric: Int
     var image: String
     
-    init(kasamID: String, blockID: String, title: String, description: String, totalNo: String, image: String){
+    init(kasamID: String, blockID: String, title: String, description: String, totalMetric: String, currentMetric: Int, image: String){
         self.kasamID = kasamID
         self.blockID = blockID
         self.activityTitle = title
         self.activityDescription = description
-        self.totalNo = totalNo
+        self.totalMetric = totalMetric
+        self.currentMetric = currentMetric
         self.image = image
     }
 }

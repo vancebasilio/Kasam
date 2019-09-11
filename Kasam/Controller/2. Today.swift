@@ -42,6 +42,8 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         getPreferences {self.retrieveKasams()}
         let stopLoadingAnimation = NSNotification.Name("RemoveLoadingAnimation")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
+        let retrieveKasams = NSNotification.Name("RetrieveKasams")
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.retrieveKasams), name: retrieveKasams, object: nil)
     }
     
     func setupTableAndHeader(){
@@ -69,7 +71,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     
     @objc func stopLoadingAnimation(){
         animationView.removeFromSuperview()
-        print("hello")
     }
     
     func getPreferences(_ completion: @escaping () -> ()) {
@@ -103,7 +104,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         })
     }
     
-    func retrieveKasams() {
+    @objc func retrieveKasams() {
         self.kasamBlocks.removeAll()
         let kasamPreferences = self.kasamPrefernce
         let sem = DispatchSemaphore(value: 1)
@@ -136,20 +137,24 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                 var hour = ""
                                 
                                 //Checks if user has completed Kasam for the current day
-                                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).observeSingleEvent(of: .value, with: { (snapshot) in
-                                    displayStatus = "Check"
-                                        if snapshot.hasChild(currentDate ?? ""){
-                                                displayStatus = "Check" //Kasam has been completed today
-                                            } else {
-                                                displayStatus = value["Status"] as?  String //Kasam has NOT been completed today
-                                            }
-                                            if let range = kasam.startTime.range(of: ":") {
-                                                let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
-                                                hour = String(format: "%02d", Int(firstPart)!)
-                                            }
-                                            guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
-                                    let block = TodayBlockFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, title: value["Title"] as! String, hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL!, url: value["Link"] as! String, creator: "Shawn T", statusType: value["Status"] as! String, displayStatus: displayStatus ?? "Display Status")
-                                            print("block value sent is \(displayStatus!)")
+                                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(currentDate ?? "").child("Metric Completed").observeSingleEvent(of: .value, with: {(snap) in
+                                    if let value = snap.value as? Int {
+                                        if value == 100 {
+                                            displayStatus = "Check" //Kasam has been completed today
+                                        } else {
+                                            displayStatus = "Progress" //kasam has been started, but not completed
+                                        }
+                                    } else {
+                                        displayStatus = value["Status"] as?  String //Kasam has NOT been started today
+                                        print("hi status" )
+                                    }
+                                    if let range = kasam.startTime.range(of: ":") {
+                                        let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
+                                        hour = String(format: "%02d", Int(firstPart)!)
+                                    }
+                                    guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
+                                    let block = TodayBlockFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, title: value["Title"] as! String, hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL!, url: value["Link"] as! String, creator: "Shawn T", totalMetric: "", statusType: value["Status"] as! String, displayStatus: displayStatus ?? "Display Status")
+//                                            print("block value sent is \(displayStatus!)")
                                             self.kasamBlocks.append(block)
                                             sem.signal()
                                             self.tableView.reloadData()
@@ -269,7 +274,6 @@ extension TodayBlocksViewController: TodayCellDelegate {
     func clickedButton(kasamID: String, blockID: String, status: String) {
         let statusDateTime = getCurrentDateTime()
         let statusDate = getCurrentDate()
-        print(status)
         //Adds the status data as a subset of the Status
         if status == "Check" { Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime"]) {(error, reference) in}
         } else {
