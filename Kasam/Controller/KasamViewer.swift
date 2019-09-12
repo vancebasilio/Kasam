@@ -23,40 +23,58 @@ class KasamViewer: UIViewController {
     var metricRef: DatabaseReference?
     var metricRefHandle: DatabaseHandle?
     var metricCompleted = 0
+    var totalActivties = 0
+    var summedTotalMetric = 0
+    var transferMetricMatrix = [String: String]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        getBlockActivities()
-        UIApplication.shared.endIgnoringInteractionEvents()
-        closeButton?.setIcon(icon: .fontAwesomeSolid(.times), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
+        getBlockActivities{self.setupMetricMatrix()}
+        setupButtons()
     }
     
     @IBAction func closeButton(_ sender: UIButton) {
         dismiss(animated: true)
     }
     
-    func getBlockActivities(){
+    func setupButtons() {
+        UIApplication.shared.endIgnoringInteractionEvents()
+        closeButton?.setIcon(icon: .fontAwesomeSolid(.times), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
+    }
+    
+    func getBlockActivities(_ completion: @escaping () -> ()){
         activityBlocks.removeAll()
+        var count = 0
         self.activityRef = Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").child(blockID).child("Activity")
         self.activityRefHandle = activityRef.observe(.childAdded) { (snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 //check if user has past progress from today and download metric
                 let currentDate = self.getCurrentDate()
-            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamID).child(currentDate ?? "").child("Metric Completed").observeSingleEvent(of: .value, with: {(snap) in
-                    if let value = snap.value as? Int {
-                        self.metricCompleted = value - 1
-                        print(value)
-                    } else {
-                        print ("user has no progres from today to transfer")
+                var currentMetric = "0"
+                count += 1
+                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamID).child(currentDate ?? "").child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: { (snap) in
+                    if snap.exists() {
+                        currentMetric = snap.value as! String
                     }
-                    let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, currentMetric: self.metricCompleted, image: value["Image"] as! String)
+                    let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, currentMetric: currentMetric, image: value["Image"] as! String, currentOrder: 0, totalOrder: 0)
                     self.activityBlocks.append(activity)
                     self.collectionView.reloadData()
+                    if self.activityBlocks.count == count {
+                        completion()
+                    }
                 })
+                self.transferMetricMatrix[String(count)] = "0"
             }
+            self.collectionView.reloadData()
+            self.activityRef.removeObserver(withHandle: self.activityRefHandle!)
         }
-        self.collectionView.reloadData()
-        self.activityRef.removeObserver(withHandle: self.activityRefHandle!)
+    }
+    
+    func setupMetricMatrix(){
+        for index in 1...activityBlocks.count {
+            self.transferMetricMatrix[String(index)] = activityBlocks[index - 1].currentMetric
+            summedTotalMetric += Int(activityBlocks[index - 1].totalMetric) ?? 0
+        }
     }
 }
 
@@ -66,9 +84,13 @@ extension KasamViewer: UICollectionViewDelegate, UICollectionViewDataSource, UIC
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        activityBlocks[indexPath.row].currentOrder = indexPath.row + 1
+        activityBlocks[indexPath.row].totalOrder = activityBlocks.count
         let activity = activityBlocks[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamViewerCell", for: indexPath) as! KasamViewerCell
         cell.setKasamViewer(activity: activity)
+        
+        cell.pickerView.selectRow(Int(activityBlocks[indexPath.row].currentMetric) ?? 0, inComponent: 0, animated: false)
         cell.delegate = self
         return cell
     }
@@ -84,14 +106,26 @@ extension KasamViewer: UICollectionViewDelegate, UICollectionViewDataSource, UIC
 }
 
 extension KasamViewer: KasamViewerCellDelegate {
+    func setCompletedMetric(key: Int, value: Int) {
+        transferMetricMatrix[String(key)] = String(value)
+    }
     
     func dismissViewController() {
         dismiss(animated: true, completion: nil)
     }
     
-    func setCompletedMetric(completedMetric: Int) {
+    func sendCompletedMatrix(key: Int, value: Int) {
+        transferMetricMatrix[String(key)] = String(value)
+        activityBlocks[key - 1].currentMetric = String(value)
         let statusDateTime = getCurrentDateTime()
         let statusDate = getCurrentDate()
-        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Completed": completedMetric]) {(error, reference) in}
+        var sum = 0.0
+        
+        for (_, avg) in transferMetricMatrix{
+            sum += Double(avg) ?? 0.0
         }
+        let  transferAvg : Double = sum / Double(self.summedTotalMetric)
+
+        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Completed": transferAvg, "Metric Breakdown": transferMetricMatrix]) {(error, reference) in}
+    }
 }

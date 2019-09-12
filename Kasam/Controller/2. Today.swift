@@ -138,15 +138,14 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                 
                                 //Checks if user has completed Kasam for the current day
                                 Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(currentDate ?? "").child("Metric Completed").observeSingleEvent(of: .value, with: {(snap) in
-                                    if let value = snap.value as? Int {
-                                        if value == 100 {
+                                    if let value = snap.value as? Double {
+                                        if value == 1 {
                                             displayStatus = "Check" //Kasam has been completed today
                                         } else {
                                             displayStatus = "Progress" //kasam has been started, but not completed
                                         }
                                     } else {
                                         displayStatus = value["Status"] as?  String //Kasam has NOT been started today
-                                        print("hi status" )
                                     }
                                     if let range = kasam.startTime.range(of: ":") {
                                         let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
@@ -154,7 +153,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                     }
                                     guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
                                     let block = TodayBlockFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, title: value["Title"] as! String, hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL!, url: value["Link"] as! String, creator: "Shawn T", totalMetric: "", statusType: value["Status"] as! String, displayStatus: displayStatus ?? "Display Status")
-//                                            print("block value sent is \(displayStatus!)")
                                             self.kasamBlocks.append(block)
                                             sem.signal()
                                             self.tableView.reloadData()
