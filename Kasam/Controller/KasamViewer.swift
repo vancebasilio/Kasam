@@ -27,6 +27,7 @@ class KasamViewer: UIViewController {
     var summedTotalMetric = 0
     var transferMetricMatrix = [String: String]()
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         getBlockActivities{self.setupMetricMatrix()}
@@ -90,7 +91,7 @@ extension KasamViewer: UICollectionViewDelegate, UICollectionViewDataSource, UIC
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamViewerCell", for: indexPath) as! KasamViewerCell
         cell.setKasamViewer(activity: activity)
         
-        cell.pickerView.selectRow(Int(activityBlocks[indexPath.row].currentMetric) ?? 0, inComponent: 0, animated: false)
+        cell.pickerView.selectRow((Int(activityBlocks[indexPath.row].currentMetric) ?? 0) / 10, inComponent: 0, animated: false)
         cell.delegate = self
         return cell
     }

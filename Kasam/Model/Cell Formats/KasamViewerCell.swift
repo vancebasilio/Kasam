@@ -38,6 +38,7 @@ class KasamViewerCell: UICollectionViewCell {
     var totalOrder = 0
     var metricTotalNo = ""
     var count = 0
+    var increment = 10
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -68,7 +69,7 @@ class KasamViewerCell: UICollectionViewCell {
         currentOrder = activity.currentOrder
         totalOrder = activity.totalOrder
         
-        pickerMetric = Int(activity.totalMetric) ?? 20
+        pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
         pickerView.reloadAllComponents() //important so that the pickerview updates to the max metric
         
         activityNumber.text = "\(activity.currentOrder)/\(activity.totalOrder)"
@@ -98,23 +99,23 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         pickerView.subviews.forEach({$0.isHidden = $0.frame.height < 1.0})
-        return pickerMetric + 1
+        return (pickerMetric + 1)
     }
     
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         var label = UILabel()
         if let v = view as? UILabel { label = v }
         label.font = UIFont.systemFont(ofSize: 35, weight: .bold)
-        label.text =  String(row)
-        label.textAlignment = .right
+        label.text =  String(row * increment)
+        label.textAlignment = .center
         return label
     }
     
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-        return 30.0
+        return 60.0
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        delegate?.sendCompletedMatrix(key: currentOrder, value: row)
+        delegate?.sendCompletedMatrix(key: currentOrder, value: row * increment)
     }
 }

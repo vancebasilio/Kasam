@@ -41,6 +41,20 @@ class expertKasamFormat {
     }
 }
 
+class challoStatFormat {
+    var metric: String
+    var avgMetric: Int
+    var daysLeft: Int
+    var metricDictionary = [Int:Double]()
+    
+    init(metric: String, avgMetric: Int, daysLeft: Int, metricDictionary: [Int: Double]){
+        self.avgMetric = avgMetric
+        self.metric = metric
+        self.daysLeft = daysLeft
+        self.metricDictionary = metricDictionary
+    }
+}
+
 class SquareKasamFormat {
     var image: URL
     var title: String

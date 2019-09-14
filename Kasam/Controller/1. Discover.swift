@@ -8,7 +8,6 @@
 
 import UIKit
 import Firebase
-import SkeletonView
 
 class DiscoverViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
@@ -47,6 +46,7 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
         }
     }
 
+    //make the expert slider automatically scroll
     @objc func changeImage() {
         if counter < expertKasamArray.count {
             let index = IndexPath.init(item: counter, section: 0)

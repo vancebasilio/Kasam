@@ -126,6 +126,15 @@ extension UIViewController {
         let finalDate = formatter.string(from: currentDateTime)
         return finalDate
     }
+    
+    func dateFormat(date: Date) -> String {
+        let date = date
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateStyle = .long
+        let finalDate = formatter.string(from: date)
+        return finalDate
+    }
 }
 
 extension Date {
@@ -133,6 +142,10 @@ extension Date {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEEE"
         return dateFormatter.string(from: self).capitalized
+    }
+    
+    func dayNumberOfWeek() -> Int? {
+        return Calendar.current.dateComponents([.weekday], from: self).weekday
     }
 }
 

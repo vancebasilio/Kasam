@@ -10,7 +10,6 @@ import UIKit
 import Firebase
 import Parchment
 import FBSDKLoginKit
-import SkeletonView
 
 class ProfileViewController: UIViewController {
    
@@ -21,17 +20,63 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var followingNo: UILabel!
     @IBOutlet weak var topView: UIView!
     @IBOutlet weak var logOut: UIButton!
+    @IBOutlet weak var challoStatsCollectionView: UICollectionView!
+    @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
+    
+    var challoStats: [challoStatFormat] = []
+    var dayDictionary = [Int:String]()
+    var metricDictionary = [Int:Double]()
+    var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
+    var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     
     override func viewDidLoad() {
         super.viewDidLoad()
         profileSetup()
         profileUpdate()
         profilePicture()
-        view.showAnimatedSkeleton()
+        setupDateDictionary()
+        getChalloStats()
+        viewSetup()
+    }
+    
+    func viewSetup(){
         self.navigationItem.title = ""
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
         let notificationName = NSNotification.Name("ProfileUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.profileUpdate), name: notificationName, object: nil)
+        
+    }
+    
+    func getChalloStats(){
+        challoStats.removeAll()
+        //loops through all kasams that user is following and get kasamID
+        self.kasamFollowingRef.observeSingleEvent(of: .childAdded, with:{ (snap) in
+            for x in 1...7 {
+                self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).child("Metric Completed").observeSingleEvent(of: .value, with:{ (snapshot) in
+                    self.metricDictionary[x] = snapshot.value as? Double
+                    
+                    if x == 7 {
+                        let transferStats = challoStatFormat(metric: "Reps", avgMetric: 1000, daysLeft: 5, metricDictionary: self.metricDictionary)
+                        self.challoStats.append(transferStats)
+                        self.challoStatsCollectionView.reloadData()
+                    }
+                })
+            }
+           
+        })
+    }
+    
+    func setupDateDictionary(){
+        let todayDay = Date().dayNumberOfWeek()
+        if todayDay == 1 {
+            for x in 1...7{
+                self.dayDictionary[x] = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: x - 7, to: Date())!)
+            }
+        } else {
+            for x in 1...7{
+                self.dayDictionary[x] = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: x - (todayDay! - 1), to: Date())!)
+            }
+        }
     }
     
     var kasamsRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
@@ -76,9 +121,7 @@ class ProfileViewController: UIViewController {
             profilePicRef.downloadURL { (url, error) in
                 if url != nil {
                     //Get the image from Firebase
-                    self.profileImage?.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder.png"), completed: { (image, error, cache, url) in
-                        self.view.hideSkeleton(transition: .crossDissolve(0.25))
-                    })
+                    self.profileImage?.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder.png"))
                 } else {
                     if error != nil {
                     //Unable to download image from Firebase, so get from Facebook
@@ -114,4 +157,24 @@ class ProfileViewController: UIViewController {
         super.viewDidDisappear(animated)
         self.kasamsRef.removeObserver(withHandle: self.kasamsRefHandle!)
     }
+}
+
+extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return challoStats.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        challoStatsHeight.constant = (view.bounds.size.width * (2/5))
+        return CGSize(width: (view.bounds.size.width - 30), height: view.bounds.size.width * (2/5))
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let stat = challoStats[indexPath.row]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
+        cell.setBlock(cell: stat)
+        return cell
+    }
+    
+    
 }
