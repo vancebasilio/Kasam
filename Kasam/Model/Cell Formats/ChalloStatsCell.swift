@@ -25,33 +25,25 @@ class ChalloStatsCell: UICollectionViewCell {
     @IBOutlet weak var SuBar: UIView!
     @IBOutlet weak var containerView: UIStackView!
     @IBOutlet weak var collectionView: UIView!
+    @IBOutlet weak var averageMetricLabel: UILabel!
+    @IBOutlet weak var avearageMetric: UILabel!
+    @IBOutlet weak var daysLeft: UILabel!
     
     override func awakeFromNib() {
         collectionView.layer.cornerRadius = 15.0
         collectionView.clipsToBounds = true
-        MBar.layer.cornerRadius = 4
-        MBar.clipsToBounds = true
-        TBar.layer.cornerRadius = 4
-        TBar.clipsToBounds = true
-        WBar.layer.cornerRadius = 4
-        WBar.clipsToBounds = true
-        RBar.layer.cornerRadius = 4
-        RBar.clipsToBounds = true
-        FBar.layer.cornerRadius = 4
-        FBar.clipsToBounds = true
-        SBar.layer.cornerRadius = 4
-        SBar.clipsToBounds = true
-        SuBar.layer.cornerRadius = 4
-        SuBar.clipsToBounds = true
+        let barArray = [MBar, TBar, WBar, RBar, FBar, SBar, SuBar]
+        for i in 0...6 {
+            barArray[i]?.layer.cornerRadius = 4
+            barArray[i]?.clipsToBounds = true
+        }
     }
     
     func setBlock(cell: challoStatFormat) {
-        MTopMargin.constant = 15 + (((containerView.frame.size.height) - 47)  * (1 - CGFloat(cell.metricDictionary[1] ?? 0.0)))
-        TTopMargin.constant = 15 + (((containerView.frame.size.height) - 47)  * (1 - CGFloat(cell.metricDictionary[2] ?? 0.0)))
-        WTopMargin.constant = 15 + (((containerView.frame.size.height) - 47)  * (1 - CGFloat(cell.metricDictionary[3] ?? 0.0)))
-        RTopMargin.constant = 15 + (((containerView.frame.size.height) - 47)  * (1 - CGFloat(cell.metricDictionary[4] ?? 0.0)))
-        FTopMargin.constant = 15 + (((containerView.frame.size.height) - 47)  * (1 - CGFloat(cell.metricDictionary[5] ?? 0.0)))
-        STopMargin.constant = 15 + (((containerView.frame.size.height) - 47)  * (1 - CGFloat(cell.metricDictionary[6] ?? 0.0)))
-        SuTopMargin.constant = 15 + (((containerView.frame.size.height) - 47)  * (1 - CGFloat(cell.metricDictionary[7] ?? 0.0)))
+        let constraintArray = [MTopMargin, TTopMargin, WTopMargin, RTopMargin, FTopMargin, STopMargin, SuTopMargin]
+        for i in 0...6{
+            let pushValue = 15 + (((containerView.frame.size.height) - 47)  * (1 - CGFloat(cell.metricDictionary[i+1] ?? 0.0)))
+            constraintArray[i]?.constant = pushValue
+        }
     }
 }

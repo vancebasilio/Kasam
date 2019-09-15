@@ -115,6 +115,15 @@ extension KasamViewer: KasamViewerCellDelegate {
         dismiss(animated: true, completion: nil)
     }
     
+   func nextItem() {
+        let visibleItems: NSArray = self.collectionView.indexPathsForVisibleItems as NSArray
+        let currentItem: IndexPath = visibleItems.object(at: 0) as! IndexPath
+        let nextItem: IndexPath = IndexPath(item: currentItem.item + 1, section: 0)
+        if nextItem.row < activityBlocks.count {
+            self.collectionView.scrollToItem(at: nextItem, at: .left, animated: true)
+        }
+    }
+    
     func sendCompletedMatrix(key: Int, value: Int) {
         transferMetricMatrix[String(key)] = String(value)
         activityBlocks[key - 1].currentMetric = String(value)

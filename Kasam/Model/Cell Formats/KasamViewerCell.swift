@@ -14,6 +14,7 @@ protocol KasamViewerCellDelegate {
     func dismissViewController()
     func setCompletedMetric(key: Int, value: Int)
     func sendCompletedMatrix(key: Int, value: Int)
+    func nextItem()
 }
 
 class KasamViewerCell: UICollectionViewCell {
@@ -23,7 +24,6 @@ class KasamViewerCell: UICollectionViewCell {
     @IBOutlet weak var activityDescription: UILabel!
     @IBOutlet weak var pickerView: UIPickerView!
     @IBOutlet weak var doneButton: UIButton!
-    @IBOutlet weak var metricTotal: UILabel!
     @IBOutlet weak var activityNumber: UILabel!
     
     var delegate: KasamViewerCellDelegate?
@@ -60,7 +60,6 @@ class KasamViewerCell: UICollectionViewCell {
     }
     
     func setKasamViewer(activity: KasamActivityCellFormat) {
-        metricTotal.text = activity.totalMetric
         metricTotalNo = activity.totalMetric
         
         activityTitle.text = activity.activityTitle
@@ -74,6 +73,12 @@ class KasamViewerCell: UICollectionViewCell {
         
         activityNumber.text = "\(activity.currentOrder)/\(activity.totalOrder)"
         animatedImageView.sd_setImage(with: URL(string: activity.image))
+        
+        if currentOrder == totalOrder {
+            doneButton.setTitle("Done", for: .normal)
+        } else {
+            doneButton.setTitle("Next", for: .normal)
+        }
     }
     
     @IBAction func ActivityVideoButton(_ sender: Any) {
@@ -87,8 +92,14 @@ class KasamViewerCell: UICollectionViewCell {
     }
     
     @IBAction func doneButton(_ sender: UIButton) {
-        delegate?.dismissViewController()
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveKasams"), object: self)
+        if currentOrder == totalOrder {
+            delegate?.dismissViewController()
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveKasams"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+        } else {
+            delegate?.nextItem()
+        }
+        
     }
 }
 

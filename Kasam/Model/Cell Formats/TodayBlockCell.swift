@@ -21,7 +21,6 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var blockImage: UIImageView!
     @IBOutlet weak var blockDurationImage: UILabel!
     @IBOutlet weak var blockDuration: UILabel!
-    @IBOutlet weak var blockDuration2: UILabel!
     @IBOutlet weak var blockContents: UIView!
     @IBOutlet weak var blockShadow: UIView!
     @IBOutlet weak var statusButton: UIButton!
@@ -42,7 +41,6 @@ class TodayBlockCell: UITableViewCell {
         blockTitle.text = block.title
         blockDurationImage.setIcon(icon: .fontAwesomeSolid(.clock), iconSize: 15, color: UIColor.init(hex: 0xcbcbcb))
         blockDuration.text = " \(block.duration)"
-        blockDuration2.text = block.duration
         statusType = block.statusType
         processedStatus = block.displayStatus
         

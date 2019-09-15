@@ -13,15 +13,19 @@ PODS:
     - FacebookCore (~> 0.9.0)
     - FBSDKCoreKit (~> 5.0)
     - FBSDKShareKit (~> 5.0)
-  - FBSDKCoreKit (5.5.0):
-    - FBSDKCoreKit/Basics (= 5.5.0)
-    - FBSDKCoreKit/Core (= 5.5.0)
-  - FBSDKCoreKit/Basics (5.5.0)
-  - FBSDKCoreKit/Core (5.5.0):
+  - FBSDKCoreKit (5.6.0):
+    - FBSDKCoreKit/Basics (= 5.6.0)
+    - FBSDKCoreKit/Core (= 5.6.0)
+  - FBSDKCoreKit/Basics (5.6.0)
+  - FBSDKCoreKit/Core (5.6.0):
     - FBSDKCoreKit/Basics
-  - FBSDKLoginKit (5.5.0):
+  - FBSDKLoginKit (5.6.0):
+    - FBSDKLoginKit/Login (= 5.6.0)
+  - FBSDKLoginKit/Login (5.6.0):
     - FBSDKCoreKit (~> 5.0)
-  - FBSDKShareKit (5.5.0):
+  - FBSDKShareKit (5.6.0):
+    - FBSDKShareKit/Share (= 5.6.0)
+  - FBSDKShareKit/Share (5.6.0):
     - FBSDKCoreKit (~> 5.0)
   - Firebase (6.8.1):
     - Firebase/Core (= 6.8.1)
@@ -110,7 +114,7 @@ PODS:
   - GTMSessionFetcher/Core (1.2.2)
   - HMSegmentedControl (1.5.3)
   - leveldb-library (1.22)
-  - lottie-ios (3.1.2)
+  - lottie-ios (3.1.3)
   - MXPagerView (0.2.1)
   - MXParallaxHeader (0.6.1)
   - MXSegmentedPager (3.3.0):
@@ -197,9 +201,9 @@ SPEC CHECKSUMS:
   FacebookCore: ba86524b66cfa86d0f8e65d08faa8504a9f732dd
   FacebookLogin: 6cee9fd6e1fe976fe8f7eec199e27b28b14f5d63
   FacebookShare: 85968ad1b1606c4944fb154924e425fd29184ea5
-  FBSDKCoreKit: 7ade9cfea30eef2f6cf105a1aa904f89ea68fb7d
-  FBSDKLoginKit: bb28062f24e79590c44ba03297ca9bea4b6436d2
-  FBSDKShareKit: 6316a2dcd2fbc419c87281aa4c50ad0b6ed431e7
+  FBSDKCoreKit: d6655a343868d4bb5c29a60859bab07c3be14a0b
+  FBSDKLoginKit: c5a623de88a6b0cda35b35582921f6cec2efcc36
+  FBSDKShareKit: 0d8c4cfd5c1f185d5f9c26d79758b141086e1251
   Firebase: 9cbe4e5b5eaafa05dc932be58b7c8c3820d71e88
   FirebaseAnalytics: 843c7f64a8f9c79f0d03281197ebe7bb1d58d477
   FirebaseAuth: e7f86c2dfc57281cd01f7da5e4b40e01e4510a4a
@@ -218,7 +222,7 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 61bb0f61a4cb560030f1222021178008a5727a23
   HMSegmentedControl: 7c6145afb50f26cec5f3243082f6f12b9f41318f
   leveldb-library: 55d93ee664b4007aac644a782d11da33fba316f7
-  lottie-ios: 49cd85b1f24f61a7708ad7ec76a523ab2d0e3100
+  lottie-ios: 496ac5cea1bbf1a7bd1f1f472f3232eb1b8d744b
   MXPagerView: ede184b5191b2ed689ccf05a750a9978cce42414
   MXParallaxHeader: 858c403532ed933b381556a81ce333d7065ad182
   MXSegmentedPager: a35ebaf939e1629f24db3bb26653c1c557362f59

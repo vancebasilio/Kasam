@@ -44,13 +44,14 @@ class ProfileViewController: UIViewController {
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
         let notificationName = NSNotification.Name("ProfileUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.profileUpdate), name: notificationName, object: nil)
-        
+        let challoStatsUpdate = NSNotification.Name("ChalloStatsUpdate")
+        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.getChalloStats), name: challoStatsUpdate, object: nil)
     }
     
-    func getChalloStats(){
+    @objc func getChalloStats(){
         challoStats.removeAll()
         //loops through all kasams that user is following and get kasamID
-        self.kasamFollowingRef.observeSingleEvent(of: .childAdded, with:{ (snap) in
+        self.kasamFollowingRef.observe(.childAdded, with:{ (snap) in
             for x in 1...7 {
                 self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).child("Metric Completed").observeSingleEvent(of: .value, with:{ (snapshot) in
                     self.metricDictionary[x] = snapshot.value as? Double
