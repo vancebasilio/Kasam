@@ -134,6 +134,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     self.kasamBlocks.append(block)
                     self.kasamBlocks.sort(by: { $1.order > $0.order })
                     self.tableView.reloadData()
+                    self.tableView.beginUpdates()
+                    self.tableView.endUpdates()
                 }
             })
         })

@@ -35,6 +35,7 @@ class KasamViewer: UIViewController {
     }
     
     @IBAction func closeButton(_ sender: UIButton) {
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
         dismiss(animated: true)
     }
     

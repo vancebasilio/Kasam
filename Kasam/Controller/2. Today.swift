@@ -28,6 +28,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     var blockIDGlobal = ""
     let semaphore = DispatchSemaphore(value: 1)
     let animationView = AnimationView()
+    var displayStatus: String?
     
     fileprivate lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -44,6 +45,8 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
         let retrieveKasams = NSNotification.Name("RetrieveKasams")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.retrieveKasams), name: retrieveKasams, object: nil)
+        let updateKasamStatus = NSNotification.Name("UpdateKasamStatus")
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.updateKasamStatus), name: updateKasamStatus, object: nil)
     }
     
     func setupTableAndHeader(){
@@ -117,14 +120,12 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
             DispatchQueue.global().async {
                 sem.wait()
                 var diff = 0
-                var displayStatus: String?
                 //Going through the blocks under a Kasam
                 if selectedDate >= kasam.joinedDate {
                     diff = Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: selectedDate).day!
                     self.blockUserRef = Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks")
                     self.blockUserRefHandle = self.blockUserRef.observe(.value, with: { (snapshot: DataSnapshot!) in
                         let finalOrder = String(diff % Int(snapshot.childrenCount) + 1)
-                        let currentDate = self.getCurrentDate()
 
                         //Seeing which blocks are needed for the day
                         self.orderUserRef = self.blockUserRef.queryOrdered(byChild: "Order").queryEqual(toValue : finalOrder)
@@ -137,25 +138,27 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                 var hour = ""
                                 
                                 //Checks if user has completed Kasam for the current day
-                                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(currentDate ?? "").child("Metric Completed").observeSingleEvent(of: .value, with: {(snap) in
+                                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(self.getCurrentDate() ?? "").child("Metric Completed").observeSingleEvent(of: .value, with: {(snap) in
                                     if let value = snap.value as? Double {
                                         if value == 1 {
-                                            displayStatus = "Check" //Kasam has been completed today
+                                            self.displayStatus = "Check" //Kasam has been completed today
                                         } else {
-                                            displayStatus = "Progress" //kasam has been started, but not completed
+                                            self.displayStatus = "Progress" //kasam has been started, but not completed
                                         }
                                     } else {
-                                        displayStatus = value["Status"] as?  String //Kasam has NOT been started today
+                                        self.displayStatus = value["Status"] as?  String //Kasam has NOT been started today
                                     }
                                     if let range = kasam.startTime.range(of: ":") {
                                         let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
                                         hour = String(format: "%02d", Int(firstPart)!)
                                     }
                                     guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
-                                    let block = TodayBlockFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, title: value["Title"] as! String, hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL!, url: value["Link"] as! String, creator: "Shawn T", totalMetric: "", statusType: value["Status"] as! String, displayStatus: displayStatus ?? "Display Status")
+                                    let block = TodayBlockFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, title: value["Title"] as! String, hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL!, url: value["Link"] as! String, creator: "Shawn T", totalMetric: "", statusType: value["Status"] as! String, displayStatus: self.displayStatus ?? "Display Status")
                                             self.kasamBlocks.append(block)
                                             sem.signal()
                                             self.tableView.reloadData()
+                                            self.tableView.beginUpdates()
+                                            self.tableView.endUpdates()
                                         })
                                     }
                                 })
@@ -167,6 +170,26 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                 }
                 self.tableView.reloadData()
             }
+    
+    @objc func updateKasamStatus() {
+        for i in 0...(kasamBlocks.count - 1) {
+            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamBlocks[i].kasamID).child(getCurrentDate() ?? "").child("Metric Completed").observeSingleEvent(of: .value, with: {(snap) in
+                if let value = snap.value as? Double {
+                    if value == 1 {
+                        self.displayStatus = "Check" //Kasam has been completed today
+                    } else {
+                        self.displayStatus = "Progress" //kasam has been started, but not completed
+                    }
+                } else {
+                    self.displayStatus = "Checkmark"
+                }
+                self.kasamBlocks[i].displayStatus = self.displayStatus ?? "Check"
+                self.tableView.reloadData()
+                self.tableView.beginUpdates()
+                self.tableView.endUpdates()
+            })
+        }
+    }
     
     func stopObserving(ref: AnyObject?, handle: DatabaseHandle?) {
         guard ref != nil else {

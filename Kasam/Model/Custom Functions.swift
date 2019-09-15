@@ -24,6 +24,7 @@ class ProgessView: UIProgressView {
 }
 
 extension UIViewController {
+    
     //func to hide keyboard when screen tapped
     func hideKeyboardWhenTappedAround() {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))

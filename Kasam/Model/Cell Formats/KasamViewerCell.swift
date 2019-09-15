@@ -94,7 +94,7 @@ class KasamViewerCell: UICollectionViewCell {
     @IBAction func doneButton(_ sender: UIButton) {
         if currentOrder == totalOrder {
             delegate?.dismissViewController()
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveKasams"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         } else {
             delegate?.nextItem()
