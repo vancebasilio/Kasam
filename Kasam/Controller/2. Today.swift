@@ -279,12 +279,12 @@ extension TodayBlocksViewController: UITableViewDataSource, UITableViewDelegate 
         UIApplication.shared.beginIgnoringInteractionEvents()
         kasamIDGlobal = kasamBlocks[indexPath.row].kasamID
         blockIDGlobal = kasamBlocks[indexPath.row].title
-        performSegue(withIdentifier: "goToKasamViewer", sender: indexPath)
+        performSegue(withIdentifier: "goToKasamViewerTicker", sender: indexPath)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToKasamViewer" {
-            let kasamActivityHolder = segue.destination as! KasamViewer
+        if segue.identifier == "goToKasamViewerTicker" {
+            let kasamActivityHolder = segue.destination as! KasamViewerTicker
             kasamActivityHolder.kasamID = kasamIDGlobal
             kasamActivityHolder.blockID = blockIDGlobal
         }

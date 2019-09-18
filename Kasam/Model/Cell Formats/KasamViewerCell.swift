@@ -9,6 +9,7 @@
 import UIKit
 import SDWebImage
 import SwiftEntryKit
+import HGCircularSlider
 
 protocol KasamViewerCellDelegate {
     func dismissViewController()
@@ -25,10 +26,11 @@ class KasamViewerCell: UICollectionViewCell {
     @IBOutlet weak var pickerView: UIPickerView!
     @IBOutlet weak var doneButton: UIButton!
     @IBOutlet weak var activityNumber: UILabel!
+    @IBOutlet weak var circularSlider: CircularSlider!
     
+    //slider variables
     var delegate: KasamViewerCellDelegate?
-    var animatedImageLocation: String?
-    var buttoncheck = 0
+    var buttoncheck = 0       //to stop and start the gif
     var pickerMetric = 0
     var currentMetric = 0
     var tempCurrentMetric: Int?
@@ -38,42 +40,62 @@ class KasamViewerCell: UICollectionViewCell {
     var totalOrder = 0
     var metricTotalNo = ""
     var count = 0
-    var increment = 10
+    var increment = 10         //for the reps slider
+    
+    //Timer variables
+    var timer = Timer()
+    var endTime: Date?
+    var maxTime: TimeInterval = 0
+    var timeLeft: TimeInterval = 0 //set max value
     
     override func awakeFromNib() {
-        super.awakeFromNib()
-        setupButtons()
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
-        let stopActivityVideo = NSNotification.Name("StopActivityVideo")
-        NotificationCenter.default.addObserver(self, selector: #selector(KasamViewerCell.stopActivityVideo), name: stopActivityVideo, object: nil)
+    }
+    
+    func setupPicker(){
         pickerView.selectRow(16, inComponent: 0, animated: false)
         pickerView.delegate = self
         pickerView.dataSource = self
+        doneButton.layer.cornerRadius = 20.0
     }
     
+    func setupTimer(){
+        doneButton.layer.cornerRadius = 20.0
+        circularSlider?.endThumbImage = UIImage(named: "kasam-timer-button")
+        circularSlider?.minimumValue = 0.0
+        circularSlider?.maximumValue = CGFloat(timeLeft)
+        circularSlider?.isUserInteractionEnabled = false
+        maxTime = timeLeft
+        endTime = Date().addingTimeInterval(timeLeft)
+        timer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
+    }
+    
+    @objc func updateTime() {
+        if timeLeft > 0 {
+            timeLeft = endTime?.timeIntervalSinceNow ?? 0
+            circularSlider?.endPointValue = CGFloat(maxTime - timeLeft)
+//            timeLabel.text = timeLeft.time
+        } else {
+//            timeLabel.text = "00:00"
+            timer.invalidate()
+        }
+    }
+        
     @objc func stopActivityVideo(){
         animatedImageView.stopAnimating()
     }
     
-    func setupButtons(){
-        doneButton.layer.cornerRadius = 20.0
-    }
-    
     func setKasamViewer(activity: KasamActivityCellFormat) {
         metricTotalNo = activity.totalMetric
-        
         activityTitle.text = activity.activityTitle
         activityDescription.text = activity.activityDescription
-        
         currentOrder = activity.currentOrder
+        timeLeft = (Double(activity.totalMetric) ?? 0.0)
         totalOrder = activity.totalOrder
-        
         pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
         pickerView.reloadAllComponents() //important so that the pickerview updates to the max metric
-        
         activityNumber.text = "\(activity.currentOrder)/\(activity.totalOrder)"
         animatedImageView.sd_setImage(with: URL(string: activity.image))
-        
         if currentOrder == totalOrder {
             doneButton.setTitle("Done", for: .normal)
         } else {
@@ -128,5 +150,11 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         delegate?.sendCompletedMatrix(key: currentOrder, value: row * increment)
+    }
+}
+
+extension TimeInterval {
+    var time: String {
+        return String(format:"%02d:%02d", Int(self/60),  Int(ceil(truncatingRemainder(dividingBy: 60))) )
     }
 }

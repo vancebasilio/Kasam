@@ -10,7 +10,7 @@ import UIKit
 import Firebase
 import SwiftIcons
 
-class KasamViewer: UIViewController {
+class KasamViewerTicker: UIViewController {
     
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -26,7 +26,6 @@ class KasamViewer: UIViewController {
     var totalActivties = 0
     var summedTotalMetric = 0
     var transferMetricMatrix = [String: String]()
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,7 +57,7 @@ class KasamViewer: UIViewController {
                     if snap.exists() {
                         currentMetric = snap.value as! String
                     }
-                    let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, currentMetric: currentMetric, image: value["Image"] as! String, currentOrder: 0, totalOrder: 0)
+                    let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, currentMetric: currentMetric, image: value["Image"] as! String, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0)
                     self.activityBlocks.append(activity)
                     self.collectionView.reloadData()
                     if self.activityBlocks.count == count {
@@ -80,7 +79,7 @@ class KasamViewer: UIViewController {
     }
 }
 
-extension KasamViewer: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return activityBlocks.count
     }
@@ -91,7 +90,14 @@ extension KasamViewer: UICollectionViewDelegate, UICollectionViewDataSource, UIC
         let activity = activityBlocks[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamViewerCell", for: indexPath) as! KasamViewerCell
         cell.setKasamViewer(activity: activity)
-        
+        if activity.type == "Picker" {
+            cell.setupPicker()
+            cell.circularSlider.isHidden = true
+        } else if activity.type == "Timer" {
+            cell.setupTimer()
+            cell.animatedImageView.isHidden = true
+            cell.pickerView.isHidden = true
+        }
         cell.pickerView.selectRow((Int(activityBlocks[indexPath.row].currentMetric) ?? 0) / 10, inComponent: 0, animated: false)
         cell.delegate = self
         return cell
@@ -107,7 +113,7 @@ extension KasamViewer: UICollectionViewDelegate, UICollectionViewDataSource, UIC
 //    }
 }
 
-extension KasamViewer: KasamViewerCellDelegate {
+extension KasamViewerTicker: KasamViewerCellDelegate {
     func setCompletedMetric(key: Int, value: Int) {
         transferMetricMatrix[String(key)] = String(value)
     }

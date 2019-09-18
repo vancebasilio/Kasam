@@ -109,10 +109,11 @@ class KasamActivityCellFormat {
     var totalMetric: String
     var currentMetric: String
     var image: String
+    var type: String
     var currentOrder: Int
     var totalOrder: Int
     
-    init(kasamID: String, blockID: String, title: String, description: String, totalMetric: String, currentMetric: String, image: String, currentOrder: Int, totalOrder: Int){
+    init(kasamID: String, blockID: String, title: String, description: String, totalMetric: String, currentMetric: String, image: String, type: String, currentOrder: Int, totalOrder: Int){
         self.kasamID = kasamID
         self.blockID = blockID
         self.activityTitle = title
@@ -120,6 +121,7 @@ class KasamActivityCellFormat {
         self.totalMetric = totalMetric
         self.currentMetric = currentMetric
         self.image = image
+        self.type = type
         self.currentOrder = currentOrder
         self.totalOrder = totalOrder
     }

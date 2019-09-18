@@ -24,7 +24,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var coachName: UIButton!
     @IBOutlet weak var kasamDescription: UILabel!
     @IBOutlet weak var kasamType: UILabel!
-    @IBOutlet weak var kasamDuration: UILabel!
+    @IBOutlet weak var kasamLevel: UILabel!
     @IBOutlet weak var followersNo: UILabel!
     @IBOutlet var headerLabel : UILabel!
     @IBOutlet weak var constraintHeightHeaerImages: NSLayoutConstraint!
@@ -99,7 +99,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.coachName.setTitle(value["CreatorName"] as? String ?? "", for: .normal)
                 self.coachIDGlobal = value["CreatorID"] as! String
                 self.kasamType.text! = value["Genre"] as? String ?? ""
-                self.kasamDuration.text! = value["Duration"] as? String ?? ""
+                self.kasamLevel.text! = value["Level"] as? String ?? ""
                 
                 //Header - Image
                 let headerURL = URL(string: value["Image"] as? String ?? "")
