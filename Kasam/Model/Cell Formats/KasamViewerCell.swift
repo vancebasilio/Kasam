@@ -9,11 +9,11 @@
 import UIKit
 import SDWebImage
 import SwiftEntryKit
+import SkyFloatingLabelTextField
 import HGCircularSlider
 
 protocol KasamViewerCellDelegate {
     func dismissViewController()
-    func setCompletedMetric(key: Int, value: Int)
     func sendCompletedMatrix(key: Int, value: Int)
     func nextItem()
 }
@@ -27,6 +27,13 @@ class KasamViewerCell: UICollectionViewCell {
     @IBOutlet weak var doneButton: UIButton!
     @IBOutlet weak var activityNumber: UILabel!
     @IBOutlet weak var circularSlider: CircularSlider!
+    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var instruction: UILabel!
+    @IBOutlet weak var timeMeasure: UILabel!
+    @IBOutlet weak var startButton: UIButton!
+    @IBOutlet weak var timerDoneButton: UIButton!
+    @IBOutlet weak var timerButtonStackView: UIStackView!
+    @IBOutlet weak var textField: SkyFloatingLabelTextField!
     
     //slider variables
     var delegate: KasamViewerCellDelegate?
@@ -38,18 +45,37 @@ class KasamViewerCell: UICollectionViewCell {
     var metricMatrixKey = 0
     var currentOrder = 0
     var totalOrder = 0
-    var metricTotalNo = ""
+    var metricTotalNo = 0.0
     var count = 0
     var increment = 10         //for the reps slider
     
     //Timer variables
     var timer = Timer()
+    var timerStatus = 0
     var endTime: Date?
     var maxTime: TimeInterval = 0
     var timeLeft: TimeInterval = 0 //set max value
     
     override func awakeFromNib() {
+        textField.textAlignment = .center
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
+    }
+    
+    func setKasamViewer(activity: KasamActivityCellFormat) {
+        activityTitle.text = activity.activityTitle
+        activityDescription.text = activity.activityDescription
+        currentOrder = activity.currentOrder
+        totalOrder = activity.totalOrder
+        timeLeft = (Double(activity.totalMetric) ?? 0.0)
+        pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
+        pickerView.reloadAllComponents() //important so that the pickerview updates to the max metric
+        activityNumber.text = "\(activity.currentOrder)/\(activity.totalOrder)"
+        animatedImageView.sd_setImage(with: URL(string: activity.image))
+        if currentOrder == totalOrder {
+            doneButton.setTitle("Done", for: .normal)
+        } else {
+            doneButton.setTitle("Next", for: .normal)
+        }
     }
     
     func setupPicker(){
@@ -60,47 +86,45 @@ class KasamViewerCell: UICollectionViewCell {
     }
     
     func setupTimer(){
-        doneButton.layer.cornerRadius = 20.0
+        startButton.layer.cornerRadius = 20.0
+        timerDoneButton.layer.cornerRadius = 20.0
         circularSlider?.endThumbImage = UIImage(named: "kasam-timer-button")
         circularSlider?.minimumValue = 0.0
         circularSlider?.maximumValue = CGFloat(timeLeft)
         circularSlider?.isUserInteractionEnabled = false
         maxTime = timeLeft
         endTime = Date().addingTimeInterval(timeLeft)
-        timer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
     }
     
     @objc func updateTime() {
         if timeLeft > 0 {
             timeLeft = endTime?.timeIntervalSinceNow ?? 0
             circularSlider?.endPointValue = CGFloat(maxTime - timeLeft)
-//            timeLabel.text = timeLeft.time
+            setInitialTime()
         } else {
-//            timeLabel.text = "00:00"
+            timeLabel.text = "00"
             timer.invalidate()
+        }
+    }
+    
+    func setInitialTime (){
+        if timeLeft <= 60.0 {
+            timeLabel.text = timeLeft.seconds
+            timeMeasure.text = "seconds"
+            if timeLeft <= 1.0 {
+                timeMeasure.text = "second"
+            }
+        } else if timeLeft > 60 && timeLeft <= 3600 {
+            timeLabel.text = timeLeft.minutes
+            timeMeasure.text = "minutes"
+            if timeLeft < 120 {
+                timeMeasure.text = "minute"
+            }
         }
     }
         
     @objc func stopActivityVideo(){
         animatedImageView.stopAnimating()
-    }
-    
-    func setKasamViewer(activity: KasamActivityCellFormat) {
-        metricTotalNo = activity.totalMetric
-        activityTitle.text = activity.activityTitle
-        activityDescription.text = activity.activityDescription
-        currentOrder = activity.currentOrder
-        timeLeft = (Double(activity.totalMetric) ?? 0.0)
-        totalOrder = activity.totalOrder
-        pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
-        pickerView.reloadAllComponents() //important so that the pickerview updates to the max metric
-        activityNumber.text = "\(activity.currentOrder)/\(activity.totalOrder)"
-        animatedImageView.sd_setImage(with: URL(string: activity.image))
-        if currentOrder == totalOrder {
-            doneButton.setTitle("Done", for: .normal)
-        } else {
-            doneButton.setTitle("Next", for: .normal)
-        }
     }
     
     @IBAction func ActivityVideoButton(_ sender: Any) {
@@ -121,7 +145,24 @@ class KasamViewerCell: UICollectionViewCell {
         } else {
             delegate?.nextItem()
         }
-        
+    }
+    
+    @IBAction func timerDoneButton(_ sender: Any) {
+        delegate?.dismissViewController()
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+    }
+    
+    @IBAction func startButton(_ sender: Any) {
+        if timerStatus == 0 {
+            timer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
+            startButton.setTitle("Pause", for: .normal)
+            timerStatus = 1
+        } else {
+            timer.invalidate()
+            startButton.setTitle("Start", for: .normal)
+            timerStatus = 0
+        }
     }
 }
 
@@ -154,7 +195,13 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
 }
 
 extension TimeInterval {
-    var time: String {
-        return String(format:"%02d:%02d", Int(self/60),  Int(ceil(truncatingRemainder(dividingBy: 60))) )
+    var seconds: String {
+        return String(format:"%02d", Int(ceil(truncatingRemainder(dividingBy: 60))))
+    }
+    var minutes: String {
+        return String(format:"%02d", Int(self/60))
+    }
+    var minutesSeconds: String {
+        return String(format:"%02d:%02d", Int(self/60), Int(ceil(truncatingRemainder(dividingBy: 60))))
     }
 }

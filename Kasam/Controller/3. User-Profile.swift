@@ -24,6 +24,8 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
     
     var challoStats: [challoStatFormat] = []
+    var kasamTitleArray: [String] = []
+    var kasamTitle = ""
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
@@ -52,18 +54,21 @@ class ProfileViewController: UIViewController {
         challoStats.removeAll()
         //loops through all kasams that user is following and get kasamID
         self.kasamFollowingRef.observe(.childAdded, with:{ (snap) in
-            for x in 1...7 {
-                self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).child("Metric Completed").observeSingleEvent(of: .value, with:{ (snapshot) in
-                    self.metricDictionary[x] = snapshot.value as? Double
-                    
-                    if x == 7 {
-                        let transferStats = challoStatFormat(metric: "Reps", avgMetric: 1000, daysLeft: 5, metricDictionary: self.metricDictionary)
-                        self.challoStats.append(transferStats)
-                        self.challoStatsCollectionView.reloadData()
-                    }
-                })
+            if let value = snap.value as? [String: Any] {
+                self.kasamTitle = value["Kasam Name"] as? String ?? ""
+                self.kasamTitleArray.append(self.kasamTitle)
             }
-           
+                for x in 1...7 {
+                    self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).child("Metric Completed").observeSingleEvent(of: .value, with:{ (snapshot) in
+                        self.metricDictionary[x] = snapshot.value as? Double
+                        
+                        if x == 7 {
+                            let transferStats = challoStatFormat(metric: "Reps", avgMetric: 1000, daysLeft: 5, metricDictionary: self.metricDictionary)
+                            self.challoStats.append(transferStats)
+                            self.challoStatsCollectionView.reloadData()
+                        }
+                    })
+                }
         })
     }
     
@@ -167,13 +172,14 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         challoStatsHeight.constant = (view.bounds.size.width * (2/5))
-        return CGSize(width: (view.bounds.size.width - 30), height: view.bounds.size.width * (2/5))
+        return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let stat = challoStats[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
         cell.setBlock(cell: stat)
+        cell.kasamTitle.text = kasamTitleArray[indexPath.row]
         return cell
     }
     

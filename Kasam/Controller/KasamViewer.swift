@@ -31,10 +31,14 @@ class KasamViewerTicker: UIViewController {
         super.viewDidLoad()
         getBlockActivities{self.setupMetricMatrix()}
         setupButtons()
+        self.hideKeyboardWhenTappedAround()
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     @IBAction func closeButton(_ sender: UIButton) {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         dismiss(animated: true)
     }
     
@@ -77,6 +81,20 @@ class KasamViewerTicker: UIViewController {
             summedTotalMetric += Int(activityBlocks[index - 1].totalMetric) ?? 0
         }
     }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            if self.view.frame.origin.y == 0 {
+                self.view.frame.origin.y -= (keyboardSize.height)
+            }
+        }
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        if self.view.frame.origin.y != 0 {
+            self.view.frame.origin.y = 0
+        }
+    }
 }
 
 extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -93,10 +111,16 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
         if activity.type == "Picker" {
             cell.setupPicker()
             cell.circularSlider.isHidden = true
+            cell.timerButtonStackView.isHidden = true
+            cell.instruction.isHidden = true
+            cell.textField.isHidden = true
         } else if activity.type == "Timer" {
             cell.setupTimer()
+            cell.setInitialTime()
             cell.animatedImageView.isHidden = true
+            cell.doneButton.isHidden = true
             cell.pickerView.isHidden = true
+            cell.instruction.isHidden = true
         }
         cell.pickerView.selectRow((Int(activityBlocks[indexPath.row].currentMetric) ?? 0) / 10, inComponent: 0, animated: false)
         cell.delegate = self
@@ -106,17 +130,9 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: view.frame.size.width, height: view.frame.size.height)
     }
-    
-    //stops the Activity Video when the viewer is opened
-//    func collectionView (_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-//        NotificationCenter.default.post(name: Notification.Name(rawValue: "StopActivityVideo"), object: self)
-//    }
 }
 
 extension KasamViewerTicker: KasamViewerCellDelegate {
-    func setCompletedMetric(key: Int, value: Int) {
-        transferMetricMatrix[String(key)] = String(value)
-    }
     
     func dismissViewController() {
         dismiss(animated: true, completion: nil)

@@ -28,6 +28,7 @@ class ChalloStatsCell: UICollectionViewCell {
     @IBOutlet weak var averageMetricLabel: UILabel!
     @IBOutlet weak var avearageMetric: UILabel!
     @IBOutlet weak var daysLeft: UILabel!
+    @IBOutlet weak var kasamTitle: UILabel!
     
     override func awakeFromNib() {
         collectionView.layer.cornerRadius = 15.0
