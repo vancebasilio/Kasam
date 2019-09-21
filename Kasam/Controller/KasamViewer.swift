@@ -114,12 +114,7 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
             cell.instruction.isHidden = true
             cell.textField.isHidden = true
         } else if activity.type == "Timer" {
-            cell.setupTimer()
-            cell.setInitialTime()
-            cell.animatedImageView.isHidden = true
-            cell.doneButton.isHidden = true
-            cell.pickerView.isHidden = true
-            cell.instruction.isHidden = true
+            cell.setupTimer(time: activity.totalMetric)
         }
         cell.pickerView.selectRow((Int(activityBlocks[indexPath.row].currentMetric) ?? 0) / 10, inComponent: 0, animated: false)
         cell.delegate = self
