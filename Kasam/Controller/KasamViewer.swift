@@ -38,7 +38,6 @@ class KasamViewerTicker: UIViewController {
     
     @IBAction func closeButton(_ sender: UIButton) {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         dismiss(animated: true)
     }
     
@@ -133,6 +132,13 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
 }
 
 extension KasamViewerTicker: KasamViewerCellDelegate {
+    
+    func sendTime(key: Int, value: String) {
+        let statusDateTime = getCurrentDateTime()
+        let statusDate = getCurrentDate()
+        
+        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Completed": value, "Metric Breakdown": transferMetricMatrix]) {(error, reference) in}
+    }
     
     func dismissViewController() {
         dismiss(animated: true, completion: nil)

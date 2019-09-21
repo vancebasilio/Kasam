@@ -29,6 +29,7 @@ class ProfileViewController: UIViewController {
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
+    var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     
     override func viewDidLoad() {
@@ -37,8 +38,11 @@ class ProfileViewController: UIViewController {
         profileUpdate()
         profilePicture()
         setupDateDictionary()
-        getChalloStats()
         viewSetup()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        getChalloStats()
     }
     
     func viewSetup(){
@@ -52,23 +56,24 @@ class ProfileViewController: UIViewController {
     
     @objc func getChalloStats(){
         challoStats.removeAll()
+        metricDictionary.removeAll()
         //loops through all kasams that user is following and get kasamID
-        self.kasamFollowingRef.observe(.childAdded, with:{ (snap) in
+        self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded, with:{ (snap) in
             if let value = snap.value as? [String: Any] {
                 self.kasamTitle = value["Kasam Name"] as? String ?? ""
                 self.kasamTitleArray.append(self.kasamTitle)
             }
-                for x in 1...7 {
-                    self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).child("Metric Completed").observeSingleEvent(of: .value, with:{ (snapshot) in
-                        self.metricDictionary[x] = snapshot.value as? Double
-                        
-                        if x == 7 {
-                            let transferStats = challoStatFormat(metric: "Reps", avgMetric: 1000, daysLeft: 5, metricDictionary: self.metricDictionary)
-                            self.challoStats.append(transferStats)
-                            self.challoStatsCollectionView.reloadData()
-                        }
-                    })
-                }
+            for x in 1...7 {
+                self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).child("Metric Completed").observeSingleEvent(of: .value, with:{ (snapshot) in
+                    self.metricDictionary[x] = snapshot.value as? Double
+                    
+                    if x == 7 {
+                        let transferStats = challoStatFormat(metric: "Reps", avgMetric: 1000, daysLeft: 5, metricDictionary: self.metricDictionary)
+                        self.challoStats.append(transferStats)
+                        self.challoStatsCollectionView.reloadData()
+                    }
+                })
+            }
         })
     }
     
@@ -162,6 +167,7 @@ class ProfileViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         self.kasamsRef.removeObserver(withHandle: self.kasamsRefHandle!)
+        self.kasamFollowingRef.removeObserver(withHandle: self.kasamFollowingRefHandle)
     }
 }
 

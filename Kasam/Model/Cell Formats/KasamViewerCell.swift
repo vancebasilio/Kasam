@@ -15,6 +15,7 @@ import HGCircularSlider
 protocol KasamViewerCellDelegate {
     func dismissViewController()
     func sendCompletedMatrix(key: Int, value: Int)
+    func sendTime(key: Int, value: String)
     func nextItem()
 }
 
@@ -115,7 +116,7 @@ class KasamViewerCell: UICollectionViewCell {
                 timeMeasure.text = "second"
             }
         } else if timeLeft > 60 && timeLeft <= 3600 {
-            timeLabel.text = timeLeft.minutes
+            timeLabel.text = timeLeft.minutesSeconds
             timeMeasure.text = "minutes"
             if timeLeft < 120 {
                 timeMeasure.text = "minute"
@@ -141,7 +142,6 @@ class KasamViewerCell: UICollectionViewCell {
         if currentOrder == totalOrder {
             delegate?.dismissViewController()
             NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         } else {
             delegate?.nextItem()
         }
@@ -149,8 +149,9 @@ class KasamViewerCell: UICollectionViewCell {
     
     @IBAction func timerDoneButton(_ sender: Any) {
         delegate?.dismissViewController()
+        let currentTime = getCurrentDateTime()
+        delegate?.sendTime(key: currentOrder, value: currentTime ?? "")
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
     }
     
     @IBAction func startButton(_ sender: Any) {

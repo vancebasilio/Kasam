@@ -159,6 +159,17 @@ extension UIView {
     }
 }
 
+extension UICollectionViewCell {
+    func getCurrentDateTime() -> String? {
+        let currentDateTime = Date()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .medium
+        formatter.dateStyle = .long
+        let finalDate = formatter.string(from: currentDateTime)
+        return finalDate
+    }
+}
+
 extension UIColor {
     convenience init(red: Int, green: Int, blue: Int) {
         assert(red >= 0 && red <= 255, "Invalid red component")

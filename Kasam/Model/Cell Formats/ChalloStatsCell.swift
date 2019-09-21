@@ -9,13 +9,6 @@
 import UIKit
 
 class ChalloStatsCell: UICollectionViewCell {
-    @IBOutlet weak var MTopMargin: NSLayoutConstraint!
-    @IBOutlet weak var TTopMargin: NSLayoutConstraint!
-    @IBOutlet weak var WTopMargin: NSLayoutConstraint!
-    @IBOutlet weak var RTopMargin: NSLayoutConstraint!
-    @IBOutlet weak var FTopMargin: NSLayoutConstraint!
-    @IBOutlet weak var STopMargin: NSLayoutConstraint!
-    @IBOutlet weak var SuTopMargin: NSLayoutConstraint!
     @IBOutlet weak var MBar: UIView!
     @IBOutlet weak var TBar: UIView!
     @IBOutlet weak var WBar: UIView!
@@ -29,6 +22,13 @@ class ChalloStatsCell: UICollectionViewCell {
     @IBOutlet weak var avearageMetric: UILabel!
     @IBOutlet weak var daysLeft: UILabel!
     @IBOutlet weak var kasamTitle: UILabel!
+    @IBOutlet weak var MHeight: NSLayoutConstraint!
+    @IBOutlet weak var THeight: NSLayoutConstraint!
+    @IBOutlet weak var WHeight: NSLayoutConstraint!
+    @IBOutlet weak var RHeight: NSLayoutConstraint!
+    @IBOutlet weak var FHeight: NSLayoutConstraint!
+    @IBOutlet weak var SHeight: NSLayoutConstraint!
+    @IBOutlet weak var SuHeight: NSLayoutConstraint!
     
     override func awakeFromNib() {
         collectionView.layer.cornerRadius = 15.0
@@ -41,9 +41,9 @@ class ChalloStatsCell: UICollectionViewCell {
     }
     
     func setBlock(cell: challoStatFormat) {
-        let constraintArray = [MTopMargin, TTopMargin, WTopMargin, RTopMargin, FTopMargin, STopMargin, SuTopMargin]
-        for i in 0...6{
-            let pushValue = 15 + (((containerView.frame.size.height) - 47)  * (1 - CGFloat(cell.metricDictionary[i+1] ?? 0.0)))
+        let constraintArray = [MHeight, THeight, WHeight, RHeight, FHeight, SHeight, SuHeight]
+        for i in 0...6 {
+            let pushValue = (((containerView.frame.size.height) - 47)  * (CGFloat(cell.metricDictionary[i+1] ?? 0.0)))
             constraintArray[i]?.constant = pushValue
         }
     }
