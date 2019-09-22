@@ -76,7 +76,7 @@ class KasamViewerTicker: UIViewController {
     
     func setupMetricMatrix(){
         for index in 1...activityBlocks.count {
-            self.transferMetricMatrix[String(index)] = activityBlocks[index - 1].currentMetric
+            self.transferMetricMatrix[String(index)] = String(activityBlocks[index - 1].currentMetric)
             summedTotalMetric += Int(activityBlocks[index - 1].totalMetric) ?? 0
         }
     }
@@ -109,14 +109,12 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
         cell.setKasamViewer(activity: activity)
         if activity.type == "Picker" {
             cell.setupPicker()
-            cell.circularSlider.isHidden = true
-            cell.timerButtonStackView.isHidden = true
-            cell.instruction.isHidden = true
-            cell.textField.isHidden = true
+            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
+            cell.pickerView.selectRow(Int(pastProgress) / 10, inComponent: 0, animated: false)
         } else if activity.type == "Timer" {
-            cell.setupTimer(time: activity.totalMetric)
+            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
+            cell.setupTimer(maxtime: activity.totalMetric, pastProgress: pastProgress)
         }
-        cell.pickerView.selectRow((Int(activityBlocks[indexPath.row].currentMetric) ?? 0) / 10, inComponent: 0, animated: false)
         cell.delegate = self
         return cell
     }
@@ -127,13 +125,6 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
 }
 
 extension KasamViewerTicker: KasamViewerCellDelegate {
-    
-    func sendTime(key: Int, value: String) {
-        let statusDateTime = getCurrentDateTime()
-        let statusDate = getCurrentDate()
-        
-        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Completed": value, "Metric Breakdown": transferMetricMatrix]) {(error, reference) in}
-    }
     
     func dismissViewController() {
         dismiss(animated: true, completion: nil)
@@ -148,7 +139,7 @@ extension KasamViewerTicker: KasamViewerCellDelegate {
         }
     }
     
-    func sendCompletedMatrix(key: Int, value: Int) {
+    func sendCompletedMatrix(key: Int, value: Double) {
         transferMetricMatrix[String(key)] = String(value)
         activityBlocks[key - 1].currentMetric = String(value)
         let statusDateTime = getCurrentDateTime()

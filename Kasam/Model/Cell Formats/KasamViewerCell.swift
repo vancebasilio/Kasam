@@ -14,8 +14,7 @@ import HGCircularSlider
 
 protocol KasamViewerCellDelegate {
     func dismissViewController()
-    func sendCompletedMatrix(key: Int, value: Int)
-    func sendTime(key: Int, value: String)
+    func sendCompletedMatrix(key: Int, value: Double)
     func nextItem()
 }
 
@@ -30,8 +29,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBOutlet weak var circularSlider: CircularSlider!
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var instruction: UILabel!
-    @IBOutlet weak var timeMeasure: UILabel!
-    @IBOutlet weak var startButton: UIButton!
+    @IBOutlet weak var timerStartStop: UILabel!
+    @IBOutlet weak var resetButton: UIButton!
     @IBOutlet weak var timerDoneButton: UIButton!
     @IBOutlet weak var timerButtonStackView: UIStackView!
     @IBOutlet weak var textField: SkyFloatingLabelTextField!
@@ -51,12 +50,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     var increment = 10              //for the reps slider
     
     //Timer variables
-    var timer = Timer()
-    var timerStatus = 0
-    var endTime: Date?
     var maxTime: TimeInterval = 0   //set max timer value
-
-    //Test Timer
+    var currentTime = 0.0
     var countdownTimerDidStart = false
     lazy var countdownTimer: CountdownTimer = {let countdownTimer = CountdownTimer(); return countdownTimer}()
     
@@ -65,7 +60,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
     }
     
-    func setupTimer(time: String){
+    func setupTimer(maxtime: String, pastProgress: Double){
         //hide picker views
         animatedImageView.isHidden = true
         doneButton.isHidden = true
@@ -73,20 +68,22 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         instruction.isHidden = true
         
         //setup timer
-        maxTime = Double(time) ?? 0.0
+        maxTime = Double(maxtime) ?? 0.0
         countdownTimer.delegate = self
-        countdownTimer.setTimer(time: maxTime)
-        startButton.layer.cornerRadius = 20.0
+        countdownTimer.setTimer(time: maxTime - Double(pastProgress))
+        resetButton.layer.cornerRadius = 20.0
         timerDoneButton.layer.cornerRadius = 20.0
         circularSlider?.endThumbImage = UIImage(named: "kasam-timer-button")
         circularSlider?.minimumValue = 0.0
         circularSlider?.maximumValue = CGFloat(maxTime)
+        circularSlider?.endPointValue = CGFloat(Double(pastProgress))
         circularSlider?.isUserInteractionEnabled = false
     }
     
     //refreshes everytime the counter changes
     func countdownTime(timeTot: Double, timeBreak: (hours: String, minutes: String, seconds: String)) {
         circularSlider?.endPointValue = CGFloat(maxTime - timeTot)
+        currentTime = timeTot
         if timeTot < 59.0 {
             timeLabel.text = timeBreak.seconds
         } else if timeTot >= 59 && timeTot < 3600 {
@@ -97,7 +94,9 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     }
     
     func countdownTimerDone() {
+        timeLabel.font = timeLabel.font.withSize(30)
         timeLabel.text = "Done!"
+        timerStartStop.text = "Great Job"
         countdownTimerDidStart = false
     }
     
@@ -107,7 +106,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         currentOrder = activity.currentOrder
         totalOrder = activity.totalOrder
         pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
-        pickerView.reloadAllComponents() //important so that the pickerview updates to the max metric
+        pickerView.reloadAllComponents()                                    //important so that the pickerview updates to the max metric
         activityNumber.text = "\(activity.currentOrder)/\(activity.totalOrder)"
         animatedImageView.sd_setImage(with: URL(string: activity.image))
         if currentOrder == totalOrder {
@@ -122,6 +121,10 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         pickerView.delegate = self
         pickerView.dataSource = self
         doneButton.layer.cornerRadius = 20.0
+        circularSlider.isHidden = true
+        timerButtonStackView.isHidden = true
+        instruction.isHidden = true
+        textField.isHidden = true
     }
         
     @objc func stopActivityVideo(){
@@ -136,6 +139,15 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
             animatedImageView.stopAnimating()
             buttoncheck = 0
         }
+        if !countdownTimerDidStart {
+            countdownTimer.start()
+            countdownTimerDidStart = true
+            timerStartStop.text = "tap to pause"
+        } else{
+            countdownTimer.pause()
+            countdownTimerDidStart = false
+            timerStartStop.text = "tap to start"
+        }
     }
     
     @IBAction func doneButton(_ sender: UIButton) {
@@ -149,22 +161,14 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     @IBAction func timerDoneButton(_ sender: Any) {
         delegate?.dismissViewController()
-        let currentTime = getCurrentDateTime()
-        delegate?.sendTime(key: currentOrder, value: currentTime ?? "")
+        delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime))
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
     }
     
-    @IBAction func startButton(_ sender: Any) {
-        if !countdownTimerDidStart{
-            countdownTimer.start()
-            countdownTimerDidStart = true
-            startButton.setTitle("Pause",for: .normal)
-            
-        } else{
-            countdownTimer.pause()
-            countdownTimerDidStart = false
-            startButton.setTitle("Resume",for: .normal)
-        }
+    @IBAction func resetButtonPress(_ sender: Any) {
+        countdownTimer.setTimer(time: maxTime)
+        countdownTimer.stop()
+        countdownTimerDidStart = false
     }
 }
 
@@ -192,18 +196,6 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        delegate?.sendCompletedMatrix(key: currentOrder, value: row * increment)
-    }
-}
-
-extension TimeInterval {
-    var seconds: String {
-        return String(format:"%02d", Int(ceil(truncatingRemainder(dividingBy: 60))))
-    }
-    var minutes: String {
-        return String(format:"%02d", Int(self/60))
-    }
-    var minutesSeconds: String {
-        return String(format:"%02d:%02d", Int(self/60), Int(ceil(truncatingRemainder(dividingBy: 60))))
+        delegate?.sendCompletedMatrix(key: currentOrder, value: Double(row * increment))
     }
 }
