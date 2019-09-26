@@ -19,7 +19,7 @@ class ChalloStatsCell: UICollectionViewCell {
     @IBOutlet weak var containerView: UIStackView!
     @IBOutlet weak var collectionView: UIView!
     @IBOutlet weak var averageMetricLabel: UILabel!
-    @IBOutlet weak var avearageMetric: UILabel!
+    @IBOutlet weak var averageMetric: UILabel!
     @IBOutlet weak var daysLeft: UILabel!
     @IBOutlet weak var kasamTitle: UILabel!
     @IBOutlet weak var MHeight: NSLayoutConstraint!

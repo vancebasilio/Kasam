@@ -14,7 +14,7 @@ import HGCircularSlider
 
 protocol KasamViewerCellDelegate {
     func dismissViewController()
-    func sendCompletedMatrix(key: Int, value: Double)
+    func sendCompletedMatrix(key: Int, value: Double, text: String)
     func nextItem()
 }
 
@@ -34,6 +34,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBOutlet weak var timerDoneButton: UIButton!
     @IBOutlet weak var timerButtonStackView: UIStackView!
     @IBOutlet weak var textField: SkyFloatingLabelTextField!
+    @IBOutlet weak var maskButton: UIButton!
     
     //slider variables
     var delegate: KasamViewerCellDelegate?
@@ -70,7 +71,11 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         //setup timer
         maxTime = Double(maxtime) ?? 0.0
         countdownTimer.delegate = self
-        countdownTimer.setTimer(time: maxTime - Double(pastProgress))
+        if pastProgress >= maxTime {
+            countdownTimerDone()
+        } else {
+            countdownTimer.setTimer(time: maxTime - pastProgress)
+        }
         resetButton.layer.cornerRadius = 20.0
         timerDoneButton.layer.cornerRadius = 20.0
         circularSlider?.endThumbImage = UIImage(named: "kasam-timer-button")
@@ -95,6 +100,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     func countdownTimerDone() {
         timeLabel.font = timeLabel.font.withSize(30)
+        maskButton.isEnabled = false
         timeLabel.text = "Done!"
         timerStartStop.text = "Great Job"
         countdownTimerDidStart = false
@@ -161,11 +167,14 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     @IBAction func timerDoneButton(_ sender: Any) {
         delegate?.dismissViewController()
-        delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime))
+        delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime), text: textField.text ?? "")
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
     }
     
     @IBAction func resetButtonPress(_ sender: Any) {
+        maskButton.isEnabled = true
+        timeLabel.font = timeLabel.font.withSize(50)
+        timerStartStop.text = "tap to start "
         countdownTimer.setTimer(time: maxTime)
         countdownTimer.stop()
         countdownTimerDidStart = false
@@ -196,6 +205,6 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        delegate?.sendCompletedMatrix(key: currentOrder, value: Double(row * increment))
+        delegate?.sendCompletedMatrix(key: currentOrder, value: Double(row * increment), text: "")
     }
 }

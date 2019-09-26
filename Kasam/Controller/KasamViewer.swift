@@ -139,18 +139,18 @@ extension KasamViewerTicker: KasamViewerCellDelegate {
         }
     }
     
-    func sendCompletedMatrix(key: Int, value: Double) {
+    func sendCompletedMatrix(key: Int, value: Double, text: String) {
         transferMetricMatrix[String(key)] = String(value)
         activityBlocks[key - 1].currentMetric = String(value)
         let statusDateTime = getCurrentDateTime()
         let statusDate = getCurrentDate()
         var sum = 0.0
         
-        for (_, avg) in transferMetricMatrix{
+        for (_, avg) in transferMetricMatrix {
             sum += Double(avg) ?? 0.0
         }
         let  transferAvg : Double = sum / Double(self.summedTotalMetric)
 
-        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Completed": transferAvg, "Metric Breakdown": transferMetricMatrix]) {(error, reference) in}
+        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix]) {(error, reference) in}
     }
 }

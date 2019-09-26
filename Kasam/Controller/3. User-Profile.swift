@@ -16,21 +16,32 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var userFirstName: UILabel!
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var calendarNo: UILabel!
-    @IBOutlet weak var winsNo: UILabel!
     @IBOutlet weak var followingNo: UILabel!
     @IBOutlet weak var topView: UIView!
+    @IBOutlet weak var levelLine: UIView!
+    @IBOutlet weak var levelLineProgress: NSLayoutConstraint!
+    @IBOutlet weak var levelLineBack: UIView!
+    @IBOutlet weak var startLevel: UILabel!
+    @IBOutlet weak var totalDays: UILabel!
     @IBOutlet weak var logOut: UIButton!
     @IBOutlet weak var challoStatsCollectionView: UICollectionView!
     @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
     
     var challoStats: [challoStatFormat] = []
     var kasamTitleArray: [String] = []
-    var kasamTitle = ""
+    var metricTypeArray: [String] = []
+    var avgMetricArray: [Int] = []
+    var daysLeftArray: [Int] = []
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
+    
+    var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
+    var kasamUserRefHandle: DatabaseHandle!
+    var kasamRef = Database.database().reference().child("Coach-Kasams")
+    var kasamRefHandle: DatabaseHandle!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,6 +57,11 @@ class ProfileViewController: UIViewController {
     }
     
     func viewSetup(){
+        levelLineBack.layer.cornerRadius = 4
+        levelLineBack.clipsToBounds = true
+        levelLine.layer.cornerRadius = 4
+        levelLine.clipsToBounds = true
+        startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
         self.navigationItem.title = ""
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
         let notificationName = NSNotification.Name("ProfileUpdate")
@@ -57,19 +73,42 @@ class ProfileViewController: UIViewController {
     @objc func getChalloStats(){
         challoStats.removeAll()
         metricDictionary.removeAll()
+        avgMetricArray.removeAll()
+        metricTypeArray.removeAll()
+        kasamTitleArray.removeAll()
         //loops through all kasams that user is following and get kasamID
         self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded, with:{ (snap) in
-            if let value = snap.value as? [String: Any] {
-                self.kasamTitle = value["Kasam Name"] as? String ?? ""
-                self.kasamTitleArray.append(self.kasamTitle)
-            }
+            self.kasamRefHandle = self.kasamRef.child(snap.key).observe(.value, with: { (snapshot: DataSnapshot!) in
+                if let value = snapshot.value as? [String: Any] {
+                    self.kasamTitleArray.append(value["Title"] as? String ?? "")
+                    self.metricTypeArray.append(value["Metric"] as? String ?? "")
+                }
+            })
+            
+            //gets the kasam days remaining count
+            self.kasamHistoryRef.child(snap.key).observeSingleEvent(of: .value, with:{ (snap) in
+                let daysCount = Int(snap.childrenCount)
+                self.daysLeftArray.append(daysCount)
+                let total = self.daysLeftArray.reduce(0, +)
+                self.totalDays.text = "\(String(total)) Days"
+                self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
+            })
+        
+            //gets the stats for each kasam
+            var metricMatrix: Int = 0
+            var count = 0
             for x in 1...7 {
-                self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).child("Metric Completed").observeSingleEvent(of: .value, with:{ (snapshot) in
-                    self.metricDictionary[x] = snapshot.value as? Double
+                self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).observe(.value, with:{ (snapshot) in
+                    if let value = snapshot.value as? [String: Any] {
+                        self.metricDictionary[x] = value["Metric Percent"] as? Double
+                        metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
+                        count += 1
+                    }
                     
                     if x == 7 {
-                        let transferStats = challoStatFormat(metric: "Reps", avgMetric: 1000, daysLeft: 5, metricDictionary: self.metricDictionary)
+                        let transferStats = challoStatFormat(metricDictionary: self.metricDictionary)
                         self.challoStats.append(transferStats)
+                        self.avgMetricArray.append(metricMatrix / count)
                         self.challoStatsCollectionView.reloadData()
                     }
                 })
@@ -89,9 +128,6 @@ class ProfileViewController: UIViewController {
             }
         }
     }
-    
-    var kasamsRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
-    var kasamsRefHandle: DatabaseHandle!
     
     @IBAction func logOut(_ sender: Any) {
         AppManager.shared.logoout()
@@ -114,7 +150,7 @@ class ProfileViewController: UIViewController {
         var followingcount: [String: String] = [:]
         calendarNo.text = String(kasamcount)
         followingNo.text = String(followingcount.count)
-            self.kasamsRefHandle = self.kasamsRef.child("Kasam-Following").observe(.childAdded) { (snapshot) in
+            self.kasamUserRefHandle = self.kasamUserRef.child("Kasam-Following").observe(.childAdded) { (snapshot) in
                 kasamcount += 1
                 followingcount = [snapshot.key: "1"]
                 self.calendarNo.text = String(kasamcount)
@@ -166,8 +202,9 @@ class ProfileViewController: UIViewController {
     //Stops the observer
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        self.kasamsRef.removeObserver(withHandle: self.kasamsRefHandle!)
+        self.kasamUserRef.removeObserver(withHandle: self.kasamUserRefHandle!)
         self.kasamFollowingRef.removeObserver(withHandle: self.kasamFollowingRefHandle)
+        self.kasamRef.removeObserver(withHandle: self.kasamRefHandle)
     }
 }
 
@@ -186,8 +223,9 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
         cell.setBlock(cell: stat)
         cell.kasamTitle.text = kasamTitleArray[indexPath.row]
+        cell.daysLeft.text = String(30 - daysLeftArray[indexPath.row])
+        cell.averageMetricLabel.text = "Avg. \(metricTypeArray[indexPath.row])"
+        cell.averageMetric.text = String(avgMetricArray[indexPath.row])
         return cell
     }
-    
-    
 }

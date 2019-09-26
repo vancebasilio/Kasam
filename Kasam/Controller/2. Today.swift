@@ -138,7 +138,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                 var hour = ""
                                 
                                 //Checks if user has completed Kasam for the current day
-                                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(self.getCurrentDate() ?? "").child("Metric Completed").observeSingleEvent(of: .value, with: {(snap) in
+                                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(self.getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
                                     if let value = snap.value as? Double {
                                         if value == 1 {
                                             self.displayStatus = "Check" //Kasam has been completed today
@@ -173,11 +173,11 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     
     @objc func updateKasamStatus() {
         for i in 0...(kasamBlocks.count - 1) {
-            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamBlocks[i].kasamID).child(getCurrentDate() ?? "").child("Metric Completed").observeSingleEvent(of: .value, with: {(snap) in
+            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamBlocks[i].kasamID).child(getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
                 if let value = snap.value as? Double {
-                    if value == 1 {
+                    if value >= 1 {
                         self.displayStatus = "Check" //Kasam has been completed today
-                    } else {
+                    } else if value < 1 {
                         self.displayStatus = "Progress" //kasam has been started, but not completed
                     }
                 } else {
