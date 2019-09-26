@@ -32,6 +32,7 @@ class ProfileViewController: UIViewController {
     var metricTypeArray: [String] = []
     var avgMetricArray: [Int] = []
     var daysLeftArray: [Int] = []
+    var daysCompletedDict: [String:Int] = [:]
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
@@ -89,7 +90,12 @@ class ProfileViewController: UIViewController {
             self.kasamHistoryRef.child(snap.key).observeSingleEvent(of: .value, with:{ (snap) in
                 let daysCount = Int(snap.childrenCount)
                 self.daysLeftArray.append(daysCount)
-                let total = self.daysLeftArray.reduce(0, +)
+            })
+            
+            //gets the kasamLevel
+            self.kasamHistoryRef.child(snap.key).observe(.childAdded, with:{ (snapshot) in
+                self.daysCompletedDict[snapshot.key] = 1
+                let total = self.daysCompletedDict.count
                 self.totalDays.text = "\(String(total)) Days"
                 self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
             })
