@@ -38,7 +38,6 @@ class ProfileViewController: UIViewController {
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
-    
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
     var kasamUserRefHandle: DatabaseHandle!
     var kasamRef = Database.database().reference().child("Coach-Kasams")
@@ -56,7 +55,7 @@ class ProfileViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         getChalloStats()
     }
-    
+  
     func viewSetup(){
         levelLineBack.layer.cornerRadius = 4
         levelLineBack.clipsToBounds = true
@@ -215,6 +214,7 @@ class ProfileViewController: UIViewController {
 }
 
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return challoStats.count
     }
@@ -227,9 +227,12 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let stat = challoStats[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
+        cell.height = challoStatsHeight.constant
         cell.setBlock(cell: stat)
         cell.kasamTitle.text = kasamTitleArray[indexPath.row]
-        cell.daysLeft.text = String(30 - daysLeftArray[indexPath.row])
+        DispatchQueue.main.async {
+            cell.daysLeft.text = String(30 - self.daysLeftArray[indexPath.row]) //async loading this as it takes a long time to gather
+        }
         cell.averageMetricLabel.text = "Avg. \(metricTypeArray[indexPath.row])"
         cell.averageMetric.text = String(avgMetricArray[indexPath.row])
         return cell

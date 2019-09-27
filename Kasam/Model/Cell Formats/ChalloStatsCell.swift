@@ -16,7 +16,6 @@ class ChalloStatsCell: UICollectionViewCell {
     @IBOutlet weak var FBar: UIView!
     @IBOutlet weak var SBar: UIView!
     @IBOutlet weak var SuBar: UIView!
-    @IBOutlet weak var containerView: UIStackView!
     @IBOutlet weak var collectionView: UIView!
     @IBOutlet weak var averageMetricLabel: UILabel!
     @IBOutlet weak var averageMetric: UILabel!
@@ -29,6 +28,7 @@ class ChalloStatsCell: UICollectionViewCell {
     @IBOutlet weak var FHeight: NSLayoutConstraint!
     @IBOutlet weak var SHeight: NSLayoutConstraint!
     @IBOutlet weak var SuHeight: NSLayoutConstraint!
+    var height = CGFloat(0.0)
     
     override func awakeFromNib() {
         collectionView.layer.cornerRadius = 15.0
@@ -43,7 +43,7 @@ class ChalloStatsCell: UICollectionViewCell {
     func setBlock(cell: challoStatFormat) {
         let constraintArray = [MHeight, THeight, WHeight, RHeight, FHeight, SHeight, SuHeight]
         for i in 0...6 {
-            let pushValue = (((containerView.frame.size.height) - 47)  * (CGFloat(cell.metricDictionary[i+1] ?? 0.0)))
+            let pushValue = ((height - 70)  * (CGFloat(cell.metricDictionary[i+1] ?? 0.0)))
             constraintArray[i]?.constant = pushValue
         }
     }
