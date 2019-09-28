@@ -72,7 +72,6 @@ class ProfileViewController: UIViewController {
     
     @objc func getChalloStats(){
         challoStats.removeAll()
-        metricDictionary.removeAll()
         avgMetricArray.removeAll()
         metricTypeArray.removeAll()
         kasamTitleArray.removeAll()
@@ -115,6 +114,7 @@ class ProfileViewController: UIViewController {
                         self.challoStats.append(transferStats)
                         self.avgMetricArray.append(metricMatrix / count)
                         self.challoStatsCollectionView.reloadData()
+                        self.metricDictionary.removeAll()
                     }
                 })
             }
