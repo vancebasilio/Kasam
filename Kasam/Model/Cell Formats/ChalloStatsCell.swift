@@ -35,7 +35,7 @@ class ChalloStatsCell: UICollectionViewCell {
         collectionView.clipsToBounds = true
         let barArray = [MBar, TBar, WBar, RBar, FBar, SBar, SuBar]
         for i in 0...6 {
-            barArray[i]?.layer.cornerRadius = 4
+            barArray[i]?.layer.cornerRadius = 5
             barArray[i]?.clipsToBounds = true
         }
     }

@@ -25,6 +25,20 @@ class freeKasamFormat {
     }
 }
 
+class kasamFollowingCellFormat {
+    var image: URL
+    var title: String
+    var kasamID: String
+    var metricType: String
+    
+    init(kasamID: String, title: String, image: URL, metricType: String){
+        self.image = image
+        self.title = title
+        self.kasamID = kasamID
+        self.metricType = metricType
+    }
+}
+
 class expertKasamFormat {
     var image: URL
     var title: String
@@ -92,6 +106,16 @@ class TodayBlockFormat {
         self.totalMetric = totalMetric
         self.statusType = statusType
         self.displayStatus = displayStatus
+    }
+}
+
+class kasamFollowingFormat {
+    var date: String
+    var metric: String
+    
+    init(date: String, metric: String) {
+        self.date = date
+        self.metric = metric
     }
 }
 

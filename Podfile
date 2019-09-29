@@ -25,6 +25,7 @@ pod 'lottie-ios'
 pod 'SwiftEntryKit'
 pod 'HGCircularSlider'
 pod 'SkyFloatingLabelTextField'
+pod 'Charts'
 
 end
 

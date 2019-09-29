@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-class DiscoverViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class DiscoverViewController: UIViewController {
     
     @IBOutlet weak var discoverCollection: UICollectionView!
     @IBOutlet weak var categoryCollection: UICollectionView!
@@ -40,6 +40,7 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
             navBar.backgroundColor = UIColor.white.withAlphaComponent(100)
         }
     }
+    
     override func viewDidAppear(_ animated: Bool) {
         if let navBar = self.navigationController?.navigationBar {
             navBar.isTranslucent = false
@@ -59,61 +60,6 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
             self.categoryCollection.scrollToItem(at: index, at: .centeredHorizontally, animated: false)
             expertPageControl.currentPage = counter
             counter = 1
-        }
-    }
-    
-    //Number of cells
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == discoverCollection {
-            let count = freeKasamArray.count
-            expertPageControl.numberOfPages = count
-            expertPageControl.isHidden = !(count > 1)
-            return count
-        } else {
-            return expertKasamArray.count
-        }
-    }
-    
-    //Populate cells
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == discoverCollection {
-            let block = freeKasamArray[indexPath.row]
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FreeKasamCell", for: indexPath) as! DiscoverHorizontalCell
-            cell.setBlock(cell: block)
-            cell.topImage.layer.cornerRadius = 8.0
-            cell.topImage.clipsToBounds = true
-            return cell
-        } else {
-            let block = expertKasamArray[indexPath.row]
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ExpertKasamCell", for: indexPath) as! DiscoverCategoryCell
-            cell.setBlock(cell: block)
-            return cell
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == discoverCollection {
-            let kasamID = freeKasamArray[indexPath.row].kasamID
-            let kasamName = freeKasamArray[indexPath.row].title
-            kasamTitleGlobal = kasamName
-            kasamIDGlobal = kasamID
-            self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
-        } else {
-            let kasamID = expertKasamArray[indexPath.row].kasamID
-            let kasamName = expertKasamArray[indexPath.row].title
-            kasamTitleGlobal = kasamName
-            kasamIDGlobal = kasamID
-            self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionView == categoryCollection {
-            expertHeight.constant = (view.bounds.size.width * (8/13))
-            return CGSize(width: view.bounds.size.width, height: view.bounds.size.width * (8/13))
-        } else {
-            popularHeight.constant = (view.bounds.size.width / 2.3)
-            return CGSize(width: view.bounds.size.width / 2, height: view.bounds.size.width / 2.3)
         }
     }
     
@@ -168,6 +114,63 @@ class DiscoverViewController: UIViewController, UICollectionViewDelegate, UIColl
                 self.freeKasamArray.append(categoryBlock)
                 self.discoverCollection.reloadData()
             }
+        }
+    }
+}
+
+extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    //Number of cells
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if collectionView == discoverCollection {
+            let count = freeKasamArray.count
+            expertPageControl.numberOfPages = count
+            expertPageControl.isHidden = !(count > 1)
+            return count
+        } else {
+            return expertKasamArray.count
+        }
+    }
+    
+    //Populate cells
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if collectionView == discoverCollection {
+            let block = freeKasamArray[indexPath.row]
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FreeKasamCell", for: indexPath) as! DiscoverHorizontalCell
+            cell.setBlock(cell: block)
+            cell.topImage.layer.cornerRadius = 8.0
+            cell.topImage.clipsToBounds = true
+            return cell
+        } else {
+            let block = expertKasamArray[indexPath.row]
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ExpertKasamCell", for: indexPath) as! DiscoverCategoryCell
+            cell.setBlock(cell: block)
+            return cell
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == discoverCollection {
+            let kasamID = freeKasamArray[indexPath.row].kasamID
+            let kasamName = freeKasamArray[indexPath.row].title
+            kasamTitleGlobal = kasamName
+            kasamIDGlobal = kasamID
+            self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
+        } else {
+            let kasamID = expertKasamArray[indexPath.row].kasamID
+            let kasamName = expertKasamArray[indexPath.row].title
+            kasamTitleGlobal = kasamName
+            kasamIDGlobal = kasamID
+            self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if collectionView == categoryCollection {
+            expertHeight.constant = (view.bounds.size.width * (8/13))
+            return CGSize(width: view.bounds.size.width, height: view.bounds.size.width * (8/13))
+        } else {
+            popularHeight.constant = (view.bounds.size.width / 2.3)
+            return CGSize(width: view.bounds.size.width / 2, height: view.bounds.size.width / 2.3)
         }
     }
 }

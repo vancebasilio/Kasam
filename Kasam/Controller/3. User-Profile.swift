@@ -23,8 +23,8 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var levelLineBack: UIView!
     @IBOutlet weak var startLevel: UILabel!
     @IBOutlet weak var totalDays: UILabel!
-    @IBOutlet weak var logOut: UIButton!
     @IBOutlet weak var challoStatsCollectionView: UICollectionView!
+    @IBOutlet weak var kasamFollowingCollectionView: UICollectionView!
     @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
     
     var challoStats: [challoStatFormat] = []
@@ -35,6 +35,13 @@ class ProfileViewController: UIViewController {
     var daysCompletedDict: [String:Int] = [:]
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
+    
+    //Kasam Following
+    var kasamFollowing: [kasamFollowingCellFormat] = []
+    var kasamIDGlobal: String = ""
+    var kasamTitleGlobal: String = ""
+    var kasamMetricTypeGlobal: String = ""
+    
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
@@ -70,17 +77,22 @@ class ProfileViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.getChalloStats), name: challoStatsUpdate, object: nil)
     }
     
+    //too many functions under this. Break it out, so it isn't refinding all these details
     @objc func getChalloStats(){
         challoStats.removeAll()
         avgMetricArray.removeAll()
         metricTypeArray.removeAll()
         kasamTitleArray.removeAll()
+        kasamFollowing.removeAll()
         //loops through all kasams that user is following and get kasamID
         self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded, with:{ (snap) in
             self.kasamRefHandle = self.kasamRef.child(snap.key).observe(.value, with: { (snapshot: DataSnapshot!) in
                 if let value = snapshot.value as? [String: Any] {
                     self.kasamTitleArray.append(value["Title"] as? String ?? "")
                     self.metricTypeArray.append(value["Metric"] as? String ?? "")
+                    let imageURL = URL(string: value["Image"] as? String ?? "")
+                    let kasamBlock = kasamFollowingCellFormat(kasamID: value["KasamID"] as? String ?? "", title: value["Title"] as? String ?? "", image: imageURL!, metricType: value["Metric"] as? String ?? "")
+                    self.kasamFollowing.append(kasamBlock)
                 }
             })
             
@@ -114,6 +126,7 @@ class ProfileViewController: UIViewController {
                         self.challoStats.append(transferStats)
                         self.avgMetricArray.append(metricMatrix / count)
                         self.challoStatsCollectionView.reloadData()
+                        self.kasamFollowingCollectionView.reloadData()
                         self.metricDictionary.removeAll()
                     }
                 })
@@ -204,6 +217,15 @@ class ProfileViewController: UIViewController {
         }
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToStats" {
+            let kasamTransferHolder = segue.destination as! StatisticsViewController
+            kasamTransferHolder.kasamID = kasamIDGlobal
+            kasamTransferHolder.kasamName = kasamTitleGlobal
+            kasamTransferHolder.kasamMetricType = kasamMetricTypeGlobal
+        }
+    }
+    
     //Stops the observer
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
@@ -216,25 +238,53 @@ class ProfileViewController: UIViewController {
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return challoStats.count
+        if collectionView == challoStatsCollectionView {
+            return challoStats.count
+        } else {
+            return kasamFollowing.count
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        challoStatsHeight.constant = (view.bounds.size.width * (2/5))
+        if collectionView == challoStatsCollectionView {
+            challoStatsHeight.constant = (view.bounds.size.width * (2/5))
         return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
+        } else {
+            return CGSize(width: 100, height: 140)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == challoStatsCollectionView {
+        } else {
+            let kasamID = kasamFollowing[indexPath.row].kasamID
+            let kasamName = kasamFollowing[indexPath.row].title
+            let kasamMetricType = kasamFollowing[indexPath.row].metricType
+            kasamTitleGlobal = kasamName
+            kasamIDGlobal = kasamID
+            kasamMetricTypeGlobal = kasamMetricType
+            self.performSegue(withIdentifier: "goToStats", sender: indexPath)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let stat = challoStats[indexPath.row]
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
-        cell.height = challoStatsHeight.constant
-        cell.setBlock(cell: stat)
-        cell.kasamTitle.text = kasamTitleArray[indexPath.row]
-        DispatchQueue.main.async {
-            cell.daysLeft.text = String(30 - self.daysLeftArray[indexPath.row]) //async loading this as it takes a long time to gather
+        if collectionView == challoStatsCollectionView {
+            let stat = challoStats[indexPath.row]
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
+            cell.height = challoStatsHeight.constant
+            cell.setBlock(cell: stat)
+            cell.kasamTitle.text = kasamTitleArray[indexPath.row]
+            DispatchQueue.main.async {
+                cell.daysLeft.text = String(30 - self.daysLeftArray[indexPath.row]) //async loading this as it takes a long time to gather
+            }
+            cell.averageMetricLabel.text = "Avg. \(metricTypeArray[indexPath.row])"
+            cell.averageMetric.text = String(avgMetricArray[indexPath.row])
+            return cell
+        } else {
+            let kasam = kasamFollowing[indexPath.row]
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamFollowingCell", for: indexPath) as! KasamFollowingCell
+            cell.setBlock(cell: kasam)
+            return cell
         }
-        cell.averageMetricLabel.text = "Avg. \(metricTypeArray[indexPath.row])"
-        cell.averageMetric.text = String(avgMetricArray[indexPath.row])
-        return cell
     }
 }

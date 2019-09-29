@@ -11,6 +11,9 @@
 		BC01664522D53E970073186D /* CoachHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC01664422D53E970073186D /* CoachHolder.swift */; };
 		BC01664722D5790B0073186D /* UIImageViewAligned in Resources */ = {isa = PBXBuildFile; fileRef = BC01664622D5790B0073186D /* UIImageViewAligned */; };
 		BC08B957229D585900F90288 /* CellFormats.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC08B956229D585900F90288 /* CellFormats.swift */; };
+		BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */; };
+		BC12F1EE233FC17100D93227 /* Statistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1ED233FC17100D93227 /* Statistics.swift */; };
+		BC12F1F0233FF1E900D93227 /* KasamHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1EF233FF1E900D93227 /* KasamHistoryCell.swift */; };
 		BC16A20423292ABD00FDF70C /* 690-loading.json in Resources */ = {isa = PBXBuildFile; fileRef = BC16A20323292ABD00FDF70C /* 690-loading.json */; };
 		BC1955E2228780B100CBF842 /* -Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1955E1228780B100CBF842 /* -Following.swift */; };
 		BC1FAF2D2269FAFA006A9245 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1FAF2C2269FAFA006A9245 /* AppDelegate.swift */; };
@@ -42,6 +45,7 @@
 		BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06122A9D22E008C5A7D /* AppContainer.swift */; };
 		BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06322A9D2AB008C5A7D /* AppManager.swift */; };
 		BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */; };
+		BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */; };
 		BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BCC79A05226BD56000B72D65 /* Default-568h@2x.png */; };
 		BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */; };
 		BCE50BDD22D0497B000F2534 /* KasamHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE50BDC22D0497B000F2534 /* KasamHolder.swift */; };
@@ -62,6 +66,9 @@
 		BC01664422D53E970073186D /* CoachHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoachHolder.swift; sourceTree = "<group>"; };
 		BC01664622D5790B0073186D /* UIImageViewAligned */ = {isa = PBXFileReference; lastKnownFileType = folder; path = UIImageViewAligned; sourceTree = "<group>"; };
 		BC08B956229D585900F90288 /* CellFormats.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CellFormats.swift; path = Kasam/Model/KasamCalendarTable/CellFormats.swift; sourceTree = SOURCE_ROOT; };
+		BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamFollowingCell.swift; sourceTree = "<group>"; };
+		BC12F1ED233FC17100D93227 /* Statistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Statistics.swift; sourceTree = "<group>"; };
+		BC12F1EF233FF1E900D93227 /* KasamHistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamHistoryCell.swift; sourceTree = "<group>"; };
 		BC16A20323292ABD00FDF70C /* 690-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "690-loading.json"; path = "Kasam/Assets.xcassets/690-loading.json"; sourceTree = SOURCE_ROOT; };
 		BC1955E1228780B100CBF842 /* -Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-Following.swift"; sourceTree = "<group>"; };
 		BC1FAF292269FAFA006A9245 /* Kasam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kasam.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -95,6 +102,7 @@
 		BCA9A06122A9D22E008C5A7D /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		BCA9A06322A9D2AB008C5A7D /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
 		BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KasamTrackerCell.swift; sourceTree = "<group>"; };
+		BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
 		BCC79A05226BD56000B72D65 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizedTableView.swift; sourceTree = "<group>"; };
 		BCE50BDC22D0497B000F2534 /* KasamHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamHolder.swift; sourceTree = "<group>"; };
@@ -185,6 +193,7 @@
 			children = (
 				BC08B956229D585900F90288 /* CellFormats.swift */,
 				BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */,
+				BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */,
 				BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */,
 				BC55CC68232B4552003C87F6 /* ChalloStatsCell.swift */,
 				BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */,
@@ -193,6 +202,7 @@
 				BCF2A76A227F08F0009D2368 /* BlocksCell.swift */,
 				BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */,
 				BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */,
+				BC12F1EF233FF1E900D93227 /* KasamHistoryCell.swift */,
 			);
 			path = "Cell Formats";
 			sourceTree = "<group>";
@@ -203,6 +213,7 @@
 				BC01664622D5790B0073186D /* UIImageViewAligned */,
 				BCA9A06322A9D2AB008C5A7D /* AppManager.swift */,
 				BC554BD5226D8BDB00D707CC /* UIColor.swift */,
+				BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */,
 				BC520BBA227413E100553C6B /* Transitions.swift */,
 				BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */,
 				BC74E1F22336748E00653381 /* CountdownTimer.swift */,
@@ -235,6 +246,7 @@
 				BC554BD1226D6EF900D707CC /* 1. Discover.swift */,
 				BC9C7840228CD2DB000C8D0A /* 2. Today.swift */,
 				BC554BD7226E079100D707CC /* 3. User-Profile.swift */,
+				BC12F1ED233FC17100D93227 /* Statistics.swift */,
 				BCE50BDC22D0497B000F2534 /* KasamHolder.swift */,
 				BC6E97842321DF7800698EB9 /* KasamViewer.swift */,
 				BC207A7B228BABBE00C14317 /* -Calendar.swift */,
@@ -373,6 +385,7 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Kasam/Pods-Kasam-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/ChameleonFramework/ChameleonFramework.framework",
+				"${BUILT_PRODUCTS_DIR}/Charts/Charts.framework",
 				"${BUILT_PRODUCTS_DIR}/Cosmos/Cosmos.framework",
 				"${BUILT_PRODUCTS_DIR}/FBSDKCoreKit/FBSDKCoreKit.framework",
 				"${BUILT_PRODUCTS_DIR}/FBSDKLoginKit/FBSDKLoginKit.framework",
@@ -402,6 +415,7 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ChameleonFramework.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Charts.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cosmos.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSDKCoreKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSDKLoginKit.framework",
@@ -442,9 +456,11 @@
 			files = (
 				BC1FAF2F2269FAFA006A9245 /* LogIn.swift in Sources */,
 				BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */,
+				BC12F1EE233FC17100D93227 /* Statistics.swift in Sources */,
 				BCFCB43522AF02C900DC2DD7 /* DiscoverHCell.swift in Sources */,
 				BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */,
 				BCE50BE022D04A37000F2534 /* FXBlurView.m in Sources */,
+				BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */,
 				BC1955E2228780B100CBF842 /* -Following.swift in Sources */,
 				BC9C7841228CD2DB000C8D0A /* 2. Today.swift in Sources */,
 				BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */,
@@ -468,6 +484,7 @@
 				BC40C43822BC386700BCBA8D /* -CoachKasams.swift in Sources */,
 				BC520BBB227413E100553C6B /* Transitions.swift in Sources */,
 				BC08B957229D585900F90288 /* CellFormats.swift in Sources */,
+				BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */,
 				BCEFD539226C195F0084AFF1 /* Register.swift in Sources */,
 				BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */,
 				BC554BD8226E079100D707CC /* 3. User-Profile.swift in Sources */,
@@ -475,6 +492,7 @@
 				BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */,
 				BC55CC69232B4552003C87F6 /* ChalloStatsCell.swift in Sources */,
 				BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */,
+				BC12F1F0233FF1E900D93227 /* KasamHistoryCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

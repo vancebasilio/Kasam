@@ -17,7 +17,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var calendar: FSCalendar!
-    @IBOutlet weak var tableHeight: NSLayoutConstraint!
     @IBOutlet weak var kasamsNumber: UILabel!
     
     var kasamBlocks: [TodayBlockFormat] = []
@@ -29,6 +28,13 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     let semaphore = DispatchSemaphore(value: 1)
     let animationView = AnimationView()
     var displayStatus: String?
+    
+    var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
+    var kasamUserRefHandle: DatabaseHandle!
+    var blockUserRef: DatabaseReference!
+    var blockUserRefHandle: DatabaseHandle!
+    var orderUserRef: DatabaseQuery!
+    var orderUserRefHandle: DatabaseHandle!
     
     fileprivate lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -60,13 +66,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     deinit {
         print("\(#function)")
     }
-    
-    var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
-    var kasamUserRefHandle: DatabaseHandle!
-    var blockUserRef: DatabaseReference!
-    var blockUserRefHandle: DatabaseHandle!
-    var orderUserRef: DatabaseQuery!
-    var orderUserRefHandle: DatabaseHandle!
     
     @objc func getContinuedPreferences(){
         getPreferences {self.retrieveKasams()}

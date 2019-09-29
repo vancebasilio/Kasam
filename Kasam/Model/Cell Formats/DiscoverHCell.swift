@@ -8,7 +8,7 @@
 
 import UIKit
 import SDWebImage
-import Cosmos
+import Cosmos //for star rating system
 
 class DiscoverHorizontalCell: UICollectionViewCell {
     

@@ -43,7 +43,6 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
         super.viewDidLoad()
         setupLoad()
         countFollowers()
-        countRoutines()
         getCoachData()
         countFollowers()
         getKasamsData()
@@ -55,14 +54,6 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
             count += 1
             self.followersNo.text = String(count)
         }
-    }
-    
-    func countRoutines(){
-//        var count = 0
-//            Database.database().reference().child("Users").child(coachID).child("Kasams").observe(.childAdded) { (snapshot) in
-//            count += 1
-//            self.routineNo.text = String(count)
-//        }
     }
     
     //Retrieves Coach Data using coachID selected

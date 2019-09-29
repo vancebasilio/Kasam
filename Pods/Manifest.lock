@@ -2,6 +2,9 @@ PODS:
   - ChameleonFramework (2.1.0):
     - ChameleonFramework/Default (= 2.1.0)
   - ChameleonFramework/Default (2.1.0)
+  - Charts (3.3.0):
+    - Charts/Core (= 3.3.0)
+  - Charts/Core (3.3.0)
   - Cosmos (19.0.3)
   - FacebookCore (0.9.0):
     - FBSDKCoreKit (~> 5.0)
@@ -140,6 +143,7 @@ PODS:
 
 DEPENDENCIES:
   - ChameleonFramework
+  - Charts
   - Cosmos (~> 19.0)
   - FacebookCore
   - FacebookLogin
@@ -162,6 +166,7 @@ DEPENDENCIES:
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - ChameleonFramework
+    - Charts
     - Cosmos
     - FacebookCore
     - FacebookLogin
@@ -203,6 +208,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   ChameleonFramework: d21a3cc247abfe5e37609a283a8238b03575cf64
+  Charts: e0dd4cd8f257bccf98407b58183ddca8e8d5b578
   Cosmos: a6fb17284281fa12cf4c85c2efecd440a215ec44
   FacebookCore: ba86524b66cfa86d0f8e65d08faa8504a9f732dd
   FacebookLogin: 6cee9fd6e1fe976fe8f7eec199e27b28b14f5d63
@@ -242,6 +248,6 @@ SPEC CHECKSUMS:
   SwiftEntryKit: be00509cf6e1e88b57bb96cf2114b09cf20ee84a
   SwiftIcons: e7eb9bf2b475d6bdd8b37c5bdedc6d120aab0829
 
-PODFILE CHECKSUM: c01ce61efb74c653691379919765e16b420d8052
+PODFILE CHECKSUM: 3e47dd35ab7ccaa521ef629d945481a47fd87778
 
 COCOAPODS: 1.7.5

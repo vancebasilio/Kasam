@@ -136,6 +136,22 @@ extension UIViewController {
         let finalDate = formatter.string(from: date)
         return finalDate
     }
+    
+    func convertLongDateToShort(date: String) -> String {
+        var dateOutput = ""
+        let dateFormatterGet = DateFormatter()
+        dateFormatterGet.dateStyle = .long
+        
+        let dateFormatterPrint = DateFormatter()
+        dateFormatterPrint.dateFormat = "MMM dd"
+        
+        if let date = dateFormatterGet.date(from: date) {
+            dateOutput = dateFormatterPrint.string(from: date)
+        } else {
+            print("There was an error decoding the string")
+        }
+        return dateOutput
+    }
 }
 
 extension Date {
