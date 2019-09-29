@@ -110,10 +110,12 @@ class TodayBlockFormat {
 }
 
 class kasamFollowingFormat {
+    var day: Int
     var date: String
     var metric: String
     
-    init(date: String, metric: String) {
+    init(day: Int, date: String, metric: String) {
+        self.day = day
         self.date = date
         self.metric = metric
     }

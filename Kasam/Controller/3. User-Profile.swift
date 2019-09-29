@@ -41,6 +41,7 @@ class ProfileViewController: UIViewController {
     var kasamIDGlobal: String = ""
     var kasamTitleGlobal: String = ""
     var kasamMetricTypeGlobal: String = ""
+    var kasamImageGlobal: URL!
     
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamFollowingRefHandle: DatabaseHandle!
@@ -223,6 +224,7 @@ class ProfileViewController: UIViewController {
             kasamTransferHolder.kasamID = kasamIDGlobal
             kasamTransferHolder.kasamName = kasamTitleGlobal
             kasamTransferHolder.kasamMetricType = kasamMetricTypeGlobal
+            kasamTransferHolder.kasamImage = kasamImageGlobal
         }
     }
     
@@ -257,12 +259,10 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == challoStatsCollectionView {
         } else {
-            let kasamID = kasamFollowing[indexPath.row].kasamID
-            let kasamName = kasamFollowing[indexPath.row].title
-            let kasamMetricType = kasamFollowing[indexPath.row].metricType
-            kasamTitleGlobal = kasamName
-            kasamIDGlobal = kasamID
-            kasamMetricTypeGlobal = kasamMetricType
+            kasamTitleGlobal = kasamFollowing[indexPath.row].title
+            kasamIDGlobal = kasamFollowing[indexPath.row].kasamID
+            kasamMetricTypeGlobal = kasamFollowing[indexPath.row].metricType
+            kasamImageGlobal = kasamFollowing[indexPath.row].image
             self.performSegue(withIdentifier: "goToStats", sender: indexPath)
         }
     }

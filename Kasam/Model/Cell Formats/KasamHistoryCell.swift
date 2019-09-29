@@ -10,6 +10,7 @@ import UIKit
 import Charts
 
 class KasamHistoryTableCell: UITableViewCell {
+    @IBOutlet weak var dayLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var metricLabel: UILabel!
     
@@ -19,6 +20,7 @@ class KasamHistoryTableCell: UITableViewCell {
     }
     
     func setBlock(block: kasamFollowingFormat) {
+        dayLabel.text = "Day \(block.day)"
         dateLabel.text = block.date
         metricLabel.text = block.metric
     }
