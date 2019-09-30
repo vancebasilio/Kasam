@@ -116,7 +116,7 @@ class StatisticsViewController: UIViewController {
         mChart.leftAxis.drawGridLinesEnabled = false //horizontal lines
         
         mChart.rightAxis.enabled = false
-        mChart.rightAxis.drawAxisLineEnabled = false
+        mChart.rightAxis.drawAxisLineEnabled = true
         mChart.rightAxis.drawGridLinesEnabled = false
         
         for set in mChart.data!.dataSets {

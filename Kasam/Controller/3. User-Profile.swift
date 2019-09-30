@@ -112,20 +112,26 @@ class ProfileViewController: UIViewController {
             })
         
             //gets the stats for each kasam
-            var metricMatrix: Int = 0
-            var count = 0
+            var metricMatrix = 0
+            var metricCount = 0
+            var checkerCount = 0
             for x in 1...7 {
                 self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).observe(.value, with:{ (snapshot) in
+                    checkerCount += 1
                     if let value = snapshot.value as? [String: Any] {
                         self.metricDictionary[x] = value["Metric Percent"] as? Double
                         metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
-                        count += 1
+                        metricCount += 1
                     }
-                    
-                    if x == 7 {
+                    if checkerCount == 7 {
+                        if metricCount != 0 {
+                            self.avgMetricArray.append(metricMatrix / metricCount)
+                        } else {
+                            self.avgMetricArray.append(0) //if there are no stats, we don't want to divde by zero
+                        }
+                        print(metricMatrix)
                         let transferStats = challoStatFormat(metricDictionary: self.metricDictionary)
                         self.challoStats.append(transferStats)
-                        self.avgMetricArray.append(metricMatrix / count)
                         self.challoStatsCollectionView.reloadData()
                         self.kasamFollowingCollectionView.reloadData()
                         self.metricDictionary.removeAll()
@@ -276,9 +282,9 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             cell.kasamTitle.text = kasamTitleArray[indexPath.row]
             DispatchQueue.main.async {
                 cell.daysLeft.text = String(30 - self.daysLeftArray[indexPath.row]) //async loading this as it takes a long time to gather
+                cell.averageMetric.text = String(self.avgMetricArray[indexPath.row])
             }
             cell.averageMetricLabel.text = "Avg. \(metricTypeArray[indexPath.row])"
-            cell.averageMetric.text = String(avgMetricArray[indexPath.row])
             return cell
         } else {
             let kasam = kasamFollowing[indexPath.row]
