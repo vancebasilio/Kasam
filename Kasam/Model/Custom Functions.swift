@@ -113,8 +113,8 @@ extension UIViewController {
     func getCurrentDateTime() -> String? {
         let currentDateTime = Date()
         let formatter = DateFormatter()
-        formatter.timeStyle = .medium
-        formatter.dateStyle = .long
+        formatter.timeStyle = .long
+        formatter.dateStyle = .short
         let finalDate = formatter.string(from: currentDateTime)
         return finalDate
     }
@@ -123,7 +123,7 @@ extension UIViewController {
         let currentDateTime = Date()
         let formatter = DateFormatter()
         formatter.timeStyle = .none
-        formatter.dateStyle = .long
+        formatter.dateFormat = "yyyy-MM-dd"                                     //***keep this value the same as below
         let finalDate = formatter.string(from: currentDateTime)
         return finalDate
     }
@@ -132,7 +132,7 @@ extension UIViewController {
         let date = date
         let formatter = DateFormatter()
         formatter.timeStyle = .none
-        formatter.dateStyle = .long
+        formatter.dateFormat = "yyyy-MM-dd"                                     //***keep this value the same as above
         let finalDate = formatter.string(from: date)
         return finalDate
     }
@@ -140,7 +140,7 @@ extension UIViewController {
     func convertLongDateToShort(date: String) -> String {
         var dateOutput = ""
         let dateFormatterGet = DateFormatter()
-        dateFormatterGet.dateStyle = .long
+        dateFormatterGet.dateFormat = "yyyy-MM-dd"                              //***keep this value the same as above
         
         let dateFormatterPrint = DateFormatter()
         dateFormatterPrint.dateFormat = "MMM dd"
@@ -148,7 +148,7 @@ extension UIViewController {
         if let date = dateFormatterGet.date(from: date) {
             dateOutput = dateFormatterPrint.string(from: date)
         } else {
-            print("There was an error decoding the string")
+            print("There was an error converting the date")
         }
         return dateOutput
     }
@@ -157,7 +157,7 @@ extension UIViewController {
 extension Date {
     func dayOfWeek() -> String? {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEEE"
+        dateFormatter.dateFormat = "EEEE"                       //gets the day, e.g. "Wednesday"
         return dateFormatter.string(from: self).capitalized
     }
     
@@ -251,15 +251,11 @@ extension UIImage {
 extension TimeInterval{
     
     func stringFromTimeInterval() -> String {
-        
         let time = NSInteger(self)
-        
         let ms = Int((self.truncatingRemainder(dividingBy: 1)) * 1000)
         let seconds = time % 60
         let minutes = (time / 60) % 60
         let hours = (time / 3600)
-        
         return String(format: "%0.2d:%0.2d:%0.2d.%0.3d",hours,minutes,seconds,ms)
-        
     }
 }

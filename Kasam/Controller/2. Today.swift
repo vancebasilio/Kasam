@@ -18,6 +18,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var calendar: FSCalendar!
     @IBOutlet weak var kasamsNumber: UILabel!
+    @IBOutlet weak var calendarHeightConstraint: NSLayoutConstraint!
     
     var kasamBlocks: [TodayBlockFormat] = []
     var kasamPrefernce: [KasamPreference] = []
@@ -47,6 +48,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         setupTableAndHeader()
         navBarShadow()
         getPreferences {self.retrieveKasams()}
+        self.calendar.scope = .week
         let stopLoadingAnimation = NSNotification.Name("RemoveLoadingAnimation")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
         let retrieveKasams = NSNotification.Name("RetrieveKasams")
@@ -204,6 +206,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     }
     
     func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
+//        self.calendarHeightConstraint.constant = bounds.height
         self.view.layoutIfNeeded()
     }
     

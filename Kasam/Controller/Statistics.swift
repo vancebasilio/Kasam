@@ -29,6 +29,7 @@ class StatisticsViewController: UIViewController {
     var kasamName = ""
     var kasamMetricType = ""
     var kasamImage: URL!
+    var metricArray: [Double] = []
     var kasamBlocks: [kasamFollowingFormat] = []
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
@@ -37,8 +38,6 @@ class StatisticsViewController: UIViewController {
         super.viewDidLoad()
         getKasamStats()
         setupView()
-        setChart(values: [24.0,43.0,56.0,23.0,56.0,68.0,48.0,120.0,41.0,24.0,43.0,56.0,23.0,56.0,68.0,48.0,120.0,41.0,24.0,43.0,56.0,23.0,56.0,68.0,48.0,120.0,41.0,40.0,40.0,30.0,20.0])
-       
     }
     
     override func updateViewConstraints() {
@@ -56,6 +55,7 @@ class StatisticsViewController: UIViewController {
         kasamImageView.sd_setImage(with: kasamImage, placeholderImage: UIImage(named: "placeholder.png"))
         kasamImageView.layer.cornerRadius = kasamImageView.frame.width / 2
         kasamImageView.clipsToBounds = true
+        imageWhiteBack.backgroundColor = UIColor.init(hex: 0xFFD062).withAlphaComponent(0.5)
         imageWhiteBack.layer.cornerRadius = kasamImageView.frame.width / 2
         imageWhiteBack.clipsToBounds = true
         kasamNameLabel.text = kasamName
@@ -70,22 +70,24 @@ class StatisticsViewController: UIViewController {
         }
         let line1 = LineChartDataSet(entries: dataEntries, label: "Units Consumed")
         line1.colors = [NSUIColor.colorFour]
-        line1.mode = .cubicBezier
+        line1.mode = .horizontalBezier
         line1.cubicIntensity = 0.2
         
         let gradient = getGradientFilling()
         line1.fill = Fill.fillWithLinearGradient(gradient, angle: 90.0)
         line1.drawFilledEnabled = true
-        line1.lineWidth = 3
-        line1.drawCirclesEnabled = false
-        line1.drawHorizontalHighlightIndicatorEnabled = false  //highlight lines
-        line1.drawVerticalHighlightIndicatorEnabled = false //highlight lines
+        line1.lineWidth = 2
+        line1.drawCirclesEnabled = true
+        line1.circleColors = [UIColor.colorFour]
+        line1.circleRadius = 4
+        line1.drawHorizontalHighlightIndicatorEnabled = false   //highlight lines
+        line1.drawVerticalHighlightIndicatorEnabled = false     //highlight lines
         
         let data = LineChartData()
         data.addDataSet(line1)
         mChart.data = data
         
-        let marker = BalloonMarker(color: UIColor(white: 180/255, alpha: 1), font: .systemFont(ofSize: 12), textColor: .white, insets: UIEdgeInsets(top: 8, left: 8, bottom: 20, right: 8))
+        let marker = BalloonMarker(color: UIColor.colorFour, font: .systemFont(ofSize: 12), textColor: .white, insets: UIEdgeInsets(top: 8, left: 8, bottom: 20, right: 8))
         marker.chartView = mChart
         marker.minimumSize = CGSize(width: 40, height: 40)
         mChart.marker = marker
@@ -100,6 +102,7 @@ class StatisticsViewController: UIViewController {
         mChart.legend.enabled = false
         mChart.xAxis.enabled = true
         
+        //Labels
         mChart.xAxis.drawLabelsEnabled = true //horizontal axis labels
         mChart.xAxis.labelPosition = .bottom
         mChart.xAxis.labelTextColor = UIColor.init(hex: 0x7F7F7F)
@@ -107,13 +110,18 @@ class StatisticsViewController: UIViewController {
         mChart.xAxis.labelFont = UIFont.systemFont(ofSize: 12, weight: .semibold)
         mChart.leftAxis.labelFont = UIFont.systemFont(ofSize: 12, weight: .semibold)
         
-        mChart.xAxis.drawAxisLineEnabled = true //horizontal axis
-        mChart.xAxis.drawGridLinesEnabled = false //vertical lines
+        mChart.xAxis.drawAxisLineEnabled = true         //horizontal axis
+        mChart.xAxis.drawGridLinesEnabled = false       //vertical lines
         mChart.xAxis.gridLineDashLengths = [5, 5]
         mChart.xAxis.gridLineDashPhase = 0
+        mChart.xAxis.granularityEnabled = true
+        mChart.xAxis.axisMinimum = 0.0
+        
         mChart.leftAxis.enabled = true
-        mChart.leftAxis.drawAxisLineEnabled = true //y axis
-        mChart.leftAxis.drawGridLinesEnabled = false //horizontal lines
+        mChart.leftAxis.drawAxisLineEnabled = true      //y axis
+        mChart.leftAxis.drawGridLinesEnabled = false    //horizontal lines
+        mChart.leftAxis.axisMinimum = 1.0
+        mChart.leftAxis.spaceTop = CGFloat(30)
         
         mChart.rightAxis.enabled = false
         mChart.rightAxis.drawAxisLineEnabled = true
@@ -126,14 +134,10 @@ class StatisticsViewController: UIViewController {
     
     /// Creating gradient for filling space under the line chart
     private func getGradientFilling() -> CGGradient {
-        // Setting fill gradient color
         let coloTop = UIColor.init(hex: 0xFFD062).cgColor
         let colorBottom = UIColor.init(hex: 0xFFD062).cgColor
-        // Colors of the gradient
         let gradientColors = [coloTop, colorBottom] as CFArray
-        // Positioning of the gradient
         let colorLocations: [CGFloat] = [0.7, 0.0]
-        // Gradient Object
         return CGGradient.init(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: gradientColors, locations: colorLocations)!
     }
     
@@ -145,12 +149,13 @@ class StatisticsViewController: UIViewController {
             self.kasamHistoryRef.child(self.kasamID).observe(.childAdded, with:{ (snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     let metric = value["Total Metric"] as? Int ?? 0
+                    self.metricArray.append(Double(metric))
                     let block = kasamFollowingFormat(day: day, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(self.kasamMetricType)")
-                    day += 1
+                    day += 1                            //to print the day label in the statistics table
                     self.kasamBlocks.append(block)
                 }
-                
                 if self.kasamBlocks.count == count {
+                    self.setChart(values: self.metricArray)
                     self.historyTableView.reloadData()
                 }
             })

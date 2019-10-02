@@ -49,8 +49,6 @@ class TodayBlockCell: UITableViewCell {
         
         //Checkbox
         if block.displayStatus == "Checkmark" {
-            statusButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 30, color: UIColor.colorFour, forState: .normal)
-        } else if block.displayStatus == "Video" {
             statusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: 30, color: UIColor.colorFour, forState: .normal)
         } else if block.displayStatus == "Check" {
             statusButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: 30, color: UIColor.init(hex: 0x007f00), forState: .normal)

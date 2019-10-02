@@ -26,6 +26,7 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var challoStatsCollectionView: UICollectionView!
     @IBOutlet weak var kasamFollowingCollectionView: UICollectionView!
     @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
+    @IBOutlet weak var logOut: UIButton!
     
     var challoStats: [challoStatFormat] = []
     var kasamTitleArray: [String] = []
@@ -129,9 +130,7 @@ class ProfileViewController: UIViewController {
                         } else {
                             self.avgMetricArray.append(0) //if there are no stats, we don't want to divde by zero
                         }
-                        print(metricMatrix)
-                        let transferStats = challoStatFormat(metricDictionary: self.metricDictionary)
-                        self.challoStats.append(transferStats)
+                        self.challoStats.append(challoStatFormat(metricDictionary: self.metricDictionary))
                         self.challoStatsCollectionView.reloadData()
                         self.kasamFollowingCollectionView.reloadData()
                         self.metricDictionary.removeAll()
@@ -183,7 +182,7 @@ class ProfileViewController: UIViewController {
         }
     }
     
-    func profilePicture(){
+    func profilePicture() {
         if let user = Auth.auth().currentUser {
             let storage = Storage.storage()
             let storageRef = storage.reference(forURL: "gs://kasam-coach.appspot.com")
