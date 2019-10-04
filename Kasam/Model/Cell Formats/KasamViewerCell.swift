@@ -54,6 +54,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     var maxTime: TimeInterval = 0   //set max timer value
     var currentTime = 0.0
     var countdownTimerDidStart = false
+    var timerOrCountdown = ""
     lazy var countdownTimer: CountdownTimer = {let countdownTimer = CountdownTimer(); return countdownTimer}()
     
     override func awakeFromNib() {
@@ -61,12 +62,13 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
     }
     
-    func setupTimer(maxtime: String, pastProgress: Double){
+    func setupCountdown(maxtime: String, pastProgress: Double){
         //hide picker views
         animatedImageView.isHidden = true
         doneButton.isHidden = true
         pickerView.isHidden = true
         instruction.isHidden = true
+        timerOrCountdown = "countdown"
         
         //setup timer
         maxTime = Double(maxtime) ?? 0.0
@@ -74,7 +76,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         if pastProgress >= maxTime {
             countdownTimerDone()
         } else {
-            countdownTimer.setTimer(time: maxTime - pastProgress)
+            countdownTimer.setCountDown(time: maxTime - pastProgress)
         }
         resetButton.layer.cornerRadius = 20.0
         timerDoneButton.layer.cornerRadius = 20.0
@@ -105,6 +107,44 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         timerStartStop.text = "Great Job"
         countdownTimerDidStart = false
     }
+    
+    //-----------------------------------------------------------------------------------
+    
+    func setupTimer(maxtime: String, pastProgress: Double){
+        //hide picker views
+        animatedImageView.isHidden = true
+        doneButton.isHidden = true
+        pickerView.isHidden = true
+        instruction.isHidden = true
+        timerOrCountdown = "timer"
+        
+        //setup timer
+        maxTime = 0.0
+        countdownTimer.delegate = self
+        countdownTimer.setTimer(time: -pastProgress)
+        resetButton.layer.cornerRadius = 20.0
+        timerDoneButton.layer.cornerRadius = 20.0
+        circularSlider?.endThumbImage = UIImage(named: "kasam-timer-button")
+        circularSlider?.minimumValue = 0.0
+        circularSlider?.maximumValue = CGFloat(20.0)
+        circularSlider?.endPointValue = CGFloat(Double(-pastProgress))
+        circularSlider?.isUserInteractionEnabled = false
+    }
+    
+    //refreshes everytime the counter changes
+    func timerTime(timeTot: Double, timeBreak: (hours: String, minutes: String, seconds: String)) {
+        circularSlider?.endPointValue = CGFloat(timeTot)
+        currentTime = timeTot
+        if timeTot < 59.0 {
+            timeLabel.text = timeBreak.seconds
+        } else if timeTot >= 59 && timeTot < 3600 {
+            timeLabel.text = "\(timeBreak.minutes):\(timeBreak.seconds)"
+        } else if timeTot >= 3600 {
+            timeLabel.text = "\(timeBreak.hours):\(timeBreak.minutes):\(timeBreak.seconds)"
+        }
+    }
+    
+    //-----------------------------------------------------------------------------------
     
     func setKasamViewer(activity: KasamActivityCellFormat) {
         activityTitle.text = activity.activityTitle
@@ -145,14 +185,26 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
             animatedImageView.stopAnimating()
             buttoncheck = 0
         }
-        if !countdownTimerDidStart {
-            countdownTimer.start()
-            countdownTimerDidStart = true
-            timerStartStop.text = "tap to pause"
-        } else{
-            countdownTimer.pause()
-            countdownTimerDidStart = false
-            timerStartStop.text = "tap to start"
+        if timerOrCountdown == "countdown" {
+            if !countdownTimerDidStart {
+                countdownTimer.start()
+                countdownTimerDidStart = true
+                timerStartStop.text = "tap to pause"
+            } else{
+                countdownTimer.pause()
+                countdownTimerDidStart = false
+                timerStartStop.text = "tap to start"
+            }
+        } else if timerOrCountdown == "timer" {
+            if !countdownTimerDidStart {
+                countdownTimer.startTimer()
+                countdownTimerDidStart = true
+                timerStartStop.text = "tap to pause"
+            } else{
+                countdownTimer.pause()
+                countdownTimerDidStart = false
+                timerStartStop.text = "tap to start"
+            }
         }
     }
     
@@ -175,7 +227,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         maskButton.isEnabled = true
         timeLabel.font = timeLabel.font.withSize(50)
         timerStartStop.text = "tap to start "
-        countdownTimer.setTimer(time: maxTime)
+        countdownTimer.setCountDown(time: maxTime)
         countdownTimer.stop()
         countdownTimerDidStart = false
     }

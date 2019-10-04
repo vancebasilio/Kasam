@@ -9,11 +9,18 @@
 import UIKit
 import Firebase
 import FirebaseStorage
+import SkyFloatingLabelTextField
 
 class NewKasamViewController: UIViewController {
     
-    @IBOutlet weak var newKasamTitle: UITextField!
-    @IBOutlet weak var newKasamType: UITextField!
+    
+    @IBOutlet weak var newKasamTitle: SkyFloatingLabelTextField!
+    @IBOutlet weak var newKasamType: SkyFloatingLabelTextField!
+    @IBOutlet weak var newKasamLevel: SkyFloatingLabelTextField!
+    @IBOutlet weak var newMetric: SkyFloatingLabelTextField!
+    @IBOutlet weak var newTiming: SkyFloatingLabelTextField!
+    @IBOutlet weak var newRating: SkyFloatingLabelTextField!
+    @IBOutlet weak var newGenre: SkyFloatingLabelTextField!
     @IBOutlet weak var newKasamDescription: UITextView!
     @IBOutlet weak var profileImage: UIImageView!
     
@@ -73,7 +80,7 @@ class NewKasamViewController: UIViewController {
         //Function which registers Kasam Data in Firebase RT Database
         func registerKasamData (imageUrl: String) {
             
-            let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": newKasamType.text!, "Description": newKasamDescription.text!, "Timing":newKasamTitle.text!, "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": "Expert", "Wins": "5", "Blocks": "7"]
+            let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": newGenre.text!, "Description": newKasamDescription.text!, "Timing":newTiming.text!, "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": newKasamType.text!, "Wins": "5", "Blocks": "7", "Level":newKasamLevel.text!, "Metric": newMetric.text!]
             
             kasamID.setValue(kasamDictionary) {
                 (error, reference) in

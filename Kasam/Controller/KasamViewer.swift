@@ -111,6 +111,9 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
             cell.setupPicker()
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.pickerView.selectRow(Int(pastProgress) / 10, inComponent: 0, animated: false)
+        } else if activity.type == "Countdown" {
+            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
+            cell.setupCountdown(maxtime: activity.totalMetric, pastProgress: pastProgress)
         } else if activity.type == "Timer" {
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.setupTimer(maxtime: activity.totalMetric, pastProgress: pastProgress)

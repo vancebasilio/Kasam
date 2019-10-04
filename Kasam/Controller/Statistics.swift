@@ -40,6 +40,10 @@ class StatisticsViewController: UIViewController {
         setupView()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        getKasamStats()
+    }
+    
     override func updateViewConstraints() {
         super.updateViewConstraints()
         tableViewHeight.constant = historyTableView.contentSize.height
@@ -60,6 +64,40 @@ class StatisticsViewController: UIViewController {
         imageWhiteBack.clipsToBounds = true
         kasamNameLabel.text = kasamName
         backButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chevronLeft), iconColor: UIColor.darkGray, postfixText: " Profile", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
+    }
+    
+    /// Creating gradient for filling space under the line chart
+    private func getGradientFilling() -> CGGradient {
+        let coloTop = UIColor.init(hex: 0xFFD062).cgColor
+        let colorBottom = UIColor.init(hex: 0xFFD062).cgColor
+        let gradientColors = [coloTop, colorBottom] as CFArray
+        let colorLocations: [CGFloat] = [0.7, 0.0]
+        return CGGradient.init(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: gradientColors, locations: colorLocations)!
+    }
+    
+    @objc func getKasamStats(){
+        self.kasamBlocks.removeAll()
+        self.kasamHistoryRef.child(self.kasamID).observeSingleEvent(of: .value, with:{ (snap) in
+            let count = Int(snap.childrenCount)
+            var day = 1
+            self.kasamHistoryRef.child(self.kasamID).observe(.childAdded, with:{ (snapshot) in
+                if let value = snapshot.value as? [String: Any] {
+                    let metric = Int(value["Total Metric"] as? Double ?? 0.0)
+                    self.metricArray.append(Double(metric))
+                    let block = kasamFollowingFormat(day: day, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(self.kasamMetricType)")
+                    day += 1                            //to print the day label in the statistics table
+                    self.kasamBlocks.append(block)
+                }
+                if self.kasamBlocks.count == count {
+                    self.setChart(values: self.metricArray)
+                    self.historyTableView.reloadData()
+                }
+            })
+        })
+    }
+    
+    @IBAction func backButtonPressed(_ sender: Any) {
+        navigationController?.popViewController(animated: true)
     }
     
     func setChart(values: [Double]) {
@@ -130,40 +168,6 @@ class StatisticsViewController: UIViewController {
         for set in mChart.data!.dataSets {
             set.drawValuesEnabled = !set.drawValuesEnabled
         }
-    }
-    
-    /// Creating gradient for filling space under the line chart
-    private func getGradientFilling() -> CGGradient {
-        let coloTop = UIColor.init(hex: 0xFFD062).cgColor
-        let colorBottom = UIColor.init(hex: 0xFFD062).cgColor
-        let gradientColors = [coloTop, colorBottom] as CFArray
-        let colorLocations: [CGFloat] = [0.7, 0.0]
-        return CGGradient.init(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: gradientColors, locations: colorLocations)!
-    }
-    
-    @objc func getKasamStats(){
-        self.kasamBlocks.removeAll()
-        self.kasamHistoryRef.child(self.kasamID).observeSingleEvent(of: .value, with:{ (snap) in
-            let count = Int(snap.childrenCount)
-            var day = 1
-            self.kasamHistoryRef.child(self.kasamID).observe(.childAdded, with:{ (snapshot) in
-                if let value = snapshot.value as? [String: Any] {
-                    let metric = value["Total Metric"] as? Int ?? 0
-                    self.metricArray.append(Double(metric))
-                    let block = kasamFollowingFormat(day: day, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(self.kasamMetricType)")
-                    day += 1                            //to print the day label in the statistics table
-                    self.kasamBlocks.append(block)
-                }
-                if self.kasamBlocks.count == count {
-                    self.setChart(values: self.metricArray)
-                    self.historyTableView.reloadData()
-                }
-            })
-        })
-    }
-    
-    @IBAction func backButtonPressed(_ sender: Any) {
-        navigationController?.popViewController(animated: true)
     }
 }
 

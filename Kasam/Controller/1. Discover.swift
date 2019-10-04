@@ -97,7 +97,7 @@ class DiscoverViewController: UIViewController {
         kasamDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Expert").observe(.childAdded) { (snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let imageURL = URL(string: value["Image"] as? String ?? "")
-                let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL!, rating: value["Rating"] as? String ?? "5", creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
                 self.expertKasamArray.append(kasam)
                 self.categoryCollection.reloadData()
             }
@@ -122,11 +122,11 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
     //Number of cells
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == discoverCollection {
-            let count = freeKasamArray.count
+            return freeKasamArray.count
+        } else {
+            let count = expertKasamArray.count
             expertPageControl.numberOfPages = count
             expertPageControl.isHidden = !(count > 1)
-            return count
-        } else {
             return expertKasamArray.count
         }
     }
