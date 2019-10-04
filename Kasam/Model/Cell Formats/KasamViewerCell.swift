@@ -90,7 +90,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     //refreshes everytime the counter changes
     func countdownTime(timeTot: Double, timeBreak: (hours: String, minutes: String, seconds: String)) {
         circularSlider?.endPointValue = CGFloat(maxTime - timeTot)
-        currentTime = timeTot
+        currentTime = timeTot                                         //sends this value to Firebase
         if timeTot < 59.0 {
             timeLabel.text = timeBreak.seconds
         } else if timeTot >= 59 && timeTot < 3600 {
@@ -116,25 +116,26 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         doneButton.isHidden = true
         pickerView.isHidden = true
         instruction.isHidden = true
+        textField.isHidden = true
         timerOrCountdown = "timer"
         
         //setup timer
         maxTime = 0.0
         countdownTimer.delegate = self
-        countdownTimer.setTimer(time: -pastProgress)
+        countdownTimer.setTimer(time: pastProgress)
         resetButton.layer.cornerRadius = 20.0
         timerDoneButton.layer.cornerRadius = 20.0
         circularSlider?.endThumbImage = UIImage(named: "kasam-timer-button")
         circularSlider?.minimumValue = 0.0
         circularSlider?.maximumValue = CGFloat(20.0)
-        circularSlider?.endPointValue = CGFloat(Double(-pastProgress))
+        circularSlider?.endPointValue = CGFloat(Double(pastProgress))
         circularSlider?.isUserInteractionEnabled = false
     }
     
     //refreshes everytime the counter changes
     func timerTime(timeTot: Double, timeBreak: (hours: String, minutes: String, seconds: String)) {
         circularSlider?.endPointValue = CGFloat(timeTot)
-        currentTime = timeTot
+        currentTime = -timeTot                               //sends this value to Firebase
         if timeTot < 59.0 {
             timeLabel.text = timeBreak.seconds
         } else if timeTot >= 59 && timeTot < 3600 {

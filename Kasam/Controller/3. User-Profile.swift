@@ -281,9 +281,17 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             cell.kasamTitle.text = kasamTitleArray[indexPath.row]
             DispatchQueue.main.async {
                 cell.daysLeft.text = String(30 - self.daysLeftArray[indexPath.row]) //async loading this as it takes a long time to gather
-                cell.averageMetric.text = String(self.avgMetricArray[indexPath.row])
             }
-            cell.averageMetricLabel.text = "Avg. \(metricTypeArray[indexPath.row])"
+            if metricTypeArray[indexPath.row] == "mins" && avgMetricArray[indexPath.row] < 60 {
+                cell.averageMetric.text = String(self.avgMetricArray[indexPath.row])
+                cell.averageMetricLabel.text = "Avg. secs"
+            } else if metricTypeArray[indexPath.row] == "mins" && avgMetricArray[indexPath.row] > 60 {
+                let time: Double = Double(self.avgMetricArray[indexPath.row]) / 60.0
+                cell.averageMetric.text = String(time)
+                cell.averageMetricLabel.text = "Avg. mins"
+            } else {
+                cell.averageMetricLabel.text = "Avg. \(metricTypeArray[indexPath.row])"
+            }
             return cell
         } else {
             let kasam = kasamFollowing[indexPath.row]
