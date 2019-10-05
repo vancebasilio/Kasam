@@ -24,7 +24,6 @@ class ProgessView: UIProgressView {
 }
 
 extension UIViewController {
-    
     //func to hide keyboard when screen tapped
     func hideKeyboardWhenTappedAround() {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
@@ -39,6 +38,11 @@ extension UIViewController {
     func setupGreeting() -> String {
         let truncUserFirst = Auth.auth().currentUser?.displayName?.split(separator: " ").first.map(String.init) ?? "Username"
         return truncUserFirst
+    }
+    
+    func placeholder() -> Any {
+        let placeholder = URL(string: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fplaceholder.jpg?alt=media&token=580f119e-b022-4782-9bfd-0464a5b55c7e")!
+        return placeholder
     }
     
     func navBarShadow(){

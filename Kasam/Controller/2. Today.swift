@@ -102,7 +102,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                 self.kasamPrefernce.append(preference)
                 if self.kasamPrefernce.count == count {
                     completion()
-                    print ("kasamPreferences stopped observing")
+                    self.kasamUserRef.removeObserver(withHandle: self.kasamUserRefHandle)
                 }
             }
         })
@@ -147,14 +147,14 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                             self.displayStatus = "Progress" //kasam has been started, but not completed
                                         }
                                     } else {
-                                        self.displayStatus = value["Status"] as?  String //Kasam has NOT been started today
+                                        self.displayStatus = "Checkmark"
                                     }
                                     if let range = kasam.startTime.range(of: ":") {
                                         let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
                                         hour = String(format: "%02d", Int(firstPart)!)
                                     }
                                     guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
-                                    let block = TodayBlockFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, title: value["Title"] as! String, hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL!, url: value["Link"] as! String, creator: "Shawn T", totalMetric: "", statusType: value["Status"] as! String, displayStatus: self.displayStatus ?? "Display Status")
+                                    let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
                                             self.kasamBlocks.append(block)
                                             sem.signal()
                                             self.tableView.reloadData()
@@ -280,7 +280,7 @@ extension TodayBlocksViewController: UITableViewDataSource, UITableViewDelegate 
         loadingAnimation()
         UIApplication.shared.beginIgnoringInteractionEvents()
         kasamIDGlobal = kasamBlocks[indexPath.row].kasamID
-        blockIDGlobal = kasamBlocks[indexPath.row].title
+        blockIDGlobal = kasamBlocks[indexPath.row].blockID
         performSegue(withIdentifier: "goToKasamViewerTicker", sender: indexPath)
     }
     

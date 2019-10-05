@@ -81,29 +81,25 @@ class SquareKasamFormat {
 
 class TodayBlockFormat {
     var kasamID: String
+    var blockID: String
     var image: URL
     var title: String
     var hour: String
     var minute: String
     var duration: String
-    var url: String
-    var creator: String
     var kasamName: String
-    var totalMetric: String
     var statusType: String
     var displayStatus: String
     
-    init(kasamID: String, kasamName: String, title: String, hour: String, minute: String, duration: String, image: URL, url: String, creator: String, totalMetric: String, statusType: String, displayStatus: String){
+    init(kasamID: String, blockID: String, kasamName: String, title: String, hour: String, minute: String, duration: String, image: URL, statusType: String, displayStatus: String){
         self.kasamID = kasamID
+        self.blockID = blockID
         self.kasamName = kasamName
         self.image = image
         self.title = title
         self.hour = hour
         self.minute = minute
         self.duration = duration
-        self.url = url
-        self.creator = creator
-        self.totalMetric = totalMetric
         self.statusType = statusType
         self.displayStatus = displayStatus
     }
@@ -152,14 +148,12 @@ class BlockFormat {
     var title: String
     var order: String
     var duration: String
-    var url: String
     
-    init(title: String, order: String, duration: String, image: URL, url: String){
+    init(title: String, order: String, duration: String, image: URL){
         self.image = image
         self.title = title
         self.order = order
         self.duration = duration
-        self.url = url
     }
 }
 

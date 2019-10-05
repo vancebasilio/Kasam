@@ -84,7 +84,7 @@ class DiscoverViewController: UIViewController {
         categoryDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Free").observe(.childAdded) { (snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let imageURL = URL(string: value["Image"] as? String ?? "")
-                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? self.placeholder() as! URL, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
                 self.freeKasamArray.append(categoryBlock)
                 self.discoverCollection.reloadData()
             }
@@ -97,7 +97,7 @@ class DiscoverViewController: UIViewController {
         kasamDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Expert").observe(.childAdded) { (snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let imageURL = URL(string: value["Image"] as? String ?? "")
-                let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL!, rating: value["Rating"] as? String ?? "5", creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? self.placeholder() as! URL, rating: value["Rating"] as? String ?? "5", creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
                 self.expertKasamArray.append(kasam)
                 self.categoryCollection.reloadData()
             }

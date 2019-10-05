@@ -76,14 +76,14 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         if pastProgress >= maxTime {
             countdownTimerDone()
         } else {
-            countdownTimer.setCountDown(time: maxTime - pastProgress)
+            countdownTimer.setCountDown(time: maxTime - pastProgress.rounded(.up))
         }
         resetButton.layer.cornerRadius = 20.0
         timerDoneButton.layer.cornerRadius = 20.0
         circularSlider?.endThumbImage = UIImage(named: "kasam-timer-button")
         circularSlider?.minimumValue = 0.0
         circularSlider?.maximumValue = CGFloat(maxTime)
-        circularSlider?.endPointValue = CGFloat(Double(pastProgress))
+        circularSlider?.endPointValue = CGFloat(pastProgress.rounded(.up))
         circularSlider?.isUserInteractionEnabled = false
     }
     
@@ -122,13 +122,13 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         //setup timer
         maxTime = 0.0
         countdownTimer.delegate = self
-        countdownTimer.setTimer(time: pastProgress)
+        countdownTimer.setTimer(time: pastProgress.rounded(.down))
         resetButton.layer.cornerRadius = 20.0
         timerDoneButton.layer.cornerRadius = 20.0
         circularSlider?.endThumbImage = UIImage(named: "kasam-timer-button")
         circularSlider?.minimumValue = 0.0
         circularSlider?.maximumValue = CGFloat(20.0)
-        circularSlider?.endPointValue = CGFloat(Double(pastProgress))
+        circularSlider?.endPointValue = CGFloat(Double(pastProgress.rounded(.down)))
         circularSlider?.isUserInteractionEnabled = false
     }
     

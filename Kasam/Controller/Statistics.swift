@@ -40,10 +40,6 @@ class StatisticsViewController: UIViewController {
         setupView()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        getKasamStats()
-    }
-    
     override func updateViewConstraints() {
         super.updateViewConstraints()
         tableViewHeight.constant = historyTableView.contentSize.height

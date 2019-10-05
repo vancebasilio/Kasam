@@ -29,7 +29,6 @@ class TodayBlockCell: UITableViewCell {
     var delegate: TodayCellDelegate?
     var kasamID: String?
     var blockID: String?
-    var statusType: String?
     var processedStatus: String?
     let progress = Progress(totalUnitCount: 30)
     
@@ -41,7 +40,6 @@ class TodayBlockCell: UITableViewCell {
         blockTitle.text = block.title
         blockDurationImage.setIcon(icon: .fontAwesomeSolid(.clock), iconSize: 15, color: UIColor.init(hex: 0xcbcbcb))
         blockDuration.text = " \(block.duration)"
-        statusType = block.statusType
         processedStatus = block.displayStatus
         
         //Progress Bar
@@ -68,15 +66,14 @@ class TodayBlockCell: UITableViewCell {
     }
     
     @IBAction func statusButtonPressed(_ sender: UIButton) {
-        print("Status type is \(statusType!)")
         if processedStatus == "Checkmark" {
             statusButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: 30, color: UIColor.init(hex: 0x007f00), forState: .normal)
             delegate?.clickedButton(kasamID: kasamID ?? "", blockID: blockID ?? "", status: "Check")
             processedStatus = "Check"
         } else if processedStatus == "Check" {
             statusButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 30, color: UIColor.colorFour, forState: .normal)
-            delegate?.clickedButton(kasamID: kasamID ?? "", blockID: blockID ?? "", status: statusType ?? "Checkmark")
-            processedStatus = statusType
+            delegate?.clickedButton(kasamID: kasamID ?? "", blockID: blockID ?? "", status: "Checkmark")
+            processedStatus = "Checkmark"
         }
     }
 }

@@ -130,9 +130,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     self.blockCount += 1
                     
                     let blockURL = URL(string: value["Image"] as? String ?? "")
-                    let block = BlockFormat(title: value["Title"] as? String ?? "", order: value["Order"] as? String ?? "", duration: value["Duration"] as? String ?? "", image: blockURL!, url: value["Link"] as? String ?? "")
+                    let block = BlockFormat(title: value["Title"] as? String ?? "", order: value["Order"] as? String ?? "", duration: value["Duration"] as? String ?? "", image: blockURL ?? self.placeholder() as! URL)
                     self.kasamBlocks.append(block)
-                    self.kasamBlocks.sort(by: { $1.order > $0.order })
+//                    self.kasamBlocks.sorted(by: { $1.order > $0.order })
                     self.tableView.reloadData()
                     self.tableView.beginUpdates()
                     self.tableView.endUpdates()
@@ -324,8 +324,5 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let blockID = kasamBlocks[indexPath.row].url
-        blockURLGlobal = blockID
-        getBlockVideo(url: blockID)
     }
 }

@@ -80,12 +80,12 @@ class ProfileViewController: UIViewController {
     }
     
     //too many functions under this. Break it out, so it isn't refinding all these details
-    @objc func getChalloStats(){
+    @objc func getChalloStats() {
         challoStats.removeAll()
-        avgMetricArray.removeAll()
         metricTypeArray.removeAll()
         kasamTitleArray.removeAll()
         kasamFollowing.removeAll()
+        daysLeftArray.removeAll()
         //loops through all kasams that user is following and get kasamID
         self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded, with:{ (snap) in
             self.kasamRefHandle = self.kasamRef.child(snap.key).observe(.value, with: { (snapshot: DataSnapshot!) in
@@ -127,9 +127,11 @@ class ProfileViewController: UIViewController {
                     if checkerCount == 7 {
                         if metricCount != 0 {
                             self.avgMetricArray.append(metricMatrix / metricCount)
+                            print(self.avgMetricArray)
                         } else {
                             self.avgMetricArray.append(0) //if there are no stats, we don't want to divde by zero
                         }
+                        print(self.metricDictionary)
                         self.challoStats.append(challoStatFormat(metricDictionary: self.metricDictionary))
                         self.challoStatsCollectionView.reloadData()
                         self.kasamFollowingCollectionView.reloadData()
@@ -290,6 +292,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 cell.averageMetric.text = String(time)
                 cell.averageMetricLabel.text = "Avg. mins"
             } else {
+                cell.averageMetric.text = String(self.avgMetricArray[indexPath.row])
                 cell.averageMetricLabel.text = "Avg. \(metricTypeArray[indexPath.row])"
             }
             return cell

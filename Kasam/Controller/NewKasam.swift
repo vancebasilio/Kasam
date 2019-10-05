@@ -25,6 +25,7 @@ class NewKasamViewController: UIViewController {
     @IBOutlet weak var profileImage: UIImageView!
     
     var imagePicker: UIImagePickerController!
+    var kasamIDGlobal = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,11 +55,19 @@ class NewKasamViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToCreateBlocks" {
+            let kasamIDHolder = segue.destination as! NewBlockViewController
+            kasamIDHolder.kasamID = kasamIDGlobal
+        }
+    }
+    
     @IBAction func createKasam(_ sender: Any) {
        
     //Saves Kasam Text Data
         let newKasam = Database.database().reference().child("Coach-Kasams")
         let kasamID = newKasam.childByAutoId()
+        kasamIDGlobal = kasamID.key ?? ""
         
     //Saves Kasam Image in Firebase Storage
         let storageRef = Storage.storage().reference().child("kasam/\(kasamID.key!)")
@@ -79,8 +88,7 @@ class NewKasamViewController: UIViewController {
         
         //Function which registers Kasam Data in Firebase RT Database
         func registerKasamData (imageUrl: String) {
-            
-            let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": newGenre.text!, "Description": newKasamDescription.text!, "Timing":newTiming.text!, "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": newKasamType.text!, "Wins": "5", "Blocks": "7", "Level":newKasamLevel.text!, "Metric": newMetric.text!]
+            let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": newGenre.text!, "Description": newKasamDescription.text!, "Timing":newTiming.text!, "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": newKasamType.text!, "Rating": newRating.text!, "Blocks": "blocks", "Level":newKasamLevel.text!, "Metric": newMetric.text!]
             
             kasamID.setValue(kasamDictionary) {
                 (error, reference) in
@@ -91,6 +99,7 @@ class NewKasamViewController: UIViewController {
                 }
             }
         }
+        self.performSegue(withIdentifier: "goToCreateBlocks", sender: nil)
     }
 }
 
