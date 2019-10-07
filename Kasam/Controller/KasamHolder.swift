@@ -42,7 +42,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var kasamGTitle: String = ""        //transfered in values from previous vc
     var kasamTracker: [Tracker] = [Tracker]()
     var registerCheck = 0
-    var blockCount = 0
     var coachIDGlobal = ""
     var coachNameGlobal = ""
     var blockURLGlobal = ""
@@ -115,7 +114,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 let trailingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1, constant: 0)
                 let leadingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1, constant: 0)
                 self.headerView.addConstraints([topConstraint, bottomConstraint, trailingConstraint, leadingConstraint])
-                
                 self.setupBlurImage()
             }
         })
@@ -123,21 +121,22 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     //Retrieves Blocks based on Kasam selected
     func getBlocksData() {
-        Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").observe(.childAdded, with: { (snapshot) in
-            
-            Database.database().reference().child("Coach-Kasams").child(self.kasamID).child("Blocks").child(snapshot.key).observe(.value, with: { (snapshot) in
-                if let value = snapshot.value as? [String: Any] {
-                    self.blockCount += 1
-                    
-                    let blockURL = URL(string: value["Image"] as? String ?? "")
-                    let block = BlockFormat(title: value["Title"] as? String ?? "", order: value["Order"] as? String ?? "", duration: value["Duration"] as? String ?? "", image: blockURL ?? self.placeholder() as! URL)
-                    self.kasamBlocks.append(block)
-//                    self.kasamBlocks.sorted(by: { $1.order > $0.order })
-                    self.tableView.reloadData()
-                    self.tableView.beginUpdates()
-                    self.tableView.endUpdates()
-                }
-            })
+        Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").observeSingleEvent(of: .value, with:{ (snap) in
+            let ratio = 30 / (snap.childrenCount)
+            var dayNumber = 1
+            for _ in 1...ratio {
+                Database.database().reference().child("Coach-Kasams").child(self.kasamID).child("Blocks").observe(.childAdded, with: { (snapshot) in
+                    if let value = snapshot.value as? [String: Any] {
+                        let blockURL = URL(string: value["Image"] as? String ?? "")
+                        let block = BlockFormat(title: value["Title"] as? String ?? "", order: String(dayNumber), duration: value["Duration"] as? String ?? "", image: blockURL ?? self.placeholder() as! URL)
+                        dayNumber += 1
+                        self.kasamBlocks.append(block)
+                        self.tableView.reloadData()
+                        self.tableView.beginUpdates()
+                        self.tableView.endUpdates()
+                    }
+                })
+            }
         })
     }
     
@@ -157,6 +156,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             }
         } else {
             unregisterUseFromKasam()
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         }
     }
     

@@ -86,6 +86,7 @@ class AddKasamPopup: UIViewController {
     
     @IBAction func saveKasamButton(_ sender: Any) {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "saveTime"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         dismiss(animated: true)
     }
     

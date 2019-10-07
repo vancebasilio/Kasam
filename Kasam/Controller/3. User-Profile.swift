@@ -45,12 +45,13 @@ class ProfileViewController: UIViewController {
     var kasamImageGlobal: URL!
     
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
-    var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
-    var kasamUserRefHandle: DatabaseHandle!
     var kasamRef = Database.database().reference().child("Coach-Kasams")
     var kasamRefHandle: DatabaseHandle!
+    var kasamUserRefHandle: DatabaseHandle!
+    var kasamHistoryRefHandle: DatabaseHandle!
+    var kasamFollowingRefHandle: DatabaseHandle!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,10 +60,11 @@ class ProfileViewController: UIViewController {
         profilePicture()
         setupDateDictionary()
         viewSetup()
+        getChalloStats()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        getChalloStats()
+        
     }
   
     func viewSetup(){
@@ -81,11 +83,14 @@ class ProfileViewController: UIViewController {
     
     //too many functions under this. Break it out, so it isn't refinding all these details
     @objc func getChalloStats() {
+        print("in the challostats")
         challoStats.removeAll()
         metricTypeArray.removeAll()
         kasamTitleArray.removeAll()
         kasamFollowing.removeAll()
         daysLeftArray.removeAll()
+        avgMetricArray.removeAll()
+        metricDictionary.removeAll()
         //loops through all kasams that user is following and get kasamID
         self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded, with:{ (snap) in
             self.kasamRefHandle = self.kasamRef.child(snap.key).observe(.value, with: { (snapshot: DataSnapshot!) in
@@ -105,7 +110,7 @@ class ProfileViewController: UIViewController {
             })
             
             //gets the kasamLevel
-            self.kasamHistoryRef.child(snap.key).observe(.childAdded, with:{ (snapshot) in
+            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(snap.key).observe(.childAdded, with:{ (snapshot) in
                 self.daysCompletedDict[snapshot.key] = 1
                 let total = self.daysCompletedDict.count
                 self.totalDays.text = "\(String(total)) Days"
@@ -131,11 +136,9 @@ class ProfileViewController: UIViewController {
                         } else {
                             self.avgMetricArray.append(0) //if there are no stats, we don't want to divde by zero
                         }
-                        print(self.metricDictionary)
                         self.challoStats.append(challoStatFormat(metricDictionary: self.metricDictionary))
                         self.challoStatsCollectionView.reloadData()
                         self.kasamFollowingCollectionView.reloadData()
-                        self.metricDictionary.removeAll()
                     }
                 })
             }
@@ -241,6 +244,7 @@ class ProfileViewController: UIViewController {
         self.kasamUserRef.removeObserver(withHandle: self.kasamUserRefHandle!)
         self.kasamFollowingRef.removeObserver(withHandle: self.kasamFollowingRefHandle)
         self.kasamRef.removeObserver(withHandle: self.kasamRefHandle)
+        self.kasamHistoryRef.removeObserver(withHandle: self.kasamHistoryRefHandle)
     }
 }
 

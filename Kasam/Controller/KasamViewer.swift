@@ -39,6 +39,7 @@ class KasamViewerTicker: UIViewController {
     @IBAction func closeButton(_ sender: UIButton) {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         dismiss(animated: true)
     }
     
