@@ -154,9 +154,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.registerUserToKasam()
                 NotificationCenter.default.removeObserver(self.observer as Any)
             }
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         } else {
             unregisterUseFromKasam()
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         }
     }
     
@@ -212,6 +212,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 NotificationCenter.default.post(name: profileUpdate, object: nil)
                 let calendarUpdate = NSNotification.Name("KasamCalendarUpdate")
                 NotificationCenter.default.post(name: calendarUpdate, object: nil)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
             }
         }
     }

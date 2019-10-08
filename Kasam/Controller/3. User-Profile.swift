@@ -124,8 +124,9 @@ class ProfileViewController: UIViewController {
             for x in 1...7 {
                 self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).observe(.value, with:{ (snapshot) in
                     checkerCount += 1
+                    self.metricDictionary[x] = 0                                        //to set the base as zero for each day
                     if let value = snapshot.value as? [String: Any] {
-                        self.metricDictionary[x] = value["Metric Percent"] as? Double
+                        self.metricDictionary[x] = value["Metric Percent"] as? Double   //get the metric for each day for each kasam
                         metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
                         metricCount += 1
                     }
@@ -134,7 +135,7 @@ class ProfileViewController: UIViewController {
                             self.avgMetricArray.append(metricMatrix / metricCount)
                             print(self.avgMetricArray)
                         } else {
-                            self.avgMetricArray.append(0) //if there are no stats, we don't want to divde by zero
+                            self.avgMetricArray.append(0)                       //if there are no stats, we don't want to divde by zero
                         }
                         self.challoStats.append(challoStatFormat(metricDictionary: self.metricDictionary))
                         self.challoStatsCollectionView.reloadData()

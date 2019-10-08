@@ -39,6 +39,7 @@
 		BC6E7C2F2348D71400B05334 /* NewBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6E7C2E2348D71400B05334 /* NewBlock.swift */; };
 		BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6E97842321DF7800698EB9 /* KasamViewer.swift */; };
 		BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74E1F22336748E00653381 /* CountdownTimer.swift */; };
+		BC791A21234BF93600A9D25A /* TodayMotivationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */; };
 		BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */; };
 		BC96F8482292085200E161FC /* TodayBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC96F8462292085200E161FC /* TodayBlockCell.swift */; };
 		BC9C2424226FD6FF00E7B64B /* NewKasam.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C2423226FD6FF00E7B64B /* NewKasam.swift */; };
@@ -97,6 +98,7 @@
 		BC6E7C2E2348D71400B05334 /* NewBlock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewBlock.swift; sourceTree = "<group>"; };
 		BC6E97842321DF7800698EB9 /* KasamViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewer.swift; sourceTree = "<group>"; };
 		BC74E1F22336748E00653381 /* CountdownTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
+		BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayMotivationCell.swift; sourceTree = "<group>"; };
 		BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+constraints.swift"; sourceTree = "<group>"; };
 		BC96F8462292085200E161FC /* TodayBlockCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayBlockCell.swift; sourceTree = "<group>"; };
 		BC9C2423226FD6FF00E7B64B /* NewKasam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewKasam.swift; sourceTree = "<group>"; };
@@ -200,6 +202,7 @@
 				BC55CC68232B4552003C87F6 /* ChalloStatsCell.swift */,
 				BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */,
 				BC96F8462292085200E161FC /* TodayBlockCell.swift */,
+				BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */,
 				BC45558C2321F6D300F1227B /* KasamViewerCell.swift */,
 				BCF2A76A227F08F0009D2368 /* BlocksCell.swift */,
 				BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */,
@@ -473,6 +476,7 @@
 				BCFCB43722AF04EA00DC2DD7 /* DiscoverCategoryCell.swift in Sources */,
 				BC554BD6226D8BDB00D707CC /* UIColor.swift in Sources */,
 				BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */,
+				BC791A21234BF93600A9D25A /* TodayMotivationCell.swift in Sources */,
 				BC96F8482292085200E161FC /* TodayBlockCell.swift in Sources */,
 				BC207A7C228BABBE00C14317 /* -Calendar.swift in Sources */,
 				BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */,

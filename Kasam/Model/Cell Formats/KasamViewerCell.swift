@@ -213,6 +213,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         if currentOrder == totalOrder {
             delegate?.dismissViewController()
             NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         } else {
             delegate?.nextItem()
         }

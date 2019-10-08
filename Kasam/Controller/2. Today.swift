@@ -12,13 +12,32 @@ import FSCalendar
 import Firebase
 import SDWebImage
 import Lottie
+import SwiftEntryKit
 
 class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalendarDelegate, UIGestureRecognizerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var todayMotivationCollectionView: UICollectionView!
     @IBOutlet weak var calendar: FSCalendar!
-    @IBOutlet weak var kasamsNumber: UILabel!
     @IBOutlet weak var calendarHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var todayCollectionHeight: NSLayoutConstraint!
+    
+    enum DisplayModeSegment: Int {
+        case light
+        case dark
+        case inferred
+        
+        var displayMode: EKAttributes.DisplayMode {
+            switch self {
+            case .light:
+                return .light
+            case .dark:
+                return .dark
+            case .inferred:
+                return .inferred
+            }
+        }
+    }
     
     var kasamBlocks: [TodayBlockFormat] = []
     var kasamPrefernce: [KasamPreference] = []
@@ -248,13 +267,13 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
 
 extension TodayBlocksViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if kasamBlocks.count == 0 {
-            self.kasamsNumber.text = "You have no kasams today"
-        } else if kasamBlocks.count > 1 {
-            self.kasamsNumber.text = "You have \(kasamBlocks.count) kasams to keep today"
-        } else {
-            self.kasamsNumber.text = "You have \(kasamBlocks.count) kasam to keep today"
-        }
+//        if kasamBlocks.count == 0 {
+//            self.kasamsNumber.text = "You have no kasams today"
+//        } else if kasamBlocks.count > 1 {
+//            self.kasamsNumber.text = "You have \(kasamBlocks.count) kasams to keep today"
+//        } else {
+//            self.kasamsNumber.text = "You have \(kasamBlocks.count) kasam to keep today"
+//        }
         return kasamBlocks.count
     }
     
@@ -302,5 +321,25 @@ extension TodayBlocksViewController: TodayCellDelegate {
         } else {
             Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDateTime").removeValue()
         }
+    }
+}
+
+extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TodayMotivationCell", for: indexPath) as! TodayMotivationCell
+        cell.backgroundImage.sd_setImage(with: nil, placeholderImage: UIImage(named: "today_motivation_background2"))
+        cell.backgroundImage.layer.cornerRadius = 15.0
+        cell.backgroundImage.clipsToBounds = true
+//        cell.motivationText.text = "Hello"
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        todayCollectionHeight.constant = (view.bounds.size.width * (2/5))
+        return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
     }
 }

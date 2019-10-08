@@ -140,8 +140,8 @@ class StatisticsViewController: UIViewController {
         mChart.xAxis.drawLabelsEnabled = true //horizontal axis labels
         mChart.xAxis.labelPosition = .bottom
         mChart.xAxis.labelTextColor = UIColor.init(hex: 0x7F7F7F)
-        mChart.leftAxis.labelTextColor = UIColor.init(hex: 0x7F7F7F)
         mChart.xAxis.labelFont = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        mChart.leftAxis.labelTextColor = UIColor.init(hex: 0x7F7F7F)
         mChart.leftAxis.labelFont = UIFont.systemFont(ofSize: 12, weight: .semibold)
         
         mChart.xAxis.drawAxisLineEnabled = true         //horizontal axis
