@@ -33,6 +33,7 @@
 		BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC554BDB226E0FBE00D707CC /* KasamCell.xib */; };
 		BC55BFD722AEEF6200D77337 /* Custom Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55BFD622AEEF6200D77337 /* Custom Functions.swift */; };
 		BC55CC69232B4552003C87F6 /* ChalloStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55CC68232B4552003C87F6 /* ChalloStatsCell.swift */; };
+		BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C3C79234D60E800C68238 /* PopupForm.swift */; };
 		BC5C499C228122BB00EC0EA8 /* KasamSquareCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */; };
 		BC68BC5F22838A8800240CE9 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC68BC5E22838A8800240CE9 /* ImageService.swift */; };
 		BC68BC6122838B3700240CE9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BC68BC6022838B3700240CE9 /* GoogleService-Info.plist */; };
@@ -92,6 +93,7 @@
 		BC554BDB226E0FBE00D707CC /* KasamCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KasamCell.xib; sourceTree = "<group>"; };
 		BC55BFD622AEEF6200D77337 /* Custom Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Custom Functions.swift"; sourceTree = "<group>"; };
 		BC55CC68232B4552003C87F6 /* ChalloStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChalloStatsCell.swift; sourceTree = "<group>"; };
+		BC5C3C79234D60E800C68238 /* PopupForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupForm.swift; sourceTree = "<group>"; };
 		BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamSquareCell.swift; sourceTree = "<group>"; };
 		BC68BC5E22838A8800240CE9 /* ImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		BC68BC6022838B3700240CE9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
@@ -223,6 +225,7 @@
 				BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */,
 				BC74E1F22336748E00653381 /* CountdownTimer.swift */,
 				BC55BFD622AEEF6200D77337 /* Custom Functions.swift */,
+				BC5C3C79234D60E800C68238 /* PopupForm.swift */,
 				BCE50BDF22D04A37000F2534 /* FXBlurView.h */,
 				BCE50BDE22D04A37000F2534 /* FXBlurView.m */,
 				BCE50BE322D04B26000F2534 /* Kasam-Bridging-Header.h */,
@@ -470,6 +473,7 @@
 				BC1955E2228780B100CBF842 /* -Following.swift in Sources */,
 				BC9C7841228CD2DB000C8D0A /* 2. Today.swift in Sources */,
 				BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */,
+				BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */,
 				BCED16E82283A166008DF3EC /* AddKasamPopup.swift in Sources */,
 				BC55BFD722AEEF6200D77337 /* Custom Functions.swift in Sources */,
 				BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */,

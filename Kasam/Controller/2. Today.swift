@@ -21,24 +21,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     @IBOutlet weak var calendar: FSCalendar!
     @IBOutlet weak var calendarHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var todayCollectionHeight: NSLayoutConstraint!
-    
-    enum DisplayModeSegment: Int {
-        case light
-        case dark
-        case inferred
-        
-        var displayMode: EKAttributes.DisplayMode {
-            switch self {
-            case .light:
-                return .light
-            case .dark:
-                return .dark
-            case .inferred:
-                return .inferred
-            }
-        }
-    }
-    
+
     var kasamBlocks: [TodayBlockFormat] = []
     var kasamPrefernce: [KasamPreference] = []
     var blockURLGlobal = ""
@@ -74,8 +57,54 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.retrieveKasams), name: retrieveKasams, object: nil)
         let updateKasamStatus = NSNotification.Name("UpdateKasamStatus")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.updateKasamStatus), name: updateKasamStatus, object: nil)
+        let addMotivation = NSNotification.Name("AddMotivation")
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.addMotivation), name: addMotivation, object: nil)
     }
     
+    @objc func addMotivation(){
+        var attributes = EKAttributes()
+        attributes = .float
+        attributes.windowLevel = .normal
+        attributes.position = .center
+        attributes.displayDuration = .infinity
+        attributes.entranceAnimation = .init(
+            translate: .init(
+                duration: 0.65,
+                spring: .init(damping: 0.8, initialVelocity: 0)
+            )
+        )
+        attributes.exitAnimation = .init(
+            translate: .init(
+                duration: 0.65,
+                spring: .init(damping: 0.8, initialVelocity: 0)
+            )
+        )
+        attributes.popBehavior = .animated(
+            animation: .init(
+                translate: .init(
+                    duration: 0.65,
+                    spring: .init(damping: 0.8, initialVelocity: 0)
+                )
+            )
+        )
+        attributes.entryInteraction = .absorbTouches
+        attributes.screenInteraction = .dismiss
+        attributes.entryBackground = .visualEffect(style: .prominent)
+        attributes.screenBackground = .color(color: .init(light: UIColor.black.withAlphaComponent(0.5), dark: UIColor.black))
+        attributes.scroll = .enabled(
+            swipeable: false,
+            pullbackAnimation: .jolt
+        )
+        attributes.statusBar = .light
+        attributes.positionConstraints.keyboardRelation = .bind(
+            offset: .init(
+                bottom: 10,
+                screenEdgeResistance: 5
+            )
+        )
+        showSigninForm(attributes: attributes, style: .light)
+    }
+
     func setupTableAndHeader(){
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 150
@@ -262,6 +291,18 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
         animationView.play()
         animationView.loopMode = .loop
+    }
+    
+    // Sign in form
+    private func showSigninForm(attributes: EKAttributes, style: FormStyle) {
+        let titleStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15), color: .standardContent, alignment: .center, displayMode: .light)
+        let title = EKProperty.LabelContent(text: "Add your motivation!", style: titleStyle)
+        let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
+        let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
+                SwiftEntryKit.dismiss()
+        }
+        let contentView = EKFormMessageView(with: title, textFieldsContent: textFields, buttonContent: button)
+        SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 }
 
