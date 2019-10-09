@@ -21,7 +21,9 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     @IBOutlet weak var calendar: FSCalendar!
     @IBOutlet weak var calendarHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var todayCollectionHeight: NSLayoutConstraint!
-
+    @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var contentView: NSLayoutConstraint!
+    
     var kasamBlocks: [TodayBlockFormat] = []
     var kasamPrefernce: [KasamPreference] = []
     var blockURLGlobal = ""
@@ -61,47 +63,13 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.addMotivation), name: addMotivation, object: nil)
     }
     
+    func updateContentTableHeight(){
+        tableViewHeight.constant = tableView.contentSize.height
+        contentView.constant = tableViewHeight.constant + 210
+    }
+    
     @objc func addMotivation(){
-        var attributes = EKAttributes()
-        attributes = .float
-        attributes.windowLevel = .normal
-        attributes.position = .center
-        attributes.displayDuration = .infinity
-        attributes.entranceAnimation = .init(
-            translate: .init(
-                duration: 0.65,
-                spring: .init(damping: 0.8, initialVelocity: 0)
-            )
-        )
-        attributes.exitAnimation = .init(
-            translate: .init(
-                duration: 0.65,
-                spring: .init(damping: 0.8, initialVelocity: 0)
-            )
-        )
-        attributes.popBehavior = .animated(
-            animation: .init(
-                translate: .init(
-                    duration: 0.65,
-                    spring: .init(damping: 0.8, initialVelocity: 0)
-                )
-            )
-        )
-        attributes.entryInteraction = .absorbTouches
-        attributes.screenInteraction = .dismiss
-        attributes.entryBackground = .visualEffect(style: .prominent)
-        attributes.screenBackground = .color(color: .init(light: UIColor.black.withAlphaComponent(0.5), dark: UIColor.black))
-        attributes.scroll = .enabled(
-            swipeable: false,
-            pullbackAnimation: .jolt
-        )
-        attributes.statusBar = .light
-        attributes.positionConstraints.keyboardRelation = .bind(
-            offset: .init(
-                bottom: 10,
-                screenEdgeResistance: 5
-            )
-        )
+        let attributes = FormFieldPresetFactory.attributes()
         showSigninForm(attributes: attributes, style: .light)
     }
 
@@ -208,6 +176,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                             self.tableView.reloadData()
                                             self.tableView.beginUpdates()
                                             self.tableView.endUpdates()
+                                            self.updateContentTableHeight()
                                         })
                                     }
                                 })
@@ -225,9 +194,9 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
             Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamBlocks[i].kasamID).child(getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
                 if let value = snap.value as? Double {
                     if value >= 1 {
-                        self.displayStatus = "Check" //Kasam has been completed today
+                        self.displayStatus = "Check"        //Kasam has been completed today
                     } else if value < 1 {
-                        self.displayStatus = "Progress" //kasam has been started, but not completed
+                        self.displayStatus = "Progress"     //kasam has been started, but not completed
                     }
                 } else {
                     self.displayStatus = "Checkmark"
@@ -299,6 +268,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         let title = EKProperty.LabelContent(text: "Add your motivation!", style: titleStyle)
         let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
         let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
+                print(textFields[0].textContent)        //textFields is an array of textfields
                 SwiftEntryKit.dismiss()
         }
         let contentView = EKFormMessageView(with: title, textFieldsContent: textFields, buttonContent: button)

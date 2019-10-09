@@ -15,6 +15,50 @@ final class FormFieldPresetFactory {
         return .light
     }
     
+    class func attributes() -> EKAttributes {
+        var attributes = EKAttributes()
+        attributes = .float
+        attributes.windowLevel = .normal
+        attributes.position = .center
+        attributes.displayDuration = .infinity
+        attributes.entranceAnimation = .init(
+            translate: .init(
+                duration: 0.65,
+                spring: .init(damping: 0.8, initialVelocity: 0)
+            )
+        )
+        attributes.exitAnimation = .init(
+            translate: .init(
+                duration: 0.65,
+                spring: .init(damping: 0.8, initialVelocity: 0)
+            )
+        )
+        attributes.popBehavior = .animated(
+            animation: .init(
+                translate: .init(
+                    duration: 0.65,
+                    spring: .init(damping: 0.8, initialVelocity: 0)
+                )
+            )
+        )
+        attributes.entryInteraction = .absorbTouches
+        attributes.screenInteraction = .dismiss
+        attributes.entryBackground = .visualEffect(style: .prominent)
+        attributes.screenBackground = .color(color: .init(light: UIColor.black.withAlphaComponent(0.5), dark: UIColor.black))
+        attributes.scroll = .enabled(
+            swipeable: false,
+            pullbackAnimation: .jolt
+        )
+        attributes.statusBar = .light
+        attributes.positionConstraints.keyboardRelation = .bind(
+            offset: .init(
+                bottom: 10,
+                screenEdgeResistance: 5
+            )
+        )
+        return attributes
+    }
+    
     class func email(placeholderStyle: EKProperty.LabelStyle,
                      textStyle: EKProperty.LabelStyle,
                      separatorColor: EKColor,
@@ -100,7 +144,7 @@ final class FormFieldPresetFactory {
     
     struct TextFieldOptionSet: OptionSet {
         let rawValue: Int
-        static let motivation = TextFieldOptionSet(rawValue: 1 << 0)
+        static let motivation = TextFieldOptionSet(rawValue: 0 << 0)
         static let fullName = TextFieldOptionSet(rawValue: 1 << 0)
         static let mobile = TextFieldOptionSet(rawValue: 1 << 1)
         static let email = TextFieldOptionSet(rawValue: 1 << 2)
@@ -118,12 +162,12 @@ final class FormFieldPresetFactory {
                                     separatorColor: separatorColor,
                                     style: style))
         }
-//        if set.contains(.fullName) {
-//            array.append(fullName(placeholderStyle: placeholderStyle,
-//                                  textStyle: textStyle,
-//                                  separatorColor: separatorColor,
-//                                  style: style))
-//        }
+        if set.contains(.fullName) {
+            array.append(fullName(placeholderStyle: placeholderStyle,
+                                  textStyle: textStyle,
+                                  separatorColor: separatorColor,
+                                  style: style))
+        }
         if set.contains(.mobile) {
             array.append(mobile(placeholderStyle: placeholderStyle,
                                 textStyle: textStyle,
