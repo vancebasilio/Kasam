@@ -108,17 +108,21 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
         activityBlocks[indexPath.row].totalOrder = activityBlocks.count
         let activity = activityBlocks[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamViewerCell", for: indexPath) as! KasamViewerCell
-        cell.setKasamViewer(activity: activity)
         if activity.type == "Picker" {
+            cell.setKasamViewer(activity: activity)
             cell.setupPicker()
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.pickerView.selectRow(Int(pastProgress) / 10, inComponent: 0, animated: false)
         } else if activity.type == "Countdown" {
+            cell.setKasamViewer(activity: activity)
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.setupCountdown(maxtime: activity.totalMetric, pastProgress: pastProgress)
         } else if activity.type == "Timer" {
+            cell.setKasamViewer(activity: activity)
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.setupTimer(maxtime: activity.totalMetric, pastProgress: pastProgress)
+        } else if activity.type == "Rest" {
+            cell.setupRest(activity: activity)
         }
         cell.delegate = self
         return cell

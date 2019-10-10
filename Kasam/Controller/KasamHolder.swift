@@ -149,8 +149,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.chosenTime = timeVC.formattedTime
                 self.startDate = timeVC.formattedDate
                 self.startDay = Date().dayOfWeek()!
-                self.chosenRepeat = timeVC.selectedRepeat
-                self.chosenDate = timeVC.selectedDays
                 self.registerUserToKasam()
                 NotificationCenter.default.removeObserver(self.observer as Any)
             }
@@ -176,7 +174,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 print(error!)
             } else {
                 //STEP 4: Adds the user preferences to the kasam they just followed
-                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following").child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Day Joined": self.startDay, "Repeat":self.chosenRepeat, "Time": self.chosenTime, "Days": self.chosenDate]) {(error, reference) in
+                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following").child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Day Joined": self.startDay, "Time": self.chosenTime, "Days": self.chosenDate]) {(error, reference) in
                     if error != nil {
                         print(error!)
                     } else {

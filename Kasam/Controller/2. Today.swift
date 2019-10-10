@@ -73,7 +73,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     
     func updateContentTableHeight(){
         tableViewHeight.constant = tableView.contentSize.height
-        contentView.constant = tableViewHeight.constant + 210
+        contentView.constant = tableViewHeight.constant + 210 + 40
     }
 
     func setupTableAndHeader(){

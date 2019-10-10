@@ -35,6 +35,13 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBOutlet weak var timerButtonStackView: UIStackView!
     @IBOutlet weak var textField: SkyFloatingLabelTextField!
     @IBOutlet weak var maskButton: UIButton!
+    @IBOutlet weak var restImageView: UIImageView!
+    @IBOutlet weak var topView: UIView!
+    @IBOutlet weak var bottomView: UIView!
+    @IBOutlet weak var restTitle: UILabel!
+    @IBOutlet weak var restDescription: UILabel!
+    @IBOutlet weak var restDoneButton: UIButton!
+    @IBOutlet weak var restView: UIStackView!
     
     //slider variables
     var delegate: KasamViewerCellDelegate?
@@ -61,6 +68,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         textField.textAlignment = .center
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
     }
+    
+    //COUNTDOWN-----------------------------------------------------------------------------------
     
     func setupCountdown(maxtime: String, pastProgress: Double){
         //hide picker views
@@ -108,7 +117,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         countdownTimerDidStart = false
     }
     
-    //-----------------------------------------------------------------------------------
+    //TIMER-----------------------------------------------------------------------------------
     
     func setupTimer(maxtime: String, pastProgress: Double){
         //hide picker views
@@ -145,9 +154,10 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         }
     }
     
-    //-----------------------------------------------------------------------------------
+    //PICKER-----------------------------------------------------------------------------------
     
     func setKasamViewer(activity: KasamActivityCellFormat) {
+        restView.isHidden = true
         activityTitle.text = activity.activityTitle
         activityDescription.text = activity.activityDescription
         currentOrder = activity.currentOrder
@@ -207,6 +217,17 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
                 timerStartStop.text = "tap to start"
             }
         }
+    }
+    
+    //REST-----------------------------------------------------------------------------------
+    
+    func setupRest(activity: KasamActivityCellFormat) {
+        topView.isHidden = true
+        bottomView.isHidden = true
+        restTitle.text = activity.activityTitle
+        restDescription.text = activity.activityDescription
+        restDoneButton.layer.cornerRadius = 20.0
+        restImageView.sd_setImage(with: URL(string: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2FRest_animation.gif?alt=media&token=347b9eca-6d37-40fc-82f3-12483d71e440"))
     }
     
     @IBAction func doneButton(_ sender: UIButton) {
