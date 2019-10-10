@@ -117,6 +117,16 @@ class kasamFollowingFormat {
     }
 }
 
+class motivationFormat {
+    var motivationID: String
+    var motivationText: String
+    
+    init(motivationID: String, motivationText: String) {
+        self.motivationID = motivationID
+        self.motivationText = motivationText
+    }
+}
+
 class KasamActivityCellFormat {
     var kasamID: String
     var blockID: String

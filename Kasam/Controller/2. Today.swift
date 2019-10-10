@@ -26,6 +26,8 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     
     var kasamBlocks: [TodayBlockFormat] = []
     var kasamPrefernce: [KasamPreference] = []
+    var motivationArray: [motivationFormat] = []
+    var motivationBackground = ["today_motivation_background1", "today_motivation_background2", "today_motivation_background3"]
     var blockURLGlobal = ""
     var dateSelected = ""
     var kasamIDGlobal = ""
@@ -33,7 +35,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     let semaphore = DispatchSemaphore(value: 1)
     let animationView = AnimationView()
     var displayStatus: String?
-    
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamUserRefHandle: DatabaseHandle!
     var blockUserRef: DatabaseReference!
@@ -52,7 +53,12 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         setupTableAndHeader()
         navBarShadow()
         getPreferences {self.retrieveKasams()}
+        getMotivations()
         self.calendar.scope = .week
+        setupNotifications()
+    }
+    
+    func setupNotifications(){
         let stopLoadingAnimation = NSNotification.Name("RemoveLoadingAnimation")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
         let retrieveKasams = NSNotification.Name("RetrieveKasams")
@@ -61,16 +67,13 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.updateKasamStatus), name: updateKasamStatus, object: nil)
         let addMotivation = NSNotification.Name("AddMotivation")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.addMotivation), name: addMotivation, object: nil)
+        let editMotivation = NSNotification.Name("EditMotivation")
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.editMotivation), name: editMotivation, object: nil)
     }
     
     func updateContentTableHeight(){
         tableViewHeight.constant = tableView.contentSize.height
         contentView.constant = tableViewHeight.constant + 210
-    }
-    
-    @objc func addMotivation(){
-        let attributes = FormFieldPresetFactory.attributes()
-        showSigninForm(attributes: attributes, style: .light)
     }
 
     func setupTableAndHeader(){
@@ -222,22 +225,22 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         return .lightContent
     }
     
-    func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
+//    func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
 //        self.calendarHeightConstraint.constant = bounds.height
-        self.view.layoutIfNeeded()
-    }
-    
-    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
-        self.dateSelected = self.dateFormatter.string(from: date)
-        retrieveKasams()
-        if monthPosition == .next || monthPosition == .previous {
-            calendar.setCurrentPage(date, animated: true)
-        }
-    }
-    
-    func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
-        print("\(self.dateFormatter.string(from: calendar.currentPage))")
-    }
+//        self.view.layoutIfNeeded()
+//    }
+//
+//    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
+//        self.dateSelected = self.dateFormatter.string(from: date)
+//        retrieveKasams()
+//        if monthPosition == .next || monthPosition == .previous {
+//            calendar.setCurrentPage(date, animated: true)
+//        }
+//    }
+//
+//    func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
+//        print("\(self.dateFormatter.string(from: calendar.currentPage))")
+//    }
     
     func dateConverter(datein: String) -> Date{
         let dateFormatter = DateFormatter()
@@ -263,16 +266,54 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     }
     
     // Sign in form
-    private func showSigninForm(attributes: EKAttributes, style: FormStyle) {
+    private func showSigninForm(attributes: EKAttributes, style: FormStyle, motivationID: String?) {
         let titleStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15), color: .standardContent, alignment: .center, displayMode: .light)
         let title = EKProperty.LabelContent(text: "Add your motivation!", style: titleStyle)
         let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
         let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
-                print(textFields[0].textContent)        //textFields is an array of textfields
-                SwiftEntryKit.dismiss()
+            let newMotivation = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
+            if motivationID == nil {
+                newMotivation.childByAutoId().setValue(textFields[0].textContent) { (error, ref) -> Void in
+                    self.getMotivations()
+                }
+            } else if motivationID != nil {
+                newMotivation.child(motivationID!).setValue(textFields[0].textContent) { (error, ref) -> Void in
+                    self.getMotivations()
+                }
+            }
+            SwiftEntryKit.dismiss()
         }
         let contentView = EKFormMessageView(with: title, textFieldsContent: textFields, buttonContent: button)
         SwiftEntryKit.display(entry: contentView, using: attributes)
+    }
+    
+    func getMotivations(){
+        motivationArray.removeAll()
+        let motivationRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
+        motivationRef.observeSingleEvent(of: .value, with:{ (snap) in
+            let count = Int(snap.childrenCount)
+            motivationRef.observe(.childAdded) { (snapshot) in
+                let motivation = motivationFormat(motivationID: snapshot.key, motivationText: snapshot.value as! String)
+                self.motivationArray.append(motivation)
+                if self.motivationArray.count == count {
+                    let placeholder = motivationFormat(motivationID: "", motivationText: "Enter your personal motivation here!")
+                    self.motivationArray.append(placeholder)
+                    self.todayMotivationCollectionView.reloadData()
+                }
+            }
+        })
+    }
+    
+    @objc func editMotivation(_ notification: NSNotification){
+        if let motivationID = notification.userInfo?["motivationID"] as? String {
+            let attributes = FormFieldPresetFactory.attributes()
+            showSigninForm(attributes: attributes, style: .light, motivationID: motivationID)
+        }
+    }
+    
+    @objc func addMotivation(){
+        let attributes = FormFieldPresetFactory.attributes()
+        showSigninForm(attributes: attributes, style: .light, motivationID: nil)
     }
 }
 
@@ -337,15 +378,22 @@ extension TodayBlocksViewController: TodayCellDelegate {
 
 extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        return motivationArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TodayMotivationCell", for: indexPath) as! TodayMotivationCell
-        cell.backgroundImage.sd_setImage(with: nil, placeholderImage: UIImage(named: "today_motivation_background2"))
-        cell.backgroundImage.layer.cornerRadius = 15.0
-        cell.backgroundImage.clipsToBounds = true
-//        cell.motivationText.text = "Hello"
+        if motivationArray[indexPath.row].motivationText == "Enter your personal motivation here!" {
+            cell.backgroundImage.sd_setImage(with: nil, placeholderImage: UIImage(named: "today_motivation_background0"))
+            cell.placeholderMotivation.isHidden = false
+            cell.addButton.isHidden = false
+            cell.editButton.isHidden = true
+        } else {
+            cell.backgroundImage.sd_setImage(with: nil, placeholderImage: UIImage(named: motivationBackground[indexPath.row]))
+            cell.motivationText.text = motivationArray[indexPath.row].motivationText
+            cell.motivationID["motivationID"] = motivationArray[indexPath.row].motivationID
+            cell.addButton.isHidden = true
+        }
         return cell
     }
     
