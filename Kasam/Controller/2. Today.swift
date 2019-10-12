@@ -24,6 +24,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
+    
     var kasamBlocks: [TodayBlockFormat] = []
     var kasamPrefernce: [KasamPreference] = []
     var motivationArray: [motivationFormat] = []
@@ -73,7 +74,14 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     
     func updateContentTableHeight(){
         tableViewHeight.constant = tableView.contentSize.height
-        contentView.constant = tableViewHeight.constant + 210 + 40
+        let frame = self.view.safeAreaLayoutGuide.layoutFrame
+        let contentViewHeight = tableViewHeight.constant + 210 + 40
+        if contentViewHeight > frame.height {
+            contentView.constant = contentViewHeight
+        } else if contentViewHeight <= frame.height {
+            let diff = UIScreen.main.bounds.height - contentViewHeight
+            contentView.constant = tableViewHeight.constant + diff + 140
+        }
     }
 
     func setupTableAndHeader(){
@@ -129,26 +137,21 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     
     @objc func retrieveKasams() {
         self.kasamBlocks.removeAll()
+        SavedData.clearKasamArray()
         let kasamPreferences = self.kasamPrefernce
         let sem = DispatchSemaphore(value: 1)
-        var selectedDate = Date()
-        if self.dateSelected != "" {
-            selectedDate = dateFormatter.date(from: self.dateSelected)!
-        }
         
         for kasam in kasamPreferences {
             DispatchQueue.global().async {
                 sem.wait()
-                var diff = 0
+                var diff = ""
                 //Going through the blocks under a Kasam
-                if selectedDate >= kasam.joinedDate {
-                    diff = Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: selectedDate).day!
+                if Date() >= kasam.joinedDate {
+                    diff = String((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
                     self.blockUserRef = Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks")
                     self.blockUserRefHandle = self.blockUserRef.observe(.value, with: { (snapshot: DataSnapshot!) in
-                        let finalOrder = String(diff % Int(snapshot.childrenCount) + 1)
-
                         //Seeing which blocks are needed for the day
-                        self.orderUserRef = self.blockUserRef.queryOrdered(byChild: "Order").queryEqual(toValue : finalOrder)
+                        self.orderUserRef = self.blockUserRef.queryOrdered(byChild: "Order").queryEqual(toValue : diff)
                         self.orderUserRefHandle = self.orderUserRef.observe(.value, with: { (snapshot: DataSnapshot) in
                             //Gets all the info for one block
                             for blockSnap in snapshot.children {
@@ -173,7 +176,9 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                         hour = String(format: "%02d", Int(firstPart)!)
                                     }
                                     guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
-                                    let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
+                                    let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: "Day \(diff) • \(value["Title"] as! String)", hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
+                                    let kasam = savedKasamFormat(kasamID: kasam.kasamID, kasamImage: blockURL ?? self.placeholder() as! URL, kasamTitle: kasam.kasamName, kasamDuration: value["Duration"] as! String, joinedDate: kasam.joinedDate)
+                                    SavedData.addKasam(kasam: kasam)
                                             self.kasamBlocks.append(block)
                                             sem.signal()
                                             self.tableView.reloadData()
@@ -184,7 +189,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                     }
                                 })
                             })
-                        } else if selectedDate < kasam.joinedDate {
+                        } else if Date() < kasam.joinedDate {
                             sem.signal()
                         }
                     }
@@ -290,14 +295,15 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     func getMotivations(){
         motivationArray.removeAll()
         let motivationRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
+        var motivationRefHandle: DatabaseHandle!
         motivationRef.observeSingleEvent(of: .value, with:{ (snap) in
             let count = Int(snap.childrenCount)
-            motivationRef.observe(.childAdded) { (snapshot) in
+            motivationRefHandle = motivationRef.observe(.childAdded) { (snapshot) in
                 let motivation = motivationFormat(motivationID: snapshot.key, motivationText: snapshot.value as! String)
                 self.motivationArray.append(motivation)
                 if self.motivationArray.count == count {
-                    let placeholder = motivationFormat(motivationID: "", motivationText: "Enter your personal motivation here!")
-                    self.motivationArray.append(placeholder)
+                    self.motivationArray.append(motivationFormat(motivationID: "", motivationText: "Enter your personal motivation here!"))
+                    motivationRef.removeObserver(withHandle: motivationRefHandle)
                     self.todayMotivationCollectionView.reloadData()
                 }
             }
@@ -383,17 +389,9 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TodayMotivationCell", for: indexPath) as! TodayMotivationCell
-        if motivationArray[indexPath.row].motivationText == "Enter your personal motivation here!" {
-            cell.backgroundImage.sd_setImage(with: nil, placeholderImage: UIImage(named: "today_motivation_background0"))
-            cell.placeholderMotivation.isHidden = false
-            cell.addButton.isHidden = false
-            cell.editButton.isHidden = true
-        } else {
-            cell.backgroundImage.sd_setImage(with: nil, placeholderImage: UIImage(named: motivationBackground[indexPath.row]))
-            cell.motivationText.text = motivationArray[indexPath.row].motivationText
-            cell.motivationID["motivationID"] = motivationArray[indexPath.row].motivationID
-            cell.addButton.isHidden = true
-        }
+        cell.backgroundImage.sd_setImage(with: nil, placeholderImage: UIImage(named: motivationBackground[indexPath.row]))
+        cell.motivationText.text = motivationArray[indexPath.row].motivationText
+        cell.motivationID["motivationID"] = motivationArray[indexPath.row].motivationID
         return cell
     }
     

@@ -83,7 +83,6 @@ class ProfileViewController: UIViewController {
     
     //too many functions under this. Break it out, so it isn't refinding all these details
     @objc func getChalloStats() {
-        print("in the challostats")
         challoStats.removeAll()
         metricTypeArray.removeAll()
         kasamTitleArray.removeAll()

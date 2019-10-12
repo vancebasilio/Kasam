@@ -105,6 +105,22 @@ class TodayBlockFormat {
     }
 }
 
+class savedKasamFormat {
+    var kasamID: String
+    var kasamImage: URL
+    var kasamTitle: String
+    var kasamDuration: String
+    var joinedDate: Date
+   
+    init(kasamID: String,  kasamImage: URL, kasamTitle: String, kasamDuration:String, joinedDate: Date){
+        self.kasamID = kasamID
+        self.kasamImage = kasamImage
+        self.kasamTitle = kasamTitle
+        self.kasamDuration = kasamDuration
+        self.joinedDate = joinedDate
+    }
+}
+
 class kasamFollowingFormat {
     var day: Int
     var date: String

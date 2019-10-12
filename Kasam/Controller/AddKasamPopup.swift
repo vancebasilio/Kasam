@@ -33,7 +33,7 @@ class AddKasamPopup: UIViewController {
         setupKeyboardDismissRecognizer()
         timePicker.minimumDate = Date()
         timePicker.maximumDate = Calendar.current.date(byAdding: .month, value: 1, to: Date())
-        popupView.roundCorners([.topLeft, .topRight], radius: 10)
+        popupView.roundCorners([.topLeft, .topRight], radius: 20)
         saveKasamButton.layer.cornerRadius = 20
         cancelButton.layer.cornerRadius = 20
         popupView.clipsToBounds = true

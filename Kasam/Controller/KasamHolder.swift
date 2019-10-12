@@ -143,6 +143,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     //Add Kasam to Following List of user
     @IBAction func addButtonPress(_ sender: Any) {
         if registerCheck == 0 {
+            
             performSegue(withIdentifier: "goToAddKasamPopup", sender: self)
             observer = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "saveTime"), object: nil, queue: OperationQueue.main) { (notification) in
                 let timeVC = notification.object as! AddKasamPopup

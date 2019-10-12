@@ -10,6 +10,7 @@
 		597AC71DCC51EF235508CEAC /* Pods_Kasam.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31ACD208FCC69C817A564415 /* Pods_Kasam.framework */; };
 		BC01664522D53E970073186D /* CoachHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC01664422D53E970073186D /* CoachHolder.swift */; };
 		BC01664722D5790B0073186D /* UIImageViewAligned in Resources */ = {isa = PBXBuildFile; fileRef = BC01664622D5790B0073186D /* UIImageViewAligned */; };
+		BC06DDA423523C7D00162A8C /* SavedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC06DDA323523C7D00162A8C /* SavedData.swift */; };
 		BC08B957229D585900F90288 /* CellFormats.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC08B956229D585900F90288 /* CellFormats.swift */; };
 		BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */; };
 		BC12F1EE233FC17100D93227 /* Statistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1ED233FC17100D93227 /* Statistics.swift */; };
@@ -68,6 +69,7 @@
 		7097DC07EF7C4EA01ED3C8B9 /* Pods-Kasam.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Kasam.release.xcconfig"; path = "Target Support Files/Pods-Kasam/Pods-Kasam.release.xcconfig"; sourceTree = "<group>"; };
 		BC01664422D53E970073186D /* CoachHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoachHolder.swift; sourceTree = "<group>"; };
 		BC01664622D5790B0073186D /* UIImageViewAligned */ = {isa = PBXFileReference; lastKnownFileType = folder; path = UIImageViewAligned; sourceTree = "<group>"; };
+		BC06DDA323523C7D00162A8C /* SavedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedData.swift; sourceTree = "<group>"; };
 		BC08B956229D585900F90288 /* CellFormats.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CellFormats.swift; path = Kasam/Model/KasamCalendarTable/CellFormats.swift; sourceTree = SOURCE_ROOT; };
 		BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamFollowingCell.swift; sourceTree = "<group>"; };
 		BC12F1ED233FC17100D93227 /* Statistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Statistics.swift; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 				BC74E1F22336748E00653381 /* CountdownTimer.swift */,
 				BC55BFD622AEEF6200D77337 /* Custom Functions.swift */,
 				BC5C3C79234D60E800C68238 /* PopupForm.swift */,
+				BC06DDA323523C7D00162A8C /* SavedData.swift */,
 				BCE50BDF22D04A37000F2534 /* FXBlurView.h */,
 				BCE50BDE22D04A37000F2534 /* FXBlurView.m */,
 				BCE50BE322D04B26000F2534 /* Kasam-Bridging-Header.h */,
@@ -463,6 +466,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BC06DDA423523C7D00162A8C /* SavedData.swift in Sources */,
 				BC1FAF2F2269FAFA006A9245 /* LogIn.swift in Sources */,
 				BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */,
 				BC12F1EE233FC17100D93227 /* Statistics.swift in Sources */,
