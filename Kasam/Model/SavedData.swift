@@ -9,14 +9,15 @@
 import Foundation
 
 struct SavedData {
-    static var kasamArray: [savedKasamFormat] = []
+    static var kasamArray: [KasamSavedFormat] = []
+    static var kasamDict: [String:KasamSavedFormat] = [:]
     
     static func clearKasamArray(){
         kasamArray.removeAll()
     }
 
-    static func addKasam(kasam: savedKasamFormat) {
+    static func addKasam(kasam: KasamSavedFormat) {
         self.kasamArray.append(kasam)
-        print(kasamArray.count)
+        self.kasamDict[kasam.kasamID] = kasam
     }
 }

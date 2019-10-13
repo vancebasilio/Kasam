@@ -18,6 +18,7 @@ class KasamViewerTicker: UIViewController {
     var activityBlocks: [KasamActivityCellFormat] = []
     var kasamID = ""
     var blockID = ""
+    var dayOrder = ""
     var activityRef: DatabaseReference!
     var activityRefHandle: DatabaseHandle!
     var metricRef: DatabaseReference?
@@ -58,7 +59,7 @@ class KasamViewerTicker: UIViewController {
                 let currentDate = self.getCurrentDate()
                 var currentMetric = "0"
                 count += 1
-                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamID).child(currentDate ?? "").child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: { (snap) in
+            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamID).child(currentDate ?? "").child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: { (snap) in
                     if snap.exists() {
                         currentMetric = snap.value as! String
                     }
@@ -160,6 +161,6 @@ extension KasamViewerTicker: KasamViewerCellDelegate {
         }
         let  transferAvg : Double = sum / Double(self.summedTotalMetric)
 
-        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix]) {(error, reference) in}
+        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg, "Day Order" : dayOrder, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix]) {(error, reference) in}
     }
 }

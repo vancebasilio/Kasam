@@ -25,18 +25,19 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
     var kasamBlocks: [TodayBlockFormat] = []
-    var kasamPrefernce: [KasamPreference] = []
+    var kasamFollowingArray: [KasamSavedFormat] = []
     var motivationArray: [motivationFormat] = []
     var motivationBackground = ["today_motivation_background1", "today_motivation_background2", "today_motivation_background3"]
     var blockURLGlobal = ""
     var dateSelected = ""
     var kasamIDGlobal = ""
     var blockIDGlobal = ""
+    var dayOrderGlobal = ""
     let semaphore = DispatchSemaphore(value: 1)
     let animationView = AnimationView()
     var displayStatus: String?
-    var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
-    var kasamUserRefHandle: DatabaseHandle!
+    var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
+    var kasamFollowingRefHandle: DatabaseHandle!
 
     fileprivate lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -50,7 +51,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         navBarShadow()
         getPreferences {self.retrieveKasams()}
         getMotivations()
-        self.calendar.scope = .week
         setupNotifications()
     }
     
@@ -70,7 +70,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     func updateContentTableHeight(){
         tableViewHeight.constant = tableView.contentSize.height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let contentViewHeight = tableViewHeight.constant + 210 + 40
+        let contentViewHeight = tableViewHeight.constant + 210 + 20
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {
@@ -100,21 +100,23 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     }
     
     func getPreferences(_ completion: @escaping () -> ()) {
-        kasamPrefernce.removeAll()
-        kasamUserRef.observeSingleEvent(of: .value, with:{ (snap) in
+        kasamFollowingArray.removeAll()
+        SavedData.clearKasamArray()
+        kasamFollowingRef.observeSingleEvent(of: .value, with:{ (snap) in
         let count = Int(snap.childrenCount)
-            self.kasamUserRefHandle = self.kasamUserRef.observe(.childAdded) { (snapshot) in
+            self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded) { (snapshot) in
                 //Get Kasams from user following + their preference for each kasam
                 if let value = snapshot.value as? [String: Any] {
                     let kasamID = snapshot.key
-                    let kasamName = value["Kasam Name"] as? String ?? ""
+                    let kasamTitle = value["Kasam Name"] as? String ?? ""
                     let dateJoined = self.dateConverter(datein: value["Date Joined"] as? String ?? "")
                     let startTime = value["Time"] as? String ?? ""
-                    let preference = KasamPreference(kasamID: kasamID, kasamName: kasamName, joinedDate: dateJoined, startTime: startTime)
-                    self.kasamPrefernce.append(preference)
-                    if self.kasamPrefernce.count == count {
+                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, startTime: startTime)
+                    self.kasamFollowingArray.append(preference)
+                    SavedData.addKasam(kasam: preference)
+                    if self.kasamFollowingArray.count == count {
                         completion()
-                        self.kasamUserRef.removeObserver(withHandle: self.kasamUserRefHandle)
+                        self.kasamFollowingRef.removeObserver(withHandle: self.kasamFollowingRefHandle)
                     }
                 }
             }
@@ -123,10 +125,8 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     
     @objc func retrieveKasams() {
         self.kasamBlocks.removeAll()
-        SavedData.clearKasamArray()
-        let kasamPreferences = self.kasamPrefernce
         let sem = DispatchSemaphore(value: 1)
-        for kasam in kasamPreferences {
+        for kasam in self.kasamFollowingArray {
             DispatchQueue.global().async {
                 sem.wait()
                 var dayOrder = ""
@@ -139,7 +139,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                         let valueSnapshot = blockSnap as! DataSnapshot
                         let value = valueSnapshot.value as! [String:Any]
                         let blockURL = URL(string: value["Image"] as! String)
-                        var hour = ""
                         
                         //Checks if user has completed Kasam for the current day
                     Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(self.getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
@@ -152,15 +151,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                             } else {
                                 self.displayStatus = "Checkmark"
                             }
-                            if let range = kasam.startTime.range(of: ":") {
-                                let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
-                                hour = String(format: "%02d", Int(firstPart)!)
-                            }
-                            guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
-                            let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: "Day \(dayOrder) • \(value["Title"] as! String)", hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
-                                //to save these details in the SavedKasam registry
-                            let kasam = savedKasamFormat(kasamID: kasam.kasamID, kasamImage: blockURL ?? self.placeholder() as! URL, kasamTitle: kasam.kasamName, metricType: "", kasamDuration: value["Duration"] as! String, joinedDate: kasam.joinedDate)
-                            SavedData.addKasam(kasam: kasam)
+                        let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: "Day \(dayOrder) • \(value["Title"] as! String)", dayOrder: dayOrder, duration: value["Duration"] as! String, image: blockURL ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
                             self.kasamBlocks.append(block)
                             sem.signal()
                             self.tableView.reloadData()
@@ -171,7 +162,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                         }
                     })
                 } else if Date() < kasam.joinedDate {
-                sem.signal()
+                    sem.signal()
                 }
             }
         }
@@ -289,13 +280,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
 
 extension TodayBlocksViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        if kasamBlocks.count == 0 {
-//            self.kasamsNumber.text = "You have no kasams today"
-//        } else if kasamBlocks.count > 1 {
-//            self.kasamsNumber.text = "You have \(kasamBlocks.count) kasams to keep today"
-//        } else {
-//            self.kasamsNumber.text = "You have \(kasamBlocks.count) kasam to keep today"
-//        }
         return kasamBlocks.count
     }
     
@@ -322,6 +306,7 @@ extension TodayBlocksViewController: UITableViewDataSource, UITableViewDelegate 
         UIApplication.shared.beginIgnoringInteractionEvents()
         kasamIDGlobal = kasamBlocks[indexPath.row].kasamID
         blockIDGlobal = kasamBlocks[indexPath.row].blockID
+        dayOrderGlobal = kasamBlocks[indexPath.row].dayOrder
         performSegue(withIdentifier: "goToKasamViewerTicker", sender: indexPath)
     }
     
@@ -330,6 +315,7 @@ extension TodayBlocksViewController: UITableViewDataSource, UITableViewDelegate 
             let kasamActivityHolder = segue.destination as! KasamViewerTicker
             kasamActivityHolder.kasamID = kasamIDGlobal
             kasamActivityHolder.blockID = blockIDGlobal
+            kasamActivityHolder.dayOrder = dayOrderGlobal
         }
     }
 }

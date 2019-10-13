@@ -14,10 +14,10 @@ class KasamFollowingCell: UICollectionViewCell {
     @IBOutlet weak var topImage: UIImageView!
     @IBOutlet weak var kasamTitle: UILabel!
     
-    func setBlock(cell: kasamFollowingCellFormat) {
-        topImage.sd_setImage(with: cell.image, placeholderImage: UIImage(named: "placeholder.png"))
+    func setBlock(cell: UserStatsFormat) {
+        topImage.sd_setImage(with: cell.imageURL, placeholderImage: UIImage(named: "placeholder.png"))
         topImage.layer.cornerRadius = 8.0
         topImage.clipsToBounds = true
-        kasamTitle.text = cell.title
+        kasamTitle.text = cell.kasamTitle
     }
 }

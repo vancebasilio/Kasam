@@ -23,11 +23,16 @@ class StatisticsViewController: UIViewController {
     @IBOutlet weak var bottomViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentViewHeight: NSLayoutConstraint!
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var dayNoIcon: UILabel!
+    @IBOutlet weak var dayNoValue: UILabel!
+    @IBOutlet weak var avgMetricIcon: UILabel!
+    @IBOutlet weak var avgMetric: UILabel!
     
     var dataEntries: [ChartDataEntry] = []
     var kasamID = ""
     var kasamName = ""
     var kasamMetricType = ""
+    var avgMetricHolder = ""
     var kasamImage: URL!
     var metricArray: [Double] = []
     var kasamBlocks: [kasamFollowingFormat] = []
@@ -52,6 +57,7 @@ class StatisticsViewController: UIViewController {
     }
     
     func setupView(){
+        avgMetric.text = avgMetricHolder
         kasamImageView.sd_setImage(with: kasamImage, placeholderImage: UIImage(named: "placeholder.png"))
         kasamImageView.layer.cornerRadius = kasamImageView.frame.width / 2
         kasamImageView.clipsToBounds = true
@@ -59,6 +65,8 @@ class StatisticsViewController: UIViewController {
         imageWhiteBack.layer.cornerRadius = kasamImageView.frame.width / 2
         imageWhiteBack.clipsToBounds = true
         kasamNameLabel.text = kasamName
+        self.avgMetricIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chartBar), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, iconSize: 20)
+        self.dayNoIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.calendarCheck), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, iconSize: 20)
         backButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chevronLeft), iconColor: UIColor.darkGray, postfixText: " Profile", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
     }
     
@@ -72,16 +80,18 @@ class StatisticsViewController: UIViewController {
     }
     
     @objc func getKasamStats(){
+        let daysLeft = SavedData.kasamDict[kasamID]?.joinedDate
+        let dayOrder = String((Calendar.current.dateComponents([.day], from: daysLeft!, to: Date()).day!) + 1)
+        self.dayNoValue.text = "Day \(dayOrder)"
         self.kasamBlocks.removeAll()
         self.kasamHistoryRef.child(self.kasamID).observeSingleEvent(of: .value, with:{ (snap) in
             let count = Int(snap.childrenCount)
-            var day = 1
             self.kasamHistoryRef.child(self.kasamID).observe(.childAdded, with:{ (snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     let metric = Int(value["Total Metric"] as? Double ?? 0.0)
+                    let dayOrder = Int(value["Day Order"] as? String ?? "0")
                     self.metricArray.append(Double(metric))
-                    let block = kasamFollowingFormat(day: day, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(self.kasamMetricType)")
-                    day += 1                            //to print the day label in the statistics table
+                    let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(self.kasamMetricType)")
                     self.kasamBlocks.append(block)
                 }
                 if self.kasamBlocks.count == count {

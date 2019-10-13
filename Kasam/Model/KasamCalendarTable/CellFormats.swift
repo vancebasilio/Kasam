@@ -84,42 +84,22 @@ class TodayBlockFormat {
     var blockID: String
     var image: URL
     var title: String
-    var hour: String
-    var minute: String
+    var dayOrder: String
     var duration: String
     var kasamName: String
     var statusType: String
     var displayStatus: String
     
-    init(kasamID: String, blockID: String, kasamName: String, title: String, hour: String, minute: String, duration: String, image: URL, statusType: String, displayStatus: String){
+    init(kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String, image: URL, statusType: String, displayStatus: String){
         self.kasamID = kasamID
         self.blockID = blockID
         self.kasamName = kasamName
+        self.dayOrder = dayOrder
         self.image = image
         self.title = title
-        self.hour = hour
-        self.minute = minute
         self.duration = duration
         self.statusType = statusType
         self.displayStatus = displayStatus
-    }
-}
-
-class savedKasamFormat {
-    var kasamID: String
-    var kasamImage: URL
-    var kasamTitle: String
-    var metricType: String
-    var kasamDuration: String
-    var joinedDate: Date
-   
-    init(kasamID: String,  kasamImage: URL, kasamTitle: String, metricType: String, kasamDuration:String, joinedDate: Date){
-        self.kasamID = kasamID
-        self.kasamImage = kasamImage
-        self.kasamTitle = kasamTitle
-        self.metricType = metricType
-        self.kasamDuration = kasamDuration
-        self.joinedDate = joinedDate
     }
 }
 
@@ -220,7 +200,7 @@ class KasamFormat {
     
 }
 
-class KasamPreference {
+class KasamSavedFormat {
     var kasamID: String
     var kasamName: String
     var joinedDate: Date
@@ -235,12 +215,16 @@ class KasamPreference {
 }
 
 class UserStatsFormat {
+    var kasamID: String
     var kasamTitle: String
+    var imageURL: URL
     var metricType: String
     var daysLeft: Int
     
-    init(kasamTitle: String, metricType: String, daysLeft: Int){
+    init(kasamID: String, kasamTitle: String, imageURL: URL, metricType: String, daysLeft: Int){
+        self.kasamID = kasamID
         self.kasamTitle = kasamTitle
+        self.imageURL = imageURL
         self.metricType = metricType
         self.daysLeft = daysLeft
     }

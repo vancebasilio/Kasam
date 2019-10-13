@@ -28,7 +28,7 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var logOut: UIButton!
     
-    var challoStats: [challoStatFormat] = []
+    var metricStats: [challoStatFormat] = []
     var userStats: [UserStatsFormat] = []
     var avgMetricArray: [Int] = []
     var daysCompletedDict: [String:Int] = [:]
@@ -36,20 +36,15 @@ class ProfileViewController: UIViewController {
     var metricDictionary = [Int:Double]()
     
     //Kasam Following
-    var kasamFollowing: [kasamFollowingCellFormat] = []
     var kasamIDGlobal: String = ""
     var kasamTitleGlobal: String = ""
     var kasamMetricTypeGlobal: String = ""
     var kasamImageGlobal: URL!
-    
-    var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
+    var kasamAvgMetricGlobal = ""
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
-    var kasamRef = Database.database().reference().child("Coach-Kasams")
-    var kasamRefHandle: DatabaseHandle!
     var kasamUserRefHandle: DatabaseHandle!
     var kasamHistoryRefHandle: DatabaseHandle!
-    var kasamFollowingRefHandle: DatabaseHandle!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -81,50 +76,53 @@ class ProfileViewController: UIViewController {
     
     //too many functions under this. Break it out, so it isn't refinding all these details
     @objc func getChalloStats() {
-        challoStats.removeAll()
+        metricStats.removeAll()
         userStats.removeAll()
-        kasamFollowing.removeAll()
         avgMetricArray.removeAll()
         metricDictionary.removeAll()
         //loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamArray {
-            let imageURL = kasam.kasamImage
-            let kasamBlock = kasamFollowingCellFormat(kasamID: kasam.kasamID, title: kasam.kasamTitle, image: imageURL, metricType: kasam.metricType)
-            self.kasamFollowing.append(kasamBlock)
-            
-            //User Stats
-            let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
-            let userStats = UserStatsFormat(kasamTitle: kasam.kasamTitle, metricType: kasam.metricType, daysLeft: daysPast)
-            self.userStats.append(userStats)
+            Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) { (snap) in
+                let snapshot = snap.value as! Dictionary<String,Any>
+                let metricType = snapshot["Metric"]! as! String
+                let imageURL = URL(string:snapshot["Image"]! as! String)
+                let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
+                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, metricType: metricType, daysLeft: daysPast)
+                self.userStats.append(userStats)
+            }
             
             //Kasam Level
             self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasam.kasamID).observe(.childAdded, with:{ (snapshot) in
                 self.daysCompletedDict[snapshot.key] = 1
                 let total = self.daysCompletedDict.count
-                self.totalDays.text = "\(String(total)) Days"
+                if total == 1 {
+                     self.totalDays.text = "\(String(total)) Kasam Day"
+                } else {
+                    self.totalDays.text = "\(String(total)) Kasam Days"
+                }
                 self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
             })
             
-                //Stats for each kasam
-                var metricMatrix = 0
-                var metricCount = 0
-                var checkerCount = 0
-                for x in 1...7 {
-                    self.kasamHistoryRef.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{ (snapshot) in
-                        checkerCount += 1
-                        self.metricDictionary[x] = 0                                        //to set the base as zero for each day
-                        if let value = snapshot.value as? [String: Any] {
-                            self.metricDictionary[x] = value["Metric Percent"] as? Double   //get the metric for each day for each kasam
-                            metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
-                            metricCount += 1
-                    }
-                    if checkerCount == 7 {
-                        if metricCount != 0 {
-                            self.avgMetricArray.append(metricMatrix / metricCount)
-                        } else {
+            //Stats for each kasam
+            var metricMatrix = 0
+            var metricCount = 0
+            var checkerCount = 0
+            for x in 1...7 {
+                self.kasamHistoryRef.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{ (snapshot) in
+                    checkerCount += 1
+                    self.metricDictionary[x] = 0                                        //to set the base as zero for each day
+                    if let value = snapshot.value as? [String: Any] {
+                        self.metricDictionary[x] = value["Metric Percent"] as? Double   //get the metric for each day for each kasam
+                        metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
+                        metricCount += 1
+                }
+                if checkerCount == 7 {
+                    if metricCount != 0 {
+                        self.avgMetricArray.append(metricMatrix / metricCount)
+                    } else {
                         self.avgMetricArray.append(0)                       //if there are no stats, we don't want to divde by zero
                     }
-                    self.challoStats.append(challoStatFormat(metricDictionary: self.metricDictionary))
+                    self.metricStats.append(challoStatFormat(metricDictionary: self.metricDictionary))
                     self.challoStatsCollectionView.reloadData()
                     self.kasamFollowingCollectionView.reloadData()
                     }
@@ -223,6 +221,7 @@ class ProfileViewController: UIViewController {
             kasamTransferHolder.kasamName = kasamTitleGlobal
             kasamTransferHolder.kasamMetricType = kasamMetricTypeGlobal
             kasamTransferHolder.kasamImage = kasamImageGlobal
+            kasamTransferHolder.avgMetricHolder = String(kasamAvgMetricGlobal)
         }
     }
     
@@ -230,8 +229,6 @@ class ProfileViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         self.kasamUserRef.removeObserver(withHandle: self.kasamUserRefHandle!)
-        self.kasamFollowingRef.removeObserver(withHandle: self.kasamFollowingRefHandle)
-        self.kasamRef.removeObserver(withHandle: self.kasamRefHandle)
         self.kasamHistoryRef.removeObserver(withHandle: self.kasamHistoryRefHandle)
     }
 }
@@ -240,9 +237,9 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == challoStatsCollectionView {
-            return challoStats.count
+            return metricStats.count
         } else {
-            return kasamFollowing.count
+            return userStats.count
         }
     }
     
@@ -258,17 +255,27 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == challoStatsCollectionView {
         } else {
-            kasamTitleGlobal = kasamFollowing[indexPath.row].title
-            kasamIDGlobal = kasamFollowing[indexPath.row].kasamID
-            kasamMetricTypeGlobal = kasamFollowing[indexPath.row].metricType
-            kasamImageGlobal = kasamFollowing[indexPath.row].image
+            kasamTitleGlobal = userStats[indexPath.row].kasamTitle
+            kasamIDGlobal = userStats[indexPath.row].kasamID
+            kasamMetricTypeGlobal = userStats[indexPath.row].metricType
+            kasamImageGlobal = userStats[indexPath.row].imageURL
+            var avgMetric = ""
+            if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] < 60 {
+                avgMetric = "\(String(self.avgMetricArray[indexPath.row])) secs"
+            } else if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] > 60 {
+                let time: Double = Double(self.avgMetricArray[indexPath.row]) / 60.0
+                avgMetric = "\(String(time)) mins"
+            } else {
+                avgMetric = "\(String(self.avgMetricArray[indexPath.row])) \(userStats[indexPath.row].metricType)"
+            }
+            kasamAvgMetricGlobal = avgMetric
             self.performSegue(withIdentifier: "goToStats", sender: indexPath)
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == challoStatsCollectionView {
-            let stat = challoStats[indexPath.row]
+            let stat = metricStats[indexPath.row]
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
             cell.height = challoStatsHeight.constant
             cell.setBlock(cell: stat)
@@ -289,7 +296,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             }
             return cell
         } else {
-            let kasam = kasamFollowing[indexPath.row]
+            let kasam = userStats[indexPath.row]
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamFollowingCell", for: indexPath) as! KasamFollowingCell
             cell.setBlock(cell: kasam)
             return cell
