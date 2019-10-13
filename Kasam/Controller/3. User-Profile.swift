@@ -29,10 +29,8 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var logOut: UIButton!
     
     var challoStats: [challoStatFormat] = []
-    var kasamTitleArray: [String] = []
-    var metricTypeArray: [String] = []
+    var userStats: [UserStatsFormat] = []
     var avgMetricArray: [Int] = []
-    var daysLeftArray: [Int] = []
     var daysCompletedDict: [String:Int] = [:]
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
@@ -84,75 +82,65 @@ class ProfileViewController: UIViewController {
     //too many functions under this. Break it out, so it isn't refinding all these details
     @objc func getChalloStats() {
         challoStats.removeAll()
-        metricTypeArray.removeAll()
-        kasamTitleArray.removeAll()
+        userStats.removeAll()
         kasamFollowing.removeAll()
-        daysLeftArray.removeAll()
         avgMetricArray.removeAll()
         metricDictionary.removeAll()
         //loops through all kasams that user is following and get kasamID
-        self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded, with:{ (snap) in
-            self.kasamRefHandle = self.kasamRef.child(snap.key).observe(.value, with: { (snapshot: DataSnapshot!) in
-                if let value = snapshot.value as? [String: Any] {
-                    self.kasamTitleArray.append(value["Title"] as? String ?? "")
-                    self.metricTypeArray.append(value["Metric"] as? String ?? "")
-                    let imageURL = URL(string: value["Image"] as? String ?? "")
-                    let kasamBlock = kasamFollowingCellFormat(kasamID: value["KasamID"] as? String ?? "", title: value["Title"] as? String ?? "", image: imageURL!, metricType: value["Metric"] as? String ?? "")
-                    self.kasamFollowing.append(kasamBlock)
-                }
-            })
+        for kasam in SavedData.kasamArray {
+            let imageURL = kasam.kasamImage
+            let kasamBlock = kasamFollowingCellFormat(kasamID: kasam.kasamID, title: kasam.kasamTitle, image: imageURL, metricType: kasam.metricType)
+            self.kasamFollowing.append(kasamBlock)
             
-            //gets the kasam days remaining count
-            self.kasamHistoryRef.child(snap.key).observeSingleEvent(of: .value, with:{ (snap) in
-                let daysCount = Int(snap.childrenCount)
-                self.daysLeftArray.append(daysCount)
-            })
+            //User Stats
+            let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
+            let userStats = UserStatsFormat(kasamTitle: kasam.kasamTitle, metricType: kasam.metricType, daysLeft: daysPast)
+            self.userStats.append(userStats)
             
-            //gets the kasamLevel
-            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(snap.key).observe(.childAdded, with:{ (snapshot) in
+            //Kasam Level
+            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasam.kasamID).observe(.childAdded, with:{ (snapshot) in
                 self.daysCompletedDict[snapshot.key] = 1
                 let total = self.daysCompletedDict.count
                 self.totalDays.text = "\(String(total)) Days"
                 self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
             })
-        
-            //gets the stats for each kasam
-            var metricMatrix = 0
-            var metricCount = 0
-            var checkerCount = 0
-            for x in 1...7 {
-                self.kasamHistoryRef.child(snap.key).child(self.dayDictionary[x]!).observe(.value, with:{ (snapshot) in
-                    checkerCount += 1
-                    self.metricDictionary[x] = 0                                        //to set the base as zero for each day
-                    if let value = snapshot.value as? [String: Any] {
-                        self.metricDictionary[x] = value["Metric Percent"] as? Double   //get the metric for each day for each kasam
-                        metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
-                        metricCount += 1
+            
+                //Stats for each kasam
+                var metricMatrix = 0
+                var metricCount = 0
+                var checkerCount = 0
+                for x in 1...7 {
+                    self.kasamHistoryRef.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{ (snapshot) in
+                        checkerCount += 1
+                        self.metricDictionary[x] = 0                                        //to set the base as zero for each day
+                        if let value = snapshot.value as? [String: Any] {
+                            self.metricDictionary[x] = value["Metric Percent"] as? Double   //get the metric for each day for each kasam
+                            metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
+                            metricCount += 1
                     }
                     if checkerCount == 7 {
                         if metricCount != 0 {
                             self.avgMetricArray.append(metricMatrix / metricCount)
-                            print(self.avgMetricArray)
                         } else {
-                            self.avgMetricArray.append(0)                       //if there are no stats, we don't want to divde by zero
-                        }
-                        self.challoStats.append(challoStatFormat(metricDictionary: self.metricDictionary))
-                        self.challoStatsCollectionView.reloadData()
-                        self.kasamFollowingCollectionView.reloadData()
+                        self.avgMetricArray.append(0)                       //if there are no stats, we don't want to divde by zero
+                    }
+                    self.challoStats.append(challoStatFormat(metricDictionary: self.metricDictionary))
+                    self.challoStatsCollectionView.reloadData()
+                    self.kasamFollowingCollectionView.reloadData()
                     }
                 })
             }
-        })
+        }
     }
     
     func setupDateDictionary(){
         let todayDay = Date().dayNumberOfWeek()
         if todayDay == 1 {
-            for x in 1...7{
+            for x in 1...7 {
                 self.dayDictionary[x] = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: x - 7, to: Date())!)
             }
         } else {
-            for x in 1...7{
+            for x in 1...7 {
                 self.dayDictionary[x] = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: x - (todayDay! - 1), to: Date())!)
             }
         }
@@ -284,20 +272,20 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
             cell.height = challoStatsHeight.constant
             cell.setBlock(cell: stat)
-            cell.kasamTitle.text = kasamTitleArray[indexPath.row]
+            cell.kasamTitle.text = userStats[indexPath.row].kasamTitle
             DispatchQueue.main.async {
-                cell.daysLeft.text = String(30 - self.daysLeftArray[indexPath.row]) //async loading this as it takes a long time to gather
+                cell.daysLeft.text = String(30 - self.userStats[indexPath.row].daysLeft) //async loading this as it takes a long time to gather
             }
-            if metricTypeArray[indexPath.row] == "mins" && avgMetricArray[indexPath.row] < 60 {
+            if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] < 60 {
                 cell.averageMetric.text = String(self.avgMetricArray[indexPath.row])
                 cell.averageMetricLabel.text = "Avg. secs"
-            } else if metricTypeArray[indexPath.row] == "mins" && avgMetricArray[indexPath.row] > 60 {
+            } else if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] > 60 {
                 let time: Double = Double(self.avgMetricArray[indexPath.row]) / 60.0
                 cell.averageMetric.text = String(time)
                 cell.averageMetricLabel.text = "Avg. mins"
             } else {
                 cell.averageMetric.text = String(self.avgMetricArray[indexPath.row])
-                cell.averageMetricLabel.text = "Avg. \(metricTypeArray[indexPath.row])"
+                cell.averageMetricLabel.text = "Avg. \(userStats[indexPath.row].metricType)"
             }
             return cell
         } else {

@@ -24,7 +24,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
-    
     var kasamBlocks: [TodayBlockFormat] = []
     var kasamPrefernce: [KasamPreference] = []
     var motivationArray: [motivationFormat] = []
@@ -38,11 +37,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     var displayStatus: String?
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamUserRefHandle: DatabaseHandle!
-    var blockUserRef: DatabaseReference!
-    var blockUserRefHandle: DatabaseHandle!
-    var orderUserRef: DatabaseQuery!
-    var orderUserRefHandle: DatabaseHandle!
-    
+
     fileprivate lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM/dd/yy"
@@ -110,26 +105,17 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         let count = Int(snap.childrenCount)
             self.kasamUserRefHandle = self.kasamUserRef.observe(.childAdded) { (snapshot) in
                 //Get Kasams from user following + their preference for each kasam
-                var dateJoined = Date()
-                var startTime = ""
-                let kasamID = snapshot.key
-                var kasamName = ""
-                
-                for child in snapshot.children {
-                    let snap = child as! DataSnapshot
-                    if snap.key == "Date Joined" {
-                        dateJoined = self.dateConverter(datein: snap.value as! String)
-                    } else if snap.key == "Time" {
-                        startTime = snap.value as! String
-                    } else if snap.key == "Kasam Name" {
-                        kasamName = snap.value as! String
+                if let value = snapshot.value as? [String: Any] {
+                    let kasamID = snapshot.key
+                    let kasamName = value["Kasam Name"] as? String ?? ""
+                    let dateJoined = self.dateConverter(datein: value["Date Joined"] as? String ?? "")
+                    let startTime = value["Time"] as? String ?? ""
+                    let preference = KasamPreference(kasamID: kasamID, kasamName: kasamName, joinedDate: dateJoined, startTime: startTime)
+                    self.kasamPrefernce.append(preference)
+                    if self.kasamPrefernce.count == count {
+                        completion()
+                        self.kasamUserRef.removeObserver(withHandle: self.kasamUserRefHandle)
                     }
-                }
-                let preference = KasamPreference(kasamID: kasamID, kasamName: kasamName, joinedDate: dateJoined, startTime: startTime)
-                self.kasamPrefernce.append(preference)
-                if self.kasamPrefernce.count == count {
-                    completion()
-                    self.kasamUserRef.removeObserver(withHandle: self.kasamUserRefHandle)
                 }
             }
         })
@@ -140,62 +126,57 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         SavedData.clearKasamArray()
         let kasamPreferences = self.kasamPrefernce
         let sem = DispatchSemaphore(value: 1)
-        
         for kasam in kasamPreferences {
             DispatchQueue.global().async {
                 sem.wait()
-                var diff = ""
-                //Going through the blocks under a Kasam
+                var dayOrder = ""
+                //Seeing which blocks are needed for the day
                 if Date() >= kasam.joinedDate {
-                    diff = String((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
-                    self.blockUserRef = Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks")
-                    self.blockUserRefHandle = self.blockUserRef.observe(.value, with: { (snapshot: DataSnapshot!) in
-                        //Seeing which blocks are needed for the day
-                        self.orderUserRef = self.blockUserRef.queryOrdered(byChild: "Order").queryEqual(toValue : diff)
-                        self.orderUserRefHandle = self.orderUserRef.observe(.value, with: { (snapshot: DataSnapshot) in
-                            //Gets all the info for one block
-                            for blockSnap in snapshot.children {
-                                let valueSnapshot = blockSnap as! DataSnapshot
-                                let value = valueSnapshot.value as! [String:Any]
-                                let blockURL = URL(string: value["Image"] as! String)
-                                var hour = ""
-                                
-                                //Checks if user has completed Kasam for the current day
-                                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(self.getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
-                                    if let value = snap.value as? Double {
-                                        if value == 1 {
-                                            self.displayStatus = "Check" //Kasam has been completed today
-                                        } else {
-                                            self.displayStatus = "Progress" //kasam has been started, but not completed
-                                        }
-                                    } else {
-                                        self.displayStatus = "Checkmark"
-                                    }
-                                    if let range = kasam.startTime.range(of: ":") {
-                                        let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
-                                        hour = String(format: "%02d", Int(firstPart)!)
-                                    }
-                                    guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
-                                    let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: "Day \(diff) • \(value["Title"] as! String)", hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
-                                    let kasam = savedKasamFormat(kasamID: kasam.kasamID, kasamImage: blockURL ?? self.placeholder() as! URL, kasamTitle: kasam.kasamName, kasamDuration: value["Duration"] as! String, joinedDate: kasam.joinedDate)
-                                    SavedData.addKasam(kasam: kasam)
-                                            self.kasamBlocks.append(block)
-                                            sem.signal()
-                                            self.tableView.reloadData()
-                                            self.tableView.beginUpdates()
-                                            self.tableView.endUpdates()
-                                            self.updateContentTableHeight()
-                                        })
-                                    }
-                                })
-                            })
-                        } else if Date() < kasam.joinedDate {
+                    dayOrder = String((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
+                    Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : dayOrder).observe(.value, with: { (snapshot: DataSnapshot) in
+                    //Gets all the info for one block
+                    for blockSnap in snapshot.children {
+                        let valueSnapshot = blockSnap as! DataSnapshot
+                        let value = valueSnapshot.value as! [String:Any]
+                        let blockURL = URL(string: value["Image"] as! String)
+                        var hour = ""
+                        
+                        //Checks if user has completed Kasam for the current day
+                    Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(self.getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
+                            if let value = snap.value as? Double {
+                                if value == 1 {
+                                    self.displayStatus = "Check" //Kasam has been completed today
+                                } else {
+                                    self.displayStatus = "Progress" //kasam has been started, but not completed
+                                }
+                            } else {
+                                self.displayStatus = "Checkmark"
+                            }
+                            if let range = kasam.startTime.range(of: ":") {
+                                let firstPart = kasam.startTime[(kasam.startTime.startIndex)..<range.lowerBound]
+                                hour = String(format: "%02d", Int(firstPart)!)
+                            }
+                            guard let minute = kasam.startTime.slice(from: ":", to: " ") else {return}
+                            let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: "Day \(dayOrder) • \(value["Title"] as! String)", hour: hour , minute: minute, duration: value["Duration"] as! String, image: blockURL ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
+                                //to save these details in the SavedKasam registry
+                            let kasam = savedKasamFormat(kasamID: kasam.kasamID, kasamImage: blockURL ?? self.placeholder() as! URL, kasamTitle: kasam.kasamName, metricType: "", kasamDuration: value["Duration"] as! String, joinedDate: kasam.joinedDate)
+                            SavedData.addKasam(kasam: kasam)
+                            self.kasamBlocks.append(block)
                             sem.signal()
+                            self.tableView.reloadData()
+                            self.tableView.beginUpdates()
+                            self.tableView.endUpdates()
+                            self.updateContentTableHeight()
+                            })
                         }
-                    }
+                    })
+                } else if Date() < kasam.joinedDate {
+                sem.signal()
                 }
-                self.tableView.reloadData()
             }
+        }
+        self.tableView.reloadData()
+    }
     
     @objc func updateKasamStatus() {
         for i in 0...(kasamBlocks.count - 1) {
@@ -229,23 +210,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
-    
-//    func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
-//        self.calendarHeightConstraint.constant = bounds.height
-//        self.view.layoutIfNeeded()
-//    }
-//
-//    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
-//        self.dateSelected = self.dateFormatter.string(from: date)
-//        retrieveKasams()
-//        if monthPosition == .next || monthPosition == .previous {
-//            calendar.setCurrentPage(date, animated: true)
-//        }
-//    }
-//
-//    func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
-//        print("\(self.dateFormatter.string(from: calendar.currentPage))")
-//    }
     
     func dateConverter(datein: String) -> Date{
         let dateFormatter = DateFormatter()

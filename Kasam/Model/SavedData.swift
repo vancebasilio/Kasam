@@ -9,7 +9,7 @@
 import Foundation
 
 struct SavedData {
-    static private var kasamArray: [savedKasamFormat] = []
+    static var kasamArray: [savedKasamFormat] = []
     
     static func clearKasamArray(){
         kasamArray.removeAll()

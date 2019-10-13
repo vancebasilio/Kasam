@@ -109,13 +109,15 @@ class savedKasamFormat {
     var kasamID: String
     var kasamImage: URL
     var kasamTitle: String
+    var metricType: String
     var kasamDuration: String
     var joinedDate: Date
    
-    init(kasamID: String,  kasamImage: URL, kasamTitle: String, kasamDuration:String, joinedDate: Date){
+    init(kasamID: String,  kasamImage: URL, kasamTitle: String, metricType: String, kasamDuration:String, joinedDate: Date){
         self.kasamID = kasamID
         self.kasamImage = kasamImage
         self.kasamTitle = kasamTitle
+        self.metricType = metricType
         self.kasamDuration = kasamDuration
         self.joinedDate = joinedDate
     }
@@ -229,5 +231,17 @@ class KasamPreference {
         self.kasamName = kasamName
         self.joinedDate = joinedDate
         self.startTime = startTime
+    }
+}
+
+class UserStatsFormat {
+    var kasamTitle: String
+    var metricType: String
+    var daysLeft: Int
+    
+    init(kasamTitle: String, metricType: String, daysLeft: Int){
+        self.kasamTitle = kasamTitle
+        self.metricType = metricType
+        self.daysLeft = daysLeft
     }
 }
