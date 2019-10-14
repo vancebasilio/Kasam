@@ -261,12 +261,12 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             kasamImageGlobal = userStats[indexPath.row].imageURL
             var avgMetric = ""
             if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] < 60 {
-                avgMetric = "\(String(self.avgMetricArray[indexPath.row])) secs"
+                avgMetric = "\(String(self.avgMetricArray[indexPath.row])) Avg. secs"
             } else if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] > 60 {
                 let time: Double = Double(self.avgMetricArray[indexPath.row]) / 60.0
-                avgMetric = "\(String(time)) mins"
+                avgMetric = "\(String(time)) Avg. mins"
             } else {
-                avgMetric = "\(String(self.avgMetricArray[indexPath.row])) \(userStats[indexPath.row].metricType)"
+                avgMetric = "\(String(self.avgMetricArray[indexPath.row])) Avg. \(userStats[indexPath.row].metricType)"
             }
             kasamAvgMetricGlobal = avgMetric
             self.performSegue(withIdentifier: "goToStats", sender: indexPath)

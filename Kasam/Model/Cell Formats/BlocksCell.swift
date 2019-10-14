@@ -21,10 +21,7 @@ class BlocksCell: UITableViewCell {
         blockTitle.text = block.title
         dayNo.text = "DAY \(block.order)"
         blockDuration.text = block.duration
-
         blockImage.layer.cornerRadius = 10
         blockImage.clipsToBounds = true
-        
     }
-    
 }

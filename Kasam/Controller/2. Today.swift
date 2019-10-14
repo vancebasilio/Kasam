@@ -27,7 +27,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     var kasamBlocks: [TodayBlockFormat] = []
     var kasamFollowingArray: [KasamSavedFormat] = []
     var motivationArray: [motivationFormat] = []
-    var motivationBackground = ["today_motivation_background1", "today_motivation_background2", "today_motivation_background3"]
+    var motivationBackground: [String] = []
     var blockURLGlobal = ""
     var dateSelected = ""
     var kasamIDGlobal = ""
@@ -50,6 +50,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         setupTableAndHeader()
         navBarShadow()
         getPreferences {self.retrieveKasams()}
+        getMotivationBackgrounds()
         getMotivations()
         setupNotifications()
     }
@@ -265,6 +266,14 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         })
     }
     
+    func getMotivationBackgrounds(){
+        let motivationRef = Database.database().reference().child("Assets").child("Motivation Images")
+        let motivationRefHandle = motivationRef.observe(.childAdded) {(snap) in
+            let motivationURL = snap.value as! String
+            self.motivationBackground.append(motivationURL)
+        }
+    }
+    
     @objc func editMotivation(_ notification: NSNotification){
         if let motivationID = notification.userInfo?["motivationID"] as? String {
             let attributes = FormFieldPresetFactory.attributes()
@@ -339,7 +348,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TodayMotivationCell", for: indexPath) as! TodayMotivationCell
-        cell.backgroundImage.sd_setImage(with: nil, placeholderImage: UIImage(named: motivationBackground[indexPath.row]))
+        cell.backgroundImage.sd_setImage(with: URL(string: motivationBackground[indexPath.row]), placeholderImage: UIImage(named: "placeholder.png"))
         cell.motivationText.text = motivationArray[indexPath.row].motivationText
         cell.motivationID["motivationID"] = motivationArray[indexPath.row].motivationID
         return cell

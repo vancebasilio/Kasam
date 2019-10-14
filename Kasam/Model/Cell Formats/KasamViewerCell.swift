@@ -100,9 +100,9 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     func countdownTime(timeTot: Double, timeBreak: (hours: String, minutes: String, seconds: String)) {
         circularSlider?.endPointValue = CGFloat(maxTime - timeTot)
         currentTime = timeTot                                         //sends this value to Firebase
-        if timeTot < 59.0 {
+        if timeTot < 60.0 {
             timeLabel.text = timeBreak.seconds
-        } else if timeTot >= 59 && timeTot < 3600 {
+        } else if timeTot >= 60 && timeTot < 3600 {
             timeLabel.text = "\(timeBreak.minutes):\(timeBreak.seconds)"
         } else if timeTot >= 3600 {
             timeLabel.text = "\(timeBreak.hours):\(timeBreak.minutes):\(timeBreak.seconds)"
@@ -145,9 +145,9 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     func timerTime(timeTot: Double, timeBreak: (hours: String, minutes: String, seconds: String)) {
         circularSlider?.endPointValue = CGFloat(timeTot)
         currentTime = -timeTot                               //sends this value to Firebase
-        if timeTot < 59.0 {
+        if timeTot < 60.0 {
             timeLabel.text = timeBreak.seconds
-        } else if timeTot >= 59 && timeTot < 3600 {
+        } else if timeTot >= 60 && timeTot < 3600 {
             timeLabel.text = "\(timeBreak.minutes):\(timeBreak.seconds)"
         } else if timeTot >= 3600 {
             timeLabel.text = "\(timeBreak.hours):\(timeBreak.minutes):\(timeBreak.seconds)"
