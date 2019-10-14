@@ -21,9 +21,6 @@ class CalendarViewController: UIViewController, UITableViewDelegate, UITableView
         
         retrieveKasams()
         kasamTableView.register(UINib(nibName: "KasamCell", bundle: nil), forCellReuseIdentifier: "TableViewCell")
-        
-        let kasamUpdate = NSNotification.Name("KasamUpdate")
-        NotificationCenter.default.addObserver(self, selector: #selector(FollowingViewController.reloadTableview), name: kasamUpdate, object: nil)
     }
     
     //Stops the observer

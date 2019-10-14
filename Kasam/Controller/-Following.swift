@@ -17,12 +17,8 @@ class FollowingViewController: UIViewController, UITableViewDelegate, UITableVie
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         retrieveKasams()
         kasamTableView.register(UINib(nibName: "KasamCell", bundle: nil), forCellReuseIdentifier: "TableViewCell")
-
-        let kasamUpdate = NSNotification.Name("KasamUpdate")
-        NotificationCenter.default.addObserver(self, selector: #selector(FollowingViewController.reloadTableview), name: kasamUpdate, object: nil)
     }
 
     override func didReceiveMemoryWarning() {

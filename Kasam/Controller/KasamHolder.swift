@@ -143,7 +143,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     //Add Kasam to Following List of user
     @IBAction func addButtonPress(_ sender: Any) {
         if registerCheck == 0 {
-            
             performSegue(withIdentifier: "goToAddKasamPopup", sender: self)
             observer = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "saveTime"), object: nil, queue: OperationQueue.main) { (notification) in
                 let timeVC = notification.object as! AddKasamPopup
@@ -153,7 +152,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.registerUserToKasam()
                 NotificationCenter.default.removeObserver(self.observer as Any)
             }
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         } else {
             unregisterUseFromKasam()
         }
@@ -179,12 +177,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     if error != nil {
                         print(error!)
                     } else {
-                        let kasamUpdate = NSNotification.Name("KasamUpdate")
-                        NotificationCenter.default.post(name: kasamUpdate, object: nil)
-                        let profileUpdate = NSNotification.Name("ProfileUpdate")
-                        NotificationCenter.default.post(name: profileUpdate, object: nil)
-                        let calendarUpdate = NSNotification.Name("KasamCalendarUpdate")
-                        NotificationCenter.default.post(name: calendarUpdate, object: nil)
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveKasams"), object: self)
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                     }
                 }
             }
@@ -205,13 +199,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             if error != nil {
                 print(error!)
             } else {
-                let kasamUpdate = NSNotification.Name("KasamUpdate")
-                NotificationCenter.default.post(name: kasamUpdate, object: nil)
-                let profileUpdate = NSNotification.Name("ProfileUpdate")
-                NotificationCenter.default.post(name: profileUpdate, object: nil)
-                let calendarUpdate = NSNotification.Name("KasamCalendarUpdate")
-                NotificationCenter.default.post(name: calendarUpdate, object: nil)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveKasams"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
             }
         }
     }

@@ -38,6 +38,8 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     var displayStatus: String?
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamFollowingRefHandle: DatabaseHandle!
+    let motivationRef = Database.database().reference().child("Assets").child("Motivation Images")
+    var motivationRefHandle: DatabaseHandle!
 
     fileprivate lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -49,17 +51,21 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         super.viewDidLoad()
         setupTableAndHeader()
         navBarShadow()
-        getPreferences {self.retrieveKasams()}
+        getPreferences()
         getMotivationBackgrounds()
         getMotivations()
         setupNotifications()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        motivationRef.removeObserver(withHandle: motivationRefHandle)
     }
     
     func setupNotifications(){
         let stopLoadingAnimation = NSNotification.Name("RemoveLoadingAnimation")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
         let retrieveKasams = NSNotification.Name("RetrieveKasams")
-        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.retrieveKasams), name: retrieveKasams, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.getPreferences), name: retrieveKasams, object: nil)
         let updateKasamStatus = NSNotification.Name("UpdateKasamStatus")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.updateKasamStatus), name: updateKasamStatus, object: nil)
         let addMotivation = NSNotification.Name("AddMotivation")
@@ -84,23 +90,17 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 150
         tableView.reloadData()
-        let calendarUpdate = NSNotification.Name("KasamCalendarUpdate")
-        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.getContinuedPreferences), name: calendarUpdate, object: nil)
     }
 
     deinit {
         print("\(#function)")
     }
     
-    @objc func getContinuedPreferences(){
-        getPreferences {self.retrieveKasams()}
-    }
-    
     @objc func stopLoadingAnimation(){
         animationView.removeFromSuperview()
     }
     
-    func getPreferences(_ completion: @escaping () -> ()) {
+    @objc func getPreferences() {
         kasamFollowingArray.removeAll()
         SavedData.clearKasamArray()
         kasamFollowingRef.observeSingleEvent(of: .value, with:{ (snap) in
@@ -116,7 +116,8 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                     self.kasamFollowingArray.append(preference)
                     SavedData.addKasam(kasam: preference)
                     if self.kasamFollowingArray.count == count {
-                        completion()
+                        self.retrieveKasams()
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
                         self.kasamFollowingRef.removeObserver(withHandle: self.kasamFollowingRefHandle)
                     }
                 }
@@ -125,49 +126,38 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     }
     
     @objc func retrieveKasams() {
+        print("In retrieveKasams with \(kasamFollowingArray.count) kasams")
         self.kasamBlocks.removeAll()
-        let sem = DispatchSemaphore(value: 1)
         for kasam in self.kasamFollowingArray {
-            DispatchQueue.global().async {
-                sem.wait()
-                var dayOrder = ""
-                //Seeing which blocks are needed for the day
-                if Date() >= kasam.joinedDate {
-                    dayOrder = String((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
-                    Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : dayOrder).observe(.value, with: { (snapshot: DataSnapshot) in
+            var dayOrder = ""
+            //Seeing which blocks are needed for the day
+            if Date() >= kasam.joinedDate {
+                dayOrder = String((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
+                print(dayOrder)
+                Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : dayOrder).observeSingleEvent(of: .childAdded, with: { snapshot in
                     //Gets all the info for one block
-                    for blockSnap in snapshot.children {
-                        let valueSnapshot = blockSnap as! DataSnapshot
-                        let value = valueSnapshot.value as! [String:Any]
-                        let blockURL = URL(string: value["Image"] as! String)
-                        
-                        //Checks if user has completed Kasam for the current day
-                    Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(self.getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
-                            if let value = snap.value as? Double {
-                                if value == 1 {
-                                    self.displayStatus = "Check" //Kasam has been completed today
-                                } else {
-                                    self.displayStatus = "Progress" //kasam has been started, but not completed
-                                }
-                            } else {
-                                self.displayStatus = "Checkmark"
-                            }
-                        let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: "Day \(dayOrder) • \(value["Title"] as! String)", dayOrder: dayOrder, duration: value["Duration"] as! String, image: blockURL ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
-                            self.kasamBlocks.append(block)
-                            sem.signal()
-                            self.tableView.reloadData()
-                            self.tableView.beginUpdates()
-                            self.tableView.endUpdates()
-                            self.updateContentTableHeight()
-                            })
+                    let value = snapshot.value as! Dictionary<String,Any>
+                    //Checks if user has completed Kasam for the current day
+                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(self.getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
+                    if let value = snap.value as? Double {
+                        if value == 1 {
+                            self.displayStatus = "Check" //Kasam has been completed today
+                        } else {
+                            self.displayStatus = "Progress" //kasam has been started, but not completed
                         }
+                    } else {
+                            self.displayStatus = "Checkmark"
+                    }
+                    let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: "Day \(dayOrder) • \(value["Title"] as! String)", dayOrder: dayOrder, duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
+                    self.kasamBlocks.append(block)
+                    self.tableView.reloadData()
+                    self.tableView.beginUpdates()
+                    self.tableView.endUpdates()
+                    self.updateContentTableHeight()
                     })
-                } else if Date() < kasam.joinedDate {
-                    sem.signal()
-                }
+                })
             }
         }
-        self.tableView.reloadData()
     }
     
     @objc func updateKasamStatus() {
@@ -267,8 +257,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     }
     
     func getMotivationBackgrounds(){
-        let motivationRef = Database.database().reference().child("Assets").child("Motivation Images")
-        let motivationRefHandle = motivationRef.observe(.childAdded) {(snap) in
+        self.motivationRefHandle = self.motivationRef.observe(.childAdded) {(snap) in
             let motivationURL = snap.value as! String
             self.motivationBackground.append(motivationURL)
         }
