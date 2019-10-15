@@ -25,6 +25,7 @@
 		BC207A7C228BABBE00C14317 /* -Calendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC207A7B228BABBE00C14317 /* -Calendar.swift */; };
 		BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC3AAA1F227D46BA00D098E1 /* TabBar.swift */; };
 		BC40C43822BC386700BCBA8D /* -CoachKasams.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC40C43722BC386700BCBA8D /* -CoachKasams.swift */; };
+		BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */; };
 		BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC45558C2321F6D300F1227B /* KasamViewerCell.swift */; };
 		BC520BBB227413E100553C6B /* Transitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC520BBA227413E100553C6B /* Transitions.swift */; };
 		BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD1226D6EF900D707CC /* 1. Discover.swift */; };
@@ -86,6 +87,7 @@
 		BC207A7B228BABBE00C14317 /* -Calendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-Calendar.swift"; sourceTree = "<group>"; };
 		BC3AAA1F227D46BA00D098E1 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
 		BC40C43722BC386700BCBA8D /* -CoachKasams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-CoachKasams.swift"; sourceTree = "<group>"; };
+		BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewBlockCell.swift; sourceTree = "<group>"; };
 		BC45558C2321F6D300F1227B /* KasamViewerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewerCell.swift; sourceTree = "<group>"; };
 		BC520BBA227413E100553C6B /* Transitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transitions.swift; sourceTree = "<group>"; };
 		BC554BD1226D6EF900D707CC /* 1. Discover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "1. Discover.swift"; sourceTree = "<group>"; };
@@ -206,6 +208,7 @@
 				BC55CC68232B4552003C87F6 /* ChalloStatsCell.swift */,
 				BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */,
 				BC96F8462292085200E161FC /* TodayBlockCell.swift */,
+				BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */,
 				BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */,
 				BC45558C2321F6D300F1227B /* KasamViewerCell.swift */,
 				BCF2A76A227F08F0009D2368 /* BlocksCell.swift */,
@@ -500,6 +503,7 @@
 				BC520BBB227413E100553C6B /* Transitions.swift in Sources */,
 				BC08B957229D585900F90288 /* CellFormats.swift in Sources */,
 				BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */,
+				BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */,
 				BCEFD539226C195F0084AFF1 /* Register.swift in Sources */,
 				BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */,
 				BC554BD8226E079100D707CC /* 3. User-Profile.swift in Sources */,

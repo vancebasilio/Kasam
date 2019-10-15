@@ -64,12 +64,12 @@ class NewKasamViewController: UIViewController {
     
     @IBAction func createKasam(_ sender: Any) {
        
-    //Saves Kasam Text Data
+        //Saves Kasam Text Data
         let newKasam = Database.database().reference().child("Coach-Kasams")
         let kasamID = newKasam.childByAutoId()
         kasamIDGlobal = kasamID.key ?? ""
         
-    //Saves Kasam Image in Firebase Storage
+        //Saves Kasam Image in Firebase Storage
         let storageRef = Storage.storage().reference().child("kasam/\(kasamID.key!)")
         guard let image = self.profileImage.image else { return }
         guard let imageData = image.jpegData(compressionQuality: 0.2) else { return }
@@ -81,8 +81,7 @@ class NewKasamViewController: UIViewController {
                 storageRef.downloadURL { url, error in
                     registerKasamData(imageUrl: url!.absoluteString)
                 }
-            } else {
-                //error
+            } else {//error
             }
         }
         
@@ -92,10 +91,10 @@ class NewKasamViewController: UIViewController {
             
             kasamID.setValue(kasamDictionary) {
                 (error, reference) in
-                if error != nil {
-                    print(error!)
+                if error != nil {print(error!)
                 } else {
                     //kasam successfully created
+                    Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(self.kasamIDGlobal).setValue(self.newKasamTitle.text!)
                 }
             }
         }

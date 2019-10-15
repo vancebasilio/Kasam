@@ -115,6 +115,11 @@ class kasamFollowingFormat {
     }
 }
 
+class newBlockFormat {
+    var duration: String?
+    var title: String?
+}
+
 class motivationFormat {
     var motivationID: String
     var motivationText: String

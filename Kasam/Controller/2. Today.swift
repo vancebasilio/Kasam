@@ -126,14 +126,12 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     }
     
     @objc func retrieveKasams() {
-        print("In retrieveKasams with \(kasamFollowingArray.count) kasams")
         self.kasamBlocks.removeAll()
         for kasam in self.kasamFollowingArray {
             var dayOrder = ""
             //Seeing which blocks are needed for the day
             if Date() >= kasam.joinedDate {
                 dayOrder = String((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
-                print(dayOrder)
                 Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : dayOrder).observeSingleEvent(of: .childAdded, with: { snapshot in
                     //Gets all the info for one block
                     let value = snapshot.value as! Dictionary<String,Any>
