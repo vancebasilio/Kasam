@@ -13,7 +13,6 @@ import SkyFloatingLabelTextField
 
 class NewKasamViewController: UIViewController {
     
-    
     @IBOutlet weak var newKasamTitle: SkyFloatingLabelTextField!
     @IBOutlet weak var newKasamType: SkyFloatingLabelTextField!
     @IBOutlet weak var newKasamLevel: SkyFloatingLabelTextField!
@@ -26,6 +25,7 @@ class NewKasamViewController: UIViewController {
     
     var imagePicker: UIImagePickerController!
     var kasamIDGlobal = ""
+    var kasamImageGlobal = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,7 +43,6 @@ class NewKasamViewController: UIViewController {
         profileImage.addGestureRecognizer(imageTap)
         profileImage.layer.cornerRadius = profileImage.bounds.height / 2
         profileImage.clipsToBounds = true
-        
     }
     
     @objc func openImagePicker(_ sender:Any) {
@@ -57,13 +56,13 @@ class NewKasamViewController: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToCreateBlocks" {
-            let kasamIDHolder = segue.destination as! NewBlockViewController
-            kasamIDHolder.kasamID = kasamIDGlobal
+            let kasamTransferHolder = segue.destination as! NewBlockViewController
+            kasamTransferHolder.kasamID = kasamIDGlobal
+            kasamTransferHolder.blockImage = kasamImageGlobal
         }
     }
     
     @IBAction func createKasam(_ sender: Any) {
-       
         //Saves Kasam Text Data
         let newKasam = Database.database().reference().child("Coach-Kasams")
         let kasamID = newKasam.childByAutoId()
@@ -87,6 +86,7 @@ class NewKasamViewController: UIViewController {
         
         //Function which registers Kasam Data in Firebase RT Database
         func registerKasamData (imageUrl: String) {
+            kasamImageGlobal = imageUrl
             let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": newGenre.text!, "Description": newKasamDescription.text!, "Timing":newTiming.text!, "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": newKasamType.text!, "Rating": newRating.text!, "Blocks": "blocks", "Level":newKasamLevel.text!, "Metric": newMetric.text!]
             
             kasamID.setValue(kasamDictionary) {

@@ -138,7 +138,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                     //Checks if user has completed Kasam for the current day
                 Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(self.getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
                     if let value = snap.value as? Double {
-                        if value == 1 {
+                        if value >= 1 {
                             self.displayStatus = "Check" //Kasam has been completed today
                         } else {
                             self.displayStatus = "Progress" //kasam has been started, but not completed
@@ -146,7 +146,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                     } else {
                             self.displayStatus = "Checkmark"
                     }
-                    let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: "Day \(dayOrder) • \(value["Title"] as! String)", dayOrder: dayOrder, duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
+                    let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
                     self.kasamBlocks.append(block)
                     self.tableView.reloadData()
                     self.tableView.beginUpdates()

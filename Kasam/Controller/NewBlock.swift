@@ -20,6 +20,7 @@ class NewBlockViewController: UIViewController, UITextFieldDelegate {
     
     var imagePicker: UIImagePickerController!
     var kasamID = ""
+    var blockImage = ""
     var numberOfBlocks = 1
     var transferTitle = [Int:String]()
     var transferDuration = [Int:String]()
@@ -53,7 +54,7 @@ class NewBlockViewController: UIViewController, UITextFieldDelegate {
                     "Metric" : "",
                     "Title" : "",
                     "Type" : "Picker"]
-                let blockDictionary = ["Activity": activity, "Duration": transferDuration[j] ?? "Duration", "Image": "", "Order": String(i * j), "Rating": "5", "Title": transferTitle[j] ?? "Title", "BlockID": blockID.key!] as [String : Any]
+                let blockDictionary = ["Activity": activity, "Duration": transferDuration[j] ?? "Duration", "Image": blockImage, "Order": String(i * j), "Rating": "5", "Title": transferTitle[j] ?? "Title", "BlockID": blockID.key!] as [String : Any]
             
                 blockID.setValue(blockDictionary) {
                     (error, reference) in

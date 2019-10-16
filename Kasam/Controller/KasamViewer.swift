@@ -41,6 +41,7 @@ class KasamViewerTicker: UIViewController {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
         dismiss(animated: true)
     }
     

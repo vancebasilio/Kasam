@@ -235,6 +235,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
             delegate?.dismissViewController()
             NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
         } else {
             delegate?.nextItem()
         }
@@ -244,6 +245,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         delegate?.dismissViewController()
         delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime), text: textField.text ?? "")
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
     }
     
     @IBAction func resetButtonPress(_ sender: Any) {

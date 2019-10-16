@@ -38,6 +38,7 @@ class StatisticsViewController: UIViewController {
     var kasamBlocks: [kasamFollowingFormat] = []
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
+    var kasamHistoryRefHandle: DatabaseHandle!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,6 +69,8 @@ class StatisticsViewController: UIViewController {
         self.avgMetricIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chartBar), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, iconSize: 20)
         self.dayNoIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.calendarCheck), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, iconSize: 20)
         backButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chevronLeft), iconColor: UIColor.darkGray, postfixText: " Profile", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
+        let mainStatsUpdate = NSNotification.Name("MainStatsUpdate")
+        NotificationCenter.default.addObserver(self, selector: #selector(StatisticsViewController.getKasamStats), name: mainStatsUpdate, object: nil)
     }
     
     /// Creating gradient for filling space under the line chart
@@ -86,7 +89,7 @@ class StatisticsViewController: UIViewController {
         self.kasamBlocks.removeAll()
         self.kasamHistoryRef.child(self.kasamID).observeSingleEvent(of: .value, with:{ (snap) in
             let count = Int(snap.childrenCount)
-            self.kasamHistoryRef.child(self.kasamID).observe(.childAdded, with:{ (snapshot) in
+            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(self.kasamID).observe(.childAdded, with:{ (snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     let metric = Int(value["Total Metric"] as? Double ?? 0.0)
                     let dayOrder = Int(value["Day Order"] as? String ?? "0")
@@ -97,6 +100,7 @@ class StatisticsViewController: UIViewController {
                 if self.kasamBlocks.count == count {
                     self.setChart(values: self.metricArray)
                     self.historyTableView.reloadData()
+                    self.kasamHistoryRef.removeObserver(withHandle: self.kasamHistoryRefHandle)
                 }
             })
         })

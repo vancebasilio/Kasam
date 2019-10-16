@@ -19,7 +19,7 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var kasamName: UILabel!
     @IBOutlet weak var blockTitle: UILabel!
     @IBOutlet weak var blockImage: UIImageView!
-    @IBOutlet weak var blockDurationImage: UILabel!
+    @IBOutlet weak var dayNumber: UILabel!
     @IBOutlet weak var blockDuration: UILabel!
     @IBOutlet weak var blockContents: UIView!
     @IBOutlet weak var blockShadow: UIView!
@@ -38,8 +38,10 @@ class TodayBlockCell: UITableViewCell {
         blockID = block.title
         blockImage.sd_setImage(with: block.image, placeholderImage: UIImage(named: "placeholder.png"))
         blockTitle.text = block.title
-        blockDurationImage.setIcon(icon: .fontAwesomeSolid(.clock), iconSize: 15, color: UIColor.init(hex: 0xcbcbcb))
-        blockDuration.text = " \(block.duration)"
+        let font = UIFont(name: "HelveticaNeue-Medium", size: 13)!
+        let color = UIColor.init(hex: 0xA1A6BD)
+        dayNumber.setIcon(prefixText: "", prefixTextFont: font, prefixTextColor: color, icon: .fontAwesomeSolid(.calendarAlt), iconColor: color, postfixText: " Day \(block.dayOrder) •  ", postfixTextFont: font, postfixTextColor: color, iconSize: 13)
+        blockDuration.setIcon(prefixText: "", prefixTextFont: font, prefixTextColor: color, icon: .fontAwesomeSolid(.clock), iconColor: color, postfixText: " \(block.duration)", postfixTextFont: font, postfixTextColor: color, iconSize: 12)
         processedStatus = block.displayStatus
         
         //Progress Bar
