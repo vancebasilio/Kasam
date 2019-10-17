@@ -37,10 +37,6 @@ class TodayMotivationCell: UICollectionViewCell {
         motivationText.text = block
     }
     
-    @IBAction func addButtonPressed(_ sender: Any) {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "AddMotivation"), object: self, userInfo: motivationID)
-    }
-    
     @IBAction func editbuttonPressed(_ sender: Any) {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "EditMotivation"), object: self, userInfo: motivationID)
     }

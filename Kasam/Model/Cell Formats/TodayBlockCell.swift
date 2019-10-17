@@ -17,7 +17,6 @@ protocol TodayCellDelegate {
 class TodayBlockCell: UITableViewCell {
     
     @IBOutlet weak var kasamName: UILabel!
-    @IBOutlet weak var blockTitle: UILabel!
     @IBOutlet weak var blockImage: UIImageView!
     @IBOutlet weak var dayNumber: UILabel!
     @IBOutlet weak var blockDuration: UILabel!
@@ -37,11 +36,8 @@ class TodayBlockCell: UITableViewCell {
         kasamName.text = block.kasamName
         blockID = block.title
         blockImage.sd_setImage(with: block.image, placeholderImage: UIImage(named: "placeholder.png"))
-        blockTitle.text = block.title
-        let font = UIFont(name: "HelveticaNeue-Medium", size: 13)!
-        let color = UIColor.init(hex: 0xA1A6BD)
-        dayNumber.setIcon(prefixText: "", prefixTextFont: font, prefixTextColor: color, icon: .fontAwesomeSolid(.calendarAlt), iconColor: color, postfixText: " Day \(block.dayOrder) •  ", postfixTextFont: font, postfixTextColor: color, iconSize: 13)
-        blockDuration.setIcon(prefixText: "", prefixTextFont: font, prefixTextColor: color, icon: .fontAwesomeSolid(.clock), iconColor: color, postfixText: " \(block.duration)", postfixTextFont: font, postfixTextColor: color, iconSize: 12)
+        dayNumber.text = "Day \(block.dayOrder)"
+        blockDuration.text = "\(block.duration)"
         processedStatus = block.displayStatus
         
         //Progress Bar

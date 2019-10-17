@@ -68,8 +68,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.getPreferences), name: retrieveKasams, object: nil)
         let updateKasamStatus = NSNotification.Name("UpdateKasamStatus")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.updateKasamStatus), name: updateKasamStatus, object: nil)
-        let addMotivation = NSNotification.Name("AddMotivation")
-        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.addMotivation), name: addMotivation, object: nil)
         let editMotivation = NSNotification.Name("EditMotivation")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.editMotivation), name: editMotivation, object: nil)
     }
@@ -214,28 +212,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         animationView.loopMode = .loop
     }
     
-    // Sign in form
-    private func showSigninForm(attributes: EKAttributes, style: FormStyle, motivationID: String?) {
-        let titleStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15), color: .standardContent, alignment: .center, displayMode: .light)
-        let title = EKProperty.LabelContent(text: "Add your motivation!", style: titleStyle)
-        let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
-        let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
-            let newMotivation = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
-            if motivationID == nil {
-                newMotivation.childByAutoId().setValue(textFields[0].textContent) { (error, ref) -> Void in
-                    self.getMotivations()
-                }
-            } else if motivationID != nil {
-                newMotivation.child(motivationID!).setValue(textFields[0].textContent) { (error, ref) -> Void in
-                    self.getMotivations()
-                }
-            }
-            SwiftEntryKit.dismiss()
-        }
-        let contentView = EKFormMessageView(with: title, textFieldsContent: textFields, buttonContent: button)
-        SwiftEntryKit.display(entry: contentView, using: attributes)
-    }
-    
     func getMotivations(){
         motivationArray.removeAll()
         let motivationRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
@@ -261,16 +237,33 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         }
     }
     
+    // Sign in form
+    private func showSigninForm(attributes: EKAttributes, style: FormStyle, motivationID: String) {
+        let titleStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15), color: .standardContent, alignment: .center, displayMode: .light)
+        let title = EKProperty.LabelContent(text: "Add your motivation!", style: titleStyle)
+        let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
+        let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
+            let newMotivation = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
+            if motivationID == "" {
+                newMotivation.childByAutoId().setValue(textFields[0].textContent) { (error, ref) -> Void in
+                    self.getMotivations()
+                }
+            } else if motivationID != "" {
+                newMotivation.child(motivationID).setValue(textFields[0].textContent) { (error, ref) -> Void in
+                    self.getMotivations()
+                }
+            }
+            SwiftEntryKit.dismiss()
+        }
+        let contentView = EKFormMessageView(with: title, textFieldsContent: textFields, buttonContent: button)
+        SwiftEntryKit.display(entry: contentView, using: attributes)
+    }
+    
     @objc func editMotivation(_ notification: NSNotification){
         if let motivationID = notification.userInfo?["motivationID"] as? String {
             let attributes = FormFieldPresetFactory.attributes()
             showSigninForm(attributes: attributes, style: .light, motivationID: motivationID)
         }
-    }
-    
-    @objc func addMotivation(){
-        let attributes = FormFieldPresetFactory.attributes()
-        showSigninForm(attributes: attributes, style: .light, motivationID: nil)
     }
 }
 
