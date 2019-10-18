@@ -35,7 +35,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     var dayOrderGlobal = ""
     let semaphore = DispatchSemaphore(value: 1)
     let animationView = AnimationView()
-    var displayStatus: String?
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamFollowingRefHandle: DatabaseHandle!
     let motivationRef = Database.database().reference().child("Assets").child("Motivation Images")
@@ -149,24 +148,26 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                         self.dayTrackerArray.append(order)
                     
                         //Checks if user has completed Kasam for the current day
+                        var displayStatus = "Checkmark"
                         if snap.key == currentDate {
                             let dictionary = snap.value as! Dictionary<String,Any>
                             let value = dictionary["Metric Percent"] as! Double
                                 if value >= 1 {
-                                    self.displayStatus = "Check"            //Kasam has been completed today
+                                    displayStatus = "Check"            //Kasam has been completed today
                                 } else {
-                                    self.displayStatus = "Progress"         //kasam has been started, but not completed
+                                    displayStatus = "Progress"         //kasam has been started, but not completed
                                 }
                             }
                         
                         //once you have all the dayTracking info, transfer it to the today block
                         if self.dayTrackerArray.count == count {
-                            let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Checkmark", dayTrackerArray: self.dayTrackerArray)
+                            let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: displayStatus, dayTrackerArray: self.dayTrackerArray)
                             self.kasamBlocks.append(block)
                             self.tableView.reloadData()
                             self.tableView.beginUpdates()
                             self.tableView.endUpdates()
                             self.updateContentTableHeight()
+                            self.dayTrackerRef.removeObserver(withHandle: self.dayTrackerRefHandle)
                             self.dayTrackerArray.removeAll()
                             }
                         })
@@ -179,16 +180,17 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     @objc func updateKasamStatus() {
         for i in 0...(kasamBlocks.count - 1) {
             Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamBlocks[i].kasamID).child(getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
+                var displayStatus = "Checkmark"
                 if let value = snap.value as? Double {
                     if value >= 1 {
-                        self.displayStatus = "Check"        //Kasam has been completed today
+                        displayStatus = "Check"        //Kasam has been completed today
                     } else if value < 1 {
-                        self.displayStatus = "Progress"     //kasam has been started, but not completed
+                        displayStatus = "Progress"     //kasam has been started, but not completed
                     }
                 } else {
-                    self.displayStatus = "Checkmark"
+                    displayStatus = "Checkmark"
                 }
-                self.kasamBlocks[i].displayStatus = self.displayStatus ?? "Check"
+                self.kasamBlocks[i].displayStatus = displayStatus
                 self.tableView.reloadData()
                 self.tableView.beginUpdates()
                 self.tableView.endUpdates()
