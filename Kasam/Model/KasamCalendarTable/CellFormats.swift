@@ -89,8 +89,9 @@ class TodayBlockFormat {
     var kasamName: String
     var statusType: String
     var displayStatus: String
+    var dayTrackerArray: [Int]
     
-    init(kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String, image: URL, statusType: String, displayStatus: String){
+    init(kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String, image: URL, statusType: String, displayStatus: String, dayTrackerArray: [Int]){
         self.kasamID = kasamID
         self.blockID = blockID
         self.kasamName = kasamName
@@ -100,6 +101,7 @@ class TodayBlockFormat {
         self.duration = duration
         self.statusType = statusType
         self.displayStatus = displayStatus
+        self.dayTrackerArray = dayTrackerArray
     }
 }
 

@@ -123,6 +123,15 @@ extension UIViewController {
         return finalDate
     }
     
+    func getCurrentTime() -> String? {
+        let currentDateTime = Date()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .long
+        formatter.dateStyle = .none
+        let finalDate = formatter.string(from: currentDateTime)
+        return finalDate
+    }
+    
     func getCurrentDate() -> String? {
         let currentDateTime = Date()
         let formatter = DateFormatter()
@@ -161,7 +170,7 @@ extension UIViewController {
 extension Date {
     func dayOfWeek() -> String? {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEEE"                       //gets the day, e.g. "Wednesday"
+        dateFormatter.dateFormat = "EEEE"                                       //gets the day, e.g. "Wednesday"
         return dateFormatter.string(from: self).capitalized
     }
     
@@ -261,5 +270,23 @@ extension TimeInterval{
         let minutes = (time / 60) % 60
         let hours = (time / 3600)
         return String(format: "%0.2d:%0.2d:%0.2d.%0.3d",hours,minutes,seconds,ms)
+    }
+}
+
+extension UIView{
+    func roundedLeft(){
+        let maskPath1 = UIBezierPath(roundedRect: bounds, byRoundingCorners: [.topLeft , .bottomLeft], cornerRadii: CGSize(width: 8, height: 8))
+        let maskLayer1 = CAShapeLayer()
+        maskLayer1.frame = bounds
+        maskLayer1.path = maskPath1.cgPath
+        layer.mask = maskLayer1
+    }
+    
+    func roundedRight(){
+        let maskPath1 = UIBezierPath(roundedRect: bounds, byRoundingCorners: [.topRight , .bottomRight], cornerRadii: CGSize(width: 8, height: 8))
+        let maskLayer1 = CAShapeLayer()
+        maskLayer1.frame = bounds
+        maskLayer1.path = maskPath1.cgPath
+        layer.mask = maskLayer1
     }
 }

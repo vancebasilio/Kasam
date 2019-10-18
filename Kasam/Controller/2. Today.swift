@@ -40,6 +40,9 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     var kasamFollowingRefHandle: DatabaseHandle!
     let motivationRef = Database.database().reference().child("Assets").child("Motivation Images")
     var motivationRefHandle: DatabaseHandle!
+    let dayTrackerRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
+    var dayTrackerRefHandle: DatabaseHandle!
+    var dayTrackerArray = [Int]()
 
     fileprivate lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -127,29 +130,46 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         self.kasamBlocks.removeAll()
         for kasam in self.kasamFollowingArray {
             var dayOrder = ""
+            let currentDate = self.getCurrentDate()
             //Seeing which blocks are needed for the day
             if Date() >= kasam.joinedDate {
                 dayOrder = String((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
+                
+                //Gets all the info for one block
                 Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : dayOrder).observeSingleEvent(of: .childAdded, with: { snapshot in
-                    //Gets all the info for one block
                     let value = snapshot.value as! Dictionary<String,Any>
-                    //Checks if user has completed Kasam for the current day
-                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasam.kasamID).child(self.getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
-                    if let value = snap.value as? Double {
-                        if value >= 1 {
-                            self.displayStatus = "Check" //Kasam has been completed today
-                        } else {
-                            self.displayStatus = "Progress" //kasam has been started, but not completed
-                        }
-                    } else {
-                            self.displayStatus = "Checkmark"
-                    }
-                    let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Display Status")
-                    self.kasamBlocks.append(block)
-                    self.tableView.reloadData()
-                    self.tableView.beginUpdates()
-                    self.tableView.endUpdates()
-                    self.updateContentTableHeight()
+                    var count = 0
+                    
+                    //Gets the DayTracker info
+                    self.dayTrackerRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
+                        count = Int(snap.childrenCount)
+                    self.dayTrackerRefHandle = self.dayTrackerRef.child(kasam.kasamID).observe(.childAdded, with: {(snap) in
+                        let kasamDate = self.dateConverter2(datein: snap.key)
+                        let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
+                        self.dayTrackerArray.append(order)
+                    
+                        //Checks if user has completed Kasam for the current day
+                        if snap.key == currentDate {
+                            let dictionary = snap.value as! Dictionary<String,Any>
+                            let value = dictionary["Metric Percent"] as! Double
+                                if value >= 1 {
+                                    self.displayStatus = "Check"            //Kasam has been completed today
+                                } else {
+                                    self.displayStatus = "Progress"         //kasam has been started, but not completed
+                                }
+                            }
+                        
+                        //once you have all the dayTracking info, transfer it to the today block
+                        if self.dayTrackerArray.count == count {
+                            let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: self.displayStatus ?? "Checkmark", dayTrackerArray: self.dayTrackerArray)
+                            self.kasamBlocks.append(block)
+                            self.tableView.reloadData()
+                            self.tableView.beginUpdates()
+                            self.tableView.endUpdates()
+                            self.updateContentTableHeight()
+                            self.dayTrackerArray.removeAll()
+                            }
+                        })
                     })
                 })
             }
@@ -192,6 +212,15 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     func dateConverter(datein: String) -> Date{
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yy"
+        dateFormatter.timeZone = TimeZone.current
+        dateFormatter.locale = Locale.current
+        let joinedDate = dateFormatter.date(from: datein)
+        return joinedDate!
+    }
+    
+    func dateConverter2(datein: String) -> Date{
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.timeZone = TimeZone.current
         dateFormatter.locale = Locale.current
         let joinedDate = dateFormatter.date(from: datein)

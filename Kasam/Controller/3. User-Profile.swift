@@ -76,13 +76,11 @@ class ProfileViewController: UIViewController {
     
     //too many functions under this. Break it out, so it isn't refinding all these details
     @objc func getChalloStats() {
-        print("inChalloStats")
         metricStats.removeAll()
         userStats.removeAll()
         avgMetricArray.removeAll()
         metricDictionary.removeAll()
         //loops through all kasams that user is following and get kasamID
-        print(SavedData.kasamArray.count)
         for kasam in SavedData.kasamArray {
             Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) { (snap) in
                 if snap.exists() {
