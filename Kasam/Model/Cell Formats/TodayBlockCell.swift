@@ -75,9 +75,14 @@ class TodayBlockCell: UITableViewCell {
         day1.roundedLeft()
         day30.roundedRight()
         let count = block.dayTrackerArray.count
-        for i in 1...count {
-            let day = block.dayTrackerArray[i - 1]
-            dayTrackerArray[day - 1]?.backgroundColor = UIColor.init(hex: 0xE1C270)
+        for i in 0...29 {
+            dayTrackerArray[i]?.backgroundColor = UIColor.init(hex: 0xEFEFF4)
+        }
+        if count > 0 {
+            for i in 1...count {
+                let day = block.dayTrackerArray[i - 1]
+                dayTrackerArray[day - 1]?.backgroundColor = UIColor.init(hex: 0xE1C270)
+            }
         }
         
         //Checkbox

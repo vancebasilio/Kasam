@@ -83,13 +83,13 @@ class StatisticsViewController: UIViewController {
     }
     
     @objc func getKasamStats(){
+        let dateArray = SavedData.dayTrackerDict[kasamID]
         let daysLeft = SavedData.kasamDict[kasamID]?.joinedDate
         let dayOrder = String((Calendar.current.dateComponents([.day], from: daysLeft!, to: Date()).day!) + 1)
         self.dayNoValue.text = "Day \(dayOrder)"
         self.kasamBlocks.removeAll()
-        self.kasamHistoryRef.child(self.kasamID).observeSingleEvent(of: .value, with:{ (snap) in
-            let count = Int(snap.childrenCount)
-            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(self.kasamID).observe(.childAdded, with:{ (snapshot) in
+        for date in dateArray! {
+            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(date).observe(.value, with:{(snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     let metric = Int(value["Total Metric"] as? Double ?? 0.0)
                     let dayOrder = Int(value["Day Order"] as? String ?? "0")
@@ -97,13 +97,13 @@ class StatisticsViewController: UIViewController {
                     let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(self.kasamMetricType)")
                     self.kasamBlocks.append(block)
                 }
-                if self.kasamBlocks.count == count {
+                if self.kasamBlocks.count == dateArray?.count {
                     self.setChart(values: self.metricArray)
                     self.historyTableView.reloadData()
                     self.kasamHistoryRef.removeObserver(withHandle: self.kasamHistoryRefHandle)
                 }
             })
-        })
+        }
     }
     
     @IBAction func backButtonPressed(_ sender: Any) {

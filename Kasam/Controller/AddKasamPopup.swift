@@ -24,7 +24,7 @@ class AddKasamPopup: UIViewController {
     
     var formattedDate: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MM/dd/yy"
+        formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: timePicker.date)
     }
     

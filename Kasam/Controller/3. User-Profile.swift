@@ -83,15 +83,12 @@ class ProfileViewController: UIViewController {
         //loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamArray {
             Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) { (snap) in
-                if snap.exists() {
-                    let snapshot = snap.value as! Dictionary<String,Any>
-                    let metricType = snapshot["Metric"]! as! String
-                    let imageURL = URL(string:snapshot["Image"]! as! String)
-                    let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
-                    let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, metricType: metricType, daysLeft: daysPast)
-                    self.userStats.append(userStats)
-                } else {return}
-            }
+                let snapshot = snap.value as! Dictionary<String,Any>
+                let metricType = snapshot["Metric"]! as! String
+                let imageURL = URL(string:snapshot["Image"]! as! String)
+                let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
+                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, metricType: metricType, daysLeft: daysPast)
+                self.userStats.append(userStats)
             
             //Kasam Level
             self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasam.kasamID).observe(.childAdded, with:{ (snapshot) in
@@ -131,6 +128,7 @@ class ProfileViewController: UIViewController {
                 })
             }
         }
+    }
     }
     
     func setupDateDictionary(){
@@ -289,7 +287,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 cell.averageMetric.text = String(self.avgMetricArray[indexPath.row])
                 cell.averageMetricLabel.text = "Avg. secs"
             } else if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] > 60 {
-                let time: Double = Double(self.avgMetricArray[indexPath.row]) / 60.0
+                let time: Double = (Double(self.avgMetricArray[indexPath.row]) / 60.0).rounded(toPlaces: 2)
                 cell.averageMetric.text = String(time)
                 cell.averageMetricLabel.text = "Avg. mins"
             } else {

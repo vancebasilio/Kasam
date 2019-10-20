@@ -27,6 +27,7 @@ class KasamViewerTicker: UIViewController {
     var totalActivties = 0
     var summedTotalMetric = 0
     var transferMetricMatrix = [String: String]()
+    var kasamIDTransfer:[String: String] = ["kasamID": ""]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,13 +36,14 @@ class KasamViewerTicker: UIViewController {
         self.hideKeyboardWhenTappedAround()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        kasamIDTransfer["kasamID"] = kasamID
     }
     
     @IBAction func closeButton(_ sender: UIButton) {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
         dismiss(animated: true)
     }
     
@@ -110,6 +112,7 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
         activityBlocks[indexPath.row].totalOrder = activityBlocks.count
         let activity = activityBlocks[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamViewerCell", for: indexPath) as! KasamViewerCell
+        cell.kasamIDTransfer["kasamID"] = kasamID
         if activity.type == "Picker" {
             cell.setKasamViewer(activity: activity)
             cell.setupPicker()

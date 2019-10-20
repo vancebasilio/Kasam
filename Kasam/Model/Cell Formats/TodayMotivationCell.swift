@@ -16,7 +16,7 @@ class TodayMotivationCell: UICollectionViewCell {
     @IBOutlet weak var blockShadow: UIView!
     @IBOutlet weak var editButton: UIButton!
     
-    var motivationID:[String: String] = ["motivationID": "hello"]
+    var motivationID:[String: String] = ["motivationID": "hello"] //MotivationID gets set from Today CollectionView
     
     override func awakeFromNib() {
         blockShadow.layer.cornerRadius = 15.0
@@ -40,7 +40,4 @@ class TodayMotivationCell: UICollectionViewCell {
     @IBAction func editbuttonPressed(_ sender: Any) {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "EditMotivation"), object: self, userInfo: motivationID)
     }
-
-    
-    
 }

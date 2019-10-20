@@ -45,6 +45,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     //slider variables
     var delegate: KasamViewerCellDelegate?
+    var kasamIDTransfer:[String: String] = ["kasamID": ""]
     var buttoncheck = 0       //to stop and start the gif
     var pickerMetric = 0
     var currentMetric = 0
@@ -233,7 +234,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBAction func doneButton(_ sender: UIButton) {
         if currentOrder == totalOrder {
             delegate?.dismissViewController()
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
         } else {
@@ -244,7 +245,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBAction func timerDoneButton(_ sender: Any) {
         delegate?.dismissViewController()
         delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime), text: textField.text ?? "")
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateKasamStatus"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
     }

@@ -177,7 +177,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     if error != nil {
                         print(error!)
                     } else {
-                        NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveKasams"), object: self)
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveTodayKasams"), object: self)
                         NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                     }
                 }
@@ -199,7 +199,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             if error != nil {
                 print(error!)
             } else {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveKasams"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveTodayKasams"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
             }
         }
