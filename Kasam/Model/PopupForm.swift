@@ -97,7 +97,7 @@ final class FormFieldPresetFactory {
     
     class func motivation(placeholderStyle: EKProperty.LabelStyle, textStyle: EKProperty.LabelStyle, separatorColor: EKColor, style: FormStyle) -> EKProperty.TextFieldContent {
         let motivationPlaceholder = EKProperty.LabelContent(text: "Motivation Text", style: placeholderStyle)
-        return .init(keyboardType: .namePhonePad,
+        return .init(keyboardType: .default,
                      placeholder: motivationPlaceholder,
                      tintColor: style.textColor,
                      displayMode: displayMode,

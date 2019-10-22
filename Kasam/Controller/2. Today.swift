@@ -39,7 +39,8 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     var kasamFollowingRefHandle: DatabaseHandle!
     let motivationRef = Database.database().reference().child("Assets").child("Motivation Images")
     var motivationRefHandle: DatabaseHandle!
-    let dayTrackerRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
+    let dayTrackerTotRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
+    var dayTrackerRef = Database.database().reference()
     var dayTrackerRefHandle: DatabaseHandle!
     var dayTrackerArray = [Int]()
     var dayTrackerDateArray = [String]()
@@ -161,9 +162,10 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                         var count = 0
                     
                         //Gets the DayTracker info
-                        self.dayTrackerRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
+                        self.dayTrackerTotRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
                             count = Int(snap.childrenCount)
-                        self.dayTrackerRefHandle = self.dayTrackerRef.child(kasam.kasamID).observe(.childAdded, with: {(snap) in
+                            self.dayTrackerRef = self.dayTrackerTotRef.child(kasam.kasamID)
+                            self.dayTrackerRefHandle = self.dayTrackerRef.observe(.childAdded, with: {(snap) in
                             let kasamDate = self.dateConverter(datein: snap.key)
                             let date = self.dateFormatter.string(from: kasamDate)
                             if kasamDate >= kasam.joinedDate {
@@ -185,7 +187,6 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                     displayStatus = "Progress"         //kasam has been started, but not completed
                                 }
                             }
-                        
                             //once you have all the dayTracking info, transfer it to the today block
                             if self.dayTrackerArray.count == count {
                                 let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: displayStatus, dayTrackerArray: self.dayTrackerArray)
@@ -195,9 +196,11 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                 self.tableView.beginUpdates()
                                 self.tableView.endUpdates()
                                 self.updateContentTableHeight()
-                                self.dayTrackerRef.removeObserver(withHandle: self.dayTrackerRefHandle)
                                 self.dayTrackerDateArray.removeAll()
                                 self.dayTrackerArray.removeAll()
+                                if self.kasamBlocks.count == self.kasamFollowingArray.count{
+                                    self.dayTrackerRef.removeObserver(withHandle: self.dayTrackerRefHandle)
+                                }
                                 }
                             })
                         })
@@ -210,14 +213,15 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     @objc func updateKasamStatus(_ notification: NSNotification) {
         if let kasamID = notification.userInfo?["kasamID"] as? String {
             let kasam = SavedData.kasamDict[kasamID]
-            let count = (SavedData.kasamDict[kasamID]!.count)
+            let kasamOrder = (SavedData.kasamDict[kasamID]!.count)
             //Updates the DayTracker
-                self.dayTrackerRefHandle = self.dayTrackerRef.child(kasamID).child(getCurrentDate() ?? "").observe(.value, with: {(snap) in
-                    let kasamDate = self.dateConverter(datein: snap.key)
+            self.dayTrackerRefHandle = self.dayTrackerTotRef.child(kasamID).child(getCurrentDate() ?? "").observe(.value, with: {(snapshot) in
+                    let kasamDate = self.dateConverter(datein: snapshot.key)
                     let date = self.dateFormatter.string(from: kasamDate)
-                    let joinedDate = kasam!.joinedDate
-                    let order = (Calendar.current.dateComponents([.day], from: joinedDate, to: kasamDate)).day! + 1
-                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(self.getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
+                    let dayOrder = (Calendar.current.dateComponents([.day], from: kasam!.joinedDate, to: kasamDate)).day! + 1
+               
+            //Updates the KasamStatus
+            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(self.getCurrentDate() ?? "").child("Metric Percent").observeSingleEvent(of: .value, with: {(snap) in
                     var displayStatus = "Checkmark"
                     if let value = snap.value as? Double {
                         if value >= 1 {
@@ -226,9 +230,18 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                             displayStatus = "Progress"     //kasam has been started, but not completed
                         }
                     }
-                    self.kasamBlocks[count].dayTrackerArray.append(order)
-                    self.kasamBlocks[count].displayStatus = displayStatus
-                    if SavedData.dayTrackerDict[kasamID]?.last != date {
+                    if snapshot.exists() {
+                        //if there's progress for today, it adds it to the dayTracker
+                        self.kasamBlocks[kasamOrder].dayTrackerArray.append(dayOrder)
+                    }
+                    else {
+                        //removes the dayTracker for today if kasam is set to zero
+                        while let index = self.kasamBlocks[kasamOrder].dayTrackerArray.index(of: dayOrder) {
+                            self.kasamBlocks[kasamOrder].dayTrackerArray.remove(at: index)
+                        }
+                    }
+                    self.kasamBlocks[kasamOrder].displayStatus = displayStatus
+                    if SavedData.dayTrackerDict[kasamID]?.last != date { //ensures that dayTracker is added only once
                         SavedData.dayTrackerDict[kasamID]?.append(date)
                     }
                     self.tableView.reloadData()
