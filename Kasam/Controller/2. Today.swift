@@ -13,6 +13,7 @@ import Firebase
 import SDWebImage
 import Lottie
 import SwiftEntryKit
+import SkeletonView
 
 class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalendarDelegate, UIGestureRecognizerDelegate {
 
@@ -68,6 +69,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         getMotivationBackgrounds()
         getMotivations()
         setupNotifications()
+        self.view.showAnimatedSkeleton()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -198,6 +200,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                 self.updateContentTableHeight()
                                 self.dayTrackerDateArray.removeAll()
                                 self.dayTrackerArray.removeAll()
+                                self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
                                 if self.kasamBlocks.count == self.kasamFollowingArray.count{
                                     self.dayTrackerRef.removeObserver(withHandle: self.dayTrackerRefHandle)
                                 }
@@ -294,6 +297,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                     self.motivationArray.append(motivationFormat(motivationID: "", motivationText: "Enter your personal motivation here!"))
                     motivationRef.removeObserver(withHandle: motivationRefHandle)
                     self.todayMotivationCollectionView.reloadData()
+                    self.todayMotivationCollectionView.hideSkeleton(transition: .crossDissolve(0.25))
                 }
             }
         })
@@ -334,18 +338,35 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
             showSigninForm(attributes: attributes, style: .light, motivationID: motivationID)
         }
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToKasamViewerTicker" {
+            let kasamActivityHolder = segue.destination as! KasamViewerTicker
+            kasamActivityHolder.kasamID = kasamIDGlobal
+            kasamActivityHolder.blockID = blockIDGlobal
+            kasamActivityHolder.dayOrder = dayOrderGlobal
+        }
+    }
 }
 
-    //EXTENSIONS---------------------------------------------------------------------------------------------------------------------
+//TableView---------------------------------------------------------------------------------------------------------------------
 
-extension TodayBlocksViewController: UITableViewDataSource, UITableViewDelegate {
+extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return kasamBlocks.count
     }
     
+    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return kasamBlocks.count
+    }
+    
+    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
+        return "CalendarKasamBlock"
+    }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let height = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 150
+        tableView.estimatedRowHeight = 125
         return height
     }
     
@@ -369,15 +390,6 @@ extension TodayBlocksViewController: UITableViewDataSource, UITableViewDelegate 
         dayOrderGlobal = kasamBlocks[indexPath.row].dayOrder
         performSegue(withIdentifier: "goToKasamViewerTicker", sender: indexPath)
     }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToKasamViewerTicker" {
-            let kasamActivityHolder = segue.destination as! KasamViewerTicker
-            kasamActivityHolder.kasamID = kasamIDGlobal
-            kasamActivityHolder.blockID = blockIDGlobal
-            kasamActivityHolder.dayOrder = dayOrderGlobal
-        }
-    }
 }
 
 extension TodayBlocksViewController: TodayCellDelegate {
@@ -392,8 +404,25 @@ extension TodayBlocksViewController: TodayCellDelegate {
     }
 }
 
+//CollectionView---------------------------------------------------------------------------------------------------------------------
+
 extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        todayCollectionHeight.constant = (view.bounds.size.width * (2/5))
+        return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
+    }
+}
+
+extension TodayBlocksViewController: SkeletonCollectionViewDataSource {
+    func collectionSkeletonView(_ skeletonView: UICollectionView, cellIdentifierForItemAt indexPath: IndexPath) -> ReusableCellIdentifier {
+        return "TodayMotivationCell"
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return motivationArray.count
+    }
+    
+    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return motivationArray.count
     }
     
@@ -403,10 +432,5 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         cell.motivationText.text = motivationArray[indexPath.row].motivationText
         cell.motivationID["motivationID"] = motivationArray[indexPath.row].motivationID
         return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        todayCollectionHeight.constant = (view.bounds.size.width * (2/5))
-        return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
     }
 }

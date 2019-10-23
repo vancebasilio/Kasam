@@ -27,6 +27,7 @@ pod 'HGCircularSlider'
 pod 'SkyFloatingLabelTextField'
 pod 'Charts'
 pod 'SwiftEntryKit'
+pod 'SkeletonView'
 
 end
 

@@ -135,6 +135,7 @@ PODS:
   - SDWebImage (5.2.2):
     - SDWebImage/Core (= 5.2.2)
   - SDWebImage/Core (5.2.2)
+  - SkeletonView (1.8.2)
   - SkyFloatingLabelTextField (3.7.0)
   - SVProgressHUD (2.2.5)
   - SwiftEntryKit (1.1.4):
@@ -158,6 +159,7 @@ DEPENDENCIES:
   - MXSegmentedPager
   - Parchment
   - SDWebImage
+  - SkeletonView
   - SkyFloatingLabelTextField
   - SVProgressHUD
   - SwiftEntryKit
@@ -201,6 +203,7 @@ SPEC REPOS:
     - Parchment
     - QuickLayout
     - SDWebImage
+    - SkeletonView
     - SkyFloatingLabelTextField
     - SVProgressHUD
     - SwiftEntryKit
@@ -243,11 +246,12 @@ SPEC CHECKSUMS:
   Parchment: cae686f73685d16742cec9c19239b7578a15f0f5
   QuickLayout: 07b45a72b10083fee3f095990cfed1c1e7b27f0a
   SDWebImage: 5fcdb02cc35e05fc35791ec514b191d27189f872
+  SkeletonView: bb27c39857e5492136f02ee8a3aa78de55d12ecd
   SkyFloatingLabelTextField: 4b46db0ab1ccde0919cded29c656e6b4805eda04
   SVProgressHUD: 1428aafac632c1f86f62aa4243ec12008d7a51d6
   SwiftEntryKit: fa997eb1c45afb5cf27ab0145e680759dd7152ca
   SwiftIcons: e7eb9bf2b475d6bdd8b37c5bdedc6d120aab0829
 
-PODFILE CHECKSUM: e49195338409292d3ab2880671a9fb06c069168b
+PODFILE CHECKSUM: 805d2799be5d955a67278d3c8a0a1a6210aa01c9
 
 COCOAPODS: 1.7.5
