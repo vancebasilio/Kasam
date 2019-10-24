@@ -106,7 +106,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         } else if timeTot >= 60 && timeTot < 3600 {
             timeLabel.text = "\(timeBreak.minutes):\(timeBreak.seconds)"
         } else if timeTot >= 3600 {
-            timeLabel.text = "\(timeBreak.hours):\(timeBreak.minutes):\(timeBreak.seconds)"
+            timeLabel.text = "\(timeBreak.hours):\(timeBreak.minutes)"
         }
     }
     
@@ -151,7 +151,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         } else if timeTot >= 60 && timeTot < 3600 {
             timeLabel.text = "\(timeBreak.minutes):\(timeBreak.seconds)"
         } else if timeTot >= 3600 {
-            timeLabel.text = "\(timeBreak.hours):\(timeBreak.minutes):\(timeBreak.seconds)"
+            timeLabel.text = "\(timeBreak.hours):\(timeBreak.minutes)"
         }
     }
     

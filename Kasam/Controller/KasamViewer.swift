@@ -166,9 +166,13 @@ extension KasamViewerTicker: KasamViewerCellDelegate {
         let  transferAvg : Double = sum / Double(self.summedTotalMetric)
 
         if transferAvg > 0.0 {
-            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg, "Day Order" : dayOrder, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix]) {(error, reference) in}
+            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg, "Day Order" : dayOrder, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix])
         } else {
             Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").setValue(nil)
+            //removes the dayTracker for today if kasam is set to zero
+            while let index = SavedData.dayTrackerDict[kasamID]!.index(of: getCurrentDate()!) {
+                SavedData.dayTrackerDict[kasamID]?.remove(at: index)
+            }
         }
     }
 }

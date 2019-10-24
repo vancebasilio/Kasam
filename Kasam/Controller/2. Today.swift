@@ -40,8 +40,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     var kasamFollowingRefHandle: DatabaseHandle!
     let motivationRef = Database.database().reference().child("Assets").child("Motivation Images")
     var motivationRefHandle: DatabaseHandle!
-    let dayTrackerTotRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
-    var dayTrackerRef = Database.database().reference()
+    let dayTrackerRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var dayTrackerRefHandle: DatabaseHandle!
     var dayTrackerArray = [Int]()
     var dayTrackerDateArray = [String]()
@@ -158,16 +157,15 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                     } else {
                         blockOrder = String((blockCount / dayOrder) + 1)
                     }
-                
                     Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: { snapshot in
                         let value = snapshot.value as! Dictionary<String,Any>
                         var count = 0
-                    
+                        
                         //Gets the DayTracker info
-                        self.dayTrackerTotRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
+                        self.dayTrackerRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
                             count = Int(snap.childrenCount)
-                            self.dayTrackerRef = self.dayTrackerTotRef.child(kasam.kasamID)
-                            self.dayTrackerRefHandle = self.dayTrackerRef.observe(.childAdded, with: {(snap) in
+                            let dayTrackerKasamRef = self.dayTrackerRef.child(kasam.kasamID)
+                            self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
                             let kasamDate = self.dateConverter(datein: snap.key)
                             let date = self.dateFormatter.string(from: kasamDate)
                             if kasamDate >= kasam.joinedDate {
@@ -191,6 +189,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                             }
                             //once you have all the dayTracking info, transfer it to the today block
                             if self.dayTrackerArray.count == count {
+                                self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
                                 let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: displayStatus, dayTrackerArray: self.dayTrackerArray)
                                 SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)
                                 self.kasamBlocks.append(block)
@@ -200,10 +199,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                                 self.updateContentTableHeight()
                                 self.dayTrackerDateArray.removeAll()
                                 self.dayTrackerArray.removeAll()
-                                self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
-                                if self.kasamBlocks.count == self.kasamFollowingArray.count{
-                                    self.dayTrackerRef.removeObserver(withHandle: self.dayTrackerRefHandle)
-                                }
+                                dayTrackerKasamRef.removeAllObservers()
                                 }
                             })
                         })
@@ -218,7 +214,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
             let kasam = SavedData.kasamDict[kasamID]
             let kasamOrder = (SavedData.kasamDict[kasamID]!.count)
             //Updates the DayTracker
-            self.dayTrackerRefHandle = self.dayTrackerTotRef.child(kasamID).child(getCurrentDate() ?? "").observe(.value, with: {(snapshot) in
+            self.dayTrackerRefHandle = self.dayTrackerRef.child(kasamID).child(getCurrentDate() ?? "").observe(.value, with: {(snapshot) in
                     let kasamDate = self.dateConverter(datein: snapshot.key)
                     let date = self.dateFormatter.string(from: kasamDate)
                     let dayOrder = (Calendar.current.dateComponents([.day], from: kasam!.joinedDate, to: kasamDate)).day! + 1
@@ -244,8 +240,8 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                         }
                     }
                     self.kasamBlocks[kasamOrder].displayStatus = displayStatus
-                    if SavedData.dayTrackerDict[kasamID]?.last != date { //ensures that dayTracker is added only once
-                        SavedData.dayTrackerDict[kasamID]?.append(date)
+                    if SavedData.dayTrackerDict[kasamID]?.last != date && displayStatus != "Checkmark" {
+                        SavedData.dayTrackerDict[kasamID]?.append(date)     //ensures that dayTracker is added only once
                     }
                     self.tableView.reloadData()
                     self.tableView.beginUpdates()
@@ -357,17 +353,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
     }
     
     func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return kasamBlocks.count
-    }
-    
-    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
-        return "CalendarKasamBlock"
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let height = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 125
-        return height
+        return 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -380,6 +366,16 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
             cell.setBlock(block: block, end: true)
         }
         return cell
+    }
+    
+    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
+        return "CalendarKasamBlock"
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let height = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 125
+        return height
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -418,11 +414,11 @@ extension TodayBlocksViewController: SkeletonCollectionViewDataSource {
         return "TodayMotivationCell"
     }
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return motivationArray.count
+    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
     }
     
-    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return motivationArray.count
     }
     

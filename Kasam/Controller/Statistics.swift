@@ -29,11 +29,11 @@ class StatisticsViewController: UIViewController {
     @IBOutlet weak var avgMetric: UILabel!
     
     var dataEntries: [ChartDataEntry] = []
-    var kasamID = ""
-    var kasamName = ""
-    var kasamMetricType = ""
-    var avgMetricHolder = ""
-    var kasamImage: URL!
+    var kasamID = ""                    //transfered in value
+    var kasamName = ""                  //transfered in value
+    var kasamMetricType = ""            //transfered in value
+    var avgMetricHolder = ""            //transfered in value
+    var kasamImage: URL!                //transfered in value
     var metricArray: [Double] = []
     var kasamBlocks: [kasamFollowingFormat] = []
     var kasamFollowingRefHandle: DatabaseHandle!
@@ -83,24 +83,26 @@ class StatisticsViewController: UIViewController {
     }
     
     @objc func getKasamStats(){
+        self.kasamBlocks.removeAll()
         let dateArray = SavedData.dayTrackerDict[kasamID]
         let daysLeft = SavedData.kasamDict[kasamID]?.joinedDate
         let dayOrder = String((Calendar.current.dateComponents([.day], from: daysLeft!, to: Date()).day!) + 1)
         self.dayNoValue.text = "Day \(dayOrder)"
-        self.kasamBlocks.removeAll()
         for date in dateArray! {
             self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(date).observe(.value, with:{(snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     let metric = Int(value["Total Metric"] as? Double ?? 0.0)
+                    print("metric is \(metric)")
                     let dayOrder = Int(value["Day Order"] as? String ?? "0")
                     self.metricArray.append(Double(metric))
                     let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(self.kasamMetricType)")
                     self.kasamBlocks.append(block)
                 }
                 if self.kasamBlocks.count == dateArray?.count {
-                    self.setChart(values: self.metricArray)
                     self.historyTableView.reloadData()
-                    self.kasamHistoryRef.removeObserver(withHandle: self.kasamHistoryRefHandle)
+                    self.setChart(values: self.metricArray)
+                    self.kasamHistoryRef.child(self.kasamID).child(date).removeAllObservers()
+                    self.metricArray.removeAll()
                 }
             })
         }
@@ -176,7 +178,7 @@ class StatisticsViewController: UIViewController {
         mChart.rightAxis.drawGridLinesEnabled = false
         
         for set in mChart.data!.dataSets {
-            set.drawValuesEnabled = !set.drawValuesEnabled
+            set.drawValuesEnabled = !set.drawValuesEnabled          //removes the titles above each datapoint
         }
     }
 }
