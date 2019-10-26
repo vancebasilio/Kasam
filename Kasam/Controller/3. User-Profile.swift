@@ -27,6 +27,9 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var kasamFollowingCollectionView: UICollectionView!
     @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var logOut: UIButton!
+    @IBOutlet weak var topViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var bottomViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var contentView: NSLayoutConstraint!
     
     var metricStats: [challoStatFormat] = []
     var userStats: [UserStatsFormat] = []
@@ -56,10 +59,18 @@ class ProfileViewController: UIViewController {
         getChalloStats()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        
+    override func viewSafeAreaInsetsDidChange() {
+        let frame = self.view.safeAreaLayoutGuide.layoutFrame
+        let contentViewHeight = topViewHeight.constant + bottomViewHeight.constant + 10
+        if contentViewHeight > frame.height {
+            contentView.constant = contentViewHeight
+        } else if contentViewHeight <= frame.height {
+            let diff = frame.height - contentViewHeight
+            print("diff is \(diff) & contentView is \(contentView.constant)")
+            contentView.constant = contentViewHeight + diff + 1
+        }
     }
-  
+    
     func viewSetup(){
         levelLineBack.layer.cornerRadius = 4
         levelLineBack.clipsToBounds = true

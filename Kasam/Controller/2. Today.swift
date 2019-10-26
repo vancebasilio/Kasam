@@ -25,6 +25,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
+    
     var kasamBlocks: [TodayBlockFormat] = []
     var kasamFollowingArray: [KasamSavedFormat] = []
     var motivationArray: [motivationFormat] = []
@@ -89,12 +90,12 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     func updateContentTableHeight(){
         tableViewHeight.constant = tableView.contentSize.height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let contentViewHeight = tableViewHeight.constant + 210 + 20
+        let contentViewHeight = tableViewHeight.constant + 210 + 1
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {
-            let diff = UIScreen.main.bounds.height - contentViewHeight
-            contentView.constant = tableViewHeight.constant + diff + 140
+            let diff = frame.height - contentViewHeight
+            contentView.constant = contentViewHeight + diff + 1
         }
     }
 
