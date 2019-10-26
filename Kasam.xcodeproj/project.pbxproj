@@ -31,7 +31,7 @@
 		BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BDA226E0FBE00D707CC /* TableViewCell.swift */; };
 		BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC554BDB226E0FBE00D707CC /* KasamCell.xib */; };
 		BC55BFD722AEEF6200D77337 /* Custom Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55BFD622AEEF6200D77337 /* Custom Functions.swift */; };
-		BC55CC69232B4552003C87F6 /* ChalloStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55CC68232B4552003C87F6 /* ChalloStatsCell.swift */; };
+		BC55CC69232B4552003C87F6 /* UserStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55CC68232B4552003C87F6 /* UserStatsCell.swift */; };
 		BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C3C79234D60E800C68238 /* PopupForm.swift */; };
 		BC5C499C228122BB00EC0EA8 /* KasamSquareCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */; };
 		BC68BC5F22838A8800240CE9 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC68BC5E22838A8800240CE9 /* ImageService.swift */; };
@@ -90,7 +90,7 @@
 		BC554BDA226E0FBE00D707CC /* TableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
 		BC554BDB226E0FBE00D707CC /* KasamCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KasamCell.xib; sourceTree = "<group>"; };
 		BC55BFD622AEEF6200D77337 /* Custom Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Custom Functions.swift"; sourceTree = "<group>"; };
-		BC55CC68232B4552003C87F6 /* ChalloStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChalloStatsCell.swift; sourceTree = "<group>"; };
+		BC55CC68232B4552003C87F6 /* UserStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatsCell.swift; sourceTree = "<group>"; };
 		BC5C3C79234D60E800C68238 /* PopupForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupForm.swift; sourceTree = "<group>"; };
 		BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamSquareCell.swift; sourceTree = "<group>"; };
 		BC68BC5E22838A8800240CE9 /* ImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
@@ -199,11 +199,11 @@
 				BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */,
 				BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */,
 				BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */,
-				BC55CC68232B4552003C87F6 /* ChalloStatsCell.swift */,
+				BC55CC68232B4552003C87F6 /* UserStatsCell.swift */,
 				BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */,
 				BC96F8462292085200E161FC /* TodayBlockCell.swift */,
-				BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */,
 				BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */,
+				BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */,
 				BC45558C2321F6D300F1227B /* KasamViewerCell.swift */,
 				BCF2A76A227F08F0009D2368 /* BlocksCell.swift */,
 				BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */,
@@ -322,7 +322,7 @@
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
-								enabled = 0;
+								enabled = 1;
 							};
 						};
 					};
@@ -499,7 +499,7 @@
 				BC554BD8226E079100D707CC /* 3. User-Profile.swift in Sources */,
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
 				BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */,
-				BC55CC69232B4552003C87F6 /* ChalloStatsCell.swift in Sources */,
+				BC55CC69232B4552003C87F6 /* UserStatsCell.swift in Sources */,
 				BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */,
 				BC6E7C2F2348D71400B05334 /* NewBlock.swift in Sources */,
 				BC12F1F0233FF1E900D93227 /* KasamHistoryCell.swift in Sources */,

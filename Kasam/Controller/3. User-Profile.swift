@@ -260,13 +260,18 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             kasamMetricTypeGlobal = userStats[indexPath.row].metricType
             kasamImageGlobal = userStats[indexPath.row].imageURL
             var avgMetric = ""
-            if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] < 60 {
-                avgMetric = "\(String(self.avgMetricArray[indexPath.row])) Avg. secs"
-            } else if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] > 60 {
-                let time: Double = Double(self.avgMetricArray[indexPath.row]) / 60.0
-                avgMetric = "\(String(time)) Avg. mins"
+            if userStats[indexPath.row].metricType == "mins"  {
+                if avgMetricArray[indexPath.row] < 60 {
+                    avgMetric = "Avg. \(String(self.avgMetricArray[indexPath.row])) secs"
+                } else if avgMetricArray[indexPath.row] > 60 && avgMetricArray[indexPath.row] < 120 {
+                    let time = Int (Double(self.avgMetricArray[indexPath.row]) / 60.0)
+                    avgMetric = "Avg. \(String(time)) min"
+                } else if avgMetricArray[indexPath.row] > 120 {
+                    let time = Int (Double(self.avgMetricArray[indexPath.row]) / 60.0)
+                    avgMetric = "Avg. \(String(time)) mins"
+                }
             } else {
-                avgMetric = "\(String(self.avgMetricArray[indexPath.row])) Avg. \(userStats[indexPath.row].metricType)"
+                avgMetric = "Avg. \(String(self.avgMetricArray[indexPath.row])) \(userStats[indexPath.row].metricType)"
             }
             kasamAvgMetricGlobal = avgMetric
             self.performSegue(withIdentifier: "goToStats", sender: indexPath)

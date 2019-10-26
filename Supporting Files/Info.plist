@@ -50,6 +50,10 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Select Image to Edit</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

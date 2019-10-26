@@ -32,9 +32,9 @@ class StatisticsViewController: UIViewController {
     var kasamID = ""                    //transfered in value
     var kasamName = ""                  //transfered in value
     var kasamMetricType = ""            //transfered in value
-    var avgMetricHolder = ""            //transfered in value
+    var avgMetricHolder = ""            //transfered in value from UserStats
     var kasamImage: URL!                //transfered in value
-    var metricArray: [Double] = []
+    var metricArray: [Int:Int] = [:]
     var kasamBlocks: [kasamFollowingFormat] = []
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
@@ -44,6 +44,7 @@ class StatisticsViewController: UIViewController {
         super.viewDidLoad()
         getKasamStats()
         setupView()
+        setupChart()
     }
     
     override func updateViewConstraints() {
@@ -88,23 +89,42 @@ class StatisticsViewController: UIViewController {
         let daysLeft = SavedData.kasamDict[kasamID]?.joinedDate
         let dayOrder = String((Calendar.current.dateComponents([.day], from: daysLeft!, to: Date()).day!) + 1)
         self.dayNoValue.text = "Day \(dayOrder)"
-        for date in dateArray! {
-            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(date).observe(.value, with:{(snapshot) in
-                if let value = snapshot.value as? [String: Any] {
-                    let metric = Int(value["Total Metric"] as? Double ?? 0.0)
-                    print("metric is \(metric)")
-                    let dayOrder = Int(value["Day Order"] as? String ?? "0")
-                    self.metricArray.append(Double(metric))
-                    let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(self.kasamMetricType)")
-                    self.kasamBlocks.append(block)
-                }
-                if self.kasamBlocks.count == dateArray?.count {
-                    self.historyTableView.reloadData()
-                    self.setChart(values: self.metricArray)
-                    self.kasamHistoryRef.child(self.kasamID).child(date).removeAllObservers()
-                    self.metricArray.removeAll()
-                }
-            })
+        if dateArray?.count != nil {
+            for date in dateArray! {
+                self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(date).observe(.value, with:{(snapshot) in
+                    if let value = snapshot.value as? [String: Any] {
+                        var metric = Int(value["Total Metric"] as? Double ?? 0.0)
+                        let dayOrder = Int(value["Day Order"] as? String ?? "0")
+                        self.metricArray[dayOrder!] = metric
+                        var metricType = self.kasamMetricType
+                        if self.kasamMetricType == "mins" {
+                            if metric < 60 {
+                                metricType = "secs"
+                            } else if metric >= 60 && metric < 120 {
+                                metric = metric / 60
+                                metricType = "min"
+                            } else if metric >= 120 && metric < 3600 {
+                                metric = metric / 60
+                                metricType = "mins"
+                            } else if metric >= 3600 && metric < 7200 {
+                                metric = metric / 3600
+                                metricType = "hour"
+                            } else if metric >= 7200 {
+                                metric = metric / 3600
+                                metricType = "hours"
+                            }
+                        }
+                        let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(metricType)")
+                        self.kasamBlocks.append(block)
+                    }
+                    if self.kasamBlocks.count == dateArray?.count {
+                        self.historyTableView.reloadData()
+                        self.setChart(values: self.metricArray)
+                        self.kasamHistoryRef.child(self.kasamID).child(date).removeAllObservers()
+                        self.metricArray.removeAll()
+                    }
+                })
+            }
         }
     }
     
@@ -112,10 +132,11 @@ class StatisticsViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    func setChart(values: [Double]) {
+    func setChart(values: [Int:Int]) {
         mChart.noDataText = "No data available!"
-        for i in 0..<values.count {
-            let dataEntry = ChartDataEntry(x: Double(i), y: values[i])
+        let dayUpperBound = ((values.keys.sorted().last.map({ ($0, values[$0]!) }))?.0) ?? 0
+        for i in 1...dayUpperBound {
+            let dataEntry = ChartDataEntry(x: Double(i), y: Double(values[i] ?? 0))
             dataEntries.append(dataEntry)
         }
         let line1 = LineChartDataSet(entries: dataEntries, label: "Units Consumed")
@@ -137,6 +158,12 @@ class StatisticsViewController: UIViewController {
         data.addDataSet(line1)
         mChart.data = data
         
+        for set in mChart.data!.dataSets {set.drawValuesEnabled = !set.drawValuesEnabled}      //removes the titles above each datapoint
+        mChart.leftAxis.axisMinimum = 1.0
+        dataEntries.removeAll()
+    }
+    
+    func setupChart(){
         let marker = BalloonMarker(color: UIColor.colorFour, font: .systemFont(ofSize: 12), textColor: .white, insets: UIEdgeInsets(top: 8, left: 8, bottom: 20, right: 8))
         marker.chartView = mChart
         marker.minimumSize = CGSize(width: 40, height: 40)
@@ -165,21 +192,15 @@ class StatisticsViewController: UIViewController {
         mChart.xAxis.gridLineDashLengths = [5, 5]
         mChart.xAxis.gridLineDashPhase = 0
         mChart.xAxis.granularityEnabled = true
-        mChart.xAxis.axisMinimum = 0.0
+        mChart.xAxis.axisMinimum = 1.0
         
         mChart.leftAxis.enabled = true
         mChart.leftAxis.drawAxisLineEnabled = true      //y axis
         mChart.leftAxis.drawGridLinesEnabled = false    //horizontal lines
-        mChart.leftAxis.axisMinimum = 1.0
-        mChart.leftAxis.spaceTop = CGFloat(30)
         
         mChart.rightAxis.enabled = false
         mChart.rightAxis.drawAxisLineEnabled = true
         mChart.rightAxis.drawGridLinesEnabled = false
-        
-        for set in mChart.data!.dataSets {
-            set.drawValuesEnabled = !set.drawValuesEnabled          //removes the titles above each datapoint
-        }
     }
 }
 
