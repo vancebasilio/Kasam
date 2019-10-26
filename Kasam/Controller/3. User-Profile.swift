@@ -61,12 +61,11 @@ class ProfileViewController: UIViewController {
     
     override func viewSafeAreaInsetsDidChange() {
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let contentViewHeight = topViewHeight.constant + bottomViewHeight.constant + 10
+        let contentViewHeight = topViewHeight.constant + bottomViewHeight.constant + 1
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {
             let diff = frame.height - contentViewHeight
-            print("diff is \(diff) & contentView is \(contentView.constant)")
             contentView.constant = contentViewHeight + diff + 1
         }
     }

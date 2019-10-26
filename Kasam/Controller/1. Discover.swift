@@ -16,6 +16,7 @@ class DiscoverViewController: UIViewController {
     @IBOutlet weak var expertPageControl: UIPageControl!
     @IBOutlet weak var expertHeight: NSLayoutConstraint!
     @IBOutlet weak var popularHeight: NSLayoutConstraint!
+    @IBOutlet weak var contentView: NSLayoutConstraint!
     
     var freeKasamArray: [freeKasamFormat] = []
     var expertKasamArray: [expertKasamFormat] = []
@@ -46,6 +47,19 @@ class DiscoverViewController: UIViewController {
             navBar.isTranslucent = false
         }
     }
+    
+    override func viewSafeAreaInsetsDidChange() {
+        let frame = self.view.safeAreaLayoutGuide.layoutFrame
+        contentView.constant = popularHeight.constant + expertHeight.constant + 49 + 61         //the 49 and 61 are the title heights
+        let contentViewHeight = contentView.constant + 1
+        if contentViewHeight > frame.height {
+            contentView.constant = contentViewHeight
+        } else if contentViewHeight <= frame.height {
+            let diff = frame.height - contentViewHeight
+            contentView.constant = contentViewHeight + diff + 1
+        }
+    }
+    
 
     //make the expert slider automatically scroll
     @objc func changeImage() {

@@ -117,7 +117,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
         kasamFollowingArray.removeAll()
         SavedData.clearKasamArray()
         kasamFollowingRef.observeSingleEvent(of: .value, with:{ (snap) in
-        var order = 0
+        var kasamOrder = 0
         let count = Int(snap.childrenCount)
             self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded) { (snapshot) in
                 //Get Kasams from user following + their preference for each kasam
@@ -126,10 +126,10 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
                     let kasamTitle = value["Kasam Name"] as? String ?? ""
                     let dateJoined = self.dateConverter(datein: value["Date Joined"] as? String ?? "")
                     let startTime = value["Time"] as? String ?? ""
-                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, startTime: startTime, count: order)
+                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, startTime: startTime, kasamOrder: kasamOrder)
                     self.kasamFollowingArray.append(preference)
                     SavedData.addKasam(kasam: preference)
-                    order += 1
+                    kasamOrder += 1
                     if self.kasamFollowingArray.count == count {
                         self.retrieveKasams()
                         NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
@@ -211,9 +211,10 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     }
     
     @objc func updateKasamStatus(_ notification: NSNotification) {
+        //only updates the kasam where progress was made from KasamView
         if let kasamID = notification.userInfo?["kasamID"] as? String {
             let kasam = SavedData.kasamDict[kasamID]
-            let kasamOrder = (SavedData.kasamDict[kasamID]!.count)
+            let kasamOrder = (SavedData.kasamDict[kasamID]!.kasamOrder) - 1
             //Updates the DayTracker
             self.dayTrackerRefHandle = self.dayTrackerRef.child(kasamID).child(getCurrentDate() ?? "").observe(.value, with: {(snapshot) in
                     let kasamDate = self.dateConverter(datein: snapshot.key)
