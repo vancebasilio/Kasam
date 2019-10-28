@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import Parchment
 import FBSDKLoginKit
+import SwiftEntryKit
 
 class ProfileViewController: UIViewController {
    
@@ -26,10 +27,10 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var challoStatsCollectionView: UICollectionView!
     @IBOutlet weak var kasamFollowingCollectionView: UICollectionView!
     @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
-    @IBOutlet weak var logOut: UIButton!
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
     @IBOutlet weak var bottomViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
+    @IBOutlet weak var sideMenuButton: UIButton!
     
     var metricStats: [challoStatFormat] = []
     var userStats: [UserStatsFormat] = []
@@ -76,6 +77,7 @@ class ProfileViewController: UIViewController {
         levelLine.layer.cornerRadius = 4
         levelLine.clipsToBounds = true
         startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
+        sideMenuButton.setIcon(icon: .fontAwesomeSolid(.bars), iconSize: 15, color: UIColor.darkGray, backgroundColor: .clear, forState: .normal)
         self.navigationItem.title = ""
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
         let notificationName = NSNotification.Name("ProfileUpdate")
@@ -83,6 +85,56 @@ class ProfileViewController: UIViewController {
         let challoStatsUpdate = NSNotification.Name("ChalloStatsUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.getChalloStats), name: challoStatsUpdate, object: nil)
     }
+    
+    @IBAction func showUserOptionsButton(_ sender: Any) {
+        var attributes: EKAttributes
+        attributes = .bottomFloat
+        attributes.displayMode = .light
+        attributes.displayDuration = .infinity
+        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
+        attributes.entryBackground = .color(color: .white)
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .dismiss
+        attributes.scroll = .edgeCrossingDisabled(swipeable: true)
+        attributes.entranceAnimation = .init(
+            translate: .init(
+                duration: 0.5,
+                spring: .init(damping: 1, initialVelocity: 0)
+            )
+        )
+        attributes.exitAnimation = .init(
+            translate: .init(duration: 0.35)
+        )
+        attributes.popBehavior = .animated(
+            animation: .init(
+                translate: .init(duration: 0.35)
+            )
+        )
+        attributes.shadow = .active(
+            with: .init(
+                color: .black,
+                opacity: 0.3,
+                radius: 6
+            )
+        )
+        
+        attributes.roundCorners = .all(radius: 20)
+        attributes.positionConstraints.size = .init(
+            width: .fill,
+            height: .ratio(value: 0.3)
+        )
+        attributes.positionConstraints.verticalOffset = 0
+        attributes.positionConstraints.safeArea = .overridden
+        attributes.statusBar = .dark
+        showUserOptions(with: attributes)
+    }
+    
+    private func showUserOptions(with attributes: EKAttributes) {
+        let viewController = UserOptionsController()
+        SwiftEntryKit.display(entry: viewController, using: attributes)
+    }
+    
+    //GET ALL THE STATS-------------------------------------------------------------------------------------------------
     
     //too many functions under this. Break it out, so it isn't refinding all these details
     @objc func getChalloStats() {
@@ -154,11 +206,6 @@ class ProfileViewController: UIViewController {
         }
     }
     
-    @IBAction func logOut(_ sender: Any) {
-        AppManager.shared.logoout()
-        LoginManager().logOut()
-        self.dismiss(animated: true, completion: nil)
-    }
     
     func profileSetup(){
         self.profileImage.layer.cornerRadius = self.profileImage.frame.width / 2

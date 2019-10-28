@@ -201,6 +201,22 @@ enum FormStyle {
         )
     }
     
+    var buttonLine: EKProperty.LabelStyle {
+        return .init(
+            font: UIFont.systemFont(ofSize: 15),
+            color: buttonColor
+        )
+    }
+    
+    var buttonColor: EKColor {
+        switch self {
+        case .metallic:
+            return .black
+        case .light:
+            return .black
+        }
+    }
+    
     var textColor: EKColor {
         switch self {
         case .metallic:

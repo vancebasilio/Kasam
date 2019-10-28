@@ -50,6 +50,8 @@
 		BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */; };
 		BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BCC79A05226BD56000B72D65 /* Default-568h@2x.png */; };
 		BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */; };
+		BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCE4B4B823666E0500C75480 /* UserOptionsController.xib */; };
+		BCE4B4BB23666E2800C75480 /* UserOptionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */; };
 		BCE50BDD22D0497B000F2534 /* KasamHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE50BDC22D0497B000F2534 /* KasamHolder.swift */; };
 		BCE50BE022D04A37000F2534 /* FXBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = BCE50BDE22D04A37000F2534 /* FXBlurView.m */; };
 		BCED16E82283A166008DF3EC /* AddKasamPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCED16E72283A166008DF3EC /* AddKasamPopup.swift */; };
@@ -109,6 +111,8 @@
 		BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
 		BCC79A05226BD56000B72D65 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizedTableView.swift; sourceTree = "<group>"; };
+		BCE4B4B823666E0500C75480 /* UserOptionsController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UserOptionsController.xib; sourceTree = "<group>"; };
+		BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserOptionsController.swift; sourceTree = "<group>"; };
 		BCE50BDC22D0497B000F2534 /* KasamHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamHolder.swift; sourceTree = "<group>"; };
 		BCE50BDE22D04A37000F2534 /* FXBlurView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXBlurView.m; sourceTree = "<group>"; };
 		BCE50BDF22D04A37000F2534 /* FXBlurView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXBlurView.h; sourceTree = "<group>"; };
@@ -254,6 +258,8 @@
 				BC554BD1226D6EF900D707CC /* 1. Discover.swift */,
 				BC9C7840228CD2DB000C8D0A /* 2. Today.swift */,
 				BC554BD7226E079100D707CC /* 3. User-Profile.swift */,
+				BCE4B4B823666E0500C75480 /* UserOptionsController.xib */,
+				BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */,
 				BC12F1ED233FC17100D93227 /* Statistics.swift */,
 				BCE50BDC22D0497B000F2534 /* KasamHolder.swift */,
 				BC6E97842321DF7800698EB9 /* KasamViewer.swift */,
@@ -358,6 +364,7 @@
 				BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */,
 				BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */,
 				BC68BC6122838B3700240CE9 /* GoogleService-Info.plist in Resources */,
+				BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */,
 				BC01664722D5790B0073186D /* UIImageViewAligned in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -472,6 +479,7 @@
 				BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */,
 				BC9C7841228CD2DB000C8D0A /* 2. Today.swift in Sources */,
 				BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */,
+				BCE4B4BB23666E2800C75480 /* UserOptionsController.swift in Sources */,
 				BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */,
 				BCED16E82283A166008DF3EC /* AddKasamPopup.swift in Sources */,
 				BC55BFD722AEEF6200D77337 /* Custom Functions.swift in Sources */,
