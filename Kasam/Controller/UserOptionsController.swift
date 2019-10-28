@@ -50,7 +50,7 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if indexPath.row == 0 {
-            performSegue(withIdentifier: "goToCreateKasam", sender: nil)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self)
         } else if indexPath.row == 1 {
             AppManager.shared.logoout()
             LoginManager().logOut()

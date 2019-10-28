@@ -242,8 +242,9 @@
 		BCC799FE226BD4FC00B72D65 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				BC1FAF352269FAFA006A9245 /* LaunchScreen.storyboard */,
 				BC1FAF302269FAFA006A9245 /* Main.storyboard */,
+				BC1FAF352269FAFA006A9245 /* LaunchScreen.storyboard */,
+				BCE4B4B823666E0500C75480 /* UserOptionsController.xib */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -258,7 +259,6 @@
 				BC554BD1226D6EF900D707CC /* 1. Discover.swift */,
 				BC9C7840228CD2DB000C8D0A /* 2. Today.swift */,
 				BC554BD7226E079100D707CC /* 3. User-Profile.swift */,
-				BCE4B4B823666E0500C75480 /* UserOptionsController.xib */,
 				BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */,
 				BC12F1ED233FC17100D93227 /* Statistics.swift */,
 				BCE50BDC22D0497B000F2534 /* KasamHolder.swift */,

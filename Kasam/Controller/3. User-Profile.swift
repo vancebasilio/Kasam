@@ -84,6 +84,8 @@ class ProfileViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.profileUpdate), name: notificationName, object: nil)
         let challoStatsUpdate = NSNotification.Name("ChalloStatsUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.getChalloStats), name: challoStatsUpdate, object: nil)
+        let goToCreateKasam = NSNotification.Name("GoToCreateKasam")
+        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
     }
     
     @IBAction func showUserOptionsButton(_ sender: Any) {
@@ -280,6 +282,10 @@ class ProfileViewController: UIViewController {
             kasamTransferHolder.kasamImage = kasamImageGlobal
             kasamTransferHolder.avgMetricHolder = String(kasamAvgMetricGlobal)
         }
+    }
+    
+    @objc func goToCreateKasam(){
+        performSegue(withIdentifier: "goToCreateKasam", sender: nil)
     }
     
     //Stops the observer
