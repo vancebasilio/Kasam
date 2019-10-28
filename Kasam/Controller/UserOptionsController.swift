@@ -14,7 +14,6 @@ class UserOptionsController: UIViewController {
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet weak var slidingHandle: UIView!
     
-   
     private let dataSource = ["Create a Kasam", "Log Out"]
     
     init() {
