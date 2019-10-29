@@ -9,6 +9,7 @@
 import UIKit
 import Firebase
 import AVKit
+import SwiftEntryKit
 
 let offset_HeaderStop:CGFloat = 140.0  // At this offset the Header stops its transformations
 let distance_W_LabelHeader:CGFloat = 30.0 // The distance between the top of the screen and the top of the White Label
@@ -140,6 +141,49 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         })
     }
     
+    //UNFOLLOW BUTTON CONFIRMATION-------------------------------------------------------------------------------------------------
+    
+    private func showUnfollowConfirmation() {
+        var attributes: EKAttributes
+        attributes = EKAttributes.centerFloat
+        attributes.hapticFeedbackType = .success
+        attributes.displayDuration = .infinity
+        attributes.entryBackground = .gradient(gradient: .init(colors: [EKColor(UIColor.colorFour), EKColor(UIColor.colorFour)], startPoint: .zero, endPoint: CGPoint(x: 1, y: 1)))
+        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 8))
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
+        attributes.scroll = .enabled(swipeable: true, pullbackAnimation: .jolt)
+        attributes.roundCorners = .all(radius: 20)
+        attributes.entranceAnimation = .init(translate: .init(duration: 0.7, spring: .init(damping: 0.7, initialVelocity: 0)), scale: .init(from: 0.7, to: 1, duration: 0.4, spring: .init(damping: 1, initialVelocity: 0)))
+        attributes.exitAnimation = .init(translate: .init(duration: 0.2))
+        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        attributes.positionConstraints.size = .init(width: .offset(value: 20), height: .intrinsic)
+        attributes.positionConstraints.maxSize = .init(width: .intrinsic, height: .intrinsic)
+        attributes.statusBar = .dark
+        
+        let image = UIImage.init(icon: .fontAwesomeSolid(.heartbeat), size: CGSize(width: 35, height: 35), textColor: .white)
+        let title = "You sure?"
+        let description = "You'll lose all the progress you've made so far"
+        showPopupMessage(attributes: attributes, title: title, titleColor: .white, description: description, descriptionColor: .white, buttonTitleColor: EKColor(UIColor.colorFive), buttonBackgroundColor: .white, image: image)
+    }
+    
+    private func showPopupMessage(attributes: EKAttributes, title: String, titleColor: EKColor, description: String, descriptionColor: EKColor, buttonTitleColor: EKColor, buttonBackgroundColor: EKColor, image: UIImage? = nil) {
+        var themeImage: EKPopUpMessage.ThemeImage?
+        if let image = image {themeImage = EKPopUpMessage.ThemeImage(image: EKProperty.ImageContent(image: image, displayMode: .light, size: CGSize(width: 60, height: 60), tint: titleColor, contentMode: .scaleAspectFit))}
+        let title = EKProperty.LabelContent(text: title, style: .init(font: UIFont.systemFont(ofSize: 26, weight: .bold), color: titleColor, alignment: .center, displayMode: .light))
+        let description = EKProperty.LabelContent(text: description, style: .init(font: UIFont.systemFont(ofSize: 18, weight: .semibold), color: descriptionColor, alignment: .center, displayMode: .light))
+        let button = EKProperty.ButtonContent(label: .init(text: "Unfollow", style: .init(font: UIFont.systemFont(ofSize: 16, weight: .semibold), color: buttonTitleColor,displayMode: .light)), backgroundColor: buttonBackgroundColor, highlightedBackgroundColor: buttonTitleColor.with(alpha: 0.05), displayMode: .light)
+        let message = EKPopUpMessage(themeImage: themeImage, title: title, description: description, button: button) {
+                self.unregisterUseFromKasam()
+                SwiftEntryKit.dismiss()
+        }
+        let contentView = EKPopUpMessageView(with: message)
+        SwiftEntryKit.display(entry: contentView, using: attributes)
+    }
+    
+    //REGISTER TO KASAM-------------------------------------------------------------------------------------------------
+    
     //Add Kasam to Following List of user
     @IBAction func addButtonPress(_ sender: Any) {
         if registerCheck == 0 {
@@ -153,7 +197,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 NotificationCenter.default.removeObserver(self.observer as Any)
             }
         } else {
-            unregisterUseFromKasam()
+            showUnfollowConfirmation()
         }
     }
     
@@ -227,7 +271,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         })
     }
     
-    func setupBlurImage(){
+    func setupBlurImage() {
         headerBlurImageView = UIImageView(frame: headerView.bounds)
         headerBlurImageView?.backgroundColor = UIColor.white
         headerBlurImageView?.contentMode = UIView.ContentMode.scaleAspectFill

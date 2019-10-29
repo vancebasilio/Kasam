@@ -11,6 +11,7 @@ import Firebase
 import Parchment
 import FBSDKLoginKit
 import SwiftEntryKit
+import SkeletonView
 
 class ProfileViewController: UIViewController {
    
@@ -72,12 +73,13 @@ class ProfileViewController: UIViewController {
     }
     
     func viewSetup(){
+        profileImage.showAnimatedSkeleton()
         levelLineBack.layer.cornerRadius = 4
         levelLineBack.clipsToBounds = true
         levelLine.layer.cornerRadius = 4
         levelLine.clipsToBounds = true
         startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
-        sideMenuButton.setIcon(icon: .fontAwesomeSolid(.bars), iconSize: 15, color: UIColor.darkGray, backgroundColor: .clear, forState: .normal)
+        sideMenuButton.setIcon(icon: .fontAwesomeSolid(.bars), iconSize: 17, color: UIColor.darkGray, backgroundColor: .clear, forState: .normal)
         self.navigationItem.title = ""
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
         let notificationName = NSNotification.Name("ProfileUpdate")
@@ -88,6 +90,8 @@ class ProfileViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
     }
     
+    //USER OPTIONS-------------------------------------------------------------------------------------------------
+    
     @IBAction func showUserOptionsButton(_ sender: Any) {
         var attributes: EKAttributes
         attributes = .bottomFloat
@@ -97,35 +101,13 @@ class ProfileViewController: UIViewController {
         attributes.entryBackground = .color(color: .white)
         attributes.screenInteraction = .dismiss
         attributes.entryInteraction = .dismiss
-        attributes.scroll = .edgeCrossingDisabled(swipeable: true)
-        attributes.entranceAnimation = .init(
-            translate: .init(
-                duration: 0.5,
-                spring: .init(damping: 1, initialVelocity: 0)
-            )
-        )
-        attributes.exitAnimation = .init(
-            translate: .init(duration: 0.35)
-        )
-        attributes.popBehavior = .animated(
-            animation: .init(
-                translate: .init(duration: 0.35)
-            )
-        )
-        attributes.shadow = .active(
-            with: .init(
-                color: .black,
-                opacity: 0.3,
-                radius: 6
-            )
-        )
-        
+        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
+        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
+        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
         attributes.roundCorners = .all(radius: 20)
-        attributes.positionConstraints.size = .init(
-            width: .fill,
-            height: .ratio(value: 0.3)
-        )
-        attributes.positionConstraints.verticalOffset = 0
+        attributes.positionConstraints.size = .init(width: .fill, height: .ratio(value: 0.5))
+        attributes.positionConstraints.verticalOffset = -100
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark
         showUserOptions(with: attributes)
@@ -134,6 +116,10 @@ class ProfileViewController: UIViewController {
     private func showUserOptions(with attributes: EKAttributes) {
         let viewController = UserOptionsController()
         SwiftEntryKit.display(entry: viewController, using: attributes)
+    }
+    
+    @objc func goToCreateKasam() {
+        performSegue(withIdentifier: "goToCreateKasam", sender: nil)
     }
     
     //GET ALL THE STATS-------------------------------------------------------------------------------------------------
@@ -208,6 +194,7 @@ class ProfileViewController: UIViewController {
         }
     }
     
+    //PROFILE SETUP-------------------------------------------------------------------------------------------------
     
     func profileSetup(){
         self.profileImage.layer.cornerRadius = self.profileImage.frame.width / 2
@@ -242,7 +229,9 @@ class ProfileViewController: UIViewController {
             profilePicRef.downloadURL { (url, error) in
                 if url != nil {
                     //Get the image from Firebase
-                    self.profileImage?.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder.png"))
+                    self.profileImage?.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder.png"), options: [], completed: { (image, error, cache, url) in
+                        self.profileImage.hideSkeleton()
+                    })
                 } else {
                     if error != nil {
                     //Unable to download image from Firebase, so get from Facebook
@@ -264,6 +253,7 @@ class ProfileViewController: UIViewController {
                                         else {print("Error in downloading image")}
                                     }
                                     self.profileImage.image = UIImage(data: imageData as Data)
+                                    self.profileImage.hideSkeleton()
                                 }
                             }
                         })
@@ -282,10 +272,6 @@ class ProfileViewController: UIViewController {
             kasamTransferHolder.kasamImage = kasamImageGlobal
             kasamTransferHolder.avgMetricHolder = String(kasamAvgMetricGlobal)
         }
-    }
-    
-    @objc func goToCreateKasam(){
-        performSegue(withIdentifier: "goToCreateKasam", sender: nil)
     }
     
     //Stops the observer
@@ -316,8 +302,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == challoStatsCollectionView {
-        } else {
             kasamTitleGlobal = userStats[indexPath.row].kasamTitle
             kasamIDGlobal = userStats[indexPath.row].kasamID
             kasamMetricTypeGlobal = userStats[indexPath.row].metricType
@@ -338,7 +322,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             }
             kasamAvgMetricGlobal = avgMetric
             self.performSegue(withIdentifier: "goToStats", sender: indexPath)
-        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

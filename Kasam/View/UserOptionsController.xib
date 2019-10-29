@@ -25,7 +25,7 @@
                     <rect key="frame" x="0.0" y="20" width="375" height="647"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kV6-bC-wUc">
-                            <rect key="frame" x="172.5" y="15" width="30" height="5"/>
+                            <rect key="frame" x="172.5" y="0.0" width="30" height="5"/>
                             <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="30" id="Wzk-mC-TuR"/>
@@ -33,7 +33,7 @@
                             </constraints>
                         </view>
                         <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="a9F-D5-jui">
-                            <rect key="frame" x="0.0" y="35" width="375" height="612"/>
+                            <rect key="frame" x="0.0" y="20" width="375" height="627"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <outlet property="dataSource" destination="-1" id="Obc-gA-2k3"/>
@@ -46,7 +46,7 @@
                         <constraint firstAttribute="trailing" secondItem="a9F-D5-jui" secondAttribute="trailing" id="B5K-SP-mHL"/>
                         <constraint firstItem="a9F-D5-jui" firstAttribute="leading" secondItem="hQR-gn-Owe" secondAttribute="leading" id="QfF-dE-KDT"/>
                         <constraint firstAttribute="bottom" secondItem="a9F-D5-jui" secondAttribute="bottom" id="YAr-0Y-61Q"/>
-                        <constraint firstItem="kV6-bC-wUc" firstAttribute="top" secondItem="hQR-gn-Owe" secondAttribute="top" constant="15" id="a1V-N7-mlw"/>
+                        <constraint firstItem="kV6-bC-wUc" firstAttribute="top" secondItem="hQR-gn-Owe" secondAttribute="top" id="a1V-N7-mlw"/>
                         <constraint firstItem="kV6-bC-wUc" firstAttribute="centerX" secondItem="hQR-gn-Owe" secondAttribute="centerX" id="p1c-fH-sjU"/>
                         <constraint firstItem="a9F-D5-jui" firstAttribute="top" secondItem="kV6-bC-wUc" secondAttribute="bottom" constant="15" id="uV9-Y9-EZR"/>
                     </constraints>
