@@ -59,7 +59,6 @@ class StatisticsViewController: UIViewController {
     }
     
     func setupView(){
-        avgMetric.text = avgMetricHolder
         kasamImageView.sd_setImage(with: kasamImage, placeholderImage: UIImage(named: "placeholder.png"))
         kasamImageView.layer.cornerRadius = kasamImageView.frame.width / 2
         kasamImageView.clipsToBounds = true
@@ -89,6 +88,8 @@ class StatisticsViewController: UIViewController {
         let daysLeft = SavedData.kasamDict[kasamID]?.joinedDate
         let dayOrder = String((Calendar.current.dateComponents([.day], from: daysLeft!, to: Date()).day!) + 1)
         self.dayNoValue.text = "Day \(dayOrder)"
+        var metricTotal = 0
+        var metricType = ""
         if dateArray?.count != nil {
             for date in dateArray! {
                 self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(date).observe(.value, with:{(snapshot) in
@@ -96,7 +97,7 @@ class StatisticsViewController: UIViewController {
                         var metric = Int(value["Total Metric"] as? Double ?? 0.0)
                         let dayOrder = Int(value["Day Order"] as? String ?? "0")
                         self.metricArray[dayOrder!] = metric
-                        var metricType = self.kasamMetricType
+                        metricType = self.kasamMetricType
                         if self.kasamMetricType == "mins" {
                             if metric < 60 {
                                 metricType = "secs"
@@ -114,10 +115,12 @@ class StatisticsViewController: UIViewController {
                                 metricType = "hours"
                             }
                         }
+                        metricTotal += metric
                         let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(metricType)")
                         self.kasamBlocks.append(block)
                     }
                     if self.kasamBlocks.count == dateArray?.count {
+                        self.avgMetric.text = "\(metricTotal / (dateArray?.count ?? 0)) Avg. \(metricType)"
                         self.historyTableView.reloadData()
                         self.setChart(values: self.metricArray)
                         self.kasamHistoryRef.child(self.kasamID).child(date).removeAllObservers()
@@ -131,6 +134,8 @@ class StatisticsViewController: UIViewController {
     @IBAction func backButtonPressed(_ sender: Any) {
         navigationController?.popViewController(animated: true)
     }
+    
+    //CHART--------------------------------------------------------------------------------------------------------
     
     func setChart(values: [Int:Int]) {
         mChart.noDataText = "No data available!"
