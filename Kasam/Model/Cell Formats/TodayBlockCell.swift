@@ -66,7 +66,7 @@ class TodayBlockCell: UITableViewCell {
         kasamID = block.kasamID
         kasamName.text = block.kasamName
         blockID = block.title
-        blockImage.sd_setImage(with: block.image, placeholderImage: UIImage(named: "placeholder.png"))
+        blockImage.sd_setImage(with: block.image)
         dayNumber.text = "Day \(block.dayOrder) • "
         blockDuration.text = "\(block.duration)"
         processedStatus = block.displayStatus

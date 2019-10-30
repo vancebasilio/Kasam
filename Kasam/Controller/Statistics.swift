@@ -165,6 +165,7 @@ class StatisticsViewController: UIViewController {
         
         for set in mChart.data!.dataSets {set.drawValuesEnabled = !set.drawValuesEnabled}      //removes the titles above each datapoint
         mChart.leftAxis.axisMinimum = 1.0
+        mChart.xAxis.axisMinimum = 1.0
         dataEntries.removeAll()
     }
     
@@ -197,7 +198,6 @@ class StatisticsViewController: UIViewController {
         mChart.xAxis.gridLineDashLengths = [5, 5]
         mChart.xAxis.gridLineDashPhase = 0
         mChart.xAxis.granularityEnabled = true
-        mChart.xAxis.axisMinimum = 1.0
         
         mChart.leftAxis.enabled = true
         mChart.leftAxis.drawAxisLineEnabled = true      //y axis

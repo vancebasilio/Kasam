@@ -445,7 +445,7 @@ extension TodayBlocksViewController: SkeletonCollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TodayMotivationCell", for: indexPath) as! TodayMotivationCell
         if indexPath.row < motivationArray.count  {
-            cell.backgroundImage.sd_setImage(with: URL(string: motivationBackground[indexPath.row]), placeholderImage: UIImage(named: "placeholder.png"))
+            cell.backgroundImage.sd_setImage(with: URL(string: motivationBackground[indexPath.row]))
         } else {
              cell.backgroundImage.image = UIImage(named: "placeholder.png")
         }
