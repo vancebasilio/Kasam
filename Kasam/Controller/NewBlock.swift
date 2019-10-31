@@ -43,10 +43,7 @@ class NewBlockViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func createBlocksButton(_ sender: Any) {
         self.view.endEditing(true)                  //for adding last text field value with dismiss keyboard
-        
         let newBlock = Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks")
-        let ratio = 30 / numberOfBlocks
-        for i in 1...ratio {
             for j in 1...numberOfBlocks {
                 let blockID = newBlock.childByAutoId()
                 let activity = ["Description" : "",
@@ -54,7 +51,7 @@ class NewBlockViewController: UIViewController, UITextFieldDelegate {
                     "Metric" : "",
                     "Title" : "",
                     "Type" : "Picker"]
-                let blockDictionary = ["Activity": activity, "Duration": transferDuration[j] ?? "Duration", "Image": blockImage, "Order": String(i * j), "Rating": "5", "Title": transferTitle[j] ?? "Title", "BlockID": blockID.key!] as [String : Any]
+                let blockDictionary = ["Activity": activity, "Duration": transferDuration[j] ?? "Duration", "Image": blockImage, "Order": String(j), "Rating": "5", "Title": transferTitle[j] ?? "Title", "BlockID": blockID.key!] as [String : Any]
             
                 blockID.setValue(blockDictionary) {
                     (error, reference) in
@@ -65,7 +62,6 @@ class NewBlockViewController: UIViewController, UITextFieldDelegate {
                     }
                 }
             }
-        }
         dismiss(animated: true, completion: nil)
     }
 }
