@@ -104,16 +104,4 @@ class TodayBlockCell: UITableViewCell {
         blockShadow.layer.shadowOffset = CGSize.zero
         blockShadow.layer.shadowRadius = 4
     }
-    
-    @IBAction func statusButtonPressed(_ sender: UIButton) {
-        if processedStatus == "Checkmark" {
-            statusButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: 30, color: UIColor.init(hex: 0x007f00), forState: .normal)
-            delegate?.clickedButton(kasamID: kasamID ?? "", blockID: blockID ?? "", status: "Check")
-            processedStatus = "Check"
-        } else if processedStatus == "Check" {
-            statusButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 30, color: UIColor.colorFour, forState: .normal)
-            delegate?.clickedButton(kasamID: kasamID ?? "", blockID: blockID ?? "", status: "Checkmark")
-            processedStatus = "Checkmark"
-        }
-    }
 }
