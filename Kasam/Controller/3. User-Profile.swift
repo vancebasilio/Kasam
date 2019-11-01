@@ -25,17 +25,18 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var levelLineBack: UIView!
     @IBOutlet weak var startLevel: UILabel!
     @IBOutlet weak var totalDays: UILabel!
-    @IBOutlet weak var challoStatsCollectionView: UICollectionView!
-    @IBOutlet weak var kasamFollowingCollectionView: UICollectionView!
+    
+    @IBOutlet weak var weekStatsCollectionView: UICollectionView!
+    
+    @IBOutlet weak var detailedStatsCollectionView: UICollectionView!
     @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
     @IBOutlet weak var bottomViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     @IBOutlet weak var sideMenuButton: UIButton!
     
-    var metricStats: [challoStatFormat] = []
-    var userStats: [UserStatsFormat] = []
-    var avgMetricArray: [Int] = []
+    var weeklyStats: [weekStatsFormat] = []
+    var detailedStats: [UserStatsFormat] = []
     var daysCompletedDict: [String:Int] = [:]
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
@@ -58,7 +59,7 @@ class ProfileViewController: UIViewController {
         profilePicture()
         setupDateDictionary()
         viewSetup()
-        getChalloStats()
+        getDetailedStats()
     }
     
     override func viewSafeAreaInsetsDidChange() {
@@ -85,7 +86,7 @@ class ProfileViewController: UIViewController {
         let notificationName = NSNotification.Name("ProfileUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.profileUpdate), name: notificationName, object: nil)
         let challoStatsUpdate = NSNotification.Name("ChalloStatsUpdate")
-        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.getChalloStats), name: challoStatsUpdate, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.getDetailedStats), name: challoStatsUpdate, object: nil)
         let goToCreateKasam = NSNotification.Name("GoToCreateKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
     }
@@ -124,21 +125,22 @@ class ProfileViewController: UIViewController {
     
     //GET ALL THE STATS-------------------------------------------------------------------------------------------------
     
-    //too many functions under this. Break it out, so it isn't refinding all these details
-    @objc func getChalloStats() {
-        metricStats.removeAll()
-        userStats.removeAll()
-        avgMetricArray.removeAll()
-        metricDictionary.removeAll()
+    @objc func getDetailedStats() {
+        detailedStats.removeAll()
         //loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamArray {
-            Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) { (snap) in
+            print("stats for \(kasam.kasamName)")
+            Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
                 let snapshot = snap.value as! Dictionary<String,Any>
                 let metricType = snapshot["Metric"]! as! String
                 let imageURL = URL(string:snapshot["Image"]! as! String)
                 let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
                 let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, metricType: metricType, daysLeft: daysPast)
-                self.userStats.append(userStats)
+                self.detailedStats.append(userStats)
+                self.detailedStatsCollectionView.reloadData()
+                if self.detailedStats.count == SavedData.kasamArray.count {
+                    self.getWeeklyStats()
+                }
             
             //Kasam Level
             self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasam.kasamID).observe(.childAdded, with:{ (snapshot) in
@@ -151,34 +153,39 @@ class ProfileViewController: UIViewController {
                 }
                 self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
             })
-            
-            //Stats for each kasam
+            }
+        }
+    }
+    
+    func getWeeklyStats() {
+        var metricCount = 0
+        weeklyStats.removeAll()
+        metricDictionary.removeAll()
+        for kasam in SavedData.kasamArray {
             var metricMatrix = 0
-            var metricCount = 0
             var checkerCount = 0
             for x in 1...7 {
-                self.kasamHistoryRef.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{ (snapshot) in
+                var avgMetric = 0
+                self.kasamHistoryRef.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{(snapshot) in
                     checkerCount += 1
                     self.metricDictionary[x] = 0                                        //to set the base as zero for each day
                     if let value = snapshot.value as? [String: Any] {
                         self.metricDictionary[x] = value["Metric Percent"] as? Double   //get the metric for each day for each kasam
                         metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
                         metricCount += 1
-                }
-                if checkerCount == 7 {
-                    if metricCount != 0 {
-                        self.avgMetricArray.append(metricMatrix / metricCount)
-                    } else {
-                        self.avgMetricArray.append(0)                       //if there are no stats, we don't want to divde by zero
                     }
-                    self.metricStats.append(challoStatFormat(metricDictionary: self.metricDictionary))
-                    self.challoStatsCollectionView.reloadData()
-                    self.kasamFollowingCollectionView.reloadData()
+                    if checkerCount == 7 {
+                        if metricCount != 0 {
+                            avgMetric = (metricMatrix / metricCount)
+                            print("For \(kasam.kasamName) \(metricMatrix) / \(metricCount)")
+                        }
+                        self.weeklyStats.append(weekStatsFormat(metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
+                        self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
+                        self.weekStatsCollectionView.reloadData()
                     }
                 })
             }
         }
-    }
     }
     
     func setupDateDictionary(){
@@ -285,15 +292,15 @@ class ProfileViewController: UIViewController {
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == challoStatsCollectionView {
-            return metricStats.count
+        if collectionView == weekStatsCollectionView {
+            return weeklyStats.count
         } else {
-            return userStats.count
+            return detailedStats.count
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionView == challoStatsCollectionView {
+        if collectionView == weekStatsCollectionView {
             challoStatsHeight.constant = (view.bounds.size.width * (2/5))
         return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
         } else {
@@ -302,52 +309,52 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-            kasamTitleGlobal = userStats[indexPath.row].kasamTitle
-            kasamIDGlobal = userStats[indexPath.row].kasamID
-            kasamMetricTypeGlobal = userStats[indexPath.row].metricType
-            kasamImageGlobal = userStats[indexPath.row].imageURL
+            kasamTitleGlobal = detailedStats[indexPath.row].kasamTitle
+            kasamIDGlobal = detailedStats[indexPath.row].kasamID
+            kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
+            kasamImageGlobal = detailedStats[indexPath.row].imageURL
             var avgMetric = ""
-            if userStats[indexPath.row].metricType == "mins"  {
-                if avgMetricArray[indexPath.row] < 60 {
-                    avgMetric = "Avg. \(String(self.avgMetricArray[indexPath.row])) secs"
-                } else if avgMetricArray[indexPath.row] > 60 && avgMetricArray[indexPath.row] < 120 {
-                    let time = Int (Double(self.avgMetricArray[indexPath.row]) / 60.0)
+            if detailedStats[indexPath.row].metricType == "mins"  {
+                if weeklyStats[indexPath.row].avgMetric < 60 {
+                    avgMetric = "Avg. \(String(weeklyStats[indexPath.row].avgMetric)) secs"
+                } else if weeklyStats[indexPath.row].avgMetric > 60 && weeklyStats[indexPath.row].avgMetric < 120 {
+                    let time = Int (Double(weeklyStats[indexPath.row].avgMetric) / 60.0)
                     avgMetric = "Avg. \(String(time)) min"
-                } else if avgMetricArray[indexPath.row] > 120 {
-                    let time = Int (Double(self.avgMetricArray[indexPath.row]) / 60.0)
+                } else if weeklyStats[indexPath.row].avgMetric > 120 {
+                    let time = Int (Double(weeklyStats[indexPath.row].avgMetric) / 60.0)
                     avgMetric = "Avg. \(String(time)) mins"
                 }
             } else {
-                avgMetric = "Avg. \(String(self.avgMetricArray[indexPath.row])) \(userStats[indexPath.row].metricType)"
+                avgMetric = "Avg. \(String(weeklyStats[indexPath.row].avgMetric)) \(detailedStats[indexPath.row].metricType)"
             }
             kasamAvgMetricGlobal = avgMetric
             self.performSegue(withIdentifier: "goToStats", sender: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == challoStatsCollectionView {
-            let stat = metricStats[indexPath.row]
+        if collectionView == weekStatsCollectionView {
+            let stat = weeklyStats[indexPath.row]
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
             cell.height = challoStatsHeight.constant
             cell.setBlock(cell: stat)
-            cell.kasamTitle.text = userStats[indexPath.row].kasamTitle
+            cell.kasamTitle.text = detailedStats[indexPath.row].kasamTitle
             DispatchQueue.main.async {
-                cell.daysLeft.text = String(30 - self.userStats[indexPath.row].daysLeft) //async loading this as it takes a long time to gather
+                cell.daysLeft.text = String(30 - self.detailedStats[indexPath.row].daysLeft) //async loading this as it takes a long time to gather
             }
-            if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] < 60 {
-                cell.averageMetric.text = String(self.avgMetricArray[indexPath.row])
+            if detailedStats[indexPath.row].metricType == "mins" && weeklyStats[indexPath.row].avgMetric < 60 {
+                cell.averageMetric.text = String(weeklyStats[indexPath.row].avgMetric)
                 cell.averageMetricLabel.text = "Avg. secs"
-            } else if userStats[indexPath.row].metricType == "mins" && avgMetricArray[indexPath.row] > 60 {
-                let time: Double = (Double(self.avgMetricArray[indexPath.row]) / 60.0).rounded(toPlaces: 2)
+            } else if detailedStats[indexPath.row].metricType == "mins" && weeklyStats[indexPath.row].avgMetric > 60 {
+                let time: Double = (Double(weeklyStats[indexPath.row].avgMetric) / 60.0).rounded(toPlaces: 2)
                 cell.averageMetric.text = String(time)
                 cell.averageMetricLabel.text = "Avg. mins"
             } else {
-                cell.averageMetric.text = String(self.avgMetricArray[indexPath.row])
-                cell.averageMetricLabel.text = "Avg. \(userStats[indexPath.row].metricType)"
+                cell.averageMetric.text = String(weeklyStats[indexPath.row].avgMetric)
+                cell.averageMetricLabel.text = "Avg. \(detailedStats[indexPath.row].metricType)"
             }
             return cell
         } else {
-            let kasam = userStats[indexPath.row]
+            let kasam = detailedStats[indexPath.row]
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamFollowingCell", for: indexPath) as! KasamFollowingCell
             cell.setBlock(cell: kasam)
             return cell

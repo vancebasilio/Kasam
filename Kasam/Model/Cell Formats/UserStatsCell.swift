@@ -40,7 +40,7 @@ class ChalloStatsCell: UICollectionViewCell {
         }
     }
     
-    func setBlock(cell: challoStatFormat) {
+    func setBlock(cell: weekStatsFormat) {
         let constraintArray = [MHeight, THeight, WHeight, RHeight, FHeight, SHeight, SuHeight]
         for i in 0...6 {
             let pushValue = ((height - 70)  * (CGFloat(cell.metricDictionary[i+1] ?? 0.0)))

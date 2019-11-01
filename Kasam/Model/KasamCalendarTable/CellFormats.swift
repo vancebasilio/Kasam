@@ -55,11 +55,15 @@ class expertKasamFormat {
     }
 }
 
-class challoStatFormat {
+class weekStatsFormat {
     var metricDictionary = [Int:Double]()
+    var avgMetric: Int
+    var order: Int
     
-    init(metricDictionary: [Int: Double]){
+    init(metricDictionary: [Int: Double], avgMetric: Int, order: Int){
         self.metricDictionary = metricDictionary
+        self.avgMetric = avgMetric
+        self.order = order
     }
 }
 
