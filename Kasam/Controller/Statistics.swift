@@ -95,6 +95,8 @@ class StatisticsViewController: UIViewController {
                 self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(date).observe(.value, with:{(snapshot) in
                     if let value = snapshot.value as? [String: Any] {
                         var metric = Int(value["Total Metric"] as? Double ?? 0.0)
+                        let text = value["Text Breakdown"] as? [Any]
+                        let textField = text?[1]
                         let dayOrder = Int(value["Day Order"] as? String ?? "0")
                         self.metricArray[dayOrder!] = metric
                         metricType = self.kasamMetricType
@@ -116,7 +118,7 @@ class StatisticsViewController: UIViewController {
                             }
                         }
                         metricTotal += metric
-                        let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(metricType)")
+                        let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(metricType)", text: textField as? String ?? "")
                         self.kasamBlocks.append(block)
                     }
                     if self.kasamBlocks.count == dateArray?.count {
@@ -192,7 +194,7 @@ class StatisticsViewController: UIViewController {
         mChart.xAxis.labelFont = UIFont.systemFont(ofSize: 12, weight: .semibold)
         mChart.leftAxis.labelTextColor = UIColor.init(hex: 0x7F7F7F)
         mChart.leftAxis.labelFont = UIFont.systemFont(ofSize: 12, weight: .semibold)
-        
+    
         mChart.xAxis.drawAxisLineEnabled = true         //horizontal axis
         mChart.xAxis.drawGridLinesEnabled = false       //vertical lines
         mChart.xAxis.gridLineDashLengths = [5, 5]

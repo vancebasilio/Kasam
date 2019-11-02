@@ -113,11 +113,13 @@ class kasamFollowingFormat {
     var day: Int
     var date: String
     var metric: String
+    var text: String
     
-    init(day: Int, date: String, metric: String) {
+    init(day: Int, date: String, metric: String, text: String) {
         self.day = day
         self.date = date
         self.metric = metric
+        self.text = text
     }
 }
 

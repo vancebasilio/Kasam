@@ -22,6 +22,10 @@ class KasamHistoryTableCell: UITableViewCell {
     func setBlock(block: kasamFollowingFormat) {
         dayLabel.text = "Day \(block.day)"
         dateLabel.text = block.date
-        metricLabel.text = block.metric
+        if block.text != "" {
+            metricLabel.text = block.text
+        } else {
+            metricLabel.text = block.metric
+        }
     }
 }

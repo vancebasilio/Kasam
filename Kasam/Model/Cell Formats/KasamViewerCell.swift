@@ -159,6 +159,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     func setKasamViewer(activity: KasamActivityCellFormat) {
         restView.isHidden = true
+        textField.isHidden = true
         activityTitle.text = activity.activityTitle
         activityDescription.text = activity.activityDescription
         currentOrder = activity.currentOrder

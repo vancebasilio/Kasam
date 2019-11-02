@@ -21,6 +21,7 @@ class KasamViewerTicker: UIViewController {
     var dayOrder = ""
     var activityRef: DatabaseReference!
     var activityRefHandle: DatabaseHandle!
+    var historyRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var metricRef: DatabaseReference?
     var metricRefHandle: DatabaseHandle?
     var metricCompleted = 0
@@ -64,11 +65,13 @@ class KasamViewerTicker: UIViewController {
                 var currentMetric = "0"
                 var currentText = ""
                 count += 1
-            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamID).child(currentDate ?? "").child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+            
+                self.historyRef.child(self.kasamID).child(currentDate ?? "").child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
                     if snap.exists(){
                         currentMetric = snap.value as! String               //gets the metric for the activity
                     }
-                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamID).child(currentDate ?? "").child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                
+                    self.historyRef.child(self.kasamID).child(currentDate ?? "").child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
                         if snap.exists() {
                             currentText = snap.value as! String         //gets the text for the activity
                         }
@@ -135,8 +138,15 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
             cell.setupTimer(maxtime: activity.totalMetric, pastProgress: pastProgress)
         } else if activity.type == "Checkmark" {
             cell.setKasamViewer(activity: activity)
+            cell.textField.isHidden = false
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             let pastText = activityBlocks[indexPath.row].currentText
+            cell.setupCheckmark(pastProgress: pastProgress, pastText: pastText)
+        } else if activity.type == "CheckmarkText" {
+            cell.setKasamViewer(activity: activity)
+            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
+            let pastText = activityBlocks[indexPath.row].currentText
+            cell.textField.isHidden = false
             cell.setupCheckmark(pastProgress: pastProgress, pastText: pastText)
         }
         else if activity.type == "Rest" {
