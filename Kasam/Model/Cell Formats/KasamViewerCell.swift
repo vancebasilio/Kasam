@@ -220,6 +220,25 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         }
     }
     
+    //CHECKMARK------------------------------------------------------------------ -----------------
+    
+    func setupCheckmark(pastProgress: Double, pastText: String){
+        //hide picker views
+        doneButton.isHidden = true
+        pickerView.isHidden = true
+        instruction.isHidden = true
+        circularSlider.isHidden = true
+        textField.placeholder = "How was it?"
+        if pastText != "" {textField.text = pastText}
+        textField.title = "How was it?"
+        textField.titleLabel.textAlignment = .center
+        resetButton.layer.cornerRadius = 20.0
+        resetButton.setTitle("I broke it...", for: .normal)
+        timerDoneButton.setTitle("I kept it!", for: .normal)
+        timerDoneButton.layer.cornerRadius = 20.0
+        timerOrCountdown = "Checkmark"
+    }
+    
     //REST-----------------------------------------------------------------------------------
     
     func setupRest(activity: KasamActivityCellFormat) {
@@ -244,19 +263,32 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     @IBAction func timerDoneButton(_ sender: Any) {
         delegate?.dismissViewController()
-        delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime), text: textField.text ?? "")
+        if timerOrCountdown == "Checkmark" {
+            delegate?.sendCompletedMatrix(key: currentOrder, value: 100.0, text: textField.text ?? "")
+        } else {
+            delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime), text: textField.text ?? "")
+        }
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
     }
     
     @IBAction func resetButtonPress(_ sender: Any) {
-        maskButton.isEnabled = true
-        timeLabel.font = timeLabel.font.withSize(50)
-        timerStartStop.text = "tap to start "
-        countdownTimer.setCountDown(time: maxTime)
-        countdownTimer.stop()
-        countdownTimerDidStart = false
+        if timerOrCountdown == "Checkmark" {
+            delegate?.sendCompletedMatrix(key: currentOrder, value: 0.0, text: textField.text ?? "")
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
+            delegate?.dismissViewController()
+            
+        } else {
+            maskButton.isEnabled = true
+            timeLabel.font = timeLabel.font.withSize(50)
+            timerStartStop.text = "tap to start "
+            countdownTimer.setCountDown(time: maxTime)
+            countdownTimer.stop()
+            countdownTimerDidStart = false
+        }
     }
 }
 

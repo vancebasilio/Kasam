@@ -89,7 +89,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     func updateContentTableHeight(){
         tableViewHeight.constant = tableView.contentSize.height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let contentViewHeight = tableViewHeight.constant + 210 + 15
+        let contentViewHeight = tableViewHeight.constant + 210 + 25         //25 is the additional space from the bottom
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {

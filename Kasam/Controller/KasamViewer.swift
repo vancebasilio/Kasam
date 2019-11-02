@@ -27,6 +27,7 @@ class KasamViewerTicker: UIViewController {
     var totalActivties = 0
     var summedTotalMetric = 0
     var transferMetricMatrix = [String: String]()
+    var transferTextFieldMatrix = [String: String]()
     var kasamIDTransfer:[String: String] = ["kasamID": ""]
     
     override func viewDidLoad() {
@@ -56,22 +57,28 @@ class KasamViewerTicker: UIViewController {
         activityBlocks.removeAll()
         var count = 0
         self.activityRef = Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").child(blockID).child("Activity")
-        self.activityRefHandle = activityRef.observe(.childAdded) { (snapshot) in
+        self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 //check if user has past progress from today and download metric
                 let currentDate = self.getCurrentDate()
                 var currentMetric = "0"
+                var currentText = ""
                 count += 1
-            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamID).child(currentDate ?? "").child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: { (snap) in
-                    if snap.exists() {
-                        currentMetric = snap.value as! String
+            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamID).child(currentDate ?? "").child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                    if snap.exists(){
+                        currentMetric = snap.value as! String               //gets the metric for the activity
                     }
-                    let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, currentMetric: currentMetric, image: value["Image"] as! String, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0)
-                    self.activityBlocks.append(activity)
-                    self.collectionView.reloadData()
-                    if self.activityBlocks.count == count {
-                        completion()
-                    }
+                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(self.kasamID).child(currentDate ?? "").child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                        if snap.exists() {
+                            currentText = snap.value as! String         //gets the text for the activity
+                        }
+                        let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, currentMetric: currentMetric, image: value["Image"] as! String, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0, currentText: currentText)
+                        self.activityBlocks.append(activity)
+                        self.collectionView.reloadData()
+                        if self.activityBlocks.count == count {
+                            completion()
+                        }
+                    })
                 })
                 self.transferMetricMatrix[String(count)] = "0"
             }
@@ -126,7 +133,13 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
             cell.setKasamViewer(activity: activity)
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.setupTimer(maxtime: activity.totalMetric, pastProgress: pastProgress)
-        } else if activity.type == "Rest" {
+        } else if activity.type == "Checkmark" {
+            cell.setKasamViewer(activity: activity)
+            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
+            let pastText = activityBlocks[indexPath.row].currentText
+            cell.setupCheckmark(pastProgress: pastProgress, pastText: pastText)
+        }
+        else if activity.type == "Rest" {
             cell.setupRest(activity: activity)
         }
         cell.delegate = self
@@ -155,6 +168,7 @@ extension KasamViewerTicker: KasamViewerCellDelegate {
     
     func sendCompletedMatrix(key: Int, value: Double, text: String) {
         transferMetricMatrix[String(key)] = String(value)
+        transferTextFieldMatrix[String(key)] = text
         activityBlocks[key - 1].currentMetric = String(value)
         let statusDateTime = getCurrentDateTime()
         let statusDate = getCurrentDate()
@@ -163,14 +177,16 @@ extension KasamViewerTicker: KasamViewerCellDelegate {
         for (_, avg) in transferMetricMatrix {
             sum += Double(avg) ?? 0.0
         }
+        
+        print(sum, self.summedTotalMetric)
         let  transferAvg : Double = sum / Double(self.summedTotalMetric)
 
         if transferAvg > 0.0 {
-            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg, "Day Order" : dayOrder, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix])
+            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg, "Day Order" : dayOrder, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
         } else {
             Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").setValue(nil)
             //removes the dayTracker for today if kasam is set to zero
-            while let index = SavedData.dayTrackerDict[kasamID]!.index(of: getCurrentDate()!) {
+            while let index = SavedData.dayTrackerDict[kasamID]?.index(of: getCurrentDate()!) {
                 SavedData.dayTrackerDict[kasamID]?.remove(at: index)
             }
         }

@@ -25,9 +25,7 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var levelLineBack: UIView!
     @IBOutlet weak var startLevel: UILabel!
     @IBOutlet weak var totalDays: UILabel!
-    
     @IBOutlet weak var weekStatsCollectionView: UICollectionView!
-    
     @IBOutlet weak var detailedStatsCollectionView: UICollectionView!
     @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
@@ -129,7 +127,6 @@ class ProfileViewController: UIViewController {
         detailedStats.removeAll()
         //loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamArray {
-            print("stats for \(kasam.kasamName)")
             Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
                 let snapshot = snap.value as! Dictionary<String,Any>
                 let metricType = snapshot["Metric"]! as! String
@@ -158,10 +155,10 @@ class ProfileViewController: UIViewController {
     }
     
     func getWeeklyStats() {
-        var metricCount = 0
         weeklyStats.removeAll()
         metricDictionary.removeAll()
         for kasam in SavedData.kasamArray {
+            var metricCount = 0
             var metricMatrix = 0
             var checkerCount = 0
             for x in 1...7 {
@@ -177,10 +174,9 @@ class ProfileViewController: UIViewController {
                     if checkerCount == 7 {
                         if metricCount != 0 {
                             avgMetric = (metricMatrix / metricCount)
-                            print("For \(kasam.kasamName) \(metricMatrix) / \(metricCount)")
                         }
                         self.weeklyStats.append(weekStatsFormat(metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
-                        self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
+                        self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
                         self.weekStatsCollectionView.reloadData()
                     }
                 })
