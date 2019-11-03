@@ -29,6 +29,7 @@ pod 'Charts'
 pod 'SwiftEntryKit', '1.1.4'
 pod 'SkeletonView'
 
+
 end
 
 post_install do |installer|
