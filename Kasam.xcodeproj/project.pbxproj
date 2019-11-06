@@ -54,6 +54,7 @@
 		BCE4B4BB23666E2800C75480 /* UserOptionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */; };
 		BCE50BDD22D0497B000F2534 /* KasamHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE50BDC22D0497B000F2534 /* KasamHolder.swift */; };
 		BCE50BE022D04A37000F2534 /* FXBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = BCE50BDE22D04A37000F2534 /* FXBlurView.m */; };
+		BCED0D87237285E80054E66B /* AlertService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCED0D86237285E80054E66B /* AlertService.swift */; };
 		BCED16E82283A166008DF3EC /* AddKasamPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCED16E72283A166008DF3EC /* AddKasamPopup.swift */; };
 		BCEFD539226C195F0084AFF1 /* Register.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCEFD538226C195F0084AFF1 /* Register.swift */; };
 		BCF2A76B227F08F0009D2368 /* BlocksCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF2A76A227F08F0009D2368 /* BlocksCell.swift */; };
@@ -117,6 +118,7 @@
 		BCE50BDE22D04A37000F2534 /* FXBlurView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXBlurView.m; sourceTree = "<group>"; };
 		BCE50BDF22D04A37000F2534 /* FXBlurView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXBlurView.h; sourceTree = "<group>"; };
 		BCE50BE322D04B26000F2534 /* Kasam-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Kasam-Bridging-Header.h"; sourceTree = "<group>"; };
+		BCED0D86237285E80054E66B /* AlertService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertService.swift; sourceTree = "<group>"; };
 		BCED16E72283A166008DF3EC /* AddKasamPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddKasamPopup.swift; sourceTree = "<group>"; };
 		BCEFD538226C195F0084AFF1 /* Register.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Register.swift; sourceTree = "<group>"; };
 		BCF2A76A227F08F0009D2368 /* BlocksCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocksCell.swift; sourceTree = "<group>"; };
@@ -286,6 +288,7 @@
 			isa = PBXGroup;
 			children = (
 				BC68BC5E22838A8800240CE9 /* ImageService.swift */,
+				BCED0D86237285E80054E66B /* AlertService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -507,6 +510,7 @@
 				BC554BD8226E079100D707CC /* 3. User-Profile.swift in Sources */,
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
 				BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */,
+				BCED0D87237285E80054E66B /* AlertService.swift in Sources */,
 				BC55CC69232B4552003C87F6 /* UserStatsCell.swift in Sources */,
 				BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */,
 				BC6E7C2F2348D71400B05334 /* NewBlock.swift in Sources */,

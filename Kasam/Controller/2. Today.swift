@@ -63,7 +63,7 @@ class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalen
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTableAndHeader()
-        navBarShadow()
+        setupNavBar()
         getPreferences()
         getMotivationBackgrounds()
         getMotivations()

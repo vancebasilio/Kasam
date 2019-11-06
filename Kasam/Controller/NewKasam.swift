@@ -14,14 +14,15 @@ import SkyFloatingLabelTextField
 class NewKasamViewController: UIViewController {
     
     @IBOutlet weak var newKasamTitle: SkyFloatingLabelTextField!
-    @IBOutlet weak var newKasamType: SkyFloatingLabelTextField!
     @IBOutlet weak var newKasamLevel: SkyFloatingLabelTextField!
     @IBOutlet weak var newMetric: SkyFloatingLabelTextField!
     @IBOutlet weak var newTiming: SkyFloatingLabelTextField!
-    @IBOutlet weak var newRating: SkyFloatingLabelTextField!
     @IBOutlet weak var newGenre: SkyFloatingLabelTextField!
-    @IBOutlet weak var newKasamDescription: UITextView!
+    @IBOutlet weak var newKasamDescription: SkyFloatingLabelTextField!
     @IBOutlet weak var profileImage: UIImageView!
+    @IBOutlet weak var imagePlaceholder: UIImageView!
+    @IBOutlet weak var addAnImageLabel: UILabel!
+    @IBOutlet weak var createKasam: UIButton!
     
     var imagePicker: UIImagePickerController!
     var kasamIDGlobal = ""
@@ -29,25 +30,29 @@ class NewKasamViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupNavBar()
+        setupImageHolders()
+        self.navigationController?.navigationBar.tintColor = UIColor.colorFive
         //hide keyboard when screen tapped
         self.hideKeyboardWhenTappedAround()
-
-        imagePicker = UIImagePickerController()
-        imagePicker.allowsEditing = true
-        imagePicker.sourceType = .photoLibrary
-        imagePicker.delegate = self
-        
+        createKasam.layer.cornerRadius = 20.0
+        createKasam.clipsToBounds = true
+    }
+    
+    //Puts the nav bar in
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
+    }
+    
+    func setupImageHolders(){
         let imageTap = UITapGestureRecognizer(target: self, action: #selector(openImagePicker))
         profileImage.isUserInteractionEnabled = true
         profileImage.addGestureRecognizer(imageTap)
-        profileImage.layer.cornerRadius = profileImage.bounds.height / 2
-        profileImage.clipsToBounds = true
     }
     
     @objc func openImagePicker(_ sender:Any) {
         // Open Image Picker
-        self.present(imagePicker, animated: true, completion: nil)
+        showChooseSourceTypeAlertController()
     }
 
     override func didReceiveMemoryWarning() {
@@ -70,32 +75,36 @@ class NewKasamViewController: UIViewController {
         
         //Saves Kasam Image in Firebase Storage
         let storageRef = Storage.storage().reference().child("kasam/\(kasamID.key!)")
-        guard let image = self.profileImage.image else { return }
-        guard let imageData = image.jpegData(compressionQuality: 0.2) else { return }
+        let image = self.profileImage.image
+        let imageData = image?.jpegData(compressionQuality: 0.2)
         let metaData = StorageMetadata()
         metaData.contentType = "image/jpg"
         
-        storageRef.putData(imageData, metadata: metaData) {metaData, error in
+        if imageData != nil {
+            storageRef.putData(imageData!, metadata: metaData) {metaData, error in
             if error == nil, metaData != nil {
                 storageRef.downloadURL { url, error in
-                    registerKasamData(imageUrl: url!.absoluteString)
+                    self.registerKasamData(kasamID: kasamID, imageUrl: url!.absoluteString)
+                    }
                 }
-            } else {//error
             }
+        } else {
+            //no image added, so use the default one
+            self.registerKasamData(kasamID: kasamID, imageUrl: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e")
         }
+    }
         
-        //Function which registers Kasam Data in Firebase RT Database
-        func registerKasamData (imageUrl: String) {
-            kasamImageGlobal = imageUrl
-            let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": newGenre.text!, "Description": newKasamDescription.text!, "Timing":newTiming.text!, "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": newKasamType.text!, "Rating": newRating.text!, "Blocks": "blocks", "Level":newKasamLevel.text!, "Metric": newMetric.text!]
+    //Function which registers Kasam Data in Firebase RT Database
+    func registerKasamData (kasamID: DatabaseReference, imageUrl: String) {
+        kasamImageGlobal = imageUrl
+        let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": newGenre.text!, "Description": newKasamDescription.text!, "Timing":newTiming.text!, "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": "user", "Rating": "5", "Blocks": "blocks", "Level":newKasamLevel.text!, "Metric": newMetric.text!]
             
-            kasamID.setValue(kasamDictionary) {
-                (error, reference) in
-                if error != nil {print(error!)
-                } else {
-                    //kasam successfully created
-                    Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(self.kasamIDGlobal).setValue(self.newKasamTitle.text!)
-                }
+        kasamID.setValue(kasamDictionary) {(error, reference) in
+            if error != nil {
+                print(error!)
+            } else {
+            //kasam successfully created
+        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(self.kasamIDGlobal).setValue(self.newKasamTitle.text!)
             }
         }
         self.performSegue(withIdentifier: "goToCreateBlocks", sender: nil)
@@ -104,16 +113,32 @@ class NewKasamViewController: UIViewController {
 
 //Sets the selected image as the kasam image in create view
 extension NewKasamViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController){
-        picker.dismiss(animated: true, completion: nil)
+    func showChooseSourceTypeAlertController() {
+        let photoLibraryAction = UIAlertAction(title: "Choose a Photo", style: .default) { (action) in
+            self.showImagePickerController(sourceType: .photoLibrary)
+        }
+        let cameraAction = UIAlertAction(title: "Take a New Photo", style: .default) { (action) in
+            self.showImagePickerController(sourceType: .camera)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        AlertService.showAlert(style: .actionSheet, title: nil, message: nil, actions: [photoLibraryAction, cameraAction, cancelAction], completion: nil)
     }
     
-    private func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {        
-        
-        if let pickedImage = info[UIImagePickerController.InfoKey.originalImage.rawValue] as? UIImage {
-            self.profileImage.image = pickedImage
+    func showImagePickerController(sourceType: UIImagePickerController.SourceType) {
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        imagePickerController.allowsEditing = true
+        imagePickerController.sourceType = sourceType
+        present(imagePickerController, animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
+            self.profileImage.image = editedImage.withRenderingMode(.alwaysOriginal)
+        } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            self.profileImage.image = originalImage.withRenderingMode(.alwaysOriginal)
         }
-        picker.dismiss(animated: true, completion :nil)
+        addAnImageLabel.text = "Change Image"
+        dismiss(animated: true, completion: nil)
     }
 }

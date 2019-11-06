@@ -45,7 +45,7 @@ extension UIViewController {
         return placeholder
     }
     
-    func navBarShadow(){
+    func setupNavBar(){
         let logo = UIImage(named: "Kasam-logo7")
         let imageView = UIImageView(image:logo)
         imageView.contentMode = .scaleAspectFit
@@ -262,7 +262,6 @@ extension UIImage {
 }
 
 extension TimeInterval{
-    
     func stringFromTimeInterval() -> String {
         let time = NSInteger(self)
         let ms = Int((self.truncatingRemainder(dividingBy: 1)) * 1000)

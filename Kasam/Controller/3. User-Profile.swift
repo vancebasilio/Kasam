@@ -60,6 +60,11 @@ class ProfileViewController: UIViewController {
         getDetailedStats()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        //hides the nav bar
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
+    }
+    
     override func viewSafeAreaInsetsDidChange() {
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
         let contentViewHeight = topViewHeight.constant + bottomViewHeight.constant + 1

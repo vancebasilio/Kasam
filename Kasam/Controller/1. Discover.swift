@@ -29,7 +29,7 @@ class DiscoverViewController: UIViewController {
         super.viewDidLoad()
         getFreeKasams()
         getExpertKasams()
-        navBarShadow()
+        setupNavBar()
         DispatchQueue.main.async {
             self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
         }
