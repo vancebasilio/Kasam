@@ -53,18 +53,6 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         setupImageHolders()
     }
     
-    func updateContentTableHeight(){
-//        tableViewHeight.constant = CGFloat(70 * numberOfBlocks)
-//        let frame = self.view.safeAreaLayoutGuide.layoutFrame
-//        let contentViewHeight = tableViewHeight.constant + 380
-//        if contentViewHeight > frame.height {
-//            contentView.constant = contentViewHeight
-//        } else if contentViewHeight <= frame.height {
-//            let diff = UIScreen.main.bounds.height - contentViewHeight
-//            contentView.constant = tableViewHeight.constant + diff + 320
-//        }
-    }
-    
     func setupLoad(){
         //setup radius for kasam info block
         profileViewRadius.layer.cornerRadius = 16.0
@@ -298,7 +286,6 @@ extension NewKasamViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         numberOfBlocks = row + 1
-        self.updateContentTableHeight()
         tableView.reloadData()
     }
     
