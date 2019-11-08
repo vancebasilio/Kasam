@@ -302,6 +302,7 @@ extension NewKasamViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NewBlockCell") as! NewBlockCell
+        cell.setupFormatting()
         cell.dayNumber.text = String(indexPath.row + 1)
         cell.titleTextField.delegate = self as? UITextFieldDelegate
         cell.durationTextField.delegate = self as? UITextFieldDelegate
@@ -311,13 +312,9 @@ extension NewKasamViewController: UITableViewDataSource, UITableViewDelegate {
         cell.durationTextField.addTarget(self, action: #selector(onTextChanged(sender:)), for: UIControl.Event.editingChanged)
         return cell
     }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
-    }
-    
+        
     @objc func onTextChanged(sender: UITextField) {
-        let cell: UITableViewCell = sender.superview?.superview?.superview?.superview as! UITableViewCell
+        let cell: UITableViewCell = sender.superview?.superview?.superview?.superview?.superview?.superview as! UITableViewCell
         let table: UITableView = cell.superview as! UITableView
         let indexPath = table.indexPath(for: cell)
         let row = (indexPath?.row ?? 0) + 1
