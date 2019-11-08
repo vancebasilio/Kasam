@@ -11,9 +11,6 @@ import Firebase
 import AVKit
 import SwiftEntryKit
 
-let offset_HeaderStop:CGFloat = 140.0  // At this offset the Header stops its transformations
-let distance_W_LabelHeader:CGFloat = 30.0 // The distance between the top of the screen and the top of the White Label
-
 class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     @IBOutlet weak var tableView: UITableView! {didSet {tableView.estimatedRowHeight = 100}}
@@ -48,6 +45,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var blockURLGlobal = ""
     var startDay = ""
     
+    //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
+    let headerHeight = UIScreen.main.bounds.width * 0.568
+    
     // MARK: The view
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,8 +63,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
         tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)     //setup floating header
-        constraintHeightHeaerImages.constant = UIScreen.main.bounds.width * 0.568                             //setup floating header
-
+        constraintHeightHeaerImages.constant = headerHeight                                                   //setup floating header
+        headerLabel.text = kasamGTitle
+        
         if let navBar = self.navigationController?.navigationBar {
             extendedLayoutIncludesOpaqueBars = true
             navBar.isTranslucent = true
@@ -282,6 +283,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     // MARK: Scroll view delegate
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offset_HeaderStop:CGFloat = headerHeight - 70         // At this offset the Header stops its transformations
+        let distance_W_LabelHeader:CGFloat = 35.0                 // The distance between the top of the screen and the top of the White Label
+        
         let offset = scrollView.contentOffset.y + headerView.bounds.height
         var avatarTransform = CATransform3DIdentity
         var headerTransform = CATransform3DIdentity

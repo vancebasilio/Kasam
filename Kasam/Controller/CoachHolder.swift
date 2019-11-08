@@ -38,6 +38,10 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     var kasamIDGlobal: String = ""
     var kasamTitleGlobal: String = ""
     
+    //Twitter Parallax
+    let offset_HeaderStop:CGFloat = 140.0  // At this offset the Header stops its transformations
+    let distance_W_LabelHeader:CGFloat = 30.0 // The distance between the top of the screen and the top of the White Label
+    
     // MARK: The view
     override func viewDidLoad() {
         super.viewDidLoad()

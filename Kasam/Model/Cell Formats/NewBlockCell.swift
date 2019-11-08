@@ -15,6 +15,7 @@ class NewBlockCell: UITableViewCell {
     @IBOutlet weak var titleTextField: SkyFloatingLabelTextField!
     @IBOutlet weak var dayNumber: UILabel!
     
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

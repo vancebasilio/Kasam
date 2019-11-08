@@ -285,8 +285,12 @@ class ProfileViewController: UIViewController {
     //Stops the observer
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        self.kasamUserRef.removeObserver(withHandle: self.kasamUserRefHandle!)
-        self.kasamHistoryRef.removeObserver(withHandle: self.kasamHistoryRefHandle)
+        if kasamUserRefHandle != nil {
+            self.kasamUserRef.removeObserver(withHandle: self.kasamUserRefHandle!)
+        }
+        if kasamHistoryRefHandle != nil {
+            self.kasamHistoryRef.removeObserver(withHandle: self.kasamHistoryRefHandle)
+        }
     }
 }
 

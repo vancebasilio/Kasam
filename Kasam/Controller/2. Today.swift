@@ -8,19 +8,16 @@
 
 import UIKit
 import Foundation
-import FSCalendar
 import Firebase
 import SDWebImage
 import Lottie
 import SwiftEntryKit
 import SkeletonView
 
-class TodayBlocksViewController: UIViewController, FSCalendarDataSource, FSCalendarDelegate, UIGestureRecognizerDelegate {
+class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var todayMotivationCollectionView: UICollectionView!
-    @IBOutlet weak var calendar: FSCalendar!
-    @IBOutlet weak var calendarHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var todayCollectionHeight: NSLayoutConstraint!
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!

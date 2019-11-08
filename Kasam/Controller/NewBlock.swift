@@ -18,7 +18,6 @@ class NewBlockViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
-    var imagePicker: UIImagePickerController!
     var kasamID = ""
     var blockImage = ""
     var numberOfBlocks = 1
