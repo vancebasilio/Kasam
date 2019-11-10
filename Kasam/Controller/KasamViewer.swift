@@ -162,7 +162,6 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
 }
 
 extension KasamViewerTicker: KasamViewerCellDelegate {
-    
     func dismissViewController() {
         dismiss(animated: true, completion: nil)
     }

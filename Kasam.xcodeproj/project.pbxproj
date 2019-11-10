@@ -21,6 +21,9 @@
 		BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BC1FAF302269FAFA006A9245 /* Main.storyboard */; };
 		BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BC1FAF332269FAFA006A9245 /* Assets.xcassets */; };
 		BC1FAF372269FAFA006A9245 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BC1FAF352269FAFA006A9245 /* LaunchScreen.storyboard */; };
+		BC339E8E2376EB6D00E1D038 /* CustomSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */; };
+		BC339E902377242C00E1D038 /* LoginViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC339E8F2377242C00E1D038 /* LoginViewCell.swift */; };
+		BC339E9223772D6F00E1D038 /* RegisterViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC339E9123772D6F00E1D038 /* RegisterViewCell.swift */; };
 		BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC3AAA1F227D46BA00D098E1 /* TabBar.swift */; };
 		BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */; };
 		BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC45558C2321F6D300F1227B /* KasamViewerCell.swift */; };
@@ -83,6 +86,9 @@
 		BC1FAF332269FAFA006A9245 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BC1FAF362269FAFA006A9245 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BC1FAF382269FAFA006A9245 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedControl.swift; sourceTree = "<group>"; };
+		BC339E8F2377242C00E1D038 /* LoginViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewCell.swift; sourceTree = "<group>"; };
+		BC339E9123772D6F00E1D038 /* RegisterViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewCell.swift; sourceTree = "<group>"; };
 		BC3AAA1F227D46BA00D098E1 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
 		BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewBlockCell.swift; sourceTree = "<group>"; };
 		BC45558C2321F6D300F1227B /* KasamViewerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewerCell.swift; sourceTree = "<group>"; };
@@ -215,6 +221,8 @@
 				BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */,
 				BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */,
 				BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */,
+				BC339E8F2377242C00E1D038 /* LoginViewCell.swift */,
+				BC339E9123772D6F00E1D038 /* RegisterViewCell.swift */,
 			);
 			path = "Cell Formats";
 			sourceTree = "<group>";
@@ -235,6 +243,7 @@
 				BCE50BDF22D04A37000F2534 /* FXBlurView.h */,
 				BCE50BDE22D04A37000F2534 /* FXBlurView.m */,
 				BCE50BE322D04B26000F2534 /* Kasam-Bridging-Header.h */,
+				BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */,
 				BCADFBAD229CC5CC00A9EAFA /* Cell Formats */,
 				BC554BD9226E0F2700D707CC /* User Kasams Table */,
 			);
@@ -477,6 +486,7 @@
 				BCFCB43522AF02C900DC2DD7 /* DiscoverHCell.swift in Sources */,
 				BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */,
 				BCE50BE022D04A37000F2534 /* FXBlurView.m in Sources */,
+				BC339E8E2376EB6D00E1D038 /* CustomSegmentedControl.swift in Sources */,
 				BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */,
 				BC9C7841228CD2DB000C8D0A /* 2. Today.swift in Sources */,
 				BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */,
@@ -493,6 +503,7 @@
 				BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */,
 				BC01664522D53E970073186D /* CoachHolder.swift in Sources */,
 				BCF2A76B227F08F0009D2368 /* BlocksCell.swift in Sources */,
+				BC339E902377242C00E1D038 /* LoginViewCell.swift in Sources */,
 				BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */,
 				BC1FAF2D2269FAFA006A9245 /* AppDelegate.swift in Sources */,
 				BC68BC5F22838A8800240CE9 /* ImageService.swift in Sources */,
@@ -513,6 +524,7 @@
 				BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */,
 				BC6E7C2F2348D71400B05334 /* NewBlock.swift in Sources */,
 				BC12F1F0233FF1E900D93227 /* DetailedStatsCell.swift in Sources */,
+				BC339E9223772D6F00E1D038 /* RegisterViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
