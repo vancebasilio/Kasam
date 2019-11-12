@@ -141,6 +141,13 @@ extension UIViewController {
         return finalDate
     }
     
+    func stringToDate(date: String) -> Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let kasamDate = dateFormatter.date(from: date)
+        return kasamDate!
+    }
+    
     func dateFormat(date: Date) -> String {
         let date = date
         let formatter = DateFormatter()
@@ -164,6 +171,37 @@ extension UIViewController {
             print("There was an error converting the date")
         }
         return dateOutput
+    }
+    
+    func convertTimeAndMetric(time: Double, metric: String ) -> (Double, String) {
+        var convertedTime = time
+        var convertedMetric = metric
+        if time < 60 {
+            convertedMetric = "secs"
+        } else if time >= 60 && time < 66 {
+            convertedTime = time / 60.0
+            convertedMetric = "min"
+        } else if time >= 66 && time < 3600 {
+            convertedTime = time / 60.0
+            convertedMetric = "mins"
+        } else if time >= 3600 && time < 3636 {
+            convertedTime = time / 3600.0
+            convertedMetric = "hour"
+        } else if time >= 3636 {
+            convertedTime = time / 3600.0
+            convertedMetric = "hours"
+        }
+        return (convertedTime, convertedMetric)
+    }
+}
+
+extension Double {
+    func removeZerosFromEnd() -> String {
+        let formatter = NumberFormatter()
+        let number = NSNumber(value: self)
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 16 //maximum digits in Double after dot (maximum precision)
+        return String(formatter.string(from: number) ?? "")
     }
 }
 

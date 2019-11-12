@@ -170,11 +170,15 @@ class ProfileViewController: UIViewController {
                 var avgMetric = 0
                 self.kasamHistoryRef.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{(snapshot) in
                     checkerCount += 1
-                    self.metricDictionary[x] = 0                                        //to set the base as zero for each day
-                    if let value = snapshot.value as? [String: Any] {
-                        self.metricDictionary[x] = value["Metric Percent"] as? Double   //get the metric for each day for each kasam
-                        metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
-                        metricCount += 1
+                    self.metricDictionary[x] = 0                                      //to set the base as zero for each day
+                    
+                    //only records progress bar if the joined date is after the kasam date
+                    if self.stringToDate(date: self.dayDictionary[x]!) >= kasam.joinedDate {
+                        if let value = snapshot.value as? [String: Any] {
+                            self.metricDictionary[x] = value["Metric Percent"] as? Double   //get the metric for each day for each kasam
+                            metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
+                            metricCount += 1
+                        }
                     }
                     if checkerCount == 7 {
                         if metricCount != 0 {
@@ -319,7 +323,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
             kasamImageGlobal = detailedStats[indexPath.row].imageURL
             var avgMetric = ""
-            if detailedStats[indexPath.row].metricType == "mins"  {
+            if detailedStats[indexPath.row].metricType == "time"  {
                 if weeklyStats[indexPath.row].avgMetric < 60 {
                     avgMetric = "Avg. \(String(weeklyStats[indexPath.row].avgMetric)) secs"
                 } else if weeklyStats[indexPath.row].avgMetric > 60 && weeklyStats[indexPath.row].avgMetric < 120 {
@@ -346,10 +350,10 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             DispatchQueue.main.async {
                 cell.daysLeft.text = String(30 - self.detailedStats[indexPath.row].daysLeft) //async loading this as it takes a long time to gather
             }
-            if detailedStats[indexPath.row].metricType == "mins" && weeklyStats[indexPath.row].avgMetric < 60 {
+            if detailedStats[indexPath.row].metricType == "time" && weeklyStats[indexPath.row].avgMetric < 60 {
                 cell.averageMetric.text = String(weeklyStats[indexPath.row].avgMetric)
                 cell.averageMetricLabel.text = "Avg. secs"
-            } else if detailedStats[indexPath.row].metricType == "mins" && weeklyStats[indexPath.row].avgMetric > 60 {
+            } else if detailedStats[indexPath.row].metricType == "time" && weeklyStats[indexPath.row].avgMetric > 60 {
                 let time: Double = (Double(weeklyStats[indexPath.row].avgMetric) / 60.0).rounded(toPlaces: 2)
                 cell.averageMetric.text = String(time)
                 cell.averageMetricLabel.text = "Avg. mins"

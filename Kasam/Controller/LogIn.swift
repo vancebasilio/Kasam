@@ -68,12 +68,20 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "RegisterViewCell", for: indexPath) as! RegisterViewCell
+            cell.delegate = self
             return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: view.frame.size.width, height: collectionView.frame.size.height)
+    }
+}
+
+extension ViewController: RegisterViewCellDelegate {
+    
+    func performSegue() {
+        self.performSegue(withIdentifier: "goToMainUser", sender: self)
     }
 }
 

@@ -138,10 +138,14 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @objc func retrieveKasams() {
         self.kasamBlocks.removeAll()
+        var todayKasamCount = 0
         for kasam in self.kasamFollowingArray {
             var dayOrder = 0
             //Seeing which blocks are needed for the day
-            if Date() >= kasam.joinedDate {
+            if Date() < kasam.joinedDate {
+                todayKasamCount += 1
+            } else if Date() >= kasam.joinedDate {
+                todayKasamCount += 1
                 dayOrder = ((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
                 //Finds out which block should be called based on the day of the kasam the user is on
                 Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .value, with: { blockCountSnapshot in
@@ -160,7 +164,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: self.dayTrackerArray)
                         self.kasamBlocks.append(block)
                         self.reloadTodayKasamData()
-                        if self.kasamBlocks.count == self.kasamFollowingArray.count {
+                        if todayKasamCount == self.kasamFollowingArray.count {
                             self.getDayTracker()
                         }
                     })
@@ -211,7 +215,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                                 displayStatus = "Progress"         //kasam has been started, but not completed
                         }
                     }
-                    if self.dayTrackerArray.count == count {
+                    if self.dayTrackerArray.count == count && count > 0 {
                         self.kasamBlocks[kasamOrder].displayStatus = displayStatus
                         self.kasamBlocks[kasamOrder].dayTrackerArray = self.dayTrackerArray
                         SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)

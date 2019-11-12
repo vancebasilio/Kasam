@@ -94,35 +94,32 @@ class StatisticsViewController: UIViewController {
             for date in dateArray! {
                 self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(date).observe(.value, with:{(snapshot) in
                     if let value = snapshot.value as? [String: Any] {
-                        var metric = Int(value["Total Metric"] as? Double ?? 0.0)
+                        let metric = Int(value["Total Metric"] as? Double ?? 0.0)
+                        metricType = self.kasamMetricType
+                        var indieMetric = Double(metric)
+                        var indieMetricType = metricType
                         let text = value["Text Breakdown"] as? [Any]
                         let textField = text?[1]
                         let dayOrder = Int(value["Day Order"] as? String ?? "0")
                         self.metricArray[dayOrder!] = metric
-                        metricType = self.kasamMetricType
-                        if self.kasamMetricType == "mins" {
-                            if metric < 60 {
-                                metricType = "secs"
-                            } else if metric >= 60 && metric < 120 {
-                                metric = metric / 60
-                                metricType = "min"
-                            } else if metric >= 120 && metric < 3600 {
-                                metric = metric / 60
-                                metricType = "mins"
-                            } else if metric >= 3600 && metric < 7200 {
-                                metric = metric / 3600
-                                metricType = "hour"
-                            } else if metric >= 7200 {
-                                metric = metric / 3600
-                                metricType = "hours"
-                            }
+                        var timeAndMetric = (0.0,"")
+                        if self.kasamMetricType == "Time" {
+                            timeAndMetric = self.convertTimeAndMetric(time: Double(metric), metric: metricType)
+                            indieMetric = timeAndMetric.0
+                            indieMetricType = timeAndMetric.1
                         }
                         metricTotal += metric
-                        let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(metric) \(metricType)", text: textField as? String ?? "")
+                        let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(indieMetric.removeZerosFromEnd()) \(indieMetricType)", text: textField as? String ?? "")
                         self.kasamBlocks.append(block)
                     }
                     if self.kasamBlocks.count == dateArray?.count {
-                        self.avgMetric.text = "\(metricTotal / (dateArray?.count ?? 0)) Avg. \(metricType)"
+                        if metricType == "Reps" {
+                             self.avgMetric.text = "\(metricTotal) Total \(metricType)"
+                        } else if metricType == "Time" {
+                            let avgMetric = (metricTotal) / (dateArray?.count ?? 1)
+                            let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: metricType)
+                            self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
+                        }
                         self.historyTableView.reloadData()
                         self.setChart(values: self.metricArray)
                         self.kasamHistoryRef.child(self.kasamID).child(date).removeAllObservers()

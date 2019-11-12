@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -17,7 +16,30 @@
                     <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="dHM-ey-peh">
+                                <rect key="frame" x="15" y="170" width="345" height="239"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="kasam-logo" translatesAutoresizingMaskIntoConstraints="NO" id="Otd-fM-52Y">
+                                        <rect key="frame" x="112.5" y="0.0" width="120" height="119.5"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="120" id="PhM-s5-tEj"/>
+                                            <constraint firstAttribute="width" secondItem="Otd-fM-52Y" secondAttribute="height" multiplier="201:200" id="sAC-du-P82"/>
+                                        </constraints>
+                                    </imageView>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="kasam-dictionary" translatesAutoresizingMaskIntoConstraints="NO" id="tSP-S6-zSc">
+                                        <rect key="frame" x="0.0" y="119.5" width="345" height="119.5"/>
+                                    </imageView>
+                                </subviews>
+                            </stackView>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="dHM-ey-peh" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="15" id="Kvj-d8-xkE"/>
+                            <constraint firstItem="dHM-ey-peh" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="150" id="bRP-xa-PaT"/>
+                            <constraint firstAttribute="trailing" secondItem="dHM-ey-peh" secondAttribute="trailing" constant="15" id="jdu-H1-pgq"/>
+                            <constraint firstItem="dHM-ey-peh" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="pdX-8S-GLo"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                 </viewController>
@@ -26,4 +48,8 @@
             <point key="canvasLocation" x="53" y="375"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="kasam-dictionary" width="900" height="200"/>
+        <image name="kasam-logo" width="201" height="200"/>
+    </resources>
 </document>

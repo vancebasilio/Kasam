@@ -59,7 +59,6 @@
 		BCE50BE022D04A37000F2534 /* FXBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = BCE50BDE22D04A37000F2534 /* FXBlurView.m */; };
 		BCED0D87237285E80054E66B /* AlertService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCED0D86237285E80054E66B /* AlertService.swift */; };
 		BCED16E82283A166008DF3EC /* AddKasamPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCED16E72283A166008DF3EC /* AddKasamPopup.swift */; };
-		BCEFD539226C195F0084AFF1 /* Register.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCEFD538226C195F0084AFF1 /* Register.swift */; };
 		BCF2A76B227F08F0009D2368 /* BlocksCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF2A76A227F08F0009D2368 /* BlocksCell.swift */; };
 		BCFCB43522AF02C900DC2DD7 /* DiscoverHCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */; };
 		BCFCB43722AF04EA00DC2DD7 /* DiscoverCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */; };
@@ -126,7 +125,6 @@
 		BCE50BE322D04B26000F2534 /* Kasam-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Kasam-Bridging-Header.h"; sourceTree = "<group>"; };
 		BCED0D86237285E80054E66B /* AlertService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertService.swift; sourceTree = "<group>"; };
 		BCED16E72283A166008DF3EC /* AddKasamPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddKasamPopup.swift; sourceTree = "<group>"; };
-		BCEFD538226C195F0084AFF1 /* Register.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Register.swift; sourceTree = "<group>"; };
 		BCF2A76A227F08F0009D2368 /* BlocksCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocksCell.swift; sourceTree = "<group>"; };
 		BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverHCell.swift; sourceTree = "<group>"; };
 		BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverCategoryCell.swift; sourceTree = "<group>"; };
@@ -277,7 +275,6 @@
 				BC9C2423226FD6FF00E7B64B /* NewKasam.swift */,
 				BC6E7C2E2348D71400B05334 /* NewBlock.swift */,
 				BC1FAF2E2269FAFA006A9245 /* LogIn.swift */,
-				BCEFD538226C195F0084AFF1 /* Register.swift */,
 				BC3AAA1F227D46BA00D098E1 /* TabBar.swift */,
 			);
 			path = Controller;
@@ -514,7 +511,6 @@
 				BC08B957229D585900F90288 /* CellFormats.swift in Sources */,
 				BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */,
 				BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */,
-				BCEFD539226C195F0084AFF1 /* Register.swift in Sources */,
 				BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */,
 				BC554BD8226E079100D707CC /* 3. User-Profile.swift in Sources */,
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
