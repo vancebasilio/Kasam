@@ -105,7 +105,7 @@ class StatisticsViewController: UIViewController {
                         var timeAndMetric = (0.0,"")
                         if self.kasamMetricType == "Time" {
                             timeAndMetric = self.convertTimeAndMetric(time: Double(metric), metric: metricType)
-                            indieMetric = timeAndMetric.0
+                            indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
                             indieMetricType = timeAndMetric.1
                         }
                         metricTotal += metric

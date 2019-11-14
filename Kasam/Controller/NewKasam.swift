@@ -24,14 +24,15 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var headerClickViewHeight: NSLayoutConstraint!
     
     @IBOutlet weak var newKasamTitle: SkyFloatingLabelTextField!
-    @IBOutlet weak var newKasamLevel: SkyFloatingLabelTextField!
-    @IBOutlet weak var newMetric: SkyFloatingLabelTextField!
-    @IBOutlet weak var newGenre: SkyFloatingLabelTextField!
+    @IBOutlet weak var newKasamLevel: UIPickerView!
+    @IBOutlet weak var newMetric: UIPickerView!
+    @IBOutlet weak var newGenre: UIPickerView!
     @IBOutlet weak var newKasamDescription: SkyFloatingLabelTextField!
     @IBOutlet weak var addAnImageLabel: UILabel!
     @IBOutlet weak var createKasam: UIButton!
     @IBOutlet weak var headerClickView: UIView!
     @IBOutlet weak var newBlockPicker: UIPickerView!
+    @IBOutlet weak var blockPickerBG: UIView!
     
     var imagePicker: UIImagePickerController!
     var kasamIDGlobal = ""
@@ -39,10 +40,20 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     var headerBlurImageView:UIImageView!
     var headerImageView:UIImageView!
     
-    //PickerView Variables
+    //No of Blocks Picker Variables
     var numberOfBlocks = 1
     var transferTitle = [Int:String]()
+    var transferBlockType = [Int:String]()
     var transferDuration = [Int:String]()
+    var transferDurationMetric = [Int:String]()
+    
+    //New Kasam Picker Variables
+    let metricTypes = ["Metric", "Reps", "Time", "Combined"]
+    let kasamGenres = ["Genre", "Fitness", "Personal", "Prayer", "Meditation"]
+    let kasamLevels = ["Level", "Beginner", "Intermediate", "Expert"]
+    var chosenMetric = ""
+    var chosenGenre = ""
+    var chosenLevel = ""
     
     //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
     let headerHeight = UIScreen.main.bounds.width * 0.40
@@ -57,10 +68,12 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         //setup radius for kasam info block
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
+        blockPickerBG.layer.cornerRadius = 15
         tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)       //setup floating header
         constrainHeightHeaderImages.constant = headerHeight                                                     //setup floating header
         
-        
+        chosenMetric = metricTypes[0]
+        chosenLevel = kasamLevels[0]
         if let navBar = self.navigationController?.navigationBar {
             extendedLayoutIncludesOpaqueBars = true
             navBar.isTranslucent = true
@@ -182,15 +195,14 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToCreateBlocks" {
-            let kasamTransferHolder = segue.destination as! NewBlockViewController
-            kasamTransferHolder.kasamID = kasamIDGlobal
-            kasamTransferHolder.blockImage = kasamImageGlobal
+        if segue.identifier == "goToCreateActivites" {
+            //
         }
     }
     
     @IBAction func createKasam(_ sender: Any) {
         //Saves Kasam Text Data
+        self.view.isUserInteractionEnabled = false
         let newKasam = Database.database().reference().child("Coach-Kasams")
         let kasamID = newKasam.childByAutoId()
         kasamIDGlobal = kasamID.key ?? ""
@@ -219,7 +231,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     //Function which registers Kasam Data in Firebase RT Database
     func registerKasamData (kasamID: DatabaseReference, imageUrl: String) {
         kasamImageGlobal = imageUrl
-        let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": newGenre.text!, "Description": newKasamDescription.text!, "Timing": "6:00pm - 7:00pm", "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": "user", "Rating": "5", "Blocks": "blocks", "Level":newKasamLevel.text!, "Metric": newMetric.text!]
+        let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": chosenGenre, "Description": newKasamDescription.text!, "Timing": "6:00pm - 7:00pm", "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": "User", "Rating": "5", "Blocks": "blocks", "Level":chosenLevel, "Metric": chosenMetric]
             
         kasamID.setValue(kasamDictionary) {(error, reference) in
             if error != nil {
@@ -227,9 +239,35 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
             } else {
             //kasam successfully created
         Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(self.kasamIDGlobal).setValue(self.newKasamTitle.text!)
+            self.saveBlocks()
             }
         }
-        self.performSegue(withIdentifier: "goToCreateBlocks", sender: nil)
+    }
+    
+    func saveBlocks(){
+        self.view.endEditing(true)                  //for adding last text field value with dismiss keyboard
+        let newBlock = Database.database().reference().child("Coach-Kasams").child(kasamIDGlobal).child("Blocks")
+        for j in 1...numberOfBlocks {
+            let blockID = newBlock.childByAutoId()
+            let transferBlockDuration = "\(transferDuration[j] ?? "5") \(transferDurationMetric[j] ?? "secs")"
+            let activity = ["Description" : "",
+                            "Image" : "",
+                            "Metric" : "",
+                            "Title" : "",
+                            "Type" : transferBlockType[j]]
+            let blockDictionary = ["Activity": activity, "Duration": transferBlockDuration, "Image": kasamImageGlobal, "Order": String(j), "Rating": "5", "Title": transferTitle[j] ?? "Title", "BlockID": blockID.key!] as [String : Any]
+            
+            blockID.setValue(blockDictionary) {
+                (error, reference) in
+                if error != nil {
+                    print(error!)
+                } else {
+                    //kasam successfully created
+                    self.view.isUserInteractionEnabled = true
+                    self.dismiss(animated: true, completion: nil)
+                }
+            }
+        }
     }
 }
 
@@ -272,25 +310,64 @@ extension NewKasamViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         pickerView.subviews.forEach({$0.isHidden = $0.frame.height < 1.0})                      //removes the line above and below
-        return 30
+        if pickerView == newBlockPicker {
+            return 30
+        } else if pickerView == newMetric {
+            return metricTypes.count
+        } else if pickerView == newGenre {
+            return kasamGenres.count
+        } else {
+            return kasamLevels.count
+        }
     }
     
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         var label = UILabel()
         if let v = view as? UILabel { label = v }
-        label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
-        label.text =  String(row + 1)
-        label.textAlignment = .center
+        if pickerView == newBlockPicker {
+            label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
+            label.textAlignment = .center
+            label.text =  String(row + 1)
+        } else {
+            label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+            if row == 0 {
+                label.textColor = UIColor.lightGray
+            } else {
+                label.textColor = UIColor.black
+            }
+            if pickerView == newMetric {
+                label.textAlignment = .left
+                label.text = metricTypes[row]
+            } else if pickerView == newGenre {
+                label.text = kasamGenres[row]
+                label.textAlignment = .center
+            } else {
+                label.text = kasamLevels[row]
+                label.textAlignment = .right
+            }
+        }
         return label
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        numberOfBlocks = row + 1
-        tableView.reloadData()
+        if pickerView == newBlockPicker {
+            numberOfBlocks = row + 1
+            tableView.reloadData()
+        } else if pickerView == newMetric {
+            chosenMetric = metricTypes[row]
+        } else if pickerView == newGenre {
+            chosenGenre = kasamGenres[row]
+        } else if pickerView == newKasamLevel {
+            chosenLevel = kasamLevels[row]
+        }
     }
     
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-        return 30.0
+        if pickerView == newBlockPicker {
+            return 50.0
+        } else {
+            return 40.0
+        }
     }
 }
 
@@ -303,13 +380,12 @@ extension NewKasamViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NewBlockCell") as! NewBlockCell
         cell.setupFormatting()
+        cell.delegate = self
+        cell.blockNo = indexPath.row
         cell.dayNumber.text = String(indexPath.row + 1)
         cell.titleTextField.delegate = self as? UITextFieldDelegate
-        cell.durationTextField.delegate = self as? UITextFieldDelegate
         cell.titleTextField.tag = 1
-        cell.durationTextField.tag = 2
         cell.titleTextField.addTarget(self, action: #selector(onTextChanged(sender:)), for: UIControl.Event.editingChanged)
-        cell.durationTextField.addTarget(self, action: #selector(onTextChanged(sender:)), for: UIControl.Event.editingChanged)
         return cell
     }
         
@@ -320,11 +396,20 @@ extension NewKasamViewController: UITableViewDataSource, UITableViewDelegate {
         let row = (indexPath?.row ?? 0) + 1
         if sender.tag == 1 {
             transferTitle[row] = sender.text!
-        } else if sender.tag == 2 {
-            transferDuration[row] = sender.text!
         }
     }
+}
+
+extension NewKasamViewController: NewBlockDelegate {
+    func sendDurationTime(blockNo: Int, duration: String) {
+        transferDuration[blockNo + 1] = duration
+    }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func sendDurationMetric(blockNo: Int, metric: String) {
+        transferDurationMetric[blockNo + 1] = metric
+    }
+    
+    func sendBlockType(blockNo: Int, blockType: String) {
+        transferBlockType[blockNo + 1] = blockType
     }
 }
