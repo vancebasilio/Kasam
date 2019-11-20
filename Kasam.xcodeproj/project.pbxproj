@@ -40,6 +40,8 @@
 		BC68BC5F22838A8800240CE9 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC68BC5E22838A8800240CE9 /* ImageService.swift */; };
 		BC68BC6122838B3700240CE9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BC68BC6022838B3700240CE9 /* GoogleService-Info.plist */; };
 		BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6E97842321DF7800698EB9 /* KasamViewer.swift */; };
+		BC74AE97237DA10300676B10 /* NewActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74AE96237DA10300676B10 /* NewActivity.swift */; };
+		BC74AE99237DDCD100676B10 /* NewActivityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74AE98237DDCD100676B10 /* NewActivityCell.swift */; };
 		BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74E1F22336748E00653381 /* CountdownTimer.swift */; };
 		BC791A21234BF93600A9D25A /* TodayMotivationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */; };
 		BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */; };
@@ -103,6 +105,8 @@
 		BC68BC5E22838A8800240CE9 /* ImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		BC68BC6022838B3700240CE9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		BC6E97842321DF7800698EB9 /* KasamViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewer.swift; sourceTree = "<group>"; };
+		BC74AE96237DA10300676B10 /* NewActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewActivity.swift; sourceTree = "<group>"; };
+		BC74AE98237DDCD100676B10 /* NewActivityCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewActivityCell.swift; sourceTree = "<group>"; };
 		BC74E1F22336748E00653381 /* CountdownTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayMotivationCell.swift; sourceTree = "<group>"; };
 		BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+constraints.swift"; sourceTree = "<group>"; };
@@ -212,6 +216,7 @@
 				BC96F8462292085200E161FC /* TodayBlockCell.swift */,
 				BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */,
 				BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */,
+				BC74AE98237DDCD100676B10 /* NewActivityCell.swift */,
 				BC45558C2321F6D300F1227B /* KasamViewerCell.swift */,
 				BCF2A76A227F08F0009D2368 /* BlocksCell.swift */,
 				BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */,
@@ -271,6 +276,7 @@
 				BCE50BDC22D0497B000F2534 /* KasamHolder.swift */,
 				BC6E97842321DF7800698EB9 /* KasamViewer.swift */,
 				BC9C2423226FD6FF00E7B64B /* NewKasam.swift */,
+				BC74AE96237DA10300676B10 /* NewActivity.swift */,
 				BC1FAF2E2269FAFA006A9245 /* LogIn.swift */,
 				BC3AAA1F227D46BA00D098E1 /* TabBar.swift */,
 			);
@@ -500,6 +506,8 @@
 				BC339E902377242C00E1D038 /* LoginViewCell.swift in Sources */,
 				BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */,
 				BC1FAF2D2269FAFA006A9245 /* AppDelegate.swift in Sources */,
+				BC74AE99237DDCD100676B10 /* NewActivityCell.swift in Sources */,
+				BC74AE97237DA10300676B10 /* NewActivity.swift in Sources */,
 				BC68BC5F22838A8800240CE9 /* ImageService.swift in Sources */,
 				BC9C2424226FD6FF00E7B64B /* NewKasam.swift in Sources */,
 				BC5C499C228122BB00EC0EA8 /* KasamSquareCell.swift in Sources */,

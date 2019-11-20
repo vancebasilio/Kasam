@@ -123,6 +123,22 @@ class kasamFollowingFormat {
     }
 }
 
+class newActivityFormat {
+    var title: String
+    var description: String
+    var image: UIImage
+    var metric: Int
+    var type: String
+    
+    init(title: String, description: String, image: UIImage, metric: Int, type: String) {
+        self.title = title
+        self.description = description
+        self.image = image
+        self.metric = metric
+        self.type = type
+    }
+}
+
 class newBlockFormat {
     var duration: String?
     var title: String?

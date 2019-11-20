@@ -13,6 +13,7 @@ protocol NewBlockDelegate {
     func sendBlockType(blockNo: Int, blockType: String)
     func sendDurationTime(blockNo: Int, duration: String)
     func sendDurationMetric(blockNo: Int, metric: String)
+    func createButtonPressed(blockNo: Int, blockType: String)
 }
 
 class NewBlockCell: UITableViewCell {
@@ -24,15 +25,18 @@ class NewBlockCell: UITableViewCell {
     @IBOutlet weak var dayNumber: UILabel!
     @IBOutlet weak var shadow: UIView!
     @IBOutlet weak var contents: UIView!
+    @IBOutlet weak var createButton: UIButton!
     
     var blockNo = 1
     var delegate: NewBlockDelegate?
     var blockTypes = ["Timer", "Countdown", "Reps Counter"]
     var timeMetrics = ["secs", "mins", "hours"]
+    var blockTypeSelected = ""
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        blockTypeSelected = blockTypes[0]
         blockTypePicker.delegate = self
         blockTypePicker.dataSource = self
         durationTimePicker.delegate = self
@@ -42,6 +46,7 @@ class NewBlockCell: UITableViewCell {
     }
     
     func setupFormatting(){
+        createButton.layer.cornerRadius = createButton.frame.height / 2
         contents.layer.cornerRadius = 8.0
         contents.clipsToBounds = true
         shadow.layer.cornerRadius = 8.0
@@ -49,6 +54,10 @@ class NewBlockCell: UITableViewCell {
         shadow.layer.shadowOpacity = 0.5
         shadow.layer.shadowOffset = CGSize.zero
         shadow.layer.shadowRadius = 4
+    }
+    
+    @IBAction func createActivityButtonPressed(_ sender: Any) {
+        delegate?.createButtonPressed(blockNo: blockNo, blockType: blockTypeSelected)
     }
 }
 
@@ -58,6 +67,7 @@ extension NewBlockCell: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        pickerView.subviews.forEach({$0.isHidden = $0.frame.height < 1.0})
         if pickerView == blockTypePicker {
             return blockTypes.count
         } else if pickerView == durationMetricPicker {
@@ -73,6 +83,7 @@ extension NewBlockCell: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == blockTypePicker {
+            blockTypeSelected = blockTypes[row]
             delegate?.sendBlockType(blockNo: blockNo, blockType: blockTypes[row])
         } else if pickerView == durationMetricPicker {
             delegate?.sendDurationMetric(blockNo: blockNo, metric: timeMetrics[row])

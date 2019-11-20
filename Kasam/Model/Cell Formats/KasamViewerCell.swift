@@ -36,8 +36,10 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBOutlet weak var textField: SkyFloatingLabelTextField!
     @IBOutlet weak var maskButton: UIButton!
     @IBOutlet weak var restImageView: UIImageView!
+    
     @IBOutlet weak var topView: UIView!
     @IBOutlet weak var bottomView: UIStackView!
+    
     @IBOutlet weak var restTitle: UILabel!
     @IBOutlet weak var restDescription: UILabel!
     @IBOutlet weak var restDoneButton: UIButton!

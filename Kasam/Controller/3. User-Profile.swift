@@ -323,7 +323,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
             kasamImageGlobal = detailedStats[indexPath.row].imageURL
             var avgMetric = ""
-            if detailedStats[indexPath.row].metricType == "time"  {
+            if detailedStats[indexPath.row].metricType == "Time"  {
                 if weeklyStats[indexPath.row].avgMetric < 60 {
                     avgMetric = "Avg. \(String(weeklyStats[indexPath.row].avgMetric)) secs"
                 } else if weeklyStats[indexPath.row].avgMetric > 60 && weeklyStats[indexPath.row].avgMetric < 120 {
@@ -350,10 +350,10 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             DispatchQueue.main.async {
                 cell.daysLeft.text = String(30 - self.detailedStats[indexPath.row].daysLeft) //async loading this as it takes a long time to gather
             }
-            if detailedStats[indexPath.row].metricType == "time" && weeklyStats[indexPath.row].avgMetric < 60 {
+            if detailedStats[indexPath.row].metricType == "Time" && weeklyStats[indexPath.row].avgMetric < 60 {
                 cell.averageMetric.text = String(weeklyStats[indexPath.row].avgMetric)
                 cell.averageMetricLabel.text = "Avg. secs"
-            } else if detailedStats[indexPath.row].metricType == "time" && weeklyStats[indexPath.row].avgMetric > 60 {
+            } else if detailedStats[indexPath.row].metricType == "Time" && weeklyStats[indexPath.row].avgMetric > 60 {
                 let time: Double = (Double(weeklyStats[indexPath.row].avgMetric) / 60.0).rounded(toPlaces: 2)
                 cell.averageMetric.text = String(time)
                 cell.averageMetricLabel.text = "Avg. mins"

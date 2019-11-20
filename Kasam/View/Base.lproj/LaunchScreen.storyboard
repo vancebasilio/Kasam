@@ -17,19 +17,28 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="dHM-ey-peh">
-                                <rect key="frame" x="15" y="170" width="345" height="239"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="dHM-ey-peh">
+                                <rect key="frame" x="15" y="170" width="345" height="167.5"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="kasam-logo" translatesAutoresizingMaskIntoConstraints="NO" id="Otd-fM-52Y">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Loading-logo" translatesAutoresizingMaskIntoConstraints="NO" id="Otd-fM-52Y">
                                         <rect key="frame" x="112.5" y="0.0" width="120" height="119.5"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="120" id="PhM-s5-tEj"/>
                                             <constraint firstAttribute="width" secondItem="Otd-fM-52Y" secondAttribute="height" multiplier="201:200" id="sAC-du-P82"/>
                                         </constraints>
                                     </imageView>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="kasam-dictionary" translatesAutoresizingMaskIntoConstraints="NO" id="tSP-S6-zSc">
-                                        <rect key="frame" x="0.0" y="119.5" width="345" height="119.5"/>
-                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Kasam" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hh4-MO-UsN">
+                                        <rect key="frame" x="136" y="119.5" width="73.5" height="27.5"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="23"/>
+                                        <color key="textColor" cyan="0.0039156465791165829" magenta="0.20060010254383087" yellow="0.91399747133255005" black="0.20971381820335583" alpha="1" colorSpace="custom" customColorSpace="genericCMYKColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="A 30-day promise to yourself" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cfT-CL-HIg">
+                                        <rect key="frame" x="58.5" y="147" width="228" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                             </stackView>
                         </subviews>
@@ -49,7 +58,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="kasam-dictionary" width="900" height="200"/>
-        <image name="kasam-logo" width="201" height="200"/>
+        <image name="Loading-logo" width="300" height="300"/>
     </resources>
 </document>

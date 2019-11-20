@@ -191,7 +191,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MyKasamCell", for: indexPath) as! DiscoverHorizontalCell
-                cell.kasamTitle.text = "Create Your Kasam"
+                cell.kasamTitle.text = "Create a Kasam"
                 cell.topImage.image = UIImage(named: "placeholder-add-kasam")!
                 cell.kasamRating.rating = 5.0
                 cell.topImage.layer.cornerRadius = 8.0

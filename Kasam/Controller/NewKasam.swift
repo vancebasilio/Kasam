@@ -22,7 +22,6 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var headerLabel: UILabel!
     @IBOutlet weak var constrainHeightHeaderImages: NSLayoutConstraint!
     @IBOutlet weak var headerClickViewHeight: NSLayoutConstraint!
-    
     @IBOutlet weak var newKasamTitle: SkyFloatingLabelTextField!
     @IBOutlet weak var newKasamLevel: UIPickerView!
     @IBOutlet weak var newMetric: UIPickerView!
@@ -39,6 +38,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     var kasamImageGlobal = ""
     var headerBlurImageView:UIImageView!
     var headerImageView:UIImageView!
+    var storageRef = Storage.storage().reference()
     
     //No of Blocks Picker Variables
     var numberOfBlocks = 1
@@ -46,17 +46,22 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     var transferBlockType = [Int:String]()
     var transferDuration = [Int:String]()
     var transferDurationMetric = [Int:String]()
+    var tempBlockTypeSelected = ""
+    var tempBlockNoSelected = 1
     
     //New Kasam Picker Variables
-    let metricTypes = ["Metric", "Reps", "Time", "Combined"]
-    let kasamGenres = ["Genre", "Fitness", "Personal", "Prayer", "Meditation"]
-    let kasamLevels = ["Level", "Beginner", "Intermediate", "Expert"]
+    let metricTypes = ["Metric ↑", "Reps", "Time", "Checkmark"]
+    let kasamGenres = ["Genre ↑", "Fitness", "Personal", "Prayer", "Meditation"]
+    let kasamLevels = ["Level ↑", "Beginner", "Intermediate", "Expert"]
     var chosenMetric = ""
     var chosenGenre = ""
     var chosenLevel = ""
     
     //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
     let headerHeight = UIScreen.main.bounds.width * 0.40
+    
+    //Activity Variables
+    var fullActivityMatrix = [Int: [Int: newActivityFormat]]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -194,37 +199,39 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         super.didReceiveMemoryWarning()
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToCreateActivites" {
-            //
-        }
-    }
-    
     @IBAction func createKasam(_ sender: Any) {
         //Saves Kasam Text Data
         self.view.isUserInteractionEnabled = false
-        let newKasam = Database.database().reference().child("Coach-Kasams")
-        let kasamID = newKasam.childByAutoId()
+        let kasamID = Database.database().reference().child("Coach-Kasams").childByAutoId()
         kasamIDGlobal = kasamID.key ?? ""
         
+        saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)", completion: { uploadedImageURL in
+            if uploadedImageURL != nil {
+                self.registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
+            } else {
+                //no image added, so use the default one
+                self.registerKasamData(kasamID: kasamID, imageUrl: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e")
+            }
+        })
+    }
+    
+    func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
         //Saves Kasam Image in Firebase Storage
-        let storageRef = Storage.storage().reference().child("kasam/\(kasamID.key!)")
-        let image = self.headerImageView?.image
+        storageRef = Storage.storage().reference().child(location)
         let imageData = image?.jpegData(compressionQuality: 0.2)
         let metaData = StorageMetadata()
         metaData.contentType = "image/jpg"
         
         if imageData != nil {
-            storageRef.putData(imageData!, metadata: metaData) {metaData, error in
-            if error == nil, metaData != nil {
-                storageRef.downloadURL { url, error in
-                    self.registerKasamData(kasamID: kasamID, imageUrl: url!.absoluteString)
+            storageRef.putData(imageData!, metadata: metaData) { metaData, error in
+                if error == nil, metaData != nil {
+                    self.storageRef.downloadURL { url, error in
+                        completion(url!.absoluteString)
                     }
                 }
             }
         } else {
-            //no image added, so use the default one
-            self.registerKasamData(kasamID: kasamID, imageUrl: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e")
+            completion(nil)
         }
     }
         
@@ -250,21 +257,25 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         for j in 1...numberOfBlocks {
             let blockID = newBlock.childByAutoId()
             let transferBlockDuration = "\(transferDuration[j] ?? "5") \(transferDurationMetric[j] ?? "secs")"
-            let activity = ["Description" : "",
-                            "Image" : "",
-                            "Metric" : "",
-                            "Title" : "",
-                            "Type" : transferBlockType[j]]
-            let blockDictionary = ["Activity": activity, "Duration": transferBlockDuration, "Image": kasamImageGlobal, "Order": String(j), "Rating": "5", "Title": transferTitle[j] ?? "Title", "BlockID": blockID.key!] as [String : Any]
-            
-            blockID.setValue(blockDictionary) {
-                (error, reference) in
-                if error != nil {
-                    print(error!)
-                } else {
-                    //kasam successfully created
-                    self.view.isUserInteractionEnabled = true
-                    self.dismiss(animated: true, completion: nil)
+            let firstActivity = fullActivityMatrix[j]
+            let defaulyActivityImage = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"
+            saveImage(image: (firstActivity?[0]?.image), location: "kasam/\(kasamIDGlobal)/activity") { (savedImageURL) in
+                let activity = ["Description" : firstActivity?[0]?.description ?? "",
+                                "Image" : savedImageURL ?? defaulyActivityImage,
+                                "Metric" : firstActivity?[0]?.metric ?? 0,
+                                "Title" : firstActivity?[0]?.title ?? "",
+                                "Type" : self.transferBlockType[j] ?? ""] as [String : Any]
+                let blockDictionary = ["Activity": activity, "Duration": transferBlockDuration, "Image": self.kasamImageGlobal, "Order": String(j), "Rating": "5", "Title": self.transferTitle[j] ?? "Title", "BlockID": blockID.key!] as [String : Any]
+                
+                blockID.setValue(blockDictionary) {
+                    (error, reference) in
+                    if error != nil {
+                        print(error!)
+                    } else {
+                        //kasam successfully created
+                        self.view.isUserInteractionEnabled = true
+                        self.dismiss(animated: true, completion: nil)
+                    }
                 }
             }
         }
@@ -354,7 +365,11 @@ extension NewKasamViewController: UIPickerViewDelegate, UIPickerViewDataSource {
             numberOfBlocks = row + 1
             tableView.reloadData()
         } else if pickerView == newMetric {
-            chosenMetric = metricTypes[row]
+            if metricTypes[row] == "Checkmark" {
+                chosenMetric = "%"
+            } else {
+                chosenMetric = metricTypes[row]
+            }
         } else if pickerView == newGenre {
             chosenGenre = kasamGenres[row]
         } else if pickerView == newKasamLevel {
@@ -401,6 +416,25 @@ extension NewKasamViewController: UITableViewDataSource, UITableViewDelegate {
 }
 
 extension NewKasamViewController: NewBlockDelegate {
+    
+    func createButtonPressed(blockNo: Int, blockType: String) {
+        transferBlockType[blockNo + 1] = blockType
+        tempBlockTypeSelected = blockType
+        tempBlockNoSelected = blockNo + 1
+        self.performSegue(withIdentifier: "goToCreateActivity", sender: nil)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToCreateActivity" {
+            let kasamTransferHolder = segue.destination as! NewActivity
+            kasamTransferHolder.activityType = tempBlockTypeSelected
+            kasamTransferHolder.blockNoSelected = tempBlockNoSelected
+            kasamTransferHolder.callback = { result in
+                self.fullActivityMatrix[self.tempBlockNoSelected] = result
+            }
+        }
+    }
+    
     func sendDurationTime(blockNo: Int, duration: String) {
         transferDuration[blockNo + 1] = duration
     }
