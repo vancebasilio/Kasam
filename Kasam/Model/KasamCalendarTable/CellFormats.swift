@@ -237,13 +237,15 @@ class KasamSavedFormat {
     var joinedDate: Date
     var startTime: String
     var kasamOrder: Int
+    var status: String
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, kasamOrder: Int){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, kasamOrder: Int, status: String){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
         self.startTime = startTime
         self.kasamOrder = kasamOrder
+        self.status = status
     }
 }
 

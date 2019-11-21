@@ -23,7 +23,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
     var kasamBlocks: [TodayBlockFormat] = []
-    var kasamFollowingArray: [KasamSavedFormat] = []
+    var kasamTodayArray: [KasamSavedFormat] = []
     var motivationArray: [motivationFormat] = []
     var motivationBackground: [String] = []
     var blockURLGlobal = ""
@@ -110,11 +110,11 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func getPreferences() {
-        kasamFollowingArray.removeAll()
+        kasamTodayArray.removeAll()
         SavedData.clearKasamArray()
         kasamFollowingRef.observeSingleEvent(of: .value, with:{ (snap) in
         var kasamOrder = 0
-        let count = Int(snap.childrenCount)
+        var count = Int(snap.childrenCount)
             self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded) { (snapshot) in
                 //Get Kasams from user following + their preference for each kasam
                 if let value = snapshot.value as? [String: Any] {
@@ -122,11 +122,21 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     let kasamTitle = value["Kasam Name"] as? String ?? ""
                     let dateJoined = self.dateConverter(datein: value["Date Joined"] as? String ?? "")
                     let startTime = value["Time"] as? String ?? ""
-                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, startTime: startTime, kasamOrder: kasamOrder)
-                    self.kasamFollowingArray.append(preference)
+                    let kasamEndDate = Calendar.current.date(byAdding: .day, value: 30, to: dateJoined)!
+                    var status = "active"
+                    if Date() < dateJoined || Date() >= kasamEndDate {
+                        status = "inactive"
+                        
+                    }
+                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, startTime: startTime, kasamOrder: kasamOrder, status: status)
+                    if status == "active" {
+                        kasamOrder += 1
+                        self.kasamTodayArray.append(preference)
+                    } else {
+                        count -= 1
+                    }
                     SavedData.addKasam(kasam: preference)
-                    kasamOrder += 1
-                    if self.kasamFollowingArray.count == count {
+                    if self.kasamTodayArray.count == count {
                         self.retrieveKasams()
                         NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
                         self.kasamFollowingRef.removeObserver(withHandle: self.kasamFollowingRefHandle)
@@ -139,12 +149,12 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func retrieveKasams() {
         self.kasamBlocks.removeAll()
         var todayKasamCount = 0
-        for kasam in self.kasamFollowingArray {
+        for kasam in self.kasamTodayArray {
             var dayOrder = 0
             //Seeing which blocks are needed for the day
-            if Date() < kasam.joinedDate {
+            if kasam.status == "inactive" {
                 todayKasamCount += 1
-            } else if Date() >= kasam.joinedDate {
+            } else if kasam.status == "active" {
                 todayKasamCount += 1
                 dayOrder = ((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
                 //Finds out which block should be called based on the day of the kasam the user is on
@@ -164,7 +174,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: self.dayTrackerArray)
                         self.kasamBlocks.append(block)
                         self.reloadTodayKasamData()
-                        if todayKasamCount == self.kasamFollowingArray.count {
+                        if todayKasamCount == self.kasamTodayArray.count {
                             self.getDayTracker()
                         }
                     })
@@ -184,15 +194,16 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func getDayTracker() {
-        for kasam in SavedData.kasamArray {
+        //for the active Kasams on the Today page
+        for kasam in self.kasamTodayArray {
             let kasamOrder = kasam.kasamOrder
             let dayTrackerKasamRef = self.dayTrackerRef.child(kasam.kasamID)
             let currentDate = self.getCurrentDate()
-            var count = 0
+            var dayCount = 0
 
             //Checks if there's kasam history
             self.dayTrackerRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
-                count = Int(snap.childrenCount)
+                dayCount = Int(snap.childrenCount)
                     //Gets the DayTracker info - only goes into this loop if the user has kasam history
                     self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
                         let kasamDate = self.dateConverter(datein: snap.key)
@@ -202,7 +213,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                             self.dayTrackerDateArray.append(date)           //today kasamDay tracker
                             self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
                         } else {
-                            count -= 1
+                            dayCount -= 1
                         }
                         //Checks if user has completed Kasam for the current day
                         var displayStatus = "Checkmark"
@@ -215,7 +226,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                                 displayStatus = "Progress"         //kasam has been started, but not completed
                         }
                     }
-                    if self.dayTrackerArray.count == count && count > 0 {
+                    if self.dayTrackerArray.count == dayCount && dayCount > 0 && kasamOrder < self.kasamBlocks.count {
                         self.kasamBlocks[kasamOrder].displayStatus = displayStatus
                         self.kasamBlocks[kasamOrder].dayTrackerArray = self.dayTrackerArray
                         SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)
@@ -224,6 +235,33 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     }
                 })
             })
+        }
+        //for the inactive kasams that are completed
+        for kasam in SavedData.kasamArray {
+            if kasam.status == "inactive" {
+                let dayTrackerKasamRef = self.dayTrackerRef.child(kasam.kasamID)
+                var dayCount = 0
+                //Checks if there's kasam history
+                self.dayTrackerRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
+                    dayCount = Int(snap.childrenCount)
+                    //Gets the DayTracker info - only goes into this loop if the user has kasam history
+                    self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
+                        let kasamDate = self.dateConverter(datein: snap.key)
+                        let date = self.dateFormatter.string(from: kasamDate)
+                        if kasamDate >= kasam.joinedDate {
+                            let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
+                            self.dayTrackerDateArray.append(date)           //today kasamDay tracker
+                            self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
+                        } else {
+                            dayCount -= 1
+                        }
+                        if self.dayTrackerArray.count == dayCount && dayCount > 0 {
+                            SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)
+                            dayTrackerKasamRef.removeAllObservers()
+                        }
+                    })
+                })
+            }
         }
     }
     
@@ -272,11 +310,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func stopObserving(ref: AnyObject?, handle: DatabaseHandle?) {
         guard ref != nil else {
-            print("Not observing")
             return
         }
         ref?.removeObserver(withHandle: handle!)
-        print("Observer removed")
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -379,11 +415,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
         let block = kasamBlocks[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "CalendarKasamBlock") as! TodayBlockCell
         cell.delegate = self
-        if indexPath.row != kasamBlocks.count - 1 {
-            cell.setBlock(block: block, end: false)
-        } else {
-            cell.setBlock(block: block, end: true)
-        }
+        cell.setBlock(block: block)
         return cell
     }
     
