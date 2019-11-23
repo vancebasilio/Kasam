@@ -39,7 +39,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     let dayTrackerRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var dayTrackerRefHandle: DatabaseHandle!
     var dayTrackerArray = [Int]()
-    var dayTrackerDateArray = [String]()
+    var dayTrackerDateArray = [Int:String]()
 
     fileprivate lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -209,7 +209,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         let date = self.dateFormatter.string(from: kasamDate)
                         if kasamDate >= kasam.joinedDate {
                             let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                            self.dayTrackerDateArray.append(date)           //today kasamDay tracker
+                            self.dayTrackerDateArray[order] = date          //to save the kasam date and order
                             self.dayTrackerArray.append(order)              //places the gold dots on the right day in the today block tracker
                         } else {
                             dayCount -= 1
@@ -249,7 +249,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         let date = self.dateFormatter.string(from: kasamDate)
                         if kasamDate >= kasam.joinedDate {
                             let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                            self.dayTrackerDateArray.append(date)           //today kasamDay tracker
+                            self.dayTrackerDateArray[order] = date          //to save the kasam date and order
                             self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
                         } else {
                             dayCount -= 1
@@ -296,9 +296,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         }
                     }
                     self.kasamBlocks[kasamOrder].displayStatus = displayStatus
-                    if SavedData.dayTrackerDict[kasamID]?.last != date && displayStatus != "Checkmark" {
-                        SavedData.dayTrackerDict[kasamID]?.append(date)     //ensures that dayTracker is added only once
-                    }
+                    SavedData.dayTrackerDict[kasamID]?[dayOrder] = date
                     self.tableView.reloadData()
                     self.tableView.beginUpdates()
                     self.tableView.endUpdates()

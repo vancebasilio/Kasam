@@ -32,7 +32,6 @@ class StatisticsViewController: UIViewController {
     var kasamID = ""                    //transfered in value
     var kasamName = ""                  //transfered in value
     var kasamMetricType = ""            //transfered in value
-    var avgMetricHolder = ""            //transfered in value from UserStats
     var kasamImage: URL!                //transfered in value
     var metricArray: [Int:Int] = [:]
     var kasamBlocks: [kasamFollowingFormat] = []
@@ -92,8 +91,8 @@ class StatisticsViewController: UIViewController {
         var metricType = ""
         if dateArray?.count != nil {
             for day in 1...kasamDay {
-            for date in dateArray! {
-                self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(date).observe(.value, with:{(snapshot) in
+                if dateArray?[day] != nil {
+                    self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child((dateArray![day]!)).observe(.value, with:{(snapshot) in
                     if let value = snapshot.value as? [String: Any] {
                         let metric = Int(value["Total Metric"] as? Double ?? 0.0)
                         metricType = self.kasamMetricType
@@ -123,17 +122,20 @@ class StatisticsViewController: UIViewController {
                             let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: metricType)
                             self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
                         } else if metricType == "Checkmark" {
-                            let avgMetric = (metricTotal) / (dateArray?.count ?? 1)
+                            let avgMetric = (metricTotal) / (kasamDay)
                             self.avgMetric.text = "Avg. \(avgMetric) %"
                         }
                         self.historyTableView.reloadData()
                         self.setChart(values: self.metricArray)
-                        self.kasamHistoryRef.child(self.kasamID).child(date).removeAllObservers()
+                        self.kasamHistoryRef.child(self.kasamID).child((dateArray?[day])!).removeAllObservers()
                         self.metricArray.removeAll()
                     }
                 })
+                //adds the missing zero days to the chart where the user hasn't logged any progress
+                } else if dateArray?[day] == nil && day <= 30 {
+                    self.metricArray[day] = 0
+                }
             }
-        }
         }
     }
     

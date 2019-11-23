@@ -44,7 +44,6 @@ class ProfileViewController: UIViewController {
     var kasamTitleGlobal: String = ""
     var kasamMetricTypeGlobal: String = ""
     var kasamImageGlobal: URL!
-    var kasamAvgMetricGlobal = ""
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
     var kasamUserRefHandle: DatabaseHandle!
@@ -134,8 +133,8 @@ class ProfileViewController: UIViewController {
         for kasam in SavedData.kasamArray {
             Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
                 let snapshot = snap.value as! Dictionary<String,Any>
-                let metricType = snapshot["Metric"]! as! String
-                let imageURL = URL(string:snapshot["Image"]! as! String)
+                let metricType = snapshot["Metric"]! as! String                 //getting the image and saving it to SavedData
+                let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the metricType and saving it to SavedData
                 kasam.image = snapshot["Image"]! as! String
                 kasam.metricType = metricType
                 let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, metricType: metricType)
@@ -168,6 +167,7 @@ class ProfileViewController: UIViewController {
             var metricCount = 0
             var metricMatrix = 0
             var checkerCount = 0
+            let imageURL = URL(string:kasam.image)
             for x in 1...7 {
                 var avgMetric = 0
                 self.kasamHistoryRef.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{(snapshot) in
@@ -186,7 +186,7 @@ class ProfileViewController: UIViewController {
                         if metricCount != 0 {
                             avgMetric = (metricMatrix / metricCount)
                         }
-                        self.weeklyStats.append(weekStatsFormat(kasamTitle: kasam.kasamName, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
+                        self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
                         self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
                         self.weekStatsCollectionView.reloadData()
                     }
@@ -284,7 +284,6 @@ class ProfileViewController: UIViewController {
             kasamTransferHolder.kasamName = kasamTitleGlobal
             kasamTransferHolder.kasamMetricType = kasamMetricTypeGlobal
             kasamTransferHolder.kasamImage = kasamImageGlobal
-            kasamTransferHolder.avgMetricHolder = String(kasamAvgMetricGlobal)
         }
     }
     
@@ -320,26 +319,18 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == weekStatsCollectionView {
+            kasamTitleGlobal = weeklyStats[indexPath.row].kasamTitle
+            kasamIDGlobal = weeklyStats[indexPath.row].kasamID
+            kasamMetricTypeGlobal = weeklyStats[indexPath.row].metricType
+            kasamImageGlobal = weeklyStats[indexPath.row].imageURL
+        } else {
             kasamTitleGlobal = detailedStats[indexPath.row].kasamTitle
             kasamIDGlobal = detailedStats[indexPath.row].kasamID
             kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
             kasamImageGlobal = detailedStats[indexPath.row].imageURL
-            var avgMetric = ""
-//            if detailedStats[indexPath.row].metricType == "Time"  {
-//                if weeklyStats[indexPath.row].avgMetric < 60 {
-//                    avgMetric = "Avg. \(String(weeklyStats[indexPath.row].avgMetric)) secs"
-//                } else if weeklyStats[indexPath.row].avgMetric > 60 && weeklyStats[indexPath.row].avgMetric < 120 {
-//                    let time = Int (Double(weeklyStats[indexPath.row].avgMetric) / 60.0)
-//                    avgMetric = "Avg. \(String(time)) min"
-//                } else if weeklyStats[indexPath.row].avgMetric > 120 {
-//                    let time = Int (Double(weeklyStats[indexPath.row].avgMetric) / 60.0)
-//                    avgMetric = "Avg. \(String(time)) mins"
-//                }
-//            } else {
-//                avgMetric = "Avg. \(String(weeklyStats[indexPath.row].avgMetric)) \(detailedStats[indexPath.row].metricType)"
-//            }
-            kasamAvgMetricGlobal = avgMetric
-            self.performSegue(withIdentifier: "goToStats", sender: indexPath)
+        }
+        self.performSegue(withIdentifier: "goToStats", sender: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

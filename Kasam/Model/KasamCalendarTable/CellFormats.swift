@@ -56,19 +56,23 @@ class expertKasamFormat {
 }
 
 class weekStatsFormat {
-    var metricDictionary = [Int:Double]()
+    var kasamID: String
     var kasamTitle: String
+    var imageURL: URL
     var daysLeft: Int
     var metricType: String
     var avgMetric: Int
+    var metricDictionary = [Int:Double]()
     var order: Int
     
-    init(kasamTitle: String, daysLeft: Int, metricType: String, metricDictionary: [Int: Double], avgMetric: Int, order: Int){
-        self.metricDictionary = metricDictionary
+    init(kasamID: String, kasamTitle: String, imageURL: URL, daysLeft: Int, metricType: String, metricDictionary: [Int: Double], avgMetric: Int, order: Int){
+        self.kasamID = kasamID
         self.kasamTitle = kasamTitle
+        self.imageURL = imageURL
         self.daysLeft = daysLeft
         self.metricType = metricType
         self.avgMetric = avgMetric
+        self.metricDictionary = metricDictionary
         self.order = order
     }
 }
