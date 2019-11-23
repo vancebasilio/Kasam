@@ -9,6 +9,7 @@
 import Foundation
 
 struct SavedData {
+    static var kasamTodayArray: [KasamSavedFormat] = []
     static var kasamArray: [KasamSavedFormat] = []
     static var kasamDict: [String:KasamSavedFormat] = [:]
     static var dayTrackerArray: [String] = []

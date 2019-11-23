@@ -57,11 +57,17 @@ class expertKasamFormat {
 
 class weekStatsFormat {
     var metricDictionary = [Int:Double]()
+    var kasamTitle: String
+    var daysLeft: Int
+    var metricType: String
     var avgMetric: Int
     var order: Int
     
-    init(metricDictionary: [Int: Double], avgMetric: Int, order: Int){
+    init(kasamTitle: String, daysLeft: Int, metricType: String, metricDictionary: [Int: Double], avgMetric: Int, order: Int){
         self.metricDictionary = metricDictionary
+        self.kasamTitle = kasamTitle
+        self.daysLeft = daysLeft
+        self.metricType = metricType
         self.avgMetric = avgMetric
         self.order = order
     }
@@ -237,14 +243,18 @@ class KasamSavedFormat {
     var joinedDate: Date
     var startTime: String
     var kasamOrder: Int
+    var image: String
+    var metricType: String
     var status: String
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, kasamOrder: Int, status: String){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, kasamOrder: Int, image: String?, metricType: String?, status: String){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
         self.startTime = startTime
         self.kasamOrder = kasamOrder
+        self.image = image ?? ""
+        self.metricType = metricType ?? ""
         self.status = status
     }
 }
@@ -254,13 +264,11 @@ class UserStatsFormat {
     var kasamTitle: String
     var imageURL: URL
     var metricType: String
-    var daysLeft: Int
     
-    init(kasamID: String, kasamTitle: String, imageURL: URL, metricType: String, daysLeft: Int){
+    init(kasamID: String, kasamTitle: String, imageURL: URL, metricType: String){
         self.kasamID = kasamID
         self.kasamTitle = kasamTitle
         self.imageURL = imageURL
         self.metricType = metricType
-        self.daysLeft = daysLeft
     }
 }

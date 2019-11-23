@@ -136,8 +136,9 @@ class ProfileViewController: UIViewController {
                 let snapshot = snap.value as! Dictionary<String,Any>
                 let metricType = snapshot["Metric"]! as! String
                 let imageURL = URL(string:snapshot["Image"]! as! String)
-                let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
-                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, metricType: metricType, daysLeft: daysPast)
+                kasam.image = snapshot["Image"]! as! String
+                kasam.metricType = metricType
+                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, metricType: metricType)
                 self.detailedStats.append(userStats)
                 self.detailedStatsCollectionView.reloadData()
                 if self.detailedStats.count == SavedData.kasamArray.count {
@@ -162,7 +163,8 @@ class ProfileViewController: UIViewController {
     func getWeeklyStats() {
         weeklyStats.removeAll()
         metricDictionary.removeAll()
-        for kasam in SavedData.kasamArray {
+        for kasam in SavedData.kasamTodayArray {
+            let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
             var metricCount = 0
             var metricMatrix = 0
             var checkerCount = 0
@@ -184,7 +186,7 @@ class ProfileViewController: UIViewController {
                         if metricCount != 0 {
                             avgMetric = (metricMatrix / metricCount)
                         }
-                        self.weeklyStats.append(weekStatsFormat(metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
+                        self.weeklyStats.append(weekStatsFormat(kasamTitle: kasam.kasamName, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
                         self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
                         self.weekStatsCollectionView.reloadData()
                     }
@@ -323,19 +325,19 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
             kasamImageGlobal = detailedStats[indexPath.row].imageURL
             var avgMetric = ""
-            if detailedStats[indexPath.row].metricType == "Time"  {
-                if weeklyStats[indexPath.row].avgMetric < 60 {
-                    avgMetric = "Avg. \(String(weeklyStats[indexPath.row].avgMetric)) secs"
-                } else if weeklyStats[indexPath.row].avgMetric > 60 && weeklyStats[indexPath.row].avgMetric < 120 {
-                    let time = Int (Double(weeklyStats[indexPath.row].avgMetric) / 60.0)
-                    avgMetric = "Avg. \(String(time)) min"
-                } else if weeklyStats[indexPath.row].avgMetric > 120 {
-                    let time = Int (Double(weeklyStats[indexPath.row].avgMetric) / 60.0)
-                    avgMetric = "Avg. \(String(time)) mins"
-                }
-            } else {
-                avgMetric = "Avg. \(String(weeklyStats[indexPath.row].avgMetric)) \(detailedStats[indexPath.row].metricType)"
-            }
+//            if detailedStats[indexPath.row].metricType == "Time"  {
+//                if weeklyStats[indexPath.row].avgMetric < 60 {
+//                    avgMetric = "Avg. \(String(weeklyStats[indexPath.row].avgMetric)) secs"
+//                } else if weeklyStats[indexPath.row].avgMetric > 60 && weeklyStats[indexPath.row].avgMetric < 120 {
+//                    let time = Int (Double(weeklyStats[indexPath.row].avgMetric) / 60.0)
+//                    avgMetric = "Avg. \(String(time)) min"
+//                } else if weeklyStats[indexPath.row].avgMetric > 120 {
+//                    let time = Int (Double(weeklyStats[indexPath.row].avgMetric) / 60.0)
+//                    avgMetric = "Avg. \(String(time)) mins"
+//                }
+//            } else {
+//                avgMetric = "Avg. \(String(weeklyStats[indexPath.row].avgMetric)) \(detailedStats[indexPath.row].metricType)"
+//            }
             kasamAvgMetricGlobal = avgMetric
             self.performSegue(withIdentifier: "goToStats", sender: indexPath)
     }
@@ -346,20 +348,23 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
             cell.height = challoStatsHeight.constant
             cell.setBlock(cell: stat)
-            cell.kasamTitle.text = detailedStats[indexPath.row].kasamTitle
+            cell.kasamTitle.text = weeklyStats[indexPath.row].kasamTitle
             DispatchQueue.main.async {
-                cell.daysLeft.text = String(30 - self.detailedStats[indexPath.row].daysLeft) //async loading this as it takes a long time to gather
+                cell.daysLeft.text = String(30 - self.weeklyStats[indexPath.row].daysLeft) //async loading this as it takes a long time to gather
             }
-            if detailedStats[indexPath.row].metricType == "Time" && weeklyStats[indexPath.row].avgMetric < 60 {
+            if weeklyStats[indexPath.row].metricType == "Time" && weeklyStats[indexPath.row].avgMetric < 60 {
                 cell.averageMetric.text = String(weeklyStats[indexPath.row].avgMetric)
                 cell.averageMetricLabel.text = "Avg. secs"
-            } else if detailedStats[indexPath.row].metricType == "Time" && weeklyStats[indexPath.row].avgMetric > 60 {
+            } else if weeklyStats[indexPath.row].metricType == "Time" && weeklyStats[indexPath.row].avgMetric > 60 {
                 let time: Double = (Double(weeklyStats[indexPath.row].avgMetric) / 60.0).rounded(toPlaces: 2)
                 cell.averageMetric.text = String(time)
                 cell.averageMetricLabel.text = "Avg. mins"
-            } else {
+            } else if weeklyStats[indexPath.row].metricType == "Reps" {
                 cell.averageMetric.text = String(weeklyStats[indexPath.row].avgMetric)
-                cell.averageMetricLabel.text = "Avg. \(detailedStats[indexPath.row].metricType)"
+                cell.averageMetricLabel.text = "Avg. \(weeklyStats[indexPath.row].metricType)"
+            } else if weeklyStats[indexPath.row].metricType == "Checkmark" {
+                cell.averageMetric.text = String(weeklyStats[indexPath.row].avgMetric)
+                cell.averageMetricLabel.text = "Avg. %"
             }
             return cell
         } else {

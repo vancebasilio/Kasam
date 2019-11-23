@@ -85,12 +85,13 @@ class StatisticsViewController: UIViewController {
     @objc func getKasamStats(){
         self.kasamBlocks.removeAll()
         let dateArray = SavedData.dayTrackerDict[kasamID]
-        let daysLeft = SavedData.kasamDict[kasamID]?.joinedDate
-        let dayOrder = String((Calendar.current.dateComponents([.day], from: daysLeft!, to: Date()).day!) + 1)
-        self.dayNoValue.text = "Day \(dayOrder)"
+        let joinDate = SavedData.kasamDict[kasamID]?.joinedDate
+        let kasamDay = ((Calendar.current.dateComponents([.day], from: joinDate!, to: Date()).day!) + 1)
+        self.dayNoValue.text = "Day \(kasamDay)"
         var metricTotal = 0
         var metricType = ""
         if dateArray?.count != nil {
+            for day in 1...kasamDay {
             for date in dateArray! {
                 self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(date).observe(.value, with:{(snapshot) in
                     if let value = snapshot.value as? [String: Any] {
@@ -107,6 +108,8 @@ class StatisticsViewController: UIViewController {
                             timeAndMetric = self.convertTimeAndMetric(time: Double(metric), metric: metricType)
                             indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
                             indieMetricType = timeAndMetric.1
+                        } else if self.kasamMetricType == "Checkmark" {
+                            indieMetricType = "%"
                         }
                         metricTotal += metric
                         let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(indieMetric.removeZerosFromEnd()) \(indieMetricType)", text: textField as? String ?? "")
@@ -119,6 +122,9 @@ class StatisticsViewController: UIViewController {
                             let avgMetric = (metricTotal) / (dateArray?.count ?? 1)
                             let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: metricType)
                             self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
+                        } else if metricType == "Checkmark" {
+                            let avgMetric = (metricTotal) / (dateArray?.count ?? 1)
+                            self.avgMetric.text = "Avg. \(avgMetric) %"
                         }
                         self.historyTableView.reloadData()
                         self.setChart(values: self.metricArray)
@@ -127,6 +133,7 @@ class StatisticsViewController: UIViewController {
                     }
                 })
             }
+        }
         }
     }
     

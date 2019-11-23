@@ -46,14 +46,13 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     var transferBlockType = [Int:String]()
     var transferDuration = [Int:String]()
     var transferDurationMetric = [Int:String]()
-    var tempBlockTypeSelected = ""
     var tempBlockNoSelected = 1
     
     //New Kasam Picker Variables
     let metricTypes = ["Metric ↑", "Reps", "Time", "Checkmark"]
     let kasamGenres = ["Genre ↑", "Fitness", "Personal", "Prayer", "Meditation"]
     let kasamLevels = ["Level ↑", "Beginner", "Intermediate", "Expert"]
-    var chosenMetric = ""
+    var chosenMetric = "Reps Counter"
     var chosenGenre = ""
     var chosenLevel = ""
     
@@ -76,8 +75,6 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         blockPickerBG.layer.cornerRadius = 15
         tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)       //setup floating header
         constrainHeightHeaderImages.constant = headerHeight                                                     //setup floating header
-        
-        chosenMetric = metricTypes[0]
         chosenLevel = kasamLevels[0]
         if let navBar = self.navigationController?.navigationBar {
             extendedLayoutIncludesOpaqueBars = true
@@ -365,10 +362,11 @@ extension NewKasamViewController: UIPickerViewDelegate, UIPickerViewDataSource {
             numberOfBlocks = row + 1
             tableView.reloadData()
         } else if pickerView == newMetric {
-            if metricTypes[row] == "Checkmark" {
-                chosenMetric = "%"
-            } else {
-                chosenMetric = metricTypes[row]
+            switch metricTypes[row] {
+                case "Reps" : chosenMetric = "Reps Counter"
+                case "Time" : chosenMetric = "Timer"
+                case "Checkmark" : chosenMetric = "Checkmark"
+                default: chosenMetric = "Reps Counter"
             }
         } else if pickerView == newGenre {
             chosenGenre = kasamGenres[row]
@@ -417,9 +415,8 @@ extension NewKasamViewController: UITableViewDataSource, UITableViewDelegate {
 
 extension NewKasamViewController: NewBlockDelegate {
     
-    func createButtonPressed(blockNo: Int, blockType: String) {
-        transferBlockType[blockNo + 1] = blockType
-        tempBlockTypeSelected = blockType
+    func createButtonPressed(blockNo: Int) {
+        transferBlockType[blockNo + 1] = chosenMetric
         tempBlockNoSelected = blockNo + 1
         self.performSegue(withIdentifier: "goToCreateActivity", sender: nil)
     }
@@ -427,7 +424,7 @@ extension NewKasamViewController: NewBlockDelegate {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToCreateActivity" {
             let kasamTransferHolder = segue.destination as! NewActivity
-            kasamTransferHolder.activityType = tempBlockTypeSelected
+            kasamTransferHolder.activityType = chosenMetric
             kasamTransferHolder.blockNoSelected = tempBlockNoSelected
             kasamTransferHolder.callback = { result in
                 self.fullActivityMatrix[self.tempBlockNoSelected] = result

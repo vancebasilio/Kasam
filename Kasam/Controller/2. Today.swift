@@ -23,7 +23,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
     var kasamBlocks: [TodayBlockFormat] = []
-    var kasamTodayArray: [KasamSavedFormat] = []
     var motivationArray: [motivationFormat] = []
     var motivationBackground: [String] = []
     var blockURLGlobal = ""
@@ -110,7 +109,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func getPreferences() {
-        kasamTodayArray.removeAll()
+        SavedData.kasamTodayArray.removeAll()
         SavedData.clearKasamArray()
         kasamFollowingRef.observeSingleEvent(of: .value, with:{ (snap) in
         var kasamOrder = 0
@@ -128,15 +127,15 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         status = "inactive"
                         
                     }
-                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, startTime: startTime, kasamOrder: kasamOrder, status: status)
+                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, startTime: startTime, kasamOrder: kasamOrder, image: nil, metricType: nil, status: status)
                     if status == "active" {
                         kasamOrder += 1
-                        self.kasamTodayArray.append(preference)
+                        SavedData.kasamTodayArray.append(preference)
                     } else {
                         count -= 1
                     }
                     SavedData.addKasam(kasam: preference)
-                    if self.kasamTodayArray.count == count {
+                    if SavedData.kasamTodayArray.count == count {
                         self.retrieveKasams()
                         NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
                         self.kasamFollowingRef.removeObserver(withHandle: self.kasamFollowingRefHandle)
@@ -149,7 +148,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func retrieveKasams() {
         self.kasamBlocks.removeAll()
         var todayKasamCount = 0
-        for kasam in self.kasamTodayArray {
+        for kasam in SavedData.kasamTodayArray {
             var dayOrder = 0
             //Seeing which blocks are needed for the day
             if kasam.status == "inactive" {
@@ -174,7 +173,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: self.dayTrackerArray)
                         self.kasamBlocks.append(block)
                         self.reloadTodayKasamData()
-                        if todayKasamCount == self.kasamTodayArray.count {
+                        if todayKasamCount == SavedData.kasamTodayArray.count {
                             self.getDayTracker()
                         }
                     })
@@ -195,7 +194,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func getDayTracker() {
         //for the active Kasams on the Today page
-        for kasam in self.kasamTodayArray {
+        for kasam in SavedData.kasamTodayArray {
             let kasamOrder = kasam.kasamOrder
             let dayTrackerKasamRef = self.dayTrackerRef.child(kasam.kasamID)
             let currentDate = self.getCurrentDate()
@@ -211,7 +210,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         if kasamDate >= kasam.joinedDate {
                             let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
                             self.dayTrackerDateArray.append(date)           //today kasamDay tracker
-                            self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
+                            self.dayTrackerArray.append(order)              //places the gold dots on the right day in the today block tracker
                         } else {
                             dayCount -= 1
                         }
