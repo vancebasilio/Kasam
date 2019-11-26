@@ -31,6 +31,7 @@ class NewBlockCell: UITableViewCell {
     var delegate: NewBlockDelegate?
 //    var blockTypes = ["Timer", "Countdown", "Reps Counter"]
     var timeMetrics = ["secs", "mins", "hours"]
+    
     var blockTypeSelected = ""
     
     override func awakeFromNib() {

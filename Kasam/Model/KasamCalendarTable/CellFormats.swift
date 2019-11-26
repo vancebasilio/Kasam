@@ -137,15 +137,19 @@ class newActivityFormat {
     var title: String
     var description: String
     var image: UIImage
-    var metric: Int
-    var type: String
+    var reps: Int?
+    var hour: Int?
+    var min: Int?
+    var sec: Int?
     
-    init(title: String, description: String, image: UIImage, metric: Int, type: String) {
+    init(title: String, description: String, image: UIImage, reps: Int?, hour: Int?, min: Int?, sec: Int?) {
         self.title = title
         self.description = description
         self.image = image
-        self.metric = metric
-        self.type = type
+        self.reps = reps
+        self.hour = hour
+        self.min = min
+        self.sec = sec
     }
 }
 

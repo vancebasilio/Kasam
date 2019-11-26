@@ -227,9 +227,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
                     }
                 }
             }
-        } else {
-            completion(nil)
-        }
+        } else {completion(nil)}
     }
         
     //Function which registers Kasam Data in Firebase RT Database
@@ -254,13 +252,24 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         for j in 1...numberOfBlocks {
             let blockID = newBlock.childByAutoId()
             let transferBlockDuration = "\(transferDuration[j] ?? "5") \(transferDurationMetric[j] ?? "secs")"
-            let firstActivity = fullActivityMatrix[j]
+            let blockActivity = fullActivityMatrix[j]
+            var metric = 0
+            switch chosenMetric {
+                case "Reps Counter": metric = blockActivity?[0]?.reps ?? 0          //using 0 as only one activity loaded per block
+                case "Timer": do {
+                    let hour = (blockActivity?[0]?.hour ?? 0) * 3600
+                    let min = (blockActivity?[0]?.min ?? 0) * 60
+                    let sec = (blockActivity?[0]?.sec) ?? 0
+                    metric = hour + min + sec
+                }
+                default: metric = 0
+            }
             let defaulyActivityImage = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"
-            saveImage(image: (firstActivity?[0]?.image), location: "kasam/\(kasamIDGlobal)/activity") { (savedImageURL) in
-                let activity = ["Description" : firstActivity?[0]?.description ?? "",
+            saveImage(image: (blockActivity?[0]?.image), location: "kasam/\(kasamIDGlobal)/activity") { (savedImageURL) in
+                let activity = ["Description" : blockActivity?[0]?.description ?? "",
                                 "Image" : savedImageURL ?? defaulyActivityImage,
-                                "Metric" : firstActivity?[0]?.metric ?? 0,
-                                "Title" : firstActivity?[0]?.title ?? "",
+                                "Metric" : metric,
+                                "Title" : blockActivity?[0]?.title ?? "",
                                 "Type" : self.transferBlockType[j] ?? ""] as [String : Any]
                 let blockDictionary = ["Activity": activity, "Duration": transferBlockDuration, "Image": self.kasamImageGlobal, "Order": String(j), "Rating": "5", "Title": self.transferTitle[j] ?? "Title", "BlockID": blockID.key!] as [String : Any]
                 
@@ -426,6 +435,7 @@ extension NewKasamViewController: NewBlockDelegate {
             let kasamTransferHolder = segue.destination as! NewActivity
             kasamTransferHolder.activityType = chosenMetric
             kasamTransferHolder.blockNoSelected = tempBlockNoSelected
+            kasamTransferHolder.pastEntry = fullActivityMatrix[tempBlockNoSelected]             //if there's a past entry, it'll load it in
             kasamTransferHolder.callback = { result in
                 self.fullActivityMatrix[self.tempBlockNoSelected] = result
             }

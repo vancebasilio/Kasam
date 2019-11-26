@@ -10,7 +10,7 @@ import UIKit
 import Firebase
 import SwiftIcons
 
-class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, NewActivityCellDelegate {
     
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var closeButton: UIButton!
@@ -19,8 +19,9 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     var imagePicked = UIImage(named:"placeholder-add-activity2")
     var activityBlocks: [KasamActivityCellFormat] = []
     var registerNewActivity: [Int:newActivityFormat] = [:]
-    var activityType = "Picker"
+    var activityType = "Reps Counter"
     var blockNoSelected = 1
+    var pastEntry: [Int:newActivityFormat]? = [:]
     var callback : (([Int: newActivityFormat])->())?
     
     override func viewDidLoad() {
@@ -49,8 +50,8 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
         navigationController?.popViewController(animated: true)
     }
     
-    func saveActivityData(activityNo: Int, title: String, description: String, image: UIImage, metric: Int){
-        registerNewActivity[activityNo] = newActivityFormat(title: title, description: description, image: image, metric: metric, type: activityType)
+    func saveActivityData(activityNo: Int, title: String, description: String, image: UIImage, reps: Int?, hour: Int?, min: Int?, sec: Int?) {
+        registerNewActivity[activityNo] = newActivityFormat(title: title, description: description, image: image, reps: reps, hour: hour, min: min, sec: sec)
         callback?(registerNewActivity)
         _ = navigationController?.popViewController(animated: true)
     }
@@ -87,7 +88,8 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
 }
 
 
-extension NewActivity: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, NewActivityCellDelegate {
+extension NewActivity: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 1
     }
@@ -97,29 +99,20 @@ extension NewActivity: UICollectionViewDelegate, UICollectionViewDataSource, UIC
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-//        let activity = activityBlocks[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NewActivityCell", for: indexPath) as! NewActivityCell
         cell.activityNo = indexPath.row
         cell.animatedImageView.image = imagePicked
         cell.delegate = self
+        let entryTransfer = pastEntry?[0]
+        cell.setKasamViewer(title: entryTransfer?.title, description: entryTransfer?.description, image: entryTransfer?.image)
         if activityType == "Reps Counter" {
-            cell.setKasamViewer()
-            cell.setupPicker()
-        } else if activityType == "Countdown" {
-//            cell.setKasamViewer(activity: activity)
- 
+            cell.setupPicker(reps: entryTransfer?.reps)
         } else if activityType == "Timer" {
-//            cell.setKasamViewer(activity: activity)
-    
+            cell.setupTimer(hour: entryTransfer?.hour, min: entryTransfer?.min, sec: entryTransfer?.sec)
         } else if activityType == "Checkmark" {
-//            cell.setKasamViewer(activity: activity)
-            cell.textField.isHidden = false
-        } else if activityType == "CheckmarkText" {
-//            cell.setKasamViewer(activity: activity)
-            cell.textField.isHidden = false
-        }
-        else if activityType == "Rest" {
-//            cell.setupRest(activity: activity)
+            cell.setupCheckmark()
+        } else if activityType == "Rest" {
+            cell.setupRest()
         }
         return cell
     }
