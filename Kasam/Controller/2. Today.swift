@@ -59,7 +59,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTableAndHeader()
-        setupNavBar()
+        setupNavBar()                   //global function
         getPreferences()
         getMotivationBackgrounds()
         getMotivations()
@@ -83,7 +83,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func updateContentTableHeight(){
-        tableViewHeight.constant = tableView.contentSize.height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
         let contentViewHeight = tableViewHeight.constant + 210 + 25         //25 is the additional space from the bottom
         if contentViewHeight > frame.height {
@@ -93,12 +92,21 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
             contentView.constant = contentViewHeight + diff + 1
         }
     }
+    
+    //Table Resizing----------------------------------------------------------------------------------------
+    override func viewDidLayoutSubviews(){
+        tableView.frame = CGRect(x: tableView.frame.origin.x, y: tableView.frame.origin.y, width: tableView.frame.size.width, height: tableView.contentSize.height)
+        self.tableViewHeight.constant = self.tableView.contentSize.height
+        tableView.reloadData()
+    }
 
     func setupTableAndHeader(){
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 150
         tableView.reloadData()
     }
+    
+    //-------------------------------------------------------------------------------------------------------
 
     deinit {
         print("\(#function)")
@@ -122,11 +130,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     let dateJoined = self.dateConverter(datein: value["Date Joined"] as? String ?? "")
                     let startTime = value["Time"] as? String ?? ""
                     let kasamEndDate = Calendar.current.date(byAdding: .day, value: 30, to: dateJoined)!
-                    var status = "active"
-                    if Date() < dateJoined || Date() >= kasamEndDate {
-                        status = "inactive"
-                        
-                    }
+                        var status = "active"
+                        if Date() < dateJoined {status = "inactive"}
+                        if Date() >= kasamEndDate {status = "completed"}
                     let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, startTime: startTime, kasamOrder: kasamOrder, image: nil, metricType: nil, status: status)
                     if status == "active" {
                         kasamOrder += 1
@@ -151,7 +157,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         for kasam in SavedData.kasamTodayArray {
             var dayOrder = 0
             //Seeing which blocks are needed for the day
-            if kasam.status == "inactive" {
+            if kasam.status == "inactive" || kasam.status == "completed" {
                 todayKasamCount += 1
             } else if kasam.status == "active" {
                 todayKasamCount += 1
@@ -330,7 +336,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         animationView.loopMode = .loop
     }
     
-    //MOTIVATIONS---------------------------------------------------------------------------------------------------------------------
+    //MOTIVATIONS----------------------------------------------------------------------------------------
     
     func getMotivations(){
         motivationArray.removeAll()
@@ -410,14 +416,14 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let block = kasamBlocks[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CalendarKasamBlock") as! TodayBlockCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as! TodayBlockCell
         cell.delegate = self
         cell.setBlock(block: block)
         return cell
     }
     
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
-        return "CalendarKasamBlock"
+        return "TodayKasamCell"
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

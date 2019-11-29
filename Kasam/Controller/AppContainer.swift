@@ -15,6 +15,5 @@ class AppContainer: UIViewController {
 
         AppManager.shared.appContainer = self
         AppManager.shared.showApp()
-        
     }
 }

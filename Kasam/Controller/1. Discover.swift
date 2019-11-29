@@ -52,12 +52,12 @@ class DiscoverViewController: UIViewController {
         }
     }
     
-    override func viewSafeAreaInsetsDidChange() {
+   override func viewDidLayoutSubviews(){
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let popularHeightValue = popularHeight.constant + 49                //the 49 and 61 are the title heights
         let expertHeightValue = expertHeight.constant + 61
+        let popularHeightValue = popularHeight.constant + 49                //the 49 and 61 are the title heights
         let myKasamHeightValue = myKasamHeight.constant + 49
-        contentView.constant =  popularHeightValue + expertHeightValue + myKasamHeightValue + 40
+        contentView.constant =  popularHeightValue + expertHeightValue + myKasamHeightValue + 15    //15 is the additional space from the bottom
         let contentViewHeight = contentView.constant + 1
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight

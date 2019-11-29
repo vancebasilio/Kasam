@@ -70,6 +70,8 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     
     func setupLoad(){
         //setup radius for kasam info block
+        createKasam.layer.cornerRadius = 20.0
+        createKasam.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.magic), iconColor: UIColor.white, postfixText: "  Create Kasam", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 15)
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
         blockPickerBG.layer.cornerRadius = 15
@@ -174,7 +176,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         }
         // Apply Transformations
         headerView.layer.transform = headerTransform
-        createKasam.layer.transform = avatarTransform
+//        createKasam.layer.transform = avatarTransform
     }
     
     //Puts the nav bar in
@@ -198,18 +200,30 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     
     @IBAction func createKasam(_ sender: Any) {
         //Saves Kasam Text Data
-        self.view.isUserInteractionEnabled = false
-        let kasamID = Database.database().reference().child("Coach-Kasams").childByAutoId()
-        kasamIDGlobal = kasamID.key ?? ""
-        
-        saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)", completion: { uploadedImageURL in
-            if uploadedImageURL != nil {
-                self.registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
-            } else {
-                //no image added, so use the default one
-                self.registerKasamData(kasamID: kasamID, imageUrl: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e")
-            }
-        })
+        if newKasamTitle.text == "" || newKasamDescription.text == "" || newMetric.selectedRow(inComponent: 0) == 0 || newGenre.selectedRow(inComponent: 0) == 0 {
+            var missingFields: [String] = []
+            if newKasamTitle.text == "" {missingFields.append("Title")}
+            if newKasamDescription.text == "" {missingFields.append("Description")}
+            if newMetric.selectedRow(inComponent: 0) == 0 {missingFields.append("Metric")}
+            if newGenre.selectedRow(inComponent: 0) == 0 {missingFields.append("Genre")}
+            if newKasamLevel.selectedRow(inComponent: 0) == 0 {missingFields.append("Level")}
+            let missingFieldString = missingFields.joined(separator: ", ")
+            let description = "Please fill out the Kasam \(missingFieldString)"
+            floatCellSelected(title: "Missing Fields", description: description)
+        } else {
+            self.view.isUserInteractionEnabled = false
+            let kasamID = Database.database().reference().child("Coach-Kasams").childByAutoId()
+            kasamIDGlobal = kasamID.key ?? ""
+            
+            saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)", completion: { uploadedImageURL in
+                if uploadedImageURL != nil {
+                    self.registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
+                } else {
+                    //no image added, so use the default one
+                    self.registerKasamData(kasamID: kasamID, imageUrl: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e")
+                }
+            })
+        }
     }
     
     func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {

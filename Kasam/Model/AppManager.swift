@@ -20,13 +20,12 @@ class AppManager {
     
     func showApp() {
         var viewController: UIViewController
-        
         if Auth.auth().currentUser == nil {
             viewController = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
         } else {
             viewController = storyboard.instantiateViewController(withIdentifier: "MainViewController")
         }
-        
+        viewController.modalPresentationStyle = .fullScreen //or .overFullScreen for transparency
         appContainer.present(viewController, animated: true, completion: nil)
     }
 

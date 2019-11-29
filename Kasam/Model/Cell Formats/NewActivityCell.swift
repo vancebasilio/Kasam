@@ -14,8 +14,8 @@ import HGCircularSlider
 import SwiftIcons
 
 protocol NewActivityCellDelegate {
-    func showChooseSourceTypeAlertController()
-    func saveActivityData(activityNo: Int, title: String, description: String, image: UIImage, reps: Int?, hour: Int?, min: Int?, sec: Int?)
+    func showChooseSourceTypeAlert()
+    func saveActivityData(activityNo: Int, title: String?, description: String?, image: UIImage?, reps: Int?, hour: Int?, min: Int?, sec: Int?)
 }
 
 class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
@@ -41,6 +41,7 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
     @IBOutlet weak var secsPicker: UIPickerView!
     @IBOutlet weak var instruction: UILabel!
     @IBOutlet weak var restView: UIStackView!
+    @IBOutlet weak var backButton: UIButton!
     
     var delegate: NewActivityCellDelegate?
     var activityNo = 0
@@ -59,18 +60,19 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
     var timerOrCountdown = ""
     lazy var countdownTimer: CountdownTimer = {let countdownTimer = CountdownTimer(); return countdownTimer}()
     
+    //Placeholders
+    let descriptionPlaceholder = "Activity Description"
+    let imagePlaceholder = UIImage(named: "placeholder-add-activity")
+    var addedImage: UIImage?
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         activityNumber.text = "1/1"
         activityTitle.textAlignment = .center
-        activityDescription.text = "Activity Description"
         activityDescription.textColor = UIColor.lightGray
         activityDescription.delegate = self
         animatedImageView.layer.cornerRadius = 20.0
-    }
-    
-    @IBAction func imageClicked(_ sender: Any) {
-        delegate?.showChooseSourceTypeAlertController()
+        backButton?.setIcon(icon: .fontAwesomeSolid(.arrowLeft), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
@@ -80,16 +82,35 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         }
     }
     
-    @IBAction func saveButtonPressed(_ sender: Any) {
-        delegate?.saveActivityData(activityNo: activityNo, title: activityTitle.text ?? "Activity Title", description: activityDescription.text ?? "Activity Description", image: animatedImageView.image!, reps: repsChosen, hour: hourChosen, min: minsChosen, sec: secsChosen)
-    }
-    
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
-            textView.text = "Activity Description"
+            textView.text = descriptionPlaceholder
             textView.textColor = UIColor.lightGray
         }
     }
+    
+    //BUTTONS-------------------------------------------------
+    
+    @IBAction func imageClicked(_ sender: Any) {
+        delegate?.showChooseSourceTypeAlert()
+    }
+    
+    @IBAction func saveButtonPressed(_ sender: Any) {
+        saveProgress()
+    }
+    
+    @IBAction func backButtonPressed(_ sender: Any) {
+        print("hello")
+        saveProgress()
+    }
+    
+    func saveProgress(){
+        if activityDescription.text == descriptionPlaceholder {activityDescription.text = ""}
+        if animatedImageView.image != imagePlaceholder {addedImage = animatedImageView.image}
+        delegate?.saveActivityData(activityNo: activityNo, title: activityTitle.text, description: activityDescription.text, image: addedImage, reps: repsChosen, hour: hourChosen, min: minsChosen, sec: secsChosen)
+    }
+    
+    //Setup Functions---------------------------------------
     
     func setKasamViewer(title: String?, description: String?, image: UIImage?) {
         restView.isHidden = true
@@ -99,7 +120,13 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         activityTitle.text = title
         activityDescription.textContainer.maximumNumberOfLines = 3
         activityDescription.textContainer.lineBreakMode = .byClipping
-        if description != nil {activityDescription.text = description}
+        //set placeholders
+        if description != "" && description != nil {
+            activityDescription.text = description
+            activityDescription.textColor = UIColor.darkGray
+        } else {
+            activityDescription.text = descriptionPlaceholder
+        }
         if image != nil {animatedImageView.image = image}
         doneButton.setTitle("Save", for: .normal)
     }
@@ -159,6 +186,8 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         repsPicker.isHidden = true
         instruction.isHidden = true
         circularSlider.isHidden = true
+        repsLabel.isHidden = true
+        timeLabels.isHidden = true
     }
     
     //REST-------------------------------------------------------

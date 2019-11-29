@@ -27,14 +27,18 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var totalDays: UILabel!
     @IBOutlet weak var weekStatsCollectionView: UICollectionView!
     @IBOutlet weak var detailedStatsCollectionView: UICollectionView!
+    @IBOutlet weak var detailedStatsCollectionViewHeight: NSLayoutConstraint!
     @IBOutlet weak var challoStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
-    @IBOutlet weak var bottomViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var collectionViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     @IBOutlet weak var sideMenuButton: UIButton!
+    @IBOutlet weak var completedKasamsTable: SelfSizedTableView!
+    @IBOutlet weak var completedKasamTableHeight: NSLayoutConstraint!
     
     var weeklyStats: [weekStatsFormat] = []
     var detailedStats: [UserStatsFormat] = []
+    var completedStats: [UserStatsFormat] = []
     var daysCompletedDict: [String:Int] = [:]
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
@@ -64,9 +68,16 @@ class ProfileViewController: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
-    override func viewSafeAreaInsetsDidChange() {
+    override func viewDidLayoutSubviews(){
+        //Table Resizing
+        completedKasamsTable.frame = CGRect(x: completedKasamsTable.frame.origin.x, y: completedKasamsTable.frame.origin.y, width: completedKasamsTable.frame.size.width, height: completedKasamsTable.contentSize.height)
+        self.completedKasamTableHeight.constant = self.completedKasamsTable.contentSize.height
+        completedKasamsTable.reloadData()
+        
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let contentViewHeight = topViewHeight.constant + bottomViewHeight.constant + 1
+        collectionViewHeight.constant = detailedStatsCollectionViewHeight.constant + challoStatsHeight.constant + 52.5 + 52.5
+        let tableViewHeight = completedKasamTableHeight.constant + 42.5                                          //42.5 is the completed label height
+        let contentViewHeight = topViewHeight.constant + collectionViewHeight.constant + tableViewHeight + 15 + 1   //15 is the bottom space
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {
@@ -93,32 +104,8 @@ class ProfileViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
     }
     
-    //USER OPTIONS-------------------------------------------------------------------------------------------------
-    
     @IBAction func showUserOptionsButton(_ sender: Any) {
-        var attributes: EKAttributes
-        attributes = .bottomFloat
-        attributes.displayMode = .light
-        attributes.displayDuration = .infinity
-        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
-        attributes.entryBackground = .color(color: .white)
-        attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .dismiss
-        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
-        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
-        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
-        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
-        attributes.roundCorners = .all(radius: 20)
-        attributes.positionConstraints.size = .init(width: .fill, height: .ratio(value: 0.5))
-        attributes.positionConstraints.verticalOffset = -100
-        attributes.positionConstraints.safeArea = .overridden
-        attributes.statusBar = .dark
-        showUserOptions(with: attributes)
-    }
-    
-    private func showUserOptions(with attributes: EKAttributes) {
-        let viewController = UserOptionsController()
-        SwiftEntryKit.display(entry: viewController, using: attributes)
+        showUserOptions()
     }
     
     @objc func goToCreateKasam() {
@@ -138,9 +125,14 @@ class ProfileViewController: UIViewController {
                 kasam.image = snapshot["Image"]! as! String
                 kasam.metricType = metricType
                 let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, metricType: metricType)
-                self.detailedStats.append(userStats)
-                self.detailedStatsCollectionView.reloadData()
-                if self.detailedStats.count == SavedData.kasamArray.count {
+                if kasam.status == "completed" {
+                    self.completedStats.append(userStats)
+                    self.completedKasamsTable.reloadData()
+                } else {
+                    self.detailedStats.append(userStats)
+                    self.detailedStatsCollectionView.reloadData()
+                }
+                if self.detailedStats.count + self.completedStats.count == SavedData.kasamArray.count {
                     self.getWeeklyStats()
                 }
             
@@ -314,7 +306,9 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             challoStatsHeight.constant = (view.bounds.size.width * (2/5))
         return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
         } else {
-            return CGSize(width: 100, height: 140)
+            let cellWidth = ((view.frame.size.width - (15 * 4)) / 3)
+            detailedStatsCollectionViewHeight.constant = cellWidth + 40
+            return CGSize(width: cellWidth, height: cellWidth + 40)
         }
     }
     
@@ -364,5 +358,30 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             cell.setBlock(cell: kasam)
             return cell
         }
+    }
+}
+
+extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return completedStats.count
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 90
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let block = completedStats[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CompletedKasamCell") as! CompletedKasamCell
+        cell.setBlock(block: block)
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        kasamTitleGlobal = completedStats[indexPath.row].kasamTitle
+        kasamIDGlobal = completedStats[indexPath.row].kasamID
+        kasamMetricTypeGlobal = completedStats[indexPath.row].metricType
+        kasamImageGlobal = completedStats[indexPath.row].imageURL
+        self.performSegue(withIdentifier: "goToStats", sender: indexPath)
     }
 }

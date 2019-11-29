@@ -13,10 +13,9 @@ import SwiftIcons
 class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, NewActivityCellDelegate {
     
     @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var closeButton: UIButton!
     
     var imagePicker: UIImagePickerController!
-    var imagePicked = UIImage(named:"placeholder-add-activity2")
+    var imagePicked = UIImage(named:"placeholder-add-activity")
     var activityBlocks: [KasamActivityCellFormat] = []
     var registerNewActivity: [Int:newActivityFormat] = [:]
     var activityType = "Reps Counter"
@@ -43,21 +42,18 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     
     func setupButtons() {
         UIApplication.shared.endIgnoringInteractionEvents()
-        closeButton?.setIcon(icon: .fontAwesomeSolid(.arrowLeft), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
+ 
     }
     
-    @IBAction func closeButtonPressed(_ sender: Any) {
-        navigationController?.popViewController(animated: true)
-    }
+    //Delegate Functions--------------------------------
     
-    func saveActivityData(activityNo: Int, title: String, description: String, image: UIImage, reps: Int?, hour: Int?, min: Int?, sec: Int?) {
+    func saveActivityData(activityNo: Int, title: String?, description: String?, image: UIImage?, reps: Int?, hour: Int?, min: Int?, sec: Int?) {
         registerNewActivity[activityNo] = newActivityFormat(title: title, description: description, image: image, reps: reps, hour: hour, min: min, sec: sec)
         callback?(registerNewActivity)
         _ = navigationController?.popViewController(animated: true)
     }
     
-    func showChooseSourceTypeAlertController() {
-        print("hello")
+    func showChooseSourceTypeAlert() {
         let photoLibraryAction = UIAlertAction(title: "Choose a Photo", style: .default) { (action) in
             self.showImagePickerController(sourceType: .photoLibrary)
         }
@@ -70,13 +66,14 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     
     func showImagePickerController(sourceType: UIImagePickerController.SourceType) {
         let imagePickerController = UIImagePickerController()
+        imagePickerController.navigationBar.tintColor = UIColor.blue
         imagePickerController.delegate = self
         imagePickerController.allowsEditing = true
         imagePickerController.sourceType = sourceType
         present(imagePickerController, animated: true, completion: nil)
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+    @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             imagePicked = editedImage.withRenderingMode(.alwaysOriginal)
         } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
@@ -101,8 +98,8 @@ extension NewActivity: UICollectionViewDelegate, UICollectionViewDataSource, UIC
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NewActivityCell", for: indexPath) as! NewActivityCell
         cell.activityNo = indexPath.row
-        cell.animatedImageView.image = imagePicked
         cell.delegate = self
+        cell.animatedImageView.image = imagePicked
         let entryTransfer = pastEntry?[0]
         cell.setKasamViewer(title: entryTransfer?.title, description: entryTransfer?.description, image: entryTransfer?.image)
         if activityType == "Reps Counter" {
