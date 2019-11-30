@@ -40,21 +40,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     var dayTrackerRefHandle: DatabaseHandle!
     var dayTrackerArray = [Int]()
     var dayTrackerDateArray = [Int:String]()
-
-    fileprivate lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
-    
-    func dateConverter(datein: String) -> Date{
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = TimeZone.current
-        dateFormatter.locale = Locale.current
-        let joinedDate = dateFormatter.date(from: datein)
-        return joinedDate!
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -127,13 +112,13 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                 if let value = snapshot.value as? [String: Any] {
                     let kasamID = snapshot.key
                     let kasamTitle = value["Kasam Name"] as? String ?? ""
-                    let dateJoined = self.dateConverter(datein: value["Date Joined"] as? String ?? "")
+                    let dateJoined = self.stringToDate(date: value["Date Joined"] as? String ?? "")
                     let startTime = value["Time"] as? String ?? ""
                     let kasamEndDate = Calendar.current.date(byAdding: .day, value: 30, to: dateJoined)!
                         var status = "active"
                         if Date() < dateJoined {status = "inactive"}
                         if Date() >= kasamEndDate {status = "completed"}
-                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, startTime: startTime, kasamOrder: kasamOrder, image: nil, metricType: nil, status: status)
+                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, endDate: kasamEndDate, startTime: startTime, kasamOrder: kasamOrder, image: nil, metricType: nil, status: status)
                     if status == "active" {
                         kasamOrder += 1
                         SavedData.kasamTodayArray.append(preference)
@@ -211,11 +196,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                 dayCount = Int(snap.childrenCount)
                     //Gets the DayTracker info - only goes into this loop if the user has kasam history
                     self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
-                        let kasamDate = self.dateConverter(datein: snap.key)
-                        let date = self.dateFormatter.string(from: kasamDate)
+                        let kasamDate = self.stringToDate(date: snap.key)
                         if kasamDate >= kasam.joinedDate {
                             let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                            self.dayTrackerDateArray[order] = date          //to save the kasam date and order
+                            self.dayTrackerDateArray[order] = snap.key      //to save the kasam date and order
                             self.dayTrackerArray.append(order)              //places the gold dots on the right day in the today block tracker
                         } else {
                             dayCount -= 1
@@ -251,11 +235,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     dayCount = Int(snap.childrenCount)
                     //Gets the DayTracker info - only goes into this loop if the user has kasam history
                     self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
-                        let kasamDate = self.dateConverter(datein: snap.key)
-                        let date = self.dateFormatter.string(from: kasamDate)
+                        let kasamDate = self.stringToDate(date: snap.key)
                         if kasamDate >= kasam.joinedDate {
                             let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                            self.dayTrackerDateArray[order] = date          //to save the kasam date and order
+                            self.dayTrackerDateArray[order] = snap.key      //to save the kasam date and order
                             self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
                         } else {
                             dayCount -= 1
@@ -277,8 +260,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
             let kasamOrder = (SavedData.kasamDict[kasamID]!.kasamOrder)
             //Updates the DayTracker
             self.dayTrackerRefHandle = self.dayTrackerRef.child(kasamID).child(getCurrentDate() ?? "").observe(.value, with: {(snapshot) in
-                let kasamDate = self.dateConverter(datein: snapshot.key)
-                let date = self.dateFormatter.string(from: kasamDate)
+                let kasamDate = self.stringToDate(date: snapshot.key)
                 let dayOrder = (Calendar.current.dateComponents([.day], from: kasam!.joinedDate, to: kasamDate)).day! + 1
                
                 //Updates the KasamStatus
@@ -302,7 +284,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         }
                     }
                     self.kasamBlocks[kasamOrder].displayStatus = displayStatus
-                    SavedData.dayTrackerDict[kasamID]?[dayOrder] = date
+                    SavedData.dayTrackerDict[kasamID]?[dayOrder] = snapshot.key
                     self.tableView.reloadData()
                     self.tableView.beginUpdates()
                     self.tableView.endUpdates()

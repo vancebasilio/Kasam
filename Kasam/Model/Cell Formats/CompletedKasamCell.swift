@@ -12,17 +12,24 @@ class CompletedKasamCell: UITableViewCell {
     
     @IBOutlet weak var kasamImage: UIImageView!
     @IBOutlet weak var kasamName: UILabel!
+    @IBOutlet weak var joinedDates: UILabel!
     
     func setBlock(block: UserStatsFormat) {
         kasamImage.sd_setImage(with: block.imageURL, placeholderImage: UIImage(named: "placeholder.png"))
         kasamImage.layer.cornerRadius = 8.0
         kasamImage.clipsToBounds = true
         kasamName.text = block.kasamTitle
+        let joinedDate = dateConverter(date: block.joinedDate)
+        let endDate = dateConverter(date: block.endDate)
+        joinedDates.text = "\(joinedDate) - \(endDate)"
     }
     
-    
-    
-    
-    
-    
+    func dateConverter(date: Date) -> String {
+        let date = date
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateFormat = "MMM d"
+        let finalDate = formatter.string(from: date)
+        return finalDate
+    }
 }

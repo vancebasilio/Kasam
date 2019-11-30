@@ -156,6 +156,15 @@ extension UIViewController {
         let finalDate = formatter.string(from: date)
         return finalDate
     }
+//    
+//    func dateConverter(datein: String) -> Date{
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "yyyy-MM-dd"
+//        dateFormatter.timeZone = TimeZone.current
+//        dateFormatter.locale = Locale.current
+//        let joinedDate = dateFormatter.date(from: datein)
+//        return joinedDate!
+//    }
     
     func convertLongDateToShort(date: String) -> String {
         var dateOutput = ""

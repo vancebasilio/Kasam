@@ -120,11 +120,10 @@ class ProfileViewController: UIViewController {
         for kasam in SavedData.kasamArray {
             Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
                 let snapshot = snap.value as! Dictionary<String,Any>
-                let metricType = snapshot["Metric"]! as! String                 //getting the image and saving it to SavedData
-                let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the metricType and saving it to SavedData
+                let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
                 kasam.image = snapshot["Image"]! as! String
-                kasam.metricType = metricType
-                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, metricType: metricType)
+                kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
+                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, joinedDate: kasam.joinedDate, endDate: kasam.endDate, metricType: kasam.metricType)
                 if kasam.status == "completed" {
                     self.completedStats.append(userStats)
                     self.completedKasamsTable.reloadData()

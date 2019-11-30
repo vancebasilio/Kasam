@@ -38,6 +38,10 @@ class StatisticsViewController: UIViewController {
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var kasamHistoryRefHandle: DatabaseHandle!
+    let dayTrackerRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
+    var dayTrackerRefHandle: DatabaseHandle!
+    var dayTrackerArray = [Int]()
+    var dayTrackerDateArray = [Int:String]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -84,57 +88,97 @@ class StatisticsViewController: UIViewController {
         self.kasamBlocks.removeAll()
         let dateArray = SavedData.dayTrackerDict[kasamID]
         let joinDate = SavedData.kasamDict[kasamID]?.joinedDate
-        let kasamDay = ((Calendar.current.dateComponents([.day], from: joinDate!, to: Date()).day!) + 1)
+        var kasamDay = ((Calendar.current.dateComponents([.day], from: joinDate!, to: Date()).day!) + 1)
         self.dayNoValue.text = "Day \(kasamDay)"
+        //if the kasam is active
+        if dateArray?.count != nil || kasamDay > 30 {
+            if kasamDay > 30 {
+                kasamDay = 30
+                getCompletedKasamDayTracker(kasamID: kasamID) {
+                    self.getChartAndTableStats(kasamDay: kasamDay)
+                }
+            } else {
+                getChartAndTableStats(kasamDay: kasamDay)
+            }
+        }
+    }
+    
+    func getChartAndTableStats(kasamDay: Int){
+        let dateArray = SavedData.dayTrackerDict[kasamID]
         var metricTotal = 0
         var metricType = ""
-        if dateArray?.count != nil {
-            for day in 1...kasamDay {
-                if dateArray?[day] != nil {
-                    self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child((dateArray![day]!)).observe(.value, with:{(snapshot) in
-                    if let value = snapshot.value as? [String: Any] {
-                        let metric = Int(value["Total Metric"] as? Double ?? 0.0)
-                        metricType = self.kasamMetricType
-                        var indieMetric = Double(metric)
-                        var indieMetricType = metricType
-                        let text = value["Text Breakdown"] as? [Any]
-                        let textField = text?[1]
-                        let dayOrder = Int(value["Day Order"] as? String ?? "0")
-                        self.metricArray[dayOrder!] = metric
-                        var timeAndMetric = (0.0,"")
-                        if self.kasamMetricType == "Time" {
-                            timeAndMetric = self.convertTimeAndMetric(time: Double(metric), metric: metricType)
-                            indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
-                            indieMetricType = timeAndMetric.1
-                        } else if self.kasamMetricType == "Checkmark" {
-                            indieMetricType = "%"
-                        }
-                        metricTotal += metric
-                        let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(indieMetric.removeZerosFromEnd()) \(indieMetricType)", text: textField as? String ?? "")
-                        self.kasamBlocks.append(block)
+        for day in 1...kasamDay {
+            if dateArray?[day] != nil {
+                self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child((dateArray![day]!)).observe(.value, with:{(snapshot) in
+                if let value = snapshot.value as? [String: Any] {
+                    let metric = Int(value["Total Metric"] as? Double ?? 0.0)
+                    metricType = self.kasamMetricType
+                    var indieMetric = Double(metric)
+                    var indieMetricType = metricType
+                    let text = value["Text Breakdown"] as? [Any]
+                    let textField = text?[1]
+                    let dayOrder = Int(value["Day Order"] as? String ?? "0")
+                    self.metricArray[dayOrder!] = metric
+                    var timeAndMetric = (0.0,"")
+                    if self.kasamMetricType == "Time" {
+                        timeAndMetric = self.convertTimeAndMetric(time: Double(metric), metric: metricType)
+                        indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
+                        indieMetricType = timeAndMetric.1
+                    } else if self.kasamMetricType == "Checkmark" {
+                        indieMetricType = "%"
                     }
-                    if self.kasamBlocks.count == dateArray?.count {
-                        if metricType == "Reps" {
-                             self.avgMetric.text = "\(metricTotal) Total \(metricType)"
-                        } else if metricType == "Time" {
-                            let avgMetric = (metricTotal) / (dateArray?.count ?? 1)
-                            let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: metricType)
-                            self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
-                        } else if metricType == "Checkmark" {
-                            let avgMetric = (metricTotal) / (kasamDay)
-                            self.avgMetric.text = "Avg. \(avgMetric) %"
-                        }
-                        self.historyTableView.reloadData()
-                        self.setChart(values: self.metricArray)
-                        self.kasamHistoryRef.child(self.kasamID).child((dateArray?[day])!).removeAllObservers()
-                        self.metricArray.removeAll()
+                    metricTotal += metric
+                    let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(indieMetric.removeZerosFromEnd()) \(indieMetricType)", text: textField as? String ?? "")
+                    self.kasamBlocks.append(block)
+                }
+                if self.kasamBlocks.count == dateArray?.count {
+                    if metricType == "Reps" {
+                         self.avgMetric.text = "\(metricTotal) Total \(metricType)"
+                    } else if metricType == "Time" {
+                        let avgMetric = (metricTotal) / (dateArray?.count ?? 1)
+                        let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: metricType)
+                        self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
+                    } else if metricType == "Checkmark" {
+                        let avgMetric = (metricTotal) / (kasamDay)
+                        self.avgMetric.text = "Avg. \(avgMetric) %"
+                    }
+                    self.historyTableView.reloadData()
+                    self.setChart(values: self.metricArray)
+                    self.kasamHistoryRef.child(self.kasamID).child((dateArray?[day])!).removeAllObservers()
+                    self.metricArray.removeAll()
+                }
+            })
+            //adds the missing zero days to the chart where the user hasn't logged any progress
+            } else if dateArray?[day] == nil && day <= 30 {
+                self.metricArray[day] = 0
+            }
+        }
+    }
+    
+    func getCompletedKasamDayTracker(kasamID: String, completion:@escaping() -> ()) {
+        for kasam in SavedData.kasamArray {
+            let dayTrackerKasamRef = self.dayTrackerRef.child(kasamID)
+            var dayCount = 0
+            //Checks if there's kasam history
+            self.dayTrackerRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
+                dayCount = Int(snap.childrenCount)
+                //Gets the DayTracker info - only goes into this loop if the user has kasam history
+                self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
+                    let kasamDate = self.stringToDate(date: snap.key)
+                    if kasamDate >= kasam.joinedDate {
+                        let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
+                        self.dayTrackerDateArray[order] = snap.key      //to save the kasam date and order
+                        self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
+                    } else {
+                        dayCount -= 1
+                    }
+                    if self.dayTrackerArray.count == dayCount && dayCount > 0 {
+                        SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)
+                        dayTrackerKasamRef.removeAllObservers()
+                        completion()
                     }
                 })
-                //adds the missing zero days to the chart where the user hasn't logged any progress
-                } else if dateArray?[day] == nil && day <= 30 {
-                    self.metricArray[day] = 0
-                }
-            }
+            })
         }
     }
     

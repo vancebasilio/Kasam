@@ -249,16 +249,18 @@ class KasamSavedFormat {
     var kasamID: String
     var kasamName: String
     var joinedDate: Date
+    var endDate: Date
     var startTime: String
     var kasamOrder: Int
     var image: String
     var metricType: String
     var status: String
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, kasamOrder: Int, image: String?, metricType: String?, status: String){
+    init(kasamID: String, kasamName: String, joinedDate: Date, endDate: Date, startTime: String, kasamOrder: Int, image: String?, metricType: String?, status: String){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
+        self.endDate = endDate
         self.startTime = startTime
         self.kasamOrder = kasamOrder
         self.image = image ?? ""
@@ -271,11 +273,15 @@ class UserStatsFormat {
     var kasamID: String
     var kasamTitle: String
     var imageURL: URL
+    var joinedDate: Date
+    var endDate: Date
     var metricType: String
     
-    init(kasamID: String, kasamTitle: String, imageURL: URL, metricType: String){
+    init(kasamID: String, kasamTitle: String, imageURL: URL, joinedDate: Date, endDate: Date, metricType: String){
         self.kasamID = kasamID
         self.kasamTitle = kasamTitle
+        self.joinedDate = joinedDate
+        self.endDate = endDate
         self.imageURL = imageURL
         self.metricType = metricType
     }
