@@ -92,7 +92,6 @@ class ProfileViewController: UIViewController {
         levelLineBack.clipsToBounds = true
         levelLine.layer.cornerRadius = 4
         levelLine.clipsToBounds = true
-        startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
         sideMenuButton.setIcon(icon: .fontAwesomeSolid(.bars), iconSize: 17, color: UIColor.darkGray, backgroundColor: .clear, forState: .normal)
         self.navigationItem.title = ""
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
@@ -116,6 +115,7 @@ class ProfileViewController: UIViewController {
     
     @objc func getDetailedStats() {
         detailedStats.removeAll()
+        completedStats.removeAll()
         //loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamArray {
             Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
@@ -144,7 +144,13 @@ class ProfileViewController: UIViewController {
                 } else {
                     self.totalDays.text = "\(String(total)) Kasam Days"
                 }
-                self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
+                if total <= 30 {
+                    self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.smile), postfixText: " Beginner", size: 15)
+                    self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
+                } else if total > 30 && total <= 90 {
+                    self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Intermediate", size: 15)
+                    self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 90.0)
+                }
             })
             }
         }

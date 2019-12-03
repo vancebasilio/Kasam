@@ -132,6 +132,11 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
             cell.setKasamViewer(activity: activity)
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.setupCountdown(maxtime: activity.totalMetric, pastProgress: pastProgress)
+        } else if activity.type == "CountdownText" {
+            cell.setKasamViewer(activity: activity)
+            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
+            cell.setupCountdown(maxtime: activity.totalMetric, pastProgress: pastProgress)
+            cell.textField.isHidden = false
         } else if activity.type == "Timer" {
             cell.setKasamViewer(activity: activity)
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0

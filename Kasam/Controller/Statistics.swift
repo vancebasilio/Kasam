@@ -34,6 +34,7 @@ class StatisticsViewController: UIViewController {
     var kasamMetricType = ""            //transfered in value
     var kasamImage: URL!                //transfered in value
     var metricArray: [Int:Int] = [:]
+    var joinedDate: Date?
     var kasamBlocks: [kasamFollowingFormat] = []
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
@@ -86,20 +87,16 @@ class StatisticsViewController: UIViewController {
     
     @objc func getKasamStats(){
         self.kasamBlocks.removeAll()
-        let dateArray = SavedData.dayTrackerDict[kasamID]
-        let joinDate = SavedData.kasamDict[kasamID]?.joinedDate
-        var kasamDay = ((Calendar.current.dateComponents([.day], from: joinDate!, to: Date()).day!) + 1)
+        joinedDate = SavedData.kasamDict[kasamID]?.joinedDate
+        let kasamDay = ((Calendar.current.dateComponents([.day], from: joinedDate!, to: Date()).day!) + 1)
         self.dayNoValue.text = "Day \(kasamDay)"
         //if the kasam is active
-        if dateArray?.count != nil || kasamDay > 30 {
-            if kasamDay > 30 {
-                kasamDay = 30
-                getCompletedKasamDayTracker(kasamID: kasamID) {
-                    self.getChartAndTableStats(kasamDay: kasamDay)
-                }
-            } else {
-                getChartAndTableStats(kasamDay: kasamDay)
-            }
+        if kasamDay > 30 && SavedData.dayTrackerDict[kasamID] == nil {
+            //for completed kasams without saved day trackers
+            getCompletedKasamDayTracker()
+        } else {
+            //for in progress kasams and completed kasams with saved day trackers
+            getChartAndTableStats(kasamDay: kasamDay)
         }
     }
     
@@ -132,6 +129,7 @@ class StatisticsViewController: UIViewController {
                     self.kasamBlocks.append(block)
                 }
                 if self.kasamBlocks.count == dateArray?.count {
+                    self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
                     if metricType == "Reps" {
                          self.avgMetric.text = "\(metricTotal) Total \(metricType)"
                     } else if metricType == "Time" {
@@ -155,31 +153,29 @@ class StatisticsViewController: UIViewController {
         }
     }
     
-    func getCompletedKasamDayTracker(kasamID: String, completion:@escaping() -> ()) {
-        for kasam in SavedData.kasamArray {
-            let dayTrackerKasamRef = self.dayTrackerRef.child(kasamID)
-            var dayCount = 0
-            //Checks if there's kasam history
-            self.dayTrackerRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
-                dayCount = Int(snap.childrenCount)
-                //Gets the DayTracker info - only goes into this loop if the user has kasam history
-                self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
-                    let kasamDate = self.stringToDate(date: snap.key)
-                    if kasamDate >= kasam.joinedDate {
-                        let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                        self.dayTrackerDateArray[order] = snap.key      //to save the kasam date and order
-                        self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
-                    } else {
-                        dayCount -= 1
-                    }
-                    if self.dayTrackerArray.count == dayCount && dayCount > 0 {
-                        SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)
-                        dayTrackerKasamRef.removeAllObservers()
-                        completion()
-                    }
-                })
+    func getCompletedKasamDayTracker() {
+        let dayTrackerKasamRef = self.dayTrackerRef.child(kasamID)
+        var dayCount = 0
+        //Checks if there's kasam history
+        self.dayTrackerRef.child(kasamID).observeSingleEvent(of: .value, with: {(snap) in
+            dayCount = Int(snap.childrenCount)
+            //Gets the DayTracker info - only goes into this loop if the user has kasam history
+            self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
+                let kasamDate = self.stringToDate(date: snap.key)
+                if kasamDate >= self.joinedDate! {
+                    let order = (Calendar.current.dateComponents([.day], from: self.joinedDate!, to: kasamDate)).day! + 1
+                    self.dayTrackerDateArray[order] = snap.key      //to save the kasam date and order
+                    self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
+                } else {
+                    dayCount -= 1
+                }
+                if self.dayTrackerArray.count == dayCount && dayCount > 0 {
+                    SavedData.addDayTracker(kasam: self.kasamID, dayTrackerArray: self.dayTrackerDateArray)
+                    dayTrackerKasamRef.removeAllObservers()
+                    self.getChartAndTableStats(kasamDay: 30)
+                }
             })
-        }
+        })
     }
     
     @IBAction func backButtonPressed(_ sender: Any) {

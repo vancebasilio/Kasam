@@ -56,15 +56,13 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     var chosenGenre = ""
     var chosenLevel = ""
     
-    //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
-    let headerHeight = UIScreen.main.bounds.width * 0.40
-    
     //Activity Variables
     var fullActivityMatrix = [Int: [Int: newActivityFormat]]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLoad()
+        setupTwitterParallax()
         setupImageHolders()
     }
     
@@ -75,114 +73,63 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
         blockPickerBG.layer.cornerRadius = 15
+        chosenLevel = kasamLevels[0]
+    }
+    
+    //Twitter Parallax-------------------------------------------------------------------------------------------------------------------
+    
+    let headerHeight = UIScreen.main.bounds.width * 0.65        //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
+    
+    func setupTwitterParallax(){
         tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)       //setup floating header
         constrainHeightHeaderImages.constant = headerHeight                                                     //setup floating header
-        chosenLevel = kasamLevels[0]
+        
         if let navBar = self.navigationController?.navigationBar {
-            extendedLayoutIncludesOpaqueBars = true
-            navBar.isTranslucent = true
-            navBar.backgroundColor = UIColor.white.withAlphaComponent(0)
-            navBar.setBackgroundImage(UIImage(), for: .default)
-            navBar.shadowImage = UIImage()         //remove bottom border on navigation bar
-            navBar.tintColor = UIColor.colorFive   //change back arrow to gold
-        }
-        
-        //Header - Image
-        self.headerImageView = UIImageView(frame: self.headerView.bounds)
-        self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-        self.headerImageView?.image = UIImage(named: "image-add-placeholder")
-        self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
-        
-        //align header image to top
-        self.headerImageView.translatesAutoresizingMaskIntoConstraints = false
-        let topConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
-        let bottomConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 0)
-        let trailingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1, constant: 0)
-        let leadingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1, constant: 0)
-        self.headerView.addConstraints([topConstraint, bottomConstraint, trailingConstraint, leadingConstraint])
-        self.setupBlurImage()
+             extendedLayoutIncludesOpaqueBars = true
+             navBar.isTranslucent = true
+             navBar.backgroundColor = UIColor.white.withAlphaComponent(0)
+             navBar.setBackgroundImage(UIImage(), for: .default)
+             navBar.shadowImage = UIImage()         //remove bottom border on navigation bar
+             navBar.tintColor = UIColor.colorFive   //change back arrow to gold
+         }
+         
+         //Header - Image
+         self.headerImageView = UIImageView(frame: self.headerView.bounds)
+         self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
+         self.headerImageView?.image = UIImage(named: "image-add-placeholder")
+         self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
+         
+         //align header image to top
+         self.headerImageView.translatesAutoresizingMaskIntoConstraints = false
+         let topConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
+         let bottomConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 0)
+         let trailingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1, constant: 0)
+         let leadingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1, constant: 0)
+         self.headerView.addConstraints([topConstraint, bottomConstraint, trailingConstraint, leadingConstraint])
+         
+         //setup blur image, which creates the white navbar that appears as you scroll up
+         headerBlurImageView = UIImageView(frame: view.bounds)
+         headerBlurImageView?.backgroundColor = UIColor.white
+         headerBlurImageView?.contentMode = UIView.ContentMode.scaleAspectFill
+         headerBlurImageView?.alpha = 0.0
+         headerView.clipsToBounds = true
+         headerView.insertSubview(headerBlurImageView, belowSubview: headerLabel)
     }
-    
-    func setupBlurImage() {
-        headerBlurImageView = UIImageView(frame: headerView.bounds)
-        headerBlurImageView?.backgroundColor = UIColor.white
-        headerBlurImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-        headerBlurImageView?.alpha = 0.0
-        headerView.clipsToBounds = true
-        headerView.insertSubview(headerBlurImageView, belowSubview: headerLabel)
-    }
-    
-    // MARK: Scroll view delegate
+
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offset_HeaderStop:CGFloat = headerHeight - 70         // At this offset the Header stops its transformations
-        let distance_W_LabelHeader:CGFloat = 35.0       // The distance between the top of the screen and the top of the White Label
-        
+        let offsetHeaderStop:CGFloat = headerHeight - 100         // At this offset the Header stops its transformations
+        let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
         //shrinks the headerClickWindow that opens the imagePicker
-        headerClickViewHeight.constant = tableView.convert(tableView.frame.origin, to: nil).y - distance_W_LabelHeader
-        
-        let offset = scrollView.contentOffset.y + headerView.bounds.height
-        var avatarTransform = CATransform3DIdentity
-        var headerTransform = CATransform3DIdentity
-        
-        // PULL DOWN -----------------
-        if offset < 0 {
-            let headerScaleFactor:CGFloat = -(offset) / headerView.bounds.height
-            let headerSizevariation = ((headerView.bounds.height * (1.0 + headerScaleFactor)) - headerView.bounds.height)/2
-            headerTransform = CATransform3DTranslate(headerTransform, 0, headerSizevariation, 0)
-            headerTransform = CATransform3DScale(headerTransform, 1.0 + headerScaleFactor, 1.0 + headerScaleFactor, 0)
-            
-            // Hide views if scrolled super fast
-            headerView.layer.zPosition = 0
-            headerLabel.isHidden = true
-            
-            if let navBar = self.navigationController?.navigationBar {
-                navBar.tintColor = UIColor.white
-            }
-        }
-            
-            // SCROLL UP/DOWN ------------
-        else {
-            // Header -----------
-            headerTransform = CATransform3DTranslate(headerTransform, 0, max(-offset_HeaderStop, -offset), 0)
-            
-            //  ------------ Label
-            headerLabel.isHidden = false
-            let alignToNameLabel = -offset + newKasamTitle.frame.origin.y + headerView.frame.height + offset_HeaderStop
-            headerLabel.frame.origin = CGPoint(x: headerLabel.frame.origin.x, y: max(alignToNameLabel, distance_W_LabelHeader + offset_HeaderStop))
-            
-            //  ------------ Blur
-            headerBlurImageView?.alpha = min (1.0, (offset + 150 - alignToNameLabel)/(distance_W_LabelHeader + 50))
-            if let navBar = self.navigationController?.navigationBar {
-                let scrollPercentage = Double(min (1.0, (offset + 150 - alignToNameLabel)/(distance_W_LabelHeader + 50)))
-                navBar.tintColor = scrollColor(percent: scrollPercentage)
-            }
-            
-            // Avatar -----------
-            let avatarScaleFactor = (min(offset_HeaderStop, offset)) / createKasam.bounds.height / 9.4 // Slow down the animation
-            let avatarSizeVariation = ((createKasam.bounds.height * (1.0 + avatarScaleFactor)) - createKasam.bounds.height) / 2.0
-            
-            avatarTransform = CATransform3DTranslate(avatarTransform, 0, avatarSizeVariation, 0)
-            avatarTransform = CATransform3DScale(avatarTransform, 1.0 - avatarScaleFactor, 1.0 - avatarScaleFactor, 0)
-            
-            if offset <= offset_HeaderStop {
-                if createKasam.layer.zPosition < headerView.layer.zPosition{
-                    headerView.layer.zPosition = 0
-                }
-            } else {
-                if createKasam.layer.zPosition >= headerView.layer.zPosition{
-                    headerView.layer.zPosition = 2
-                }
-            }
-        }
-        // Apply Transformations
-        headerView.layer.transform = headerTransform
-//        createKasam.layer.transform = avatarTransform
+        headerClickViewHeight.constant = tableView.convert(tableView.frame.origin, to: nil).y - offsetLabelHeader
+        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, mainTitle: newKasamTitle)
     }
     
     //Puts the nav bar in
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
+    
+    //------------------------------------------------------------------------------------------------------------------------------------------
     
     func setupImageHolders(){
         let imageTap = UITapGestureRecognizer(target: self, action: #selector(openImagePicker))

@@ -156,15 +156,6 @@ extension UIViewController {
         let finalDate = formatter.string(from: date)
         return finalDate
     }
-//    
-//    func dateConverter(datein: String) -> Date{
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "yyyy-MM-dd"
-//        dateFormatter.timeZone = TimeZone.current
-//        dateFormatter.locale = Locale.current
-//        let joinedDate = dateFormatter.date(from: datein)
-//        return joinedDate!
-//    }
     
     func convertLongDateToShort(date: String) -> String {
         var dateOutput = ""
@@ -201,6 +192,80 @@ extension UIViewController {
             convertedMetric = "hours"
         }
         return (convertedTime, convertedMetric)
+    }
+    
+    func twitterParallaxScrollDelegate(scrollView: UIScrollView, headerHeight: CGFloat, headerView: UIView, headerBlurImageView: UIView?, headerLabel: UILabel, offsetHeaderStop: CGFloat, offsetLabelHeader: CGFloat, shrinkingButton: UIButton?, mainTitle: UIView){
+        let offset = scrollView.contentOffset.y + headerView.bounds.height
+        var avatarTransform = CATransform3DIdentity
+        var headerTransform = CATransform3DIdentity
+        
+        // PULL DOWN -----------------
+        if offset < 0 {
+            let headerScaleFactor:CGFloat = -(offset) / headerView.bounds.height
+            let headerSizevariation = ((headerView.bounds.height * (1.0 + headerScaleFactor)) - headerView.bounds.height)/2
+            headerTransform = CATransform3DTranslate(headerTransform, 0, headerSizevariation, 0)
+            headerTransform = CATransform3DScale(headerTransform, 1.0 + headerScaleFactor, 1.0 + headerScaleFactor, 0)
+            
+            // Hide views if scrolled super fast
+            headerView.layer.zPosition = 0
+            headerLabel.isHidden = true
+            
+            if let navBar = self.navigationController?.navigationBar {
+                navBar.tintColor = UIColor.white                //makes the back button white
+            }
+        }
+            
+        // SCROLL UP/DOWN ------------
+        else {
+            // Header -----------
+            headerTransform = CATransform3DTranslate(headerTransform, 0, max(-offsetHeaderStop, -offset), 0)
+            
+            //  ------------ Label
+            headerLabel.isHidden = false
+            let alignToNameLabel = -offset + mainTitle.frame.origin.y + headerView.frame.height + offsetHeaderStop
+            headerLabel.frame.origin = CGPoint(x: headerLabel.frame.origin.x, y: max(alignToNameLabel, offsetLabelHeader + offsetHeaderStop))
+            
+            //  ------------ Blur
+            headerBlurImageView?.alpha = min (1.0, (offset + 150 - alignToNameLabel)/(offsetLabelHeader + 50))
+            if let navBar = self.navigationController?.navigationBar {
+                let scrollPercentage = Double(min (1.0, (offset + 150 - alignToNameLabel)/(offsetLabelHeader + 50)))
+                navBar.tintColor = scrollColor(percent: scrollPercentage)
+            }
+            
+            // Avatar -----------
+            var avatarScaleFactor = CGFloat(0)
+            if shrinkingButton != nil {
+                avatarScaleFactor = (min(offsetHeaderStop, offset)) / shrinkingButton!.bounds.height / 9.4 // Slow down the animation
+            } else {
+                avatarScaleFactor = (min(offsetHeaderStop, offset)) / 9.4 // Slow down the animation
+            }
+            let avatarSizeVariation = (1.0 + avatarScaleFactor) / 2.0
+            avatarTransform = CATransform3DTranslate(avatarTransform, 0, avatarSizeVariation, 0)
+            avatarTransform = CATransform3DScale(avatarTransform, 1.0 - avatarScaleFactor, 1.0 - avatarScaleFactor, 0)
+            
+            if shrinkingButton != nil {
+                if offset <= offsetHeaderStop {
+                    if shrinkingButton!.layer.zPosition < headerView.layer.zPosition{
+                        headerView.layer.zPosition = 0
+                    }
+                } else {
+                    if shrinkingButton!.layer.zPosition >= headerView.layer.zPosition{
+                        headerView.layer.zPosition = 2
+                    }
+                }
+            } else {
+                if offset <= offsetHeaderStop {
+                    headerView.layer.zPosition = 0
+                } else {
+                    headerView.layer.zPosition = 2
+                }
+            }
+        }
+        // Apply Transformations
+        headerView.layer.transform = headerTransform
+        if shrinkingButton != nil {
+            shrinkingButton!.layer.transform = avatarTransform
+        }
     }
 }
 

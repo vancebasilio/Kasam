@@ -27,11 +27,15 @@ class DiscoverViewController: UIViewController {
     var kasamTitleGlobal: String = ""
     var timer = Timer()
     var counter = 0
+    let userKasamDB = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
+    var userKasamDBHandle: DatabaseHandle!
+    let freeKasamDB = Database.database().reference().child("Coach-Kasams")
+    var freeKasamDBHandle: DatabaseHandle!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        getFreeKasams(type: "Free")
-        getFreeKasams(type: "User")
+        getFreeKasams()
+        getUserKasams()
         getExpertKasams()
         setupNavBar()
         DispatchQueue.main.async {
@@ -50,6 +54,9 @@ class DiscoverViewController: UIViewController {
         if let navBar = self.navigationController?.navigationBar {
             navBar.isTranslucent = false
         }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
     }
     
    override func viewDidLayoutSubviews(){
@@ -99,26 +106,32 @@ class DiscoverViewController: UIViewController {
         }
     }
     
-    func getFreeKasams(type: String) {
-        if type == "Free" {
-            freeKasamArray.removeAll()
-        } else if type == "User" {
-            myKasamArray.removeAll()
-        }
-        let categoryDB = Database.database().reference().child("Coach-Kasams")
-        categoryDB.queryOrdered(byChild: "Type").queryEqual(toValue: type).observe(.childAdded) { (snapshot) in
+    func getFreeKasams() {
+        freeKasamArray.removeAll()
+        freeKasamDBHandle = freeKasamDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Free").observe(.childAdded) { (snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let imageURL = URL(string: value["Image"] as? String ?? "")
                 let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? self.placeholder() as! URL, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
-                if type == "Free" {
-                    self.freeKasamArray.append(categoryBlock)
-                    self.discoverCollection.reloadData()
-                } else if type == "User" {
-                    self.myKasamArray.append(categoryBlock)
-                    self.myKasamCollection.reloadData()
-                }
+                self.freeKasamArray.append(categoryBlock)
+                self.discoverCollection.reloadData()
+                self.freeKasamDB.removeObserver(withHandle: self.freeKasamDBHandle)
             }
         }
+    }
+    
+    func getUserKasams(){
+        myKasamArray.removeAll()
+        userKasamDBHandle = userKasamDB.observe(.childAdded, with: { (snapshot) in
+            Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: { (snapshot) in
+            if let value = snapshot.value as? [String: Any] {
+                let imageURL = URL(string: value["Image"] as? String ?? "")
+                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? self.placeholder() as! URL, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                self.myKasamArray.append(categoryBlock)
+                self.myKasamCollection.reloadData()
+                self.userKasamDB.removeObserver(withHandle: self.userKasamDBHandle)
+                }
+            })
+        })
     }
     
     func getExpertKasams() {

@@ -43,7 +43,7 @@ import SwiftEntryKit
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
-    //UNFOLLOW BUTTON CONFIRMATION-------------------------------------------------------------------------------------------------
+    //UNFOLLOW BUTTON CONFIRMATION---------------------------------------------------------------------------
 
     func showUnfollowConfirmation(title: String, description: String, completion:@escaping (Bool) -> ()) {
         var attributes: EKAttributes
@@ -80,7 +80,7 @@ import SwiftEntryKit
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
-    //USER OPTIONS-------------------------------------------------------------------------------------------------
+    //USER OPTIONS---------------------------------------------------------------------------------------------
     func showUserOptions() {
         var attributes: EKAttributes
         attributes = .bottomFloat

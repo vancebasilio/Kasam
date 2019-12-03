@@ -36,7 +36,7 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GenericCell")!
         cell.selectionStyle = .none
         if indexPath.row == 0 {
-            cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.plus), postfixText: "  Create Kasam", size: 20)
+            cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.plus), postfixText: "  Create a Kasam", size: 20)
         } else if indexPath.row == 1 {
             cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.signOutAlt), postfixText: "  Log Out", size: 20)
         }

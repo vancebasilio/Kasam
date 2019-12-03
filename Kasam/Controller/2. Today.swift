@@ -176,8 +176,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     func reloadTodayKasamData() {
         self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
         self.tableView.reloadData()
-        self.tableView.beginUpdates()
-        self.tableView.endUpdates()
         self.updateContentTableHeight()
         self.dayTrackerDateArray.removeAll()
         self.dayTrackerArray.removeAll()

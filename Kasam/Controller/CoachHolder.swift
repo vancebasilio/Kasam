@@ -10,7 +10,6 @@ import UIKit
 import Firebase
 
 class CoachHolder: UIViewController, UIScrollViewDelegate  {
-    // MARK: Outlet properties
     
     @IBOutlet weak var tableView: UITableView! {didSet {tableView.estimatedRowHeight = 20}}
     @IBOutlet var headerView : UIView!
@@ -38,14 +37,11 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     var kasamIDGlobal: String = ""
     var kasamTitleGlobal: String = ""
     
-    //Twitter Parallax
-    let offset_HeaderStop:CGFloat = 140.0  // At this offset the Header stops its transformations
-    let distance_W_LabelHeader:CGFloat = 30.0 // The distance between the top of the screen and the top of the White Label
-    
     // MARK: The view
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLoad()
+        setupTwitterParallax()
         countFollowers()
         getCoachData()
         countFollowers()
@@ -58,6 +54,58 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
             count += 1
             self.followersNo.text = String(count)
         }
+    }
+    
+    func setupLoad(){
+        profileViewRadius.layer.cornerRadius = 16.0
+        profileViewRadius.clipsToBounds = true
+        headerLabel.text = coachGName
+        tableView.contentSize.height = 20
+        self.kasamSquareCollection.delegate = nil
+        self.kasamSquareCollection.dataSource = self
+        let tap = UITapGestureRecognizer(target: self, action: #selector(gesture(_:)))
+        tap.numberOfTapsRequired = 1
+        tap.numberOfTouchesRequired = 1
+        tap.delegate = self
+        kasamSquareCollection?.addGestureRecognizer(tap)
+    }
+    
+    //Retrieves Kasams based on coach selected
+    func getKasamsData() {
+        Database.database().reference().child("Users").child(coachID).child("Kasams").observe(.childAdded, with: { (snapshot) in
+            Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: { (snapshot) in
+                if let value = snapshot.value as? [String: Any] {
+                    let kasamURL = URL(string: value["Image"] as? String ?? "")
+                    let kasam = freeKasamFormat(title: value["Title"] as? String ?? "", image: kasamURL!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                    self.discoverArray.append(kasam)
+                    self.kasamSquareCollection.reloadData()
+                }
+            })
+        })
+    }
+    
+    //Twitter Parallax-------------------------------------------------------------------------------------------------------------------
+    
+    let headerHeight = UIScreen.main.bounds.width * 0.65            //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
+    
+    func setupTwitterParallax(){
+        tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)     //setup floating header
+        contrainHeaderHeight.constant = headerHeight                                                          //setup floating header
+        
+        if let navBar = self.navigationController?.navigationBar {
+            extendedLayoutIncludesOpaqueBars = true
+            navBar.isTranslucent = true
+            navBar.backgroundColor = UIColor.white.withAlphaComponent(0)
+            navBar.setBackgroundImage(UIImage(), for: .default)
+            navBar.shadowImage = UIImage()         //remove bottom border on navigation bar
+            navBar.tintColor = UIColor.white       //change back arrow to white
+        }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetHeaderStop:CGFloat = headerHeight - 100         // At this offset the Header stops its transformations
+        let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
+        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, mainTitle: coachName)
     }
     
     //Retrieves Coach Data using coachID selected
@@ -83,57 +131,14 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
                 let trailingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1, constant: 0)
                 let leadingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1, constant: 0)
                 self.headerView.addConstraints([topConstraint, bottomConstraint, trailingConstraint, leadingConstraint])
-                
                 self.setupBlurImage()
             }
         })
     }
     
-    func setupLoad(){
-        profileViewRadius.layer.cornerRadius = 16.0
-        profileViewRadius.clipsToBounds = true
-        tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)     //setup floating header
-        contrainHeaderHeight.constant = UIScreen.main.bounds.width * 0.568              //setup floating header
-        
-        //change floating navigation bar font
-        self.title = ""
-        headerLabel.textColor = UIColor.colorFive
-        headerLabel.font = UIFont(name: "HelveticaNeue-Bold", size: 17)
-        
-        if let navBar = self.navigationController?.navigationBar {
-            extendedLayoutIncludesOpaqueBars = true
-            navBar.isTranslucent = true
-            navBar.backgroundColor = UIColor.clear
-            navBar.setBackgroundImage(UIImage(), for: .default)
-            navBar.shadowImage = UIImage()         //remove bottom border on navigation bar
-            navBar.tintColor = UIColor.white       //change back arrow to white
-        }
-        tableView.contentSize.height = 20
-        self.kasamSquareCollection.delegate = nil
-        self.kasamSquareCollection.dataSource = self
-        let tap = UITapGestureRecognizer(target: self, action: #selector(gesture(_:)))
-        tap.numberOfTapsRequired = 1
-        tap.numberOfTouchesRequired = 1
-        tap.delegate = self
-        kasamSquareCollection?.addGestureRecognizer(tap)
-    }
-    
-    //Retrieves Kasams based on coach selected
-    func getKasamsData() {
-        Database.database().reference().child("Users").child(coachID).child("Kasams").observe(.childAdded, with: { (snapshot) in
-            Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: { (snapshot) in
-                if let value = snapshot.value as? [String: Any] {
-                    let kasamURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = freeKasamFormat(title: value["Title"] as? String ?? "", image: kasamURL!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
-                    self.discoverArray.append(kasam)
-                    self.kasamSquareCollection.reloadData()
-                }
-            })
-        })
-    }
-    
     func setupBlurImage(){
-        headerBlurImageView = UIImageView(frame: headerView.bounds)
+        //setup blur image, which creates the white navbar that appears as you scroll up
+        headerBlurImageView = UIImageView(frame: view.bounds)
         headerBlurImageView?.backgroundColor = UIColor.white
         headerBlurImageView?.contentMode = UIView.ContentMode.scaleAspectFill
         headerBlurImageView?.alpha = 0.0
@@ -141,46 +146,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
         headerView.insertSubview(headerBlurImageView, belowSubview: headerLabel)
     }
     
-    // MARK: Scroll view delegate
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offset = scrollView.contentOffset.y + headerView.bounds.height
-        var headerTransform = CATransform3DIdentity
-        
-        // PULL DOWN -----------------
-        if offset < 0 {
-            let headerScaleFactor:CGFloat = -(offset) / headerView.bounds.height
-            let headerSizevariation = ((headerView.bounds.height * (1.0 + headerScaleFactor)) - headerView.bounds.height)/2
-            headerTransform = CATransform3DTranslate(headerTransform, 0, headerSizevariation, 0)
-            headerTransform = CATransform3DScale(headerTransform, 1.0 + headerScaleFactor, 1.0 + headerScaleFactor, 0)
-            
-            // Hide views if scrolled super fast
-            headerView.layer.zPosition = 0
-            headerLabel.isHidden = true
-            
-            if let navBar = self.navigationController?.navigationBar {
-                navBar.tintColor = UIColor.white
-            }
-        }
-            
-        // SCROLL UP/DOWN ------------
-        else {
-            // Header -----------
-            headerTransform = CATransform3DTranslate(headerTransform, 0, max(-offset_HeaderStop, -offset), 0)
-            
-            //  ------------ Label
-            headerLabel.isHidden = false
-            let alignToNameLabel = -offset + coachName.frame.origin.y + headerView.frame.height + offset_HeaderStop
-            headerLabel.frame.origin = CGPoint(x: headerLabel.frame.origin.x, y: max(alignToNameLabel, distance_W_LabelHeader + offset_HeaderStop))
-            
-            //  ------------ Blur
-            headerBlurImageView?.alpha = min (1.0, (offset + 150 - alignToNameLabel)/(distance_W_LabelHeader + 50))
-            if let navBar = self.navigationController?.navigationBar {
-                let scrollPercentage = Double(min (1.0, (offset + 150 - alignToNameLabel)/(distance_W_LabelHeader + 50)))
-                navBar.tintColor = scrollColor(percent: scrollPercentage)
-            }
-        }
-        headerView.layer.transform = headerTransform
-    }
+    //-----------------------------------------------------------------------------------------------------------------------------------
     
     @IBAction func gesture(_ sender: UITapGestureRecognizer) {
         let point = sender.location(in: kasamSquareCollection)
