@@ -194,7 +194,7 @@ extension UIViewController {
         return (convertedTime, convertedMetric)
     }
     
-    func twitterParallaxScrollDelegate(scrollView: UIScrollView, headerHeight: CGFloat, headerView: UIView, headerBlurImageView: UIView?, headerLabel: UILabel, offsetHeaderStop: CGFloat, offsetLabelHeader: CGFloat, shrinkingButton: UIButton?, mainTitle: UIView){
+    func twitterParallaxScrollDelegate(scrollView: UIScrollView, headerHeight: CGFloat, headerView: UIView, headerBlurImageView: UIView?, headerLabel: UILabel, offsetHeaderStop: CGFloat, offsetLabelHeader: CGFloat, shrinkingButton: UIButton?, shrinkingButton2: UIButton?, mainTitle: UIView){
         let offset = scrollView.contentOffset.y + headerView.bounds.height
         var avatarTransform = CATransform3DIdentity
         var headerTransform = CATransform3DIdentity
@@ -226,46 +226,60 @@ extension UIViewController {
             headerLabel.frame.origin = CGPoint(x: headerLabel.frame.origin.x, y: max(alignToNameLabel, offsetLabelHeader + offsetHeaderStop))
             
             //  ------------ Blur
-            headerBlurImageView?.alpha = min (1.0, (offset + 150 - alignToNameLabel)/(offsetLabelHeader + 50))
+            headerBlurImageView?.alpha = min (1.0, (offset + 220 - alignToNameLabel)/(offsetLabelHeader + 50))
             if let navBar = self.navigationController?.navigationBar {
-                let scrollPercentage = Double(min (1.0, (offset + 150 - alignToNameLabel)/(offsetLabelHeader + 50)))
+                let scrollPercentage = Double(min (1.0, (offset + 220 - alignToNameLabel)/(offsetLabelHeader + 50)))
                 navBar.tintColor = scrollColor(percent: scrollPercentage)
             }
             
             // Avatar -----------
             var avatarScaleFactor = CGFloat(0)
-            if shrinkingButton != nil {
-                avatarScaleFactor = (min(offsetHeaderStop, offset)) / shrinkingButton!.bounds.height / 9.4 // Slow down the animation
-            } else {
-                avatarScaleFactor = (min(offsetHeaderStop, offset)) / 9.4 // Slow down the animation
-            }
+            avatarScaleFactor = (min(offsetHeaderStop, offset)) / (shrinkingButton?.bounds.height ?? 1) / 9.4 // Slow down the animation
             let avatarSizeVariation = (1.0 + avatarScaleFactor) / 2.0
             avatarTransform = CATransform3DTranslate(avatarTransform, 0, avatarSizeVariation, 0)
             avatarTransform = CATransform3DScale(avatarTransform, 1.0 - avatarScaleFactor, 1.0 - avatarScaleFactor, 0)
             
-            if shrinkingButton != nil {
-                if offset <= offsetHeaderStop {
-                    if shrinkingButton!.layer.zPosition < headerView.layer.zPosition{
-                        headerView.layer.zPosition = 0
-                    }
-                } else {
-                    if shrinkingButton!.layer.zPosition >= headerView.layer.zPosition{
-                        headerView.layer.zPosition = 2
-                    }
-                }
+            if offset <= offsetHeaderStop {
+                headerView.layer.zPosition = 0
             } else {
-                if offset <= offsetHeaderStop {
-                    headerView.layer.zPosition = 0
-                } else {
-                    headerView.layer.zPosition = 2
-                }
+                headerView.layer.zPosition = 2
             }
         }
         // Apply Transformations
         headerView.layer.transform = headerTransform
-        if shrinkingButton != nil {
-            shrinkingButton!.layer.transform = avatarTransform
+        shrinkingButton?.layer.transform = avatarTransform
+        shrinkingButton2?.layer.transform = avatarTransform
+    }
+    
+    func twitterParallaxHeaderSetup(headerBlurImageView: UIImageView?, headerImageView: UIImageView, headerView: UIView, headerLabel: UILabel) -> UIImageView? {
+        var headerBlurImageView = headerBlurImageView
+        
+        if let navBar = self.navigationController?.navigationBar {
+            extendedLayoutIncludesOpaqueBars = true
+            navBar.isTranslucent = true
+            navBar.backgroundColor = UIColor.white.withAlphaComponent(0)
+            navBar.setBackgroundImage(UIImage(), for: .default)
+            navBar.shadowImage = UIImage()         //remove bottom border on navigation bar
+            navBar.tintColor = UIColor.colorFive   //change back arrow to gold
         }
+        
+        //align header image to top
+        headerImageView.translatesAutoresizingMaskIntoConstraints = false
+        let topConstraint = NSLayoutConstraint(item: headerImageView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
+        let bottomConstraint = NSLayoutConstraint(item: headerImageView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 0)
+        let trailingConstraint = NSLayoutConstraint(item: headerImageView, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1, constant: 0)
+        let leadingConstraint = NSLayoutConstraint(item: headerImageView, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1, constant: 0)
+        headerView.addConstraints([topConstraint, bottomConstraint, trailingConstraint, leadingConstraint])
+        
+        //setup blur image, which creates the white navbar that appears as you scroll up
+        headerBlurImageView = UIImageView(frame: view.bounds)
+        headerBlurImageView?.backgroundColor = UIColor.white
+        headerBlurImageView?.contentMode = UIView.ContentMode.scaleAspectFill
+        headerBlurImageView?.alpha = 0.0
+        headerView.clipsToBounds = true
+        headerView.insertSubview(headerBlurImageView!, belowSubview: headerLabel)
+        
+        return headerBlurImageView
     }
 }
 

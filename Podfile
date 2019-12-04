@@ -10,24 +10,29 @@ pod 'Firebase'
 pod 'Firebase/Auth'
 pod 'Firebase/Database'
 pod 'Firebase/Storage'
+pod 'Firebase/Performance'
+pod 'Firebase/Analytics'
+pod 'Fabric'
+pod 'Crashlytics'
+
 pod 'SVProgressHUD'
 pod 'ChameleonFramework'
 pod 'Parchment'
 pod 'SDWebImage'
+
 pod 'FacebookCore'
 pod 'FacebookLogin'
 pod 'FacebookShare'
+
 pod 'MXSegmentedPager'
 pod 'Cosmos'
 pod 'SwiftIcons'
 pod 'lottie-ios'
-pod 'SwiftEntryKit'
 pod 'HGCircularSlider'
 pod 'SkyFloatingLabelTextField'
 pod 'Charts'
 pod 'SwiftEntryKit', '1.1.4'
 pod 'SkeletonView'
-
 
 end
 

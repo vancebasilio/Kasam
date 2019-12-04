@@ -85,21 +85,21 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)     //setup floating header
         constraintHeightHeaerImages.constant = headerHeight                                                   //setup floating header
         
-        if let navBar = self.navigationController?.navigationBar {
-            extendedLayoutIncludesOpaqueBars = true
-            navBar.isTranslucent = true
-            navBar.backgroundColor = UIColor.white.withAlphaComponent(0)
-            navBar.setBackgroundImage(UIImage(), for: .default)
-            navBar.shadowImage = UIImage()         //remove bottom border on navigation bar
-            navBar.tintColor = UIColor.white       //change back arrow to white
-        }
+        //Header - Image
+        self.headerImageView = UIImageView(frame: self.headerView.bounds)
+        self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
+        self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
+        
+        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerLabel: headerLabel)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetHeaderStop:CGFloat = headerHeight - 100         // At this offset the Header stops its transformations
-        let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
-        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, mainTitle: kasamTitle)
+        let offsetHeaderStop:CGFloat = headerHeight - 100         //Thickness of navbar that appears when you scroll up
+        let offsetLabelHeader:CGFloat = 60.0                      //Distance from top of screen that the headerlabel shows up at
+        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: addButtonText, shrinkingButton2: addButton, mainTitle: kasamTitle)
     }
+    
+    //-----------------------------------------------------------------------------------------------------------------------------------
     
     //Retrieves Kasam Data using Kasam ID selected
     func getKasamData(){
@@ -109,41 +109,15 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.headerLabel.text! = self.kasamGTitle
                 self.kasamTitle.text! = self.kasamGTitle
                 self.kasamDescription.text! = value["Description"] as? String ?? ""
-                self.coachName.setTitle(value["CreatorName"] as? String ?? "", for: .normal)
+                self.coachName.setTitle(value["CreatorName"] as? String ?? "", for: .normal)        //in the future, get this name from the userdatabase, so it's the most uptodate name
                 self.coachIDGlobal = value["CreatorID"] as! String
                 self.kasamType.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = value["Level"] as? String ?? ""
-                
-                //Header - Image
                 let headerURL = URL(string: value["Image"] as? String ?? "")
-                self.headerImageView = UIImageView(frame: self.headerView.bounds)
-                self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
                 self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: UIImage(named: "placeholder.png"))
-                self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
-                
-                //align header image to top
-                self.headerImageView.translatesAutoresizingMaskIntoConstraints = false
-                let topConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
-                let bottomConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 30)
-                let trailingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1, constant: 0)
-                let leadingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1, constant: 0)
-                self.headerView.addConstraints([topConstraint, bottomConstraint, trailingConstraint, leadingConstraint])
-                self.setupBlurImage()
             }
         })
     }
-    
-    func setupBlurImage(){
-        //setup blur image, which creates the white navbar that appears as you scroll up
-        headerBlurImageView = UIImageView(frame: view.bounds)
-        headerBlurImageView?.backgroundColor = UIColor.white
-        headerBlurImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-        headerBlurImageView?.alpha = 0.0
-        headerView.clipsToBounds = true
-        headerView.insertSubview(headerBlurImageView, belowSubview: headerLabel)
-    }
-    
-    //-----------------------------------------------------------------------------------------------------------------------------------
     
     //Retrieves Blocks based on Kasam selected
     func getBlocksData() {
@@ -239,7 +213,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         var count = 0
         Database.database().reference().child("Coach-Kasams").child(kasamID).child("Followers").observe(.childAdded) { (snapshot) in
             count += 1
-            self.followersNo.text = "\(count) Followers"
+            if count == 1 {
+                self.followersNo.text = "\(count) Follower"
+            } else {
+                self.followersNo.text = "\(count) Followers"
+            }
         }
     }
     

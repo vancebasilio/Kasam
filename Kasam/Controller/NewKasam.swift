@@ -83,37 +83,14 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     func setupTwitterParallax(){
         tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)       //setup floating header
         constrainHeightHeaderImages.constant = headerHeight                                                     //setup floating header
+
+        //Header - Image
+        self.headerImageView = UIImageView(frame: self.headerView.bounds)
+        self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
+        self.headerImageView?.image = UIImage(named: "image-add-placeholder")
+        self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
         
-        if let navBar = self.navigationController?.navigationBar {
-             extendedLayoutIncludesOpaqueBars = true
-             navBar.isTranslucent = true
-             navBar.backgroundColor = UIColor.white.withAlphaComponent(0)
-             navBar.setBackgroundImage(UIImage(), for: .default)
-             navBar.shadowImage = UIImage()         //remove bottom border on navigation bar
-             navBar.tintColor = UIColor.colorFive   //change back arrow to gold
-         }
-         
-         //Header - Image
-         self.headerImageView = UIImageView(frame: self.headerView.bounds)
-         self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-         self.headerImageView?.image = UIImage(named: "image-add-placeholder")
-         self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
-         
-         //align header image to top
-         self.headerImageView.translatesAutoresizingMaskIntoConstraints = false
-         let topConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
-         let bottomConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 0)
-         let trailingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1, constant: 0)
-         let leadingConstraint = NSLayoutConstraint(item: self.headerImageView, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self.headerView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1, constant: 0)
-         self.headerView.addConstraints([topConstraint, bottomConstraint, trailingConstraint, leadingConstraint])
-         
-         //setup blur image, which creates the white navbar that appears as you scroll up
-         headerBlurImageView = UIImageView(frame: view.bounds)
-         headerBlurImageView?.backgroundColor = UIColor.white
-         headerBlurImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-         headerBlurImageView?.alpha = 0.0
-         headerView.clipsToBounds = true
-         headerView.insertSubview(headerBlurImageView, belowSubview: headerLabel)
+        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerLabel: headerLabel)
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -121,7 +98,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
         //shrinks the headerClickWindow that opens the imagePicker
         headerClickViewHeight.constant = tableView.convert(tableView.frame.origin, to: nil).y - offsetLabelHeader
-        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, mainTitle: newKasamTitle)
+        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, shrinkingButton2: nil, mainTitle: newKasamTitle)
     }
     
     //Puts the nav bar in

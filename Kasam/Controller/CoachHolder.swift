@@ -105,7 +105,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetHeaderStop:CGFloat = headerHeight - 100         // At this offset the Header stops its transformations
         let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
-        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, mainTitle: coachName)
+        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, shrinkingButton2: nil, mainTitle: coachName)
     }
     
     //Retrieves Coach Data using coachID selected
