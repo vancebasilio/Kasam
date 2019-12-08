@@ -34,12 +34,13 @@
 		BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BDA226E0FBE00D707CC /* TableViewCell.swift */; };
 		BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC554BDB226E0FBE00D707CC /* KasamCell.xib */; };
 		BC55BFD722AEEF6200D77337 /* Custom Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55BFD622AEEF6200D77337 /* Custom Functions.swift */; };
-		BC55CC69232B4552003C87F6 /* UserStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55CC68232B4552003C87F6 /* UserStatsCell.swift */; };
+		BC55CC69232B4552003C87F6 /* WeeklyStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55CC68232B4552003C87F6 /* WeeklyStatsCell.swift */; };
 		BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C3C79234D60E800C68238 /* PopupForm.swift */; };
 		BC5C499C228122BB00EC0EA8 /* KasamSquareCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */; };
 		BC651491238DAD4600510971 /* ErrorMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC651490238DAD4600510971 /* ErrorMessages.swift */; };
 		BC68BC5F22838A8800240CE9 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC68BC5E22838A8800240CE9 /* ImageService.swift */; };
 		BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6E97842321DF7800698EB9 /* KasamViewer.swift */; };
+		BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BC7042BF239861A100649D01 /* GoogleService-Info.plist */; };
 		BC74AE97237DA10300676B10 /* NewActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74AE96237DA10300676B10 /* NewActivity.swift */; };
 		BC74AE99237DDCD100676B10 /* NewActivityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74AE98237DDCD100676B10 /* NewActivityCell.swift */; };
 		BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74E1F22336748E00653381 /* CountdownTimer.swift */; };
@@ -62,7 +63,6 @@
 		BCED0D87237285E80054E66B /* AlertService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCED0D86237285E80054E66B /* AlertService.swift */; };
 		BCED16E82283A166008DF3EC /* AddKasamPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCED16E72283A166008DF3EC /* AddKasamPopup.swift */; };
 		BCF2A76B227F08F0009D2368 /* BlocksCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF2A76A227F08F0009D2368 /* BlocksCell.swift */; };
-		BCFC397F23976B3400E620EE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BCFC397E23976B3400E620EE /* GoogleService-Info.plist */; };
 		BCFCB43522AF02C900DC2DD7 /* DiscoverHCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */; };
 		BCFCB43722AF04EA00DC2DD7 /* DiscoverCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */; };
 /* End PBXBuildFile section */
@@ -81,7 +81,7 @@
 		BC12F1ED233FC17100D93227 /* Statistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Statistics.swift; sourceTree = "<group>"; };
 		BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedStatsCell.swift; sourceTree = "<group>"; };
 		BC16A20323292ABD00FDF70C /* 690-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "690-loading.json"; path = "Kasam/Assets.xcassets/690-loading.json"; sourceTree = SOURCE_ROOT; };
-		BC1FAF292269FAFA006A9245 /* Kasam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kasam.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BC1FAF292269FAFA006A9245 /* Challo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Challo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC1FAF2C2269FAFA006A9245 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BC1FAF2E2269FAFA006A9245 /* LogIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogIn.swift; sourceTree = "<group>"; };
 		BC1FAF312269FAFA006A9245 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -101,12 +101,13 @@
 		BC554BDA226E0FBE00D707CC /* TableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
 		BC554BDB226E0FBE00D707CC /* KasamCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KasamCell.xib; sourceTree = "<group>"; };
 		BC55BFD622AEEF6200D77337 /* Custom Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Custom Functions.swift"; sourceTree = "<group>"; };
-		BC55CC68232B4552003C87F6 /* UserStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStatsCell.swift; sourceTree = "<group>"; };
+		BC55CC68232B4552003C87F6 /* WeeklyStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyStatsCell.swift; sourceTree = "<group>"; };
 		BC5C3C79234D60E800C68238 /* PopupForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupForm.swift; sourceTree = "<group>"; };
 		BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamSquareCell.swift; sourceTree = "<group>"; };
 		BC651490238DAD4600510971 /* ErrorMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorMessages.swift; sourceTree = "<group>"; };
 		BC68BC5E22838A8800240CE9 /* ImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		BC6E97842321DF7800698EB9 /* KasamViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewer.swift; sourceTree = "<group>"; };
+		BC7042BF239861A100649D01 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BC74AE96237DA10300676B10 /* NewActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewActivity.swift; sourceTree = "<group>"; };
 		BC74AE98237DDCD100676B10 /* NewActivityCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewActivityCell.swift; sourceTree = "<group>"; };
 		BC74E1F22336748E00653381 /* CountdownTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
@@ -131,7 +132,6 @@
 		BCED0D86237285E80054E66B /* AlertService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertService.swift; sourceTree = "<group>"; };
 		BCED16E72283A166008DF3EC /* AddKasamPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddKasamPopup.swift; sourceTree = "<group>"; };
 		BCF2A76A227F08F0009D2368 /* BlocksCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocksCell.swift; sourceTree = "<group>"; };
-		BCFC397E23976B3400E620EE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverHCell.swift; sourceTree = "<group>"; };
 		BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverCategoryCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -182,7 +182,7 @@
 		BC1FAF2A2269FAFA006A9245 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BC1FAF292269FAFA006A9245 /* Kasam.app */,
+				BC1FAF292269FAFA006A9245 /* Challo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -215,7 +215,6 @@
 				BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */,
 				BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */,
 				BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */,
-				BC55CC68232B4552003C87F6 /* UserStatsCell.swift */,
 				BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */,
 				BC96F8462292085200E161FC /* TodayBlockCell.swift */,
 				BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */,
@@ -225,6 +224,7 @@
 				BCF2A76A227F08F0009D2368 /* BlocksCell.swift */,
 				BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */,
 				BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */,
+				BC55CC68232B4552003C87F6 /* WeeklyStatsCell.swift */,
 				BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */,
 				BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */,
 				BC339E8F2377242C00E1D038 /* LoginViewCell.swift */,
@@ -294,7 +294,7 @@
 			children = (
 				BC16A20323292ABD00FDF70C /* 690-loading.json */,
 				BC1FAF382269FAFA006A9245 /* Info.plist */,
-				BCFC397E23976B3400E620EE /* GoogleService-Info.plist */,
+				BC7042BF239861A100649D01 /* GoogleService-Info.plist */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";
@@ -321,6 +321,7 @@
 				BC1FAF272269FAFA006A9245 /* Resources */,
 				22717E2F6F90C67BECEDA69C /* [CP] Embed Pods Frameworks */,
 				BCAA819523975AEE00EA7513 /* ShellScript */,
+				F10AFC8567255F4A330C0C82 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -328,7 +329,7 @@
 			);
 			name = Kasam;
 			productName = "Kasam 1.0";
-			productReference = BC1FAF292269FAFA006A9245 /* Kasam.app */;
+			productReference = BC1FAF292269FAFA006A9245 /* Challo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -378,11 +379,11 @@
 			files = (
 				BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */,
 				BC16A20423292ABD00FDF70C /* 690-loading.json in Resources */,
-				BCFC397F23976B3400E620EE /* GoogleService-Info.plist in Resources */,
 				BC1FAF372269FAFA006A9245 /* LaunchScreen.storyboard in Resources */,
 				BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */,
 				BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */,
 				BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */,
+				BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */,
 				BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */,
 				BC01664722D5790B0073186D /* UIImageViewAligned in Resources */,
 			);
@@ -416,6 +417,7 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Kasam/Pods-Kasam-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework",
 				"${BUILT_PRODUCTS_DIR}/ChameleonFramework/ChameleonFramework.framework",
 				"${BUILT_PRODUCTS_DIR}/Charts/Charts.framework",
 				"${BUILT_PRODUCTS_DIR}/Cosmos/Cosmos.framework",
@@ -425,6 +427,7 @@
 				"${BUILT_PRODUCTS_DIR}/FacebookCore/FacebookCore.framework",
 				"${BUILT_PRODUCTS_DIR}/FacebookLogin/FacebookLogin.framework",
 				"${BUILT_PRODUCTS_DIR}/FacebookShare/FacebookShare.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMAppAuth/GTMAppAuth.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
@@ -448,6 +451,7 @@
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AppAuth.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ChameleonFramework.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Charts.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cosmos.framework",
@@ -457,6 +461,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookLogin.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookShare.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMAppAuth.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
@@ -500,6 +505,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Fabric/run\"\n";
+		};
+		F10AFC8567255F4A330C0C82 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Kasam/Pods-Kasam-resources.sh",
+				"${PODS_ROOT}/GoogleSignIn/Resources/GoogleSignIn.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleSignIn.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Kasam/Pods-Kasam-resources.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -552,7 +575,7 @@
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
 				BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */,
 				BCED0D87237285E80054E66B /* AlertService.swift in Sources */,
-				BC55CC69232B4552003C87F6 /* UserStatsCell.swift in Sources */,
+				BC55CC69232B4552003C87F6 /* WeeklyStatsCell.swift in Sources */,
 				BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */,
 				BC12F1F0233FF1E900D93227 /* DetailedStatsCell.swift in Sources */,
 				BC339E9223772D6F00E1D038 /* RegisterViewCell.swift in Sources */,
@@ -706,7 +729,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.vancebasilio.Kasam;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Challo;
 				SWIFT_OBJC_BRIDGING_HEADER = "Kasam/Model/Kasam-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
@@ -726,7 +749,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.vancebasilio.Kasam;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Challo;
 				SWIFT_OBJC_BRIDGING_HEADER = "Kasam/Model/Kasam-Bridging-Header.h";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";

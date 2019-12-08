@@ -46,7 +46,7 @@ extension UIViewController {
     }
     
     func setupNavBar(){
-        let logo = UIImage(named: "Kasam-logo7")
+        let logo = UIImage(named: "Challo-logo")
         let imageView = UIImageView(image:logo)
         imageView.contentMode = .scaleAspectFit
         self.navigationItem.titleView = imageView
@@ -280,6 +280,15 @@ extension UIViewController {
         headerView.insertSubview(headerBlurImageView!, belowSubview: headerLabel)
         
         return headerBlurImageView
+    }
+    
+    //programatically switching tabBars
+    func animateTabBarChange(tabBarController: UITabBarController, to viewController: UIViewController) {
+        let fromView: UIView = tabBarController.selectedViewController!.view
+        let toView: UIView = viewController.view
+        if fromView != toView {
+            UIView.transition(from: fromView, to: toView, duration: 0.3, options: [.transitionCrossDissolve], completion: nil)
+        }
     }
 }
 

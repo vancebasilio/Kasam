@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>138931871527-ktajmtsj1su5qndblbo2dfsfqee1408m.apps.googleusercontent.com</string>
+	<string>1056043309290-kt1odno12nvt4ht6tphu3e3vofv3k1ak.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.138931871527-ktajmtsj1su5qndblbo2dfsfqee1408m</string>
+	<string>com.googleusercontent.apps.1056043309290-kt1odno12nvt4ht6tphu3e3vofv3k1ak</string>
 	<key>API_KEY</key>
-	<string>AIzaSyA66FZB65VtrWbElbMMUXfVnzrXAhnj2Q8</string>
+	<string>AIzaSyDEYTBiJ25vZwpuc8qlKbeH2V3gTfIE3sc</string>
 	<key>GCM_SENDER_ID</key>
-	<string>138931871527</string>
+	<string>1056043309290</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.vancebasilio.Kasam-1-1</string>
+	<string>com.vancebasilio.Kasam</string>
 	<key>PROJECT_ID</key>
-	<string>kasam-348b1</string>
+	<string>kasam-coach</string>
 	<key>STORAGE_BUCKET</key>
-	<string>kasam-348b1.appspot.com</string>
+	<string>kasam-coach.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,8 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:138931871527:ios:252a4a52663edda9</string>
+	<string>1:1056043309290:ios:db5c385656e21b6d509f93</string>
 	<key>DATABASE_URL</key>
-	<string>https://kasam-348b1.firebaseio.com</string>
+	<string>https://kasam-coach.firebaseio.com</string>
 </dict>
 </plist>

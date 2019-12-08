@@ -14,6 +14,7 @@ pod 'Firebase/Performance'
 pod 'Firebase/Analytics'
 pod 'Fabric'
 pod 'Crashlytics'
+pod 'GoogleSignIn'
 
 pod 'SVProgressHUD'
 pod 'ChameleonFramework'

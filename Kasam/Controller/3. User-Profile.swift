@@ -300,7 +300,11 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == weekStatsCollectionView {
-            return weeklyStats.count
+            if weeklyStats.count == 0 {
+                return 1
+            } else {
+                return weeklyStats.count
+            }
         } else {
             return detailedStats.count
         }
@@ -319,10 +323,16 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == weekStatsCollectionView {
-            kasamTitleGlobal = weeklyStats[indexPath.row].kasamTitle
-            kasamIDGlobal = weeklyStats[indexPath.row].kasamID
-            kasamMetricTypeGlobal = weeklyStats[indexPath.row].metricType
-            kasamImageGlobal = weeklyStats[indexPath.row].imageURL
+            if weeklyStats.count == 0 {
+                //go to Discover Page when clicked
+                animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
+                self.tabBarController?.selectedIndex = 0
+            } else {
+                kasamTitleGlobal = weeklyStats[indexPath.row].kasamTitle
+                kasamIDGlobal = weeklyStats[indexPath.row].kasamID
+                kasamMetricTypeGlobal = weeklyStats[indexPath.row].metricType
+                kasamImageGlobal = weeklyStats[indexPath.row].imageURL
+            }
         } else {
             kasamTitleGlobal = detailedStats[indexPath.row].kasamTitle
             kasamIDGlobal = detailedStats[indexPath.row].kasamID
@@ -334,27 +344,13 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == weekStatsCollectionView {
-            let stat = weeklyStats[indexPath.row]
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! ChalloStatsCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! WeeklyStatsCell
             cell.height = challoStatsHeight.constant
-            cell.setBlock(cell: stat)
-            cell.kasamTitle.text = weeklyStats[indexPath.row].kasamTitle
-            DispatchQueue.main.async {
-                cell.daysLeft.text = String(30 - self.weeklyStats[indexPath.row].daysLeft) //async loading this as it takes a long time to gather
-            }
-            if weeklyStats[indexPath.row].metricType == "Time" && weeklyStats[indexPath.row].avgMetric < 60 {
-                cell.averageMetric.text = String(weeklyStats[indexPath.row].avgMetric)
-                cell.averageMetricLabel.text = "Avg. secs"
-            } else if weeklyStats[indexPath.row].metricType == "Time" && weeklyStats[indexPath.row].avgMetric > 60 {
-                let time: Double = (Double(weeklyStats[indexPath.row].avgMetric) / 60.0).rounded(toPlaces: 2)
-                cell.averageMetric.text = String(time)
-                cell.averageMetricLabel.text = "Avg. mins"
-            } else if weeklyStats[indexPath.row].metricType == "Reps" {
-                cell.averageMetric.text = String(weeklyStats[indexPath.row].avgMetric)
-                cell.averageMetricLabel.text = "Avg. \(weeklyStats[indexPath.row].metricType)"
-            } else if weeklyStats[indexPath.row].metricType == "Checkmark" {
-                cell.averageMetric.text = String(weeklyStats[indexPath.row].avgMetric)
-                cell.averageMetricLabel.text = "Avg. %"
+            if weeklyStats.count == 0 {
+                cell.setPlaceholder()
+            } else {
+                let stat = weeklyStats[indexPath.row]
+                cell.setBlock(cell: stat)
             }
             return cell
         } else {

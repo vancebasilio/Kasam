@@ -105,8 +105,12 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         SavedData.kasamTodayArray.removeAll()
         SavedData.clearKasamArray()
         kasamFollowingRef.observeSingleEvent(of: .value, with:{ (snap) in
-        var kasamOrder = 0
-        var count = Int(snap.childrenCount)
+            var kasamOrder = 0
+            var count = Int(snap.childrenCount)
+            if count == 0 {
+                //not following any kasams
+                self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
+            }
             self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded) { (snapshot) in
                 //Get Kasams from user following + their preference for each kasam
                 if let value = snapshot.value as? [String: Any] {
@@ -324,14 +328,20 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         var motivationRefHandle: DatabaseHandle!
         motivationRef.observeSingleEvent(of: .value, with:{ (snap) in
             let count = Int(snap.childrenCount)
-            motivationRefHandle = motivationRef.observe(.childAdded) { (snapshot) in
-                let motivation = motivationFormat(motivationID: snapshot.key, motivationText: snapshot.value as! String)
-                self.motivationArray.append(motivation)
-                if self.motivationArray.count == count {
-                    self.motivationArray.append(motivationFormat(motivationID: "", motivationText: "Enter your personal motivation here!"))
-                    motivationRef.removeObserver(withHandle: motivationRefHandle)
-                    self.todayMotivationCollectionView.reloadData()
-                    self.todayMotivationCollectionView.hideSkeleton(transition: .crossDissolve(0.25))
+            if count == 0 {
+                self.motivationArray.append(motivationFormat(motivationID: "", motivationText: "Enter your personal motivation here!"))
+                self.todayMotivationCollectionView.reloadData()
+                self.todayMotivationCollectionView.hideSkeleton(transition: .crossDissolve(0.25))
+            } else {
+                motivationRefHandle = motivationRef.observe(.childAdded) { (snapshot) in
+                    let motivation = motivationFormat(motivationID: snapshot.key, motivationText: snapshot.value as! String)
+                    self.motivationArray.append(motivation)
+                    if self.motivationArray.count == count {
+                        self.motivationArray.append(motivationFormat(motivationID: "", motivationText: "Enter your personal motivation here!"))
+                        motivationRef.removeObserver(withHandle: motivationRefHandle)
+                        self.todayMotivationCollectionView.reloadData()
+                        self.todayMotivationCollectionView.hideSkeleton(transition: .crossDissolve(0.25))
+                    }
                 }
             }
         })
@@ -387,7 +397,11 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return kasamBlocks.count
+        if kasamBlocks.count == 0 {
+            return 1
+        } else {
+            return kasamBlocks.count
+        }
     }
     
     func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -395,10 +409,14 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let block = kasamBlocks[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as! TodayBlockCell
-        cell.delegate = self
-        cell.setBlock(block: block)
+        if kasamBlocks.count == 0 {
+            cell.setPlaceholder()
+        } else {
+            let block = kasamBlocks[indexPath.row]
+            cell.delegate = self
+            cell.setBlock(block: block)
+        }
         return cell
     }
     
@@ -413,12 +431,18 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        loadingAnimation()
-        UIApplication.shared.beginIgnoringInteractionEvents()
-        kasamIDGlobal = kasamBlocks[indexPath.row].kasamID
-        blockIDGlobal = kasamBlocks[indexPath.row].blockID
-        dayOrderGlobal = kasamBlocks[indexPath.row].dayOrder
-        performSegue(withIdentifier: "goToKasamViewerTicker", sender: indexPath)
+        if kasamBlocks.count == 0 {
+            //go to Discover Page when clicked
+            animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
+            self.tabBarController?.selectedIndex = 0
+        } else {
+            loadingAnimation()
+            UIApplication.shared.beginIgnoringInteractionEvents()
+            kasamIDGlobal = kasamBlocks[indexPath.row].kasamID
+            blockIDGlobal = kasamBlocks[indexPath.row].blockID
+            dayOrderGlobal = kasamBlocks[indexPath.row].dayOrder
+            performSegue(withIdentifier: "goToKasamViewerTicker", sender: indexPath)
+        }
     }
 }
 
@@ -434,7 +458,7 @@ extension TodayBlocksViewController: TodayCellDelegate {
     }
 }
 
-//CollectionView---------------------------------------------------------------------------------------------------------------------
+//CollectionView------------------------------------------------------------------------------------------
 
 extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

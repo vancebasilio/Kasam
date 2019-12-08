@@ -14,6 +14,7 @@ protocol LoginViewCellDelegate {
     func dismissViewController()
     func presentAlert(alert:UIAlertController)
     func CustomFBLogin()
+    func CustomGoogleLogin()
 }
 
 class LoginViewCell: UICollectionViewCell {
@@ -45,6 +46,11 @@ class LoginViewCell: UICollectionViewCell {
     @IBAction func facebookLoginPressed(_ sender: Any) {
         delegate?.CustomFBLogin()
     }
+    
+    @IBAction func googleLoginPressed(_ sender: Any) {
+        delegate?.CustomGoogleLogin()
+    }
+    
     
     @IBAction func loginPressed(_ sender: Any) {
         guard let email = emailTextfield.text, let password = passwordTextfield.text else {return}

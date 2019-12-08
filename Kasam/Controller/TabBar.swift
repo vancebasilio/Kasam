@@ -17,6 +17,7 @@ class TabBar: UITabBarController {
 }
 
 extension TabBar: UITabBarControllerDelegate  {
+    //clicking to switch
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         guard let fromView = selectedViewController?.view, let toView = viewController.view else {
             return false // Make sure you want this as false

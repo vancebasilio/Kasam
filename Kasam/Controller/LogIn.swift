@@ -9,14 +9,17 @@
 import UIKit
 import Firebase
 import FBSDKLoginKit
+import GoogleSignIn
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, GIDSignInDelegate {
     
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var segmentedControl: CustomSegmentedControl!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        GIDSignIn.sharedInstance()?.presentingViewController = self
+        GIDSignIn.sharedInstance().delegate = self
         self.hideKeyboardWhenTappedAround()
     }
     
@@ -79,7 +82,6 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
 }
 
 extension ViewController: RegisterViewCellDelegate {
-    
     func performSegue() {
         self.performSegue(withIdentifier: "goToMainUser", sender: self)
     }
@@ -95,57 +97,78 @@ extension ViewController: LoginViewCellDelegate {
         dismiss(animated: true, completion: nil)
     }
     
+    func CustomGoogleLogin() {
+        GIDSignIn.sharedInstance().signIn()
+    }
+    
+    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
+        if let error = error {
+            print(error.localizedDescription)
+            return
+        }
+        guard let auth = user.authentication else { return }
+        let credentials = GoogleAuthProvider.credential(withIDToken: auth.idToken, accessToken: auth.accessToken)
+        Auth.auth().signIn(with: credentials) {(authResult, error) in
+            self.userLoginandRegistration(authResult: authResult, error: error)
+        }
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     func CustomFBLogin(){
         LoginManager().logIn(permissions: ["email", "public_profile"], from: self) { (result: LoginManagerLoginResult?, error: Error?) in
             if error == nil {
                 if result!.isCancelled {return}
                 let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.tokenString)
-                Auth.auth().signIn(with: credential) { (authResult, error) in
-                    if let error = error {
-                        //error signing new user in
-                        print(error.localizedDescription)
-                        return
-                    } else {
-                        
-                        let ref = Database.database().reference().child("Users")
-                        ref.observeSingleEvent(of: .value, with: { (snapshot) in
-                            //if the user exists, don't add data
-                            if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {return}
-                            else {
-                                
-                                //for new registration
-                                let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
-                                let userDictionary = ["Name": authResult?.user.displayName!, "ProfileImage": "", "Score": "0", "History" : "", "UserID": Auth.auth().currentUser?.uid, "Following": "", "Type": "User", "Wins": "5", "Blocks": "7"]
-                                
-                                newUser.setValue(userDictionary) {
-                                    (error, reference) in
-                                    if error != nil {
-                                        print(error!)
-                                    } else {
-                                        print ("Registration Successful!")
-                                    }
-                                }
-                                
-                                let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
-                                changeRequest?.displayName = authResult?.user.displayName!
-                                changeRequest?.commitChanges { (error) in
-                                    if error != nil{
-                                        print(error!)
-                                    } else {
-                                        print ("username update successful!")
-                                        self.performSegue(withIdentifier: "goToMainUser", sender: self)
-                                        //end of new registration section
-                                    }
-                                }
-                            }
-                        })
-                    }
+                Auth.auth().signIn(with: credential) {(authResult, error) in
+                    self.userLoginandRegistration(authResult: authResult, error: error)
                 }
                 self.dismiss(animated: true, completion: nil)
             } else { //else for first error
                 print(error?.localizedDescription as Any)
                 return
             }
+        }
+    }
+    
+    func userLoginandRegistration(authResult: AuthDataResult?, error: Error?){
+        if let error = error {
+            //error signing new user in
+            print(error.localizedDescription)
+            return
+        } else {
+            let ref = Database.database().reference().child("Users")
+            ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                //if the user exists, don't add data
+                if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {
+                    //user already exists in Firebase
+                    return
+                } else {
+                    //new Firebase registration
+                    let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
+                    let userDictionary = ["Name": authResult?.user.displayName!, "History" : "", "UserID": Auth.auth().currentUser?.uid, "Following": "", "Type": "User", "Wins": "5", "Blocks": "7"]
+                    
+                    newUser.setValue(userDictionary) {
+                        (error, reference) in
+                        if error != nil {
+                            print(error!)
+                        } else {
+                            print ("Registration Successful!")
+                        }
+                    }
+                    
+                    let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
+                    changeRequest?.displayName = authResult?.user.displayName!
+                    changeRequest?.commitChanges { (error) in
+                        if error != nil{
+                            print(error!)
+                        } else {
+                            print ("username update successful!")
+                            self.performSegue(withIdentifier: "goToMainUser", sender: self)
+                            //end of new registration section
+                        }
+                    }
+                }
+            })
         }
     }
 }

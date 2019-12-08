@@ -22,6 +22,9 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var blockDuration: UILabel!
     @IBOutlet weak var blockContents: UIView!
     @IBOutlet weak var blockShadow: UIView!
+    @IBOutlet weak var blockPlaceholderView: UIStackView!
+    @IBOutlet weak var blockPlaceholderBG: UIView!
+    @IBOutlet weak var blockPlaceholderAdd: UIImageView!
     @IBOutlet weak var statusButton: UIButton!
     
     @IBOutlet weak var day1: UIView!
@@ -61,6 +64,16 @@ class TodayBlockCell: UITableViewCell {
     var processedStatus: String?
     let progress = Progress(totalUnitCount: 30)
     
+    func setPlaceholder() {
+        cellFormatting()
+        blockContents.isHidden = true
+        blockShadow.backgroundColor = UIColor(patternImage: UIImage(named: "image-add-placeholder")!)
+        blockPlaceholderView.isHidden = false
+        blockPlaceholderAdd.setIcon(icon: .fontAwesomeSolid(.plus), textColor: .white, backgroundColor: .lightGray, size: CGSize(width: 25, height: 25))
+        blockPlaceholderBG.layer.cornerRadius = blockPlaceholderBG.frame.width / 2
+        blockPlaceholderBG.clipsToBounds = true
+    }
+    
     func setBlock(block: TodayBlockFormat) {
         let dayTrackerArray = [day1, day2, day3, day4, day5, day6, day7, day8, day9, day10, day11, day12, day13, day14, day15, day16, day17, day18, day19, day20, day21, day22, day23, day24, day25, day26, day27, day28, day29, day30]
         kasamID = block.kasamID
@@ -93,7 +106,10 @@ class TodayBlockCell: UITableViewCell {
         } else if block.displayStatus == "Progress" {
             statusButton?.setIcon(icon: .fontAwesomeSolid(.thermometerHalf), iconSize: 30, color: UIColor.colorFour, forState: .normal)
         }
-
+        cellFormatting()
+    }
+    
+    func cellFormatting(){
         //Cell formatting
         blockContents.layer.cornerRadius = 8.0
         blockContents.clipsToBounds = true
