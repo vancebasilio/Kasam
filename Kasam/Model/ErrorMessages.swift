@@ -9,7 +9,7 @@
 import Foundation
 import SwiftEntryKit
 
-    //BOTTOM FLOAT CELL---------------------------------------------------------------------------------------------------
+    //BOTTOM FLOAT CELL----------------------------------------------------------------------------------------
     func floatCellSelected(title: String, description: String) {
         var attributes: EKAttributes
         attributes = .topFloat
@@ -81,25 +81,52 @@ import SwiftEntryKit
     }
 
     //USER OPTIONS---------------------------------------------------------------------------------------------
-    func showUserOptions() {
+    func showUserOptions(viewHeight: CGFloat) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
         attributes.displayDuration = .infinity
+        attributes.hapticFeedbackType = .success
         attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
         attributes.entryBackground = .color(color: .white)
         attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
         attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
         attributes.exitAnimation = .init(translate: .init(duration: 0.35))
         attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
         attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
         attributes.roundCorners = .all(radius: 20)
-        attributes.positionConstraints.size = .init(width: .fill, height: .ratio(value: 0.5))
-        attributes.positionConstraints.verticalOffset = -100
+        attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: viewHeight * (1.3)))
+        attributes.positionConstraints.verticalOffset = -viewHeight
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark
         
         let viewController = UserOptionsController()
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
+
+    //ADD KASAM---------------------------------------------------------------------------------------------
+    func addKasamPopup() {
+        var attributes: EKAttributes
+        attributes = .bottomFloat
+        attributes.displayMode = .light
+        attributes.displayDuration = .infinity
+        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
+        attributes.entryBackground = .gradient(gradient: .init(colors: [EKColor(UIColor.colorFour), EKColor(UIColor.colorFour)], startPoint: .zero, endPoint: CGPoint(x: 1, y: 1)))
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
+        attributes.scroll = .edgeCrossingDisabled(swipeable: true)
+        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
+        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
+        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
+        attributes.roundCorners = .all(radius: 20)
+        attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 380))
+        attributes.positionConstraints.verticalOffset = 0
+        attributes.positionConstraints.safeArea = .overridden
+        attributes.statusBar = .dark
+        
+        let viewController = AddKasamController()
+        SwiftEntryKit.display(entry: viewController, using: attributes)
+    }
+

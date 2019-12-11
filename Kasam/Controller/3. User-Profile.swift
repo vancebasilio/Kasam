@@ -104,7 +104,7 @@ class ProfileViewController: UIViewController {
     }
     
     @IBAction func showUserOptionsButton(_ sender: Any) {
-        showUserOptions()
+        showUserOptions(viewHeight: view.frame.height)
     }
     
     @objc func goToCreateKasam() {
@@ -136,16 +136,16 @@ class ProfileViewController: UIViewController {
                 }
             
             //Kasam Level
+            self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.smile), postfixText: " Beginner", size: 15)
             self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasam.kasamID).observe(.childAdded, with:{ (snapshot) in
                 self.daysCompletedDict[snapshot.key] = 1
                 let total = self.daysCompletedDict.count
                 if total == 1 {
-                     self.totalDays.text = "\(String(total)) Kasam Day"
+                     self.totalDays.text = "\(String(total)) Challo Day"
                 } else {
-                    self.totalDays.text = "\(String(total)) Kasam Days"
+                    self.totalDays.text = "\(String(total)) Challo Days"
                 }
                 if total <= 30 {
-                    self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.smile), postfixText: " Beginner", size: 15)
                     self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
                 } else if total > 30 && total <= 90 {
                     self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Intermediate", size: 15)
@@ -332,14 +332,15 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 kasamIDGlobal = weeklyStats[indexPath.row].kasamID
                 kasamMetricTypeGlobal = weeklyStats[indexPath.row].metricType
                 kasamImageGlobal = weeklyStats[indexPath.row].imageURL
+                self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
-        } else {
+        } else if collectionView == detailedStatsCollectionView {
             kasamTitleGlobal = detailedStats[indexPath.row].kasamTitle
             kasamIDGlobal = detailedStats[indexPath.row].kasamID
             kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
             kasamImageGlobal = detailedStats[indexPath.row].imageURL
+            self.performSegue(withIdentifier: "goToStats", sender: indexPath)
         }
-        self.performSegue(withIdentifier: "goToStats", sender: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

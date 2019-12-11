@@ -76,7 +76,7 @@ class StatisticsViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(StatisticsViewController.getKasamStats), name: mainStatsUpdate, object: nil)
     }
     
-    /// Creating gradient for filling space under the line chart
+    //Creating gradient for filling space under the line chart
     private func getGradientFilling() -> CGGradient {
         let coloTop = UIColor.init(hex: 0xFFD062).cgColor
         let colorBottom = UIColor.init(hex: 0xFFD062).cgColor
@@ -86,6 +86,7 @@ class StatisticsViewController: UIViewController {
     }
     
     @objc func getKasamStats(){
+        print("hello")
         self.kasamBlocks.removeAll()
         joinedDate = SavedData.kasamDict[kasamID]?.joinedDate
         let kasamDay = ((Calendar.current.dateComponents([.day], from: joinedDate!, to: Date()).day!) + 1)

@@ -413,6 +413,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
         if kasamBlocks.count == 0 {
             cell.setPlaceholder()
         } else {
+            cell.removePlaceholder()
             let block = kasamBlocks[indexPath.row]
             cell.delegate = self
             cell.setBlock(block: block)
