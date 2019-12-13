@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import SkeletonView
 
 class DiscoverViewController: UIViewController {
     
@@ -40,6 +41,7 @@ class DiscoverViewController: UIViewController {
         getUserKasams()
         getExpertKasams()
         setupNavBar()
+        self.view.showAnimatedSkeleton()
         DispatchQueue.main.async {
             self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
         }
@@ -111,6 +113,25 @@ class DiscoverViewController: UIViewController {
         }
     }
     
+    //Part 1
+    func getExpertKasams() {
+        expertKasamArray.removeAll()
+        expertKasamDBHandle = kasamDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Expert").observe(.childAdded) { (snapshot) in
+            if let value = snapshot.value as? [String: Any] {
+                let creatorID = value["CreatorID"] as? String ?? ""
+                self.userCreator.child(creatorID).child("Name").observeSingleEvent(of: .value, with: {(snap) in
+                    let creatorName = snap.value as! String
+                    let imageURL = URL(string: value["Image"] as? String ?? "")
+                    let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? self.placeholder() as! URL, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "")
+                    self.expertKasamArray.append(kasam)
+                    self.categoryCollection.reloadData()
+                    self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
+                })
+            }
+        }
+    }
+    
+    //Part 2
     func getFreeKasams() {
         freeKasamArray.removeAll()
         freeKasamDBHandle = kasamDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Free").observe(.childAdded) { (snapshot) in
@@ -123,6 +144,7 @@ class DiscoverViewController: UIViewController {
         }
     }
     
+    //Part 3
     func getUserKasams(){
         myKasamArray.removeAll()
         userKasamDBHandle = userKasamDB.observe(.childAdded, with: { (snapshot) in
@@ -136,25 +158,9 @@ class DiscoverViewController: UIViewController {
             })
         })
     }
-    
-    func getExpertKasams() {
-        expertKasamArray.removeAll()
-        expertKasamDBHandle = kasamDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Expert").observe(.childAdded) { (snapshot) in
-            if let value = snapshot.value as? [String: Any] {
-                let creatorID = value["CreatorID"] as? String ?? ""
-                self.userCreator.child(creatorID).child("Name").observeSingleEvent(of: .value, with: {(snap) in
-                    let creatorName = snap.value as! String
-                    let imageURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? self.placeholder() as! URL, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "")
-                    self.expertKasamArray.append(kasam)
-                    self.categoryCollection.reloadData()
-                })
-            }
-        }
-    }
 }
 
-extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, SkeletonCollectionViewDataSource {
     //Number of cells
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == discoverCollection {
@@ -243,5 +249,14 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
             viewSafeAreaInsetsDidChange()
             return CGSize(width: view.bounds.size.width / 2, height: view.bounds.size.width / 2.3)
         }
+    }
+    
+    //Skeleton View
+    func collectionSkeletonView(_ skeletonView: UICollectionView, cellIdentifierForItemAt indexPath: IndexPath) -> ReusableCellIdentifier {
+        return "ExpertKasamCell"
+    }
+    
+    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
     }
 }

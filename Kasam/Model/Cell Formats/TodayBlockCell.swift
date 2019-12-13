@@ -70,6 +70,7 @@ class TodayBlockCell: UITableViewCell {
         blockShadow.backgroundColor = UIColor(patternImage: UIImage(named: "image-add-placeholder")!)
         blockPlaceholderView.isHidden = false
         blockPlaceholderAdd.setIcon(icon: .fontAwesomeSolid(.plus), textColor: .white, backgroundColor: .lightGray, size: CGSize(width: 25, height: 25))
+        blockPlaceholderAdd.isHidden = false
         blockPlaceholderBG.layer.cornerRadius = blockPlaceholderBG.frame.width / 2
         blockPlaceholderBG.clipsToBounds = true
     }

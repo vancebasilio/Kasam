@@ -40,6 +40,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     var dayTrackerRefHandle: DatabaseHandle!
     var dayTrackerArray = [Int]()
     var dayTrackerDateArray = [Int:String]()
+    var noKasamTracker = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -104,11 +105,14 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func getPreferences() {
         SavedData.kasamTodayArray.removeAll()
         SavedData.clearKasamArray()
+        noKasamTracker = 0
         kasamFollowingRef.observeSingleEvent(of: .value, with:{ (snap) in
             var kasamOrder = 0
             var count = Int(snap.childrenCount)
             if count == 0 {
                 //not following any kasams
+                self.noKasamTracker = 1
+                self.tableView.reloadData()
                 self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
             }
             self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded) { (snapshot) in
@@ -271,8 +275,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     if let value = snap.value as? Double {
                         if value >= 1 {
                             displayStatus = "Check"        //Kasam has been completed today
+                            Analytics.logEvent("completed_Challo", parameters: nil)
                         } else if value < 1 {
                             displayStatus = "Progress"     //kasam has been started, but not completed
+                            Analytics.logEvent("working_Challo", parameters: ["metric %": value])
                         }
                     }
                     if snapshot.exists() {
@@ -354,8 +360,14 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    // Sign in form
-    private func showSigninForm(attributes: EKAttributes, style: FormStyle, motivationID: String) {
+    @objc func editMotivation(_ notification: NSNotification){
+        if let motivationID = notification.userInfo?["motivationID"] as? String {
+            let attributes = FormFieldPresetFactory.attributes()
+            changeMotivationPopup(attributes: attributes, style: .light, motivationID: motivationID)
+        }
+    }
+    
+    private func changeMotivationPopup(attributes: EKAttributes, style: FormStyle, motivationID: String) {
         let titleStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15), color: .standardContent, alignment: .center, displayMode: .light)
         let title = EKProperty.LabelContent(text: "Add your motivation!", style: titleStyle)
         let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
@@ -376,13 +388,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
     
-    @objc func editMotivation(_ notification: NSNotification){
-        if let motivationID = notification.userInfo?["motivationID"] as? String {
-            let attributes = FormFieldPresetFactory.attributes()
-            showSigninForm(attributes: attributes, style: .light, motivationID: motivationID)
-        }
-    }
-    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToKasamViewerTicker" {
             let kasamActivityHolder = segue.destination as! KasamViewerTicker
@@ -397,20 +402,16 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if kasamBlocks.count == 0 {
+        if noKasamTracker == 1 {
             return 1
         } else {
             return kasamBlocks.count
         }
     }
     
-    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
-    }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as! TodayBlockCell
-        if kasamBlocks.count == 0 {
+        if noKasamTracker == 1 {
             cell.setPlaceholder()
         } else {
             cell.removePlaceholder()
@@ -421,18 +422,8 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
         return cell
     }
     
-    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
-        return "TodayKasamCell"
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let height = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 125
-        return height
-    }
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if kasamBlocks.count == 0 {
+        if noKasamTracker == 1{
             //go to Discover Page when clicked
             animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
             self.tabBarController?.selectedIndex = 0
@@ -444,6 +435,21 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
             dayOrderGlobal = kasamBlocks[indexPath.row].dayOrder
             performSegue(withIdentifier: "goToKasamViewerTicker", sender: indexPath)
         }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let height = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 125
+        return height
+    }
+    
+    //Skeleton View
+    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
+        return "TodayKasamCell"
     }
 }
 
@@ -461,20 +467,11 @@ extension TodayBlocksViewController: TodayCellDelegate {
 
 //CollectionView------------------------------------------------------------------------------------------
 
-extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, SkeletonCollectionViewDataSource {
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         todayCollectionHeight.constant = (view.bounds.size.width * (2/5))
         return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
-    }
-}
-
-extension TodayBlocksViewController: SkeletonCollectionViewDataSource {
-    func collectionSkeletonView(_ skeletonView: UICollectionView, cellIdentifierForItemAt indexPath: IndexPath) -> ReusableCellIdentifier {
-        return "TodayMotivationCell"
-    }
-    
-    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -491,5 +488,14 @@ extension TodayBlocksViewController: SkeletonCollectionViewDataSource {
         cell.motivationText.text = motivationArray[indexPath.row].motivationText
         cell.motivationID["motivationID"] = motivationArray[indexPath.row].motivationID
         return cell
+    }
+    
+    //Skeleton View
+    func collectionSkeletonView(_ skeletonView: UICollectionView, cellIdentifierForItemAt indexPath: IndexPath) -> ReusableCellIdentifier {
+        return "TodayMotivationCell"
+    }
+    
+    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
     }
 }

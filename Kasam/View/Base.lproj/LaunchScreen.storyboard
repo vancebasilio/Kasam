@@ -20,14 +20,14 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EwW-aV-gj9">
-                                        <rect key="frame" x="67.5" y="0.0" width="240" height="114"/>
+                                        <rect key="frame" x="67.5" y="0.0" width="240" height="113.5"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="dHM-ey-peh">
-                                        <rect key="frame" x="73.5" y="114" width="228" height="172.5"/>
+                                        <rect key="frame" x="106.5" y="113.5" width="162" height="174.5"/>
                                         <subviews>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Loading-logo" translatesAutoresizingMaskIntoConstraints="NO" id="Otd-fM-52Y">
-                                                <rect key="frame" x="54" y="0.0" width="120" height="119.5"/>
+                                                <rect key="frame" x="21" y="0.0" width="120" height="119.5"/>
                                                 <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="120" id="PhM-s5-tEj"/>
@@ -35,21 +35,28 @@
                                                 </constraints>
                                             </imageView>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Challo-logo" translatesAutoresizingMaskIntoConstraints="NO" id="Tpc-eE-XH3">
-                                                <rect key="frame" x="80.5" y="119.5" width="67" height="18"/>
-                                            </imageView>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="A 30-day promise to yourself" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cfT-CL-HIg">
-                                                <rect key="frame" x="0.0" y="137.5" width="228" height="35"/>
+                                                <rect key="frame" x="0.0" y="119.5" width="162" height="25"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="35" id="HHU-OU-ftv"/>
+                                                    <constraint firstAttribute="height" constant="25" id="70M-ls-Rd6"/>
                                                 </constraints>
-                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                            </imageView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="A 30-day challenge" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cfT-CL-HIg">
+                                                <rect key="frame" x="0.0" y="144.5" width="162" height="30"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="30" id="MUp-T5-Jz4"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
                                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="Tpc-eE-XH3" secondAttribute="trailing" id="5J5-xJ-Ixg"/>
+                                            <constraint firstItem="Tpc-eE-XH3" firstAttribute="leading" secondItem="dHM-ey-peh" secondAttribute="leading" id="d83-oH-XYE"/>
+                                        </constraints>
                                     </stackView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XOq-Lh-W8g">
-                                        <rect key="frame" x="0.0" y="286.5" width="375" height="380.5"/>
+                                        <rect key="frame" x="0.0" y="288" width="375" height="379"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                     </view>
                                 </subviews>

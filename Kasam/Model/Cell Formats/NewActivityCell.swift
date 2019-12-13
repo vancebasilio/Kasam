@@ -100,7 +100,6 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
     }
     
     @IBAction func backButtonPressed(_ sender: Any) {
-        print("hello")
         saveProgress()
     }
     

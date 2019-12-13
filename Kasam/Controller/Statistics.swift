@@ -86,7 +86,6 @@ class StatisticsViewController: UIViewController {
     }
     
     @objc func getKasamStats(){
-        print("hello")
         self.kasamBlocks.removeAll()
         joinedDate = SavedData.kasamDict[kasamID]?.joinedDate
         let kasamDay = ((Calendar.current.dateComponents([.day], from: joinedDate!, to: Date()).day!) + 1)

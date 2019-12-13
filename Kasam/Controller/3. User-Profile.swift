@@ -36,6 +36,7 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var sideMenuButton: UIButton!
     @IBOutlet weak var completedKasamsTable: SelfSizedTableView!
     @IBOutlet weak var completedKasamTableHeight: NSLayoutConstraint!
+    @IBOutlet weak var completedLabel: UILabel!
     
     var weeklyStats: [weekStatsFormat] = []
     var detailedStats: [UserStatsFormat] = []
@@ -276,7 +277,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == weekStatsCollectionView {
             if detailedStats.count == 0 {
-                print("hello")
                 return 1                                                     //user not following any kasams
             } else if detailedStats.count != 0 && weeklyStats.count == 0 {
                 return detailedStats.count                                   //user following kasams that aren't active yet
@@ -313,7 +313,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == weekStatsCollectionView {
             challoStatsHeight.constant = (view.bounds.size.width * (2/5))
-        return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
+            return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
         } else {
             let cellWidth = ((view.frame.size.width - (15 * 4)) / 3)
             detailedStatsCollectionViewHeight.constant = cellWidth + 40
@@ -346,6 +346,9 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
 
 extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if completedStats.count > 0 {
+            completedLabel.isHidden = false
+        }
         return completedStats.count
     }
     
