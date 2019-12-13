@@ -214,7 +214,6 @@
 			isa = PBXGroup;
 			children = (
 				BC08B956229D585900F90288 /* CellFormats.swift */,
-				BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */,
 				BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */,
 				BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */,
 				BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */,
@@ -227,8 +226,9 @@
 				BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */,
 				BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */,
 				BC55CC68232B4552003C87F6 /* WeeklyStatsCell.swift */,
-				BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */,
+				BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */,
 				BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */,
+				BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */,
 				BC339E8F2377242C00E1D038 /* LoginViewCell.swift */,
 				BC339E9123772D6F00E1D038 /* RegisterViewCell.swift */,
 			);

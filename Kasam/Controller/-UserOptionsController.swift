@@ -8,6 +8,7 @@
 
 import UIKit
 import FBSDKLoginKit
+import SwiftEntryKit
 
 class UserOptionsController: UIViewController {
 
@@ -52,6 +53,7 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
             AppManager.shared.logoout()
             LoginManager().logOut()
         }
+        SwiftEntryKit.dismiss()
     }
 }
 

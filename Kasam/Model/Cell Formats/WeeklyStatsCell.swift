@@ -71,4 +71,10 @@ class WeeklyStatsCell: UICollectionViewCell {
             averageMetricLabel.text = "Avg. %"
         }
     }
+    
+    func setBlankBlock(cell: UserStatsFormat) {
+        kasamTitle.text = cell.kasamTitle
+        averageMetricLabel.text = "Avg. \(cell.metricType)"
+        averageMetric.text = "0"
+    }
 }

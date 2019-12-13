@@ -89,8 +89,14 @@ extension ViewController: RegisterViewCellDelegate {
 
 extension ViewController: LoginViewCellDelegate {
     
-    func presentAlert(alert: UIAlertController) {
-        self.present(alert, animated: true, completion: nil)
+    func showError(_ error: Error) {
+        if let errorCode = AuthErrorCode(rawValue: error._code) {
+            print(errorCode.errorMessage)
+            let alert = UIAlertController(title: "Error", message: errorCode.errorMessage, preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
+            alert.addAction(okAction)
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     func dismissViewController() {
@@ -109,7 +115,9 @@ extension ViewController: LoginViewCellDelegate {
         guard let auth = user.authentication else { return }
         let credentials = GoogleAuthProvider.credential(withIDToken: auth.idToken, accessToken: auth.accessToken)
         Auth.auth().signIn(with: credentials) {(authResult, error) in
-            self.userLoginandRegistration(authResult: authResult, error: error)
+                self.userLoginandRegistration(authResult: authResult, error: error)
+                //get the profile image for google
+                self.getProfilePicture(googleUser:user)
         }
         self.dismiss(animated: true, completion: nil)
     }
@@ -121,8 +129,14 @@ extension ViewController: LoginViewCellDelegate {
                 let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.tokenString)
                 Auth.auth().signIn(with: credential) {(authResult, error) in
                     self.userLoginandRegistration(authResult: authResult, error: error)
+                    //get the profile image for facebook
+                    self.getProfilePicture(googleUser:nil)
                 }
-                self.dismiss(animated: true, completion: nil)
+                if Auth.auth().currentUser != nil {
+                   self.dismiss(animated: true, completion: nil)
+                } else {
+                    //User Not logged in
+                }
             } else { //else for first error
                 print(error?.localizedDescription as Any)
                 return
@@ -130,10 +144,62 @@ extension ViewController: LoginViewCellDelegate {
         }
     }
     
+    func getProfilePicture(googleUser: GIDGoogleUser?){
+        if let userFirebase = Auth.auth().currentUser {
+            let storage = Storage.storage()
+            let storageRef = storage.reference(forURL: "gs://kasam-coach.appspot.com")
+            let profilePicRef = storageRef.child("users/"+userFirebase.uid+"/profile_pic.jpg")
+            
+            //Check if the image is stored in Firebase
+            profilePicRef.downloadURL { (url, error) in
+                if url != nil {
+                    //Get the image from Firebase
+                } else {
+                    if error != nil {
+                    //Unable to download image from Firebase, so get from Google
+                        if googleUser != nil {
+                            //download image from Google
+                            if let imageData = NSData(contentsOf: googleUser!.profile.imageURL(withDimension: 400)) {
+                            //Upload the file to the storage reference location
+                                _ = profilePicRef.putData(imageData as Data, metadata:nil){
+                                    metadata, error in
+                                    if(error == nil) {
+                                        //image successfully downloaded to Firebase
+                                    }
+                                    else {print("Error in downloading image")}
+                                }
+                            }
+                        } else {
+                            //download image from Facebook
+                            let profilePic = GraphRequest(graphPath: "me/picture", parameters:  ["height": 300, "width": 300, "redirect": false], httpMethod: HTTPMethod(rawValue: "GET"))
+                            profilePic.start(completionHandler: {(connection, result, error) -> Void in
+                                if(error == nil) {
+                                    let dictionary = result as? NSDictionary
+                                    let data = dictionary?.object(forKey: "data")
+                                    let urlPic = ((data as AnyObject).object(forKey: "url"))! as! String
+                                    if let imageData = NSData(contentsOf: NSURL(string:urlPic)! as URL) {
+                                        //Upload the file to the storage reference location
+                                        _ = profilePicRef.putData(imageData as Data, metadata:nil){
+                                            metadata, error in
+                                            if(error == nil) {
+                                                //image successfully downloaded to Firebase
+                                        }
+                                        else {print("Error in downloading image")}
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     func userLoginandRegistration(authResult: AuthDataResult?, error: Error?){
         if let error = error {
             //error signing new user in
-            print(error.localizedDescription)
+            showError(error)
             return
         } else {
             let ref = Database.database().reference().child("Users")
@@ -155,7 +221,6 @@ extension ViewController: LoginViewCellDelegate {
                             print ("Registration Successful!")
                         }
                     }
-                    
                     let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
                     changeRequest?.displayName = authResult?.user.displayName!
                     changeRequest?.commitChanges { (error) in
@@ -169,6 +234,31 @@ extension ViewController: LoginViewCellDelegate {
                     }
                 }
             })
+        }
+    }
+}
+
+extension AuthErrorCode {
+    var errorMessage: String {
+        switch self {
+        case .emailAlreadyInUse:
+            return "The email is already in use with another account"
+        case .userNotFound:
+            return "Account not found for the specified user. Please check and try again"
+        case .userDisabled:
+            return "Your account has been disabled. Please contact support."
+        case .invalidEmail, .invalidSender, .invalidRecipientEmail:
+            return "Please enter a valid email"
+        case .networkError:
+            return "Network error. Please try again."
+        case .weakPassword:
+            return "Your password is too weak. The password must be 6 characters long or more."
+        case .wrongPassword:
+            return "Your password is incorrect. Please try again or use 'Forgot password' to reset your password"
+        case .accountExistsWithDifferentCredential:
+            return "An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address."
+        default:
+            return "Unknown error occurred"
         }
     }
 }

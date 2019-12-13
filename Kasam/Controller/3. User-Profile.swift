@@ -12,6 +12,7 @@ import Parchment
 import FBSDKLoginKit
 import SwiftEntryKit
 import SkeletonView
+import GoogleSignIn
 
 class ProfileViewController: UIViewController {
    
@@ -130,13 +131,14 @@ class ProfileViewController: UIViewController {
                 } else {
                     self.detailedStats.append(userStats)
                     self.detailedStatsCollectionView.reloadData()
+                    self.weekStatsCollectionView.reloadData()
                 }
                 if self.detailedStats.count + self.completedStats.count == SavedData.kasamArray.count {
                     self.getWeeklyStats()
                 }
             
             //Kasam Level
-            self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.smile), postfixText: " Beginner", size: 15)
+            self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
             self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasam.kasamID).observe(.childAdded, with:{ (snapshot) in
                 self.daysCompletedDict[snapshot.key] = 1
                 let total = self.daysCompletedDict.count
@@ -148,7 +150,7 @@ class ProfileViewController: UIViewController {
                 if total <= 30 {
                     self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
                 } else if total > 30 && total <= 90 {
-                    self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Intermediate", size: 15)
+                    self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.laugh), postfixText: " Intermediate", size: 15)
                     self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 90.0)
                 }
             })
@@ -243,32 +245,6 @@ class ProfileViewController: UIViewController {
                     self.profileImage?.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder.png"), options: [], completed: { (image, error, cache, url) in
                         self.profileImage.hideSkeleton()
                     })
-                } else {
-                    if error != nil {
-                    //Unable to download image from Firebase, so get from Facebook
-                        let profilePic = GraphRequest(graphPath: "me/picture", parameters:  ["height": 300, "width": 300, "redirect": false], httpMethod: HTTPMethod(rawValue: "GET"))
-                        profilePic.start(completionHandler: {(connection, result, error) -> Void in
-                            if(error == nil)
-                            {
-                                let dictionary = result as? NSDictionary
-                                let data = dictionary?.object(forKey: "data")
-                                let urlPic = ((data as AnyObject).object(forKey: "url"))! as! String
-                                if let imageData = NSData(contentsOf: NSURL(string:urlPic)! as URL)
-                                {
-                                    //Upload the file to the storage reference location
-                                    _ = profilePicRef.putData(imageData as Data, metadata:nil){
-                                        metadata, error in
-                                        if(error == nil)
-                                        {//image successfully downloaded to Firebase
-                                        }
-                                        else {print("Error in downloading image")}
-                                    }
-                                    self.profileImage.image = UIImage(data: imageData as Data)
-                                    self.profileImage.hideSkeleton()
-                                }
-                            }
-                        })
-                    }
                 }
             }
         }
@@ -297,16 +273,40 @@ class ProfileViewController: UIViewController {
 }
 
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == weekStatsCollectionView {
-            if weeklyStats.count == 0 {
-                return 1
+            if detailedStats.count == 0 {
+                print("hello")
+                return 1                                                     //user not following any kasams
+            } else if detailedStats.count != 0 && weeklyStats.count == 0 {
+                return detailedStats.count                                   //user following kasams that aren't active yet
             } else {
-                return weeklyStats.count
+                return weeklyStats.count                                     //user following active kasams
             }
         } else {
             return detailedStats.count
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if collectionView == weekStatsCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! WeeklyStatsCell
+            cell.height = challoStatsHeight.constant
+            if detailedStats.count == 0 {
+                cell.setPlaceholder()                                                     //user not following any kasams
+            } else if detailedStats.count != 0 && weeklyStats.count == 0 {
+                let blankStat = detailedStats[indexPath.row]
+                cell.setBlankBlock(cell: blankStat)                                       //user following kasams that aren't active yet
+            } else {
+                let stat = weeklyStats[indexPath.row]
+                cell.setBlock(cell: stat)                                                  //user following active kasams
+            }
+            return cell
+        } else {
+            let kasam = detailedStats[indexPath.row]
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamFollowingCell", for: indexPath) as! KasamFollowingCell
+            cell.setBlock(cell: kasam)
+            return cell
         }
     }
     
@@ -340,25 +340,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
             kasamImageGlobal = detailedStats[indexPath.row].imageURL
             self.performSegue(withIdentifier: "goToStats", sender: indexPath)
-        }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == weekStatsCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! WeeklyStatsCell
-            cell.height = challoStatsHeight.constant
-            if weeklyStats.count == 0 {
-                cell.setPlaceholder()
-            } else {
-                let stat = weeklyStats[indexPath.row]
-                cell.setBlock(cell: stat)
-            }
-            return cell
-        } else {
-            let kasam = detailedStats[indexPath.row]
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamFollowingCell", for: indexPath) as! KasamFollowingCell
-            cell.setBlock(cell: kasam)
-            return cell
         }
     }
 }

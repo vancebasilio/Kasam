@@ -16,7 +16,6 @@ class KasamHistoryTableCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
     }
     
     func setBlock(block: kasamFollowingFormat) {
