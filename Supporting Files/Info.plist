@@ -31,7 +31,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.1056043309290-kt1odno12nvt4ht6tphu3e3vofv3k1ak</string>
+				<string>com.googleusercontent.apps.1056043309290-v3dadb40ga1lgqbkfcn2ukndt1r79c17</string>
 			</array>
 		</dict>
 		<dict>
@@ -39,7 +39,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.vancebasilio.Kasam</string>
+				<string>com.vancebasilio.Challo</string>
 			</array>
 		</dict>
 	</array>

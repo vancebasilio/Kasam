@@ -181,6 +181,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     if error != nil {
                         print(error!)
                     } else {
+                        Analytics.logEvent("following_Challo", parameters: ["challo_name":self.kasamTitle.text ?? "Challo Name"])
                         NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveTodayKasams"), object: self)
                         NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                     }
@@ -203,6 +204,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             if error != nil {
                 print(error!)
             } else {
+                Analytics.logEvent("unfollowing_Challo", parameters: ["challo_name":self.kasamTitle.text ?? "Challo Name"])
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveTodayKasams"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
             }

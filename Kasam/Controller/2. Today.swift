@@ -168,7 +168,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     //Gets the blockdata after the block is decided on
                     Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: { snapshot in
                         let value = snapshot.value as! Dictionary<String,Any>
-                        self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
                         let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: self.dayTrackerArray)
                         self.kasamBlocks.append(block)
                         self.reloadTodayKasamData()
@@ -182,8 +181,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func reloadTodayKasamData() {
-        self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
         self.tableView.reloadData()
+        self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
         self.updateContentTableHeight()
         self.dayTrackerDateArray.removeAll()
         self.dayTrackerArray.removeAll()
@@ -278,7 +277,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                             Analytics.logEvent("completed_Challo", parameters: nil)
                         } else if value < 1 {
                             displayStatus = "Progress"     //kasam has been started, but not completed
-                            Analytics.logEvent("working_Challo", parameters: ["metric %": value])
+                            Analytics.logEvent("working_Challo", parameters: ["metric_percent": value.rounded(toPlaces: 2)])
                         }
                     }
                     if snapshot.exists() {

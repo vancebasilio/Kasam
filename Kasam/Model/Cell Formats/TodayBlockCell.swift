@@ -66,11 +66,11 @@ class TodayBlockCell: UITableViewCell {
     
     func setPlaceholder() {
         cellFormatting()
+        blockPlaceholderView.isHidden = false
         blockContents.isHidden = true
         blockShadow.backgroundColor = UIColor(patternImage: UIImage(named: "image-add-placeholder")!)
         blockPlaceholderView.isHidden = false
         blockPlaceholderAdd.setIcon(icon: .fontAwesomeSolid(.plus), textColor: .white, backgroundColor: .lightGray, size: CGSize(width: 25, height: 25))
-        blockPlaceholderAdd.isHidden = false
         blockPlaceholderBG.layer.cornerRadius = blockPlaceholderBG.frame.width / 2
         blockPlaceholderBG.clipsToBounds = true
     }
@@ -78,8 +78,6 @@ class TodayBlockCell: UITableViewCell {
     func removePlaceholder(){
         blockContents.isHidden = false
         blockPlaceholderView.isHidden = true
-        blockPlaceholderAdd.isHidden = true
-        blockPlaceholderBG.isHidden = true
     }
     
     func setBlock(block: TodayBlockFormat) {

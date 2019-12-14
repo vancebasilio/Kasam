@@ -284,7 +284,11 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 return weeklyStats.count                                     //user following active kasams
             }
         } else {
-            return detailedStats.count
+            if detailedStats.count == 0 {
+                return 1
+            } else {
+                return detailedStats.count
+            }
         }
     }
     
@@ -303,9 +307,13 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             }
             return cell
         } else {
-            let kasam = detailedStats[indexPath.row]
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamFollowingCell", for: indexPath) as! KasamFollowingCell
-            cell.setBlock(cell: kasam)
+            if detailedStats.count == 0 {
+                cell.setPlaceholder()
+            } else {
+                let kasam = detailedStats[indexPath.row]
+                cell.setBlock(cell: kasam)
+            }
             return cell
         }
     }
@@ -335,11 +343,17 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
         } else if collectionView == detailedStatsCollectionView {
-            kasamTitleGlobal = detailedStats[indexPath.row].kasamTitle
-            kasamIDGlobal = detailedStats[indexPath.row].kasamID
-            kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
-            kasamImageGlobal = detailedStats[indexPath.row].imageURL
-            self.performSegue(withIdentifier: "goToStats", sender: indexPath)
+            if detailedStats.count == 0 {
+               //go to Discover Page when clicked
+               animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
+               self.tabBarController?.selectedIndex = 0
+            } else {
+                kasamTitleGlobal = detailedStats[indexPath.row].kasamTitle
+                kasamIDGlobal = detailedStats[indexPath.row].kasamID
+                kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
+                kasamImageGlobal = detailedStats[indexPath.row].imageURL
+                self.performSegue(withIdentifier: "goToStats", sender: indexPath)
+            }
         }
     }
 }
