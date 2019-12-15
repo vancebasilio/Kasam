@@ -60,12 +60,22 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     func setupNotifications(){
         let stopLoadingAnimation = NSNotification.Name("RemoveLoadingAnimation")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
+        
         let retrieveKasams = NSNotification.Name("RetrieveTodayKasams")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.getPreferences), name: retrieveKasams, object: nil)
+        
         let updateKasamStatus = NSNotification.Name("UpdateTodayBlockStatus")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.updateKasamStatus), name: updateKasamStatus, object: nil)
+        
         let editMotivation = NSNotification.Name("EditMotivation")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.editMotivation), name: editMotivation, object: nil)
+    }
+    
+    //Table Resizing----------------------------------------------------------------------------------------
+    override func viewDidLayoutSubviews(){
+        tableView.frame = CGRect(x: tableView.frame.origin.x, y: tableView.frame.origin.y, width: tableView.frame.size.width, height: tableView.contentSize.height)
+        self.tableViewHeight.constant = self.tableView.contentSize.height
+        tableView.reloadData()
     }
     
     func updateContentTableHeight(){
@@ -77,13 +87,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
             let diff = frame.height - contentViewHeight
             contentView.constant = contentViewHeight + diff + 1
         }
-    }
-    
-    //Table Resizing----------------------------------------------------------------------------------------
-    override func viewDidLayoutSubviews(){
-        tableView.frame = CGRect(x: tableView.frame.origin.x, y: tableView.frame.origin.y, width: tableView.frame.size.width, height: tableView.contentSize.height)
-        self.tableViewHeight.constant = self.tableView.contentSize.height
-        tableView.reloadData()
+        viewDidLayoutSubviews()
     }
 
     func setupTableAndHeader(){
@@ -103,11 +107,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func getPreferences() {
-        print("In get preferences to refresh today Challos")
-        SavedData.kasamTodayArray.removeAll()
-        SavedData.clearKasamArray()
+        SavedData.kasamTodayArray.removeAll()           //kasamTodayArray is used for populating the Today page
+        SavedData.kasamArray.removeAll()                //kasamArray is used for userProfile with all Kasams in it
         noKasamTracker = 0
-        kasamFollowingRef.observeSingleEvent(of: .value, with:{ (snap) in
+        kasamFollowingRef.observeSingleEvent(of: .value, with:{(snap) in
             var kasamOrder = 0
             var count = Int(snap.childrenCount)
             if count == 0 {
@@ -116,7 +119,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                 self.tableView.reloadData()
                 self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
             }
-            self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded) { (snapshot) in
+            self.kasamFollowingRefHandle = self.kasamFollowingRef.observe(.childAdded) {(snapshot) in
                 //Get Kasams from user following + their preference for each kasam
                 if let value = snapshot.value as? [String: Any] {
                     let kasamID = snapshot.key
@@ -171,9 +174,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         let value = snapshot.value as! Dictionary<String,Any>
                         let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: self.dayTrackerArray)
                         self.kasamBlocks.append(block)
-                        self.reloadTodayKasamData()
                         if todayKasamCount == SavedData.kasamTodayArray.count {
                             self.getDayTracker()
+                            self.reloadTodayKasamData()
                         }
                     })
                 })
@@ -182,7 +185,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func reloadTodayKasamData() {
-        self.tableView.reloadData()
+        print("update tiday")
+        setupTableAndHeader()
         self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
         self.updateContentTableHeight()
         self.dayTrackerDateArray.removeAll()

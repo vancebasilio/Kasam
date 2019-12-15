@@ -14,10 +14,6 @@ struct SavedData {
     static var kasamDict: [String:KasamSavedFormat] = [:]
     static var dayTrackerArray: [String] = []
     static var dayTrackerDict: [String: [Int:String]] = [:]
-    
-    static func clearKasamArray(){
-        kasamArray.removeAll()
-    }
 
     static func addKasam(kasam: KasamSavedFormat) {
         self.kasamArray.append(kasam)

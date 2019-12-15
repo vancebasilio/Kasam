@@ -4855,6 +4855,7 @@
                         <outlet property="profileViewRadius" destination="8UY-jx-MSI" id="qUm-48-6Ch"/>
                         <outlet property="tableView" destination="brK-e7-UGe" id="7QM-JB-DMb"/>
                         <segue destination="U6q-5a-cbP" kind="show" identifier="goToCreateActivity" id="F3y-Lq-aIm"/>
+                        <segue destination="1JF-97-QwZ" kind="show" identifier="goToToday" id="bfR-GK-E9V"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5dB-wc-pOV" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -5001,7 +5002,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="375" height="170"/>
                                                                             <subviews>
                                                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xST-dz-BoM" customClass="SkyFloatingLabelTextField" customModule="SkyFloatingLabelTextField">
-                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="68"/>
+                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="54"/>
                                                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
                                                                                     <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
                                                                                     <userDefinedRuntimeAttributes>
@@ -5040,7 +5041,7 @@
                                                                                     </userDefinedRuntimeAttributes>
                                                                                 </textField>
                                                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Af2-Gf-WJf">
-                                                                                    <rect key="frame" x="50" y="73" width="275" height="37.5"/>
+                                                                                    <rect key="frame" x="50" y="59" width="275" height="37.5"/>
                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
@@ -6246,6 +6247,7 @@ AAAAz6M
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="nSc-l0-ZjE"/>
+        <segue reference="bfR-GK-E9V"/>
         <segue reference="Kqo-1J-nJ2"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -122,8 +122,8 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         super.didReceiveMemoryWarning()
     }
     
+    //STEP 1 - Saves Kasam Text Data
     @IBAction func createKasam(_ sender: Any) {
-        //Saves Kasam Text Data
         if newKasamTitle.text == "" || newKasamDescription.text == "" || newMetric.selectedRow(inComponent: 0) == 0 || newGenre.selectedRow(inComponent: 0) == 0 {
             var missingFields: [String] = []
             if newKasamTitle.text == "" {missingFields.append("Title")}
@@ -150,6 +150,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+    //STEP 2 - Save Kasam Image
     func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
         //Saves Kasam Image in Firebase Storage
         storageRef = Storage.storage().reference().child(location)
@@ -168,7 +169,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         } else {completion(nil)}
     }
         
-    //Function which registers Kasam Data in Firebase RT Database
+    //STEP 3 - Register Kasam Data in Firebase Database
     func registerKasamData (kasamID: DatabaseReference, imageUrl: String) {
         kasamImageGlobal = imageUrl
         let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": chosenGenre, "Description": newKasamDescription.text!, "Timing": "6:00pm - 7:00pm", "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": "User", "Rating": "5", "Blocks": "blocks", "Level":chosenLevel, "Metric": chosenMetric]
@@ -184,6 +185,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+    //STEP 4 - Save block info under kasam
     func saveBlocks(){
         self.view.endEditing(true)                  //for adding last text field value with dismiss keyboard
         let newBlock = Database.database().reference().child("Coach-Kasams").child(kasamIDGlobal).child("Blocks")
@@ -197,7 +199,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
                 case "Timer": do {
                     let hour = (blockActivity?[0]?.hour ?? 0) * 3600
                     let min = (blockActivity?[0]?.min ?? 0) * 60
-                    let sec = (blockActivity?[0]?.sec) ?? 0
+                    let sec = (blockActivity?[0]?.sec ?? 0)
                     metric = hour + min + sec
                 }
                 default: metric = 0
@@ -218,7 +220,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
                     } else {
                         //kasam successfully created
                         self.view.isUserInteractionEnabled = true
-                        self.dismiss(animated: true, completion: nil)
+                        self.navigationController?.popToRootViewController(animated: true)
                     }
                 }
             }
@@ -389,6 +391,6 @@ extension NewKasamViewController: NewBlockDelegate {
     }
     
     func sendBlockType(blockNo: Int, blockType: String) {
-            transferBlockType[blockNo + 1] = blockType
+        transferBlockType[blockNo + 1] = blockType
     }
 }
