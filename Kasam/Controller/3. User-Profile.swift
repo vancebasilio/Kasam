@@ -115,22 +115,25 @@ class ProfileViewController: UIViewController {
     
     //GET ALL THE STATS-------------------------------------------------------------------------------------------------
     
+    //STEP 1
     @objc func getDetailedStats() {
         detailedStats.removeAll()
         completedStats.removeAll()
         //loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamArray {
             Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
+                if snap.exists() {
                 let snapshot = snap.value as! Dictionary<String,Any>
                 let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
                 kasam.image = snapshot["Image"]! as! String
                 kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
-                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, joinedDate: kasam.joinedDate, endDate: kasam.endDate, metricType: kasam.metricType)
+                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, joinedDate: kasam.joinedDate, endDate: kasam.endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
                 if kasam.status == "completed" {
                     self.completedStats.append(userStats)
                     self.completedKasamsTable.reloadData()
                 } else {
                     self.detailedStats.append(userStats)
+                    self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
                     self.detailedStatsCollectionView.reloadData()
                     self.weekStatsCollectionView.reloadData()
                 }
@@ -157,8 +160,10 @@ class ProfileViewController: UIViewController {
             })
             }
         }
+        }
     }
     
+    //STEP 2
     func getWeeklyStats() {
         weeklyStats.removeAll()
         metricDictionary.removeAll()

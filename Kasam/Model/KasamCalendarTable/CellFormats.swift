@@ -276,13 +276,15 @@ class UserStatsFormat {
     var joinedDate: Date
     var endDate: Date
     var metricType: String
+    var order: Int
     
-    init(kasamID: String, kasamTitle: String, imageURL: URL, joinedDate: Date, endDate: Date, metricType: String){
+    init(kasamID: String, kasamTitle: String, imageURL: URL, joinedDate: Date, endDate: Date, metricType: String, order: Int){
         self.kasamID = kasamID
         self.kasamTitle = kasamTitle
         self.joinedDate = joinedDate
         self.endDate = endDate
         self.imageURL = imageURL
         self.metricType = metricType
+        self.order = order
     }
 }

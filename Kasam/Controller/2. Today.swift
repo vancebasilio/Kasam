@@ -103,6 +103,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func getPreferences() {
+        print("In get preferences to refresh today Challos")
         SavedData.kasamTodayArray.removeAll()
         SavedData.clearKasamArray()
         noKasamTracker = 0
@@ -356,6 +357,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         self.motivationRefHandle = self.motivationRef.observe(.childAdded) {(snap) in
             let motivationURL = snap.value as! String
             self.motivationBackground.append(motivationURL)
+            self.todayMotivationCollectionView.reloadData()
         }
     }
     

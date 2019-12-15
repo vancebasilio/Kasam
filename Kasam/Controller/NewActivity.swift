@@ -18,7 +18,7 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     var imagePicked = UIImage(named:"placeholder-add-activity")
     var activityBlocks: [KasamActivityCellFormat] = []
     var registerNewActivity: [Int:newActivityFormat] = [:]
-    var activityType = "Reps Counter"
+    var activityType = "Reps"
     var blockNoSelected = 1
     var pastEntry: [Int:newActivityFormat]? = [:]
     var callback : (([Int: newActivityFormat])->())?
@@ -102,7 +102,7 @@ extension NewActivity: UICollectionViewDelegate, UICollectionViewDataSource, UIC
         cell.animatedImageView.image = imagePicked
         let entryTransfer = pastEntry?[0]
         cell.setKasamViewer(title: entryTransfer?.title, description: entryTransfer?.description, image: entryTransfer?.image)
-        if activityType == "Reps Counter" {
+        if activityType == "Reps" {
             cell.setupPicker(reps: entryTransfer?.reps)
         } else if activityType == "Timer" {
             cell.setupTimer(hour: entryTransfer?.hour, min: entryTransfer?.min, sec: entryTransfer?.sec)

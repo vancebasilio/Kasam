@@ -52,7 +52,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     let metricTypes = ["Metric ↑", "Reps", "Time", "Checkmark"]
     let kasamGenres = ["Genre ↑", "Fitness", "Personal", "Prayer", "Meditation"]
     let kasamLevels = ["Level ↑", "Beginner", "Intermediate", "Expert"]
-    var chosenMetric = "Reps Counter"
+    var chosenMetric = "Reps"
     var chosenGenre = ""
     var chosenLevel = ""
     
@@ -193,7 +193,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
             let blockActivity = fullActivityMatrix[j]
             var metric = 0
             switch chosenMetric {
-                case "Reps Counter": metric = blockActivity?[0]?.reps ?? 0          //using 0 as only one activity loaded per block
+                case "Reps": metric = blockActivity?[0]?.reps ?? 0          //using 0 as only one activity loaded per block
                 case "Timer": do {
                     let hour = (blockActivity?[0]?.hour ?? 0) * 3600
                     let min = (blockActivity?[0]?.min ?? 0) * 60
@@ -206,11 +206,11 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
             saveImage(image: (blockActivity?[0]?.image), location: "kasam/\(kasamIDGlobal)/activity") { (savedImageURL) in
                 let activity = ["Description" : blockActivity?[0]?.description ?? "",
                                 "Image" : savedImageURL ?? defaulyActivityImage,
-                                "Metric" : metric,
+                                "Metric" : String(metric),
                                 "Title" : blockActivity?[0]?.title ?? "",
                                 "Type" : self.transferBlockType[j] ?? ""] as [String : Any]
-                let blockDictionary = ["Activity": activity, "Duration": transferBlockDuration, "Image": self.kasamImageGlobal, "Order": String(j), "Rating": "5", "Title": self.transferTitle[j] ?? "Title", "BlockID": blockID.key!] as [String : Any]
-                
+                let activityMatrix = ["1":activity]
+                let blockDictionary = ["Activity": activityMatrix, "Duration": transferBlockDuration, "Image": self.kasamImageGlobal, "Order": String(j), "Rating": "5", "Title": self.transferTitle[j] ?? "Title", "BlockID": blockID.key!] as [String : Any]
                 blockID.setValue(blockDictionary) {
                     (error, reference) in
                     if error != nil {
@@ -310,10 +310,10 @@ extension NewKasamViewController: UIPickerViewDelegate, UIPickerViewDataSource {
             tableView.reloadData()
         } else if pickerView == newMetric {
             switch metricTypes[row] {
-                case "Reps" : chosenMetric = "Reps Counter"
+                case "Reps" : chosenMetric = "Reps"
                 case "Time" : chosenMetric = "Timer"
                 case "Checkmark" : chosenMetric = "Checkmark"
-                default: chosenMetric = "Reps Counter"
+                default: chosenMetric = "Reps"
             }
         } else if pickerView == newGenre {
             chosenGenre = kasamGenres[row]
@@ -389,6 +389,6 @@ extension NewKasamViewController: NewBlockDelegate {
     }
     
     func sendBlockType(blockNo: Int, blockType: String) {
-        transferBlockType[blockNo + 1] = blockType
+            transferBlockType[blockNo + 1] = blockType
     }
 }

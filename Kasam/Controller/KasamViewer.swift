@@ -123,7 +123,7 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
         let activity = activityBlocks[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamViewerCell", for: indexPath) as! KasamViewerCell
         cell.kasamIDTransfer["kasamID"] = kasamID
-        if activity.type == "Picker" {
+        if activity.type == "Reps" {
             cell.setKasamViewer(activity: activity)
             cell.setupPicker()
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0

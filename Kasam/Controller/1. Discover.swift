@@ -155,6 +155,8 @@ class DiscoverViewController: UIViewController {
                 self.myKasamArray.append(categoryBlock)
                 self.myKasamCollection.reloadData()
                 }
+                //remove observer
+                Database.database().reference().child("Coach-Kasams").child(snapshot.key).removeAllObservers()
             })
         })
     }
@@ -203,7 +205,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MyKasamCell", for: indexPath) as! DiscoverHorizontalCell
-                cell.kasamTitle.text = "Create a Kasam"
+                cell.kasamTitle.text = "Create a Challo"
                 cell.topImage.image = UIImage(named: "placeholder-add-kasam")!
                 cell.kasamRating.rating = 5.0
                 cell.topImage.layer.cornerRadius = 8.0

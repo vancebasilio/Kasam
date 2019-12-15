@@ -162,7 +162,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func registerUserToKasam() {
-        //STEP 1: Adds the user to the Coach Kasam-following list
+        //STEP 1: Adds the user to the kasam-following list
         Database.database().reference().child("Coach-Kasams").child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         //STEP 2: Adds the user to the Coach-following list
         Database.database().reference().child("Users").child(coachIDGlobal).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
