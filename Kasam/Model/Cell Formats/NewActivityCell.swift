@@ -183,6 +183,7 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
     func setupCheckmark(){
         //hide picker views
         repsPicker.isHidden = true
+        timePickerStackView.isHidden = true
         instruction.isHidden = true
         circularSlider.isHidden = true
         repsLabel.isHidden = true

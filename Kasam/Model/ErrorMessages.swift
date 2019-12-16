@@ -80,13 +80,50 @@ import SwiftEntryKit
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
+    //LOGOUT BUTTON CONFIRMATION---------------------------------------------------------------------------
+
+    func showLogoutConfirmation(title: String, description: String, completion:@escaping (Bool) -> ()) {
+        var attributes: EKAttributes
+        attributes = EKAttributes.centerFloat
+        attributes.hapticFeedbackType = .success
+        attributes.displayDuration = .infinity
+        attributes.entryBackground = .gradient(gradient: .init(colors: [EKColor(UIColor.colorFour), EKColor(UIColor.colorFour)], startPoint: .zero, endPoint: CGPoint(x: 1, y: 1)))
+        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 8))
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
+        attributes.scroll = .enabled(swipeable: true, pullbackAnimation: .jolt)
+        attributes.roundCorners = .all(radius: 20)
+        attributes.entranceAnimation = .init(translate: .init(duration: 0.7, spring: .init(damping: 0.7, initialVelocity: 0)), scale: .init(from: 0.7, to: 1, duration: 0.4, spring: .init(damping: 1, initialVelocity: 0)))
+        attributes.exitAnimation = .init(translate: .init(duration: 0.2))
+        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        attributes.positionConstraints.size = .init(width: .offset(value: 20), height: .intrinsic)
+        attributes.positionConstraints.maxSize = .init(width: .intrinsic, height: .intrinsic)
+        attributes.statusBar = .dark
+        
+        let image = UIImage.init(icon: .fontAwesomeSolid(.doorOpen), size: CGSize(width: 30, height: 30), textColor: .white)
+        let title = title
+        let description = description
+        var themeImage: EKPopUpMessage.ThemeImage?
+        themeImage = EKPopUpMessage.ThemeImage(image: EKProperty.ImageContent(image: image, displayMode: .light, size: CGSize(width: 60, height: 60), tint: .white, contentMode: .scaleAspectFit))
+        let finalTitle = EKProperty.LabelContent(text: title, style: .init(font: UIFont.systemFont(ofSize: 20, weight: .bold), color: .white, alignment: .center, displayMode: .light))
+        let finalDescription = EKProperty.LabelContent(text: description, style: .init(font: UIFont.systemFont(ofSize: 0, weight: .semibold), color: .white, alignment: .center, displayMode: .light))
+        let button = EKProperty.ButtonContent(label: .init(text: "Logout", style: .init(font: UIFont.systemFont(ofSize: 16, weight: .semibold), color: EKColor(UIColor.colorFive),displayMode: .light)), backgroundColor: .white, highlightedBackgroundColor: EKColor(UIColor.colorFive).with(alpha: 0.05), displayMode: .light)
+        let message = EKPopUpMessage(themeImage: themeImage, title: finalTitle, description: finalDescription, button: button) {
+            completion(true)
+            SwiftEntryKit.dismiss()
+        }
+        let contentView = EKPopUpMessageView(with: message)
+        SwiftEntryKit.display(entry: contentView, using: attributes)
+    }
+
     //USER OPTIONS---------------------------------------------------------------------------------------------
     func showUserOptions(viewHeight: CGFloat) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
         attributes.displayDuration = .infinity
-        attributes.hapticFeedbackType = .success
+        attributes.hapticFeedbackType = .none
         attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
         attributes.entryBackground = .color(color: .white)
         attributes.screenInteraction = .dismiss

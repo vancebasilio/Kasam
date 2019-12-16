@@ -11,6 +11,7 @@ import Firebase
 import FirebaseStorage
 import SwiftEntryKit
 import SkyFloatingLabelTextField
+import Lottie
 
 class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     
@@ -39,6 +40,8 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     var headerBlurImageView:UIImageView!
     var headerImageView:UIImageView!
     var storageRef = Storage.storage().reference()
+    let animationView = AnimationView()
+    let animationOverlay = UIView()
     
     //No of Blocks Picker Variables
     var numberOfBlocks = 1
@@ -124,6 +127,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     
     //STEP 1 - Saves Kasam Text Data
     @IBAction func createKasam(_ sender: Any) {
+        loadingAnimation(animationView: animationView, animation: "rocket-fast", height: 200, overlayView: animationOverlay, loop: true, completion: nil)
         if newKasamTitle.text == "" || newKasamDescription.text == "" || newMetric.selectedRow(inComponent: 0) == 0 || newGenre.selectedRow(inComponent: 0) == 0 {
             var missingFields: [String] = []
             if newKasamTitle.text == "" {missingFields.append("Title")}
@@ -219,6 +223,9 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
                         print(error!)
                     } else {
                         //kasam successfully created
+                        self.animationView.removeFromSuperview()
+                        self.animationOverlay.removeFromSuperview()
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
                         self.view.isUserInteractionEnabled = true
                         self.navigationController?.popToRootViewController(animated: true)
                     }

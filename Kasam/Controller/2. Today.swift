@@ -10,9 +10,9 @@ import UIKit
 import Foundation
 import Firebase
 import SDWebImage
-import Lottie
 import SwiftEntryKit
 import SkeletonView
+import Lottie
 
 class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
 
@@ -31,7 +31,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     var blockIDGlobal = ""
     var dayOrderGlobal = ""
     let semaphore = DispatchSemaphore(value: 1)
-    let animationView = AnimationView()
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamFollowingRefHandle: DatabaseHandle!
     let motivationRef = Database.database().reference().child("Assets").child("Motivation Images")
@@ -41,6 +40,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     var dayTrackerArray = [Int]()
     var dayTrackerDateArray = [Int:String]()
     var noKasamTracker = 0
+    let animationView = AnimationView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,7 +75,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLayoutSubviews(){
         tableView.frame = CGRect(x: tableView.frame.origin.x, y: tableView.frame.origin.y, width: tableView.frame.size.width, height: tableView.contentSize.height)
         self.tableViewHeight.constant = self.tableView.contentSize.height
-        tableView.reloadData()
     }
     
     func updateContentTableHeight(){
@@ -106,7 +105,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         animationView.removeFromSuperview()
     }
     
-    @objc func getPreferences() {
+    @objc func getPreferences(){
         SavedData.kasamTodayArray.removeAll()           //kasamTodayArray is used for populating the Today page
         SavedData.kasamArray.removeAll()                //kasamArray is used for userProfile with all Kasams in it
         noKasamTracker = 0
@@ -185,10 +184,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func reloadTodayKasamData() {
-        print("update tiday")
         setupTableAndHeader()
+        updateContentTableHeight()
         self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
-        self.updateContentTableHeight()
         self.dayTrackerDateArray.removeAll()
         self.dayTrackerArray.removeAll()
     }
@@ -316,20 +314,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         return .lightContent
     }
     
-    func loadingAnimation(){
-        animationView.animation = Animation.named("690-loading")
-        animationView.contentMode = .scaleAspectFit
-        view.addSubview(animationView)
-        animationView.translatesAutoresizingMaskIntoConstraints = false
-        animationView.centerXAnchor.constraint(lessThanOrEqualTo: self.view.centerXAnchor).isActive = true
-        animationView.centerYAnchor.constraint(lessThanOrEqualTo: self.view.centerYAnchor).isActive = true
-        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 100).isActive = true
-        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 100).isActive = true
-        animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
-        animationView.play()
-        animationView.loopMode = .loop
-    }
-    
     //MOTIVATIONS----------------------------------------------------------------------------------------
     
     func getMotivations(){
@@ -433,7 +417,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
             animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
             self.tabBarController?.selectedIndex = 0
         } else {
-            loadingAnimation()
+            loadingAnimation(animationView: animationView, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
             UIApplication.shared.beginIgnoringInteractionEvents()
             kasamIDGlobal = kasamBlocks[indexPath.row].kasamID
             blockIDGlobal = kasamBlocks[indexPath.row].blockID

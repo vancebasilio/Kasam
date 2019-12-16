@@ -13,6 +13,7 @@ import FBSDKLoginKit
 import SwiftEntryKit
 import SkeletonView
 import GoogleSignIn
+import Lottie
 
 class ProfileViewController: UIViewController {
    
@@ -44,6 +45,7 @@ class ProfileViewController: UIViewController {
     var daysCompletedDict: [String:Int] = [:]
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
+    let animationView = AnimationView()
     
     //Kasam Following
     var kasamIDGlobal: String = ""
@@ -97,12 +99,17 @@ class ProfileViewController: UIViewController {
         sideMenuButton.setIcon(icon: .fontAwesomeSolid(.bars), iconSize: 17, color: UIColor.darkGray, backgroundColor: .clear, forState: .normal)
         self.navigationItem.title = ""
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
+        
         let notificationName = NSNotification.Name("ProfileUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.profileUpdate), name: notificationName, object: nil)
+        
         let challoStatsUpdate = NSNotification.Name("ChalloStatsUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.getDetailedStats), name: challoStatsUpdate, object: nil)
         let goToCreateKasam = NSNotification.Name("GoToCreateKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
+        
+        let showCompletionAnimation = NSNotification.Name("ShowCompletionAnimation")
+               NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.showCompletionAnimation), name: showCompletionAnimation, object: nil)
     }
     
     @IBAction func showUserOptionsButton(_ sender: Any) {
@@ -111,6 +118,12 @@ class ProfileViewController: UIViewController {
     
     @objc func goToCreateKasam() {
         performSegue(withIdentifier: "goToCreateKasam", sender: nil)
+    }
+    
+    @objc func showCompletionAnimation(){
+        loadingAnimation(animationView: animationView, animation: "checkmark", height: 400, overlayView: nil, loop: false){
+            self.animationView.removeFromSuperview()
+        }
     }
     
     //GET ALL THE STATS-------------------------------------------------------------------------------------------------

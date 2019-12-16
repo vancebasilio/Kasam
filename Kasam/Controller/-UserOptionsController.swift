@@ -49,11 +49,14 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         if indexPath.row == 0 {
             NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self)
+            SwiftEntryKit.dismiss()
         } else if indexPath.row == 1 {
-            AppManager.shared.logoout()
-            LoginManager().logOut()
+            showLogoutConfirmation(title: "Sure you want to logout?", description: "") {(success) in
+                AppManager.shared.logoout()
+                LoginManager().logOut()
+                SwiftEntryKit.dismiss()
+            }
         }
-        SwiftEntryKit.dismiss()
     }
 }
 
