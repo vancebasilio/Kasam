@@ -51,7 +51,8 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
             NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self)
             SwiftEntryKit.dismiss()
         } else if indexPath.row == 1 {
-            showLogoutConfirmation(title: "Sure you want to logout?", description: "") {(success) in
+            let popupImage = UIImage.init(icon: .fontAwesomeSolid(.doorOpen), size: CGSize(width: 30, height: 30), textColor: .white)
+            showPopupConfirmation(title: "Are you sure?", description: "", image: popupImage, buttonText: "Logout") {(success) in
                 AppManager.shared.logoout()
                 LoginManager().logOut()
                 SwiftEntryKit.dismiss()

@@ -27,6 +27,7 @@ class NewBlockCell: UITableViewCell {
     @IBOutlet weak var contents: UIView!
     @IBOutlet weak var createButton: UIButton!
     
+    
     var blockNo = 1
     var delegate: NewBlockDelegate?
 //    var blockTypes = ["Timer", "Countdown", "Reps Counter"]

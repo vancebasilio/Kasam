@@ -268,10 +268,10 @@
                                                             <rect key="frame" x="0.0" y="0.0" width="375" height="251"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                             <subviews>
-                                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="-3" translatesAutoresizingMaskIntoConstraints="NO" id="Lcu-yT-oxJ">
+                                                                <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="-3" translatesAutoresizingMaskIntoConstraints="NO" id="Lcu-yT-oxJ">
                                                                     <rect key="frame" x="37.5" y="8" width="300" height="144"/>
                                                                     <subviews>
-                                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mau-Uw-y5c" userLabel="Username">
+                                                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mau-Uw-y5c" userLabel="Username">
                                                                             <rect key="frame" x="0.0" y="0.0" width="300" height="50"/>
                                                                             <subviews>
                                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="EmailBox" translatesAutoresizingMaskIntoConstraints="NO" id="Idw-pN-RZ9" userLabel="UserNameBox">
@@ -300,7 +300,7 @@
                                                                                 <constraint firstItem="Idw-pN-RZ9" firstAttribute="centerY" secondItem="Mau-Uw-y5c" secondAttribute="centerY" id="vyk-Z8-6UQ"/>
                                                                             </constraints>
                                                                         </view>
-                                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UXg-TR-Xd8" userLabel="Email">
+                                                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UXg-TR-Xd8" userLabel="Email">
                                                                             <rect key="frame" x="0.0" y="47" width="300" height="50"/>
                                                                             <subviews>
                                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Field" translatesAutoresizingMaskIntoConstraints="NO" id="Zom-jl-z7d" userLabel="EmailBox">
@@ -327,7 +327,7 @@
                                                                                 <constraint firstAttribute="trailing" secondItem="cus-hn-FMu" secondAttribute="trailing" id="nst-FK-9I1"/>
                                                                             </constraints>
                                                                         </view>
-                                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bO5-Zh-lGd" userLabel="Password">
+                                                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bO5-Zh-lGd" userLabel="Password">
                                                                             <rect key="frame" x="0.0" y="94" width="300" height="50"/>
                                                                             <subviews>
                                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="PasswordBox" translatesAutoresizingMaskIntoConstraints="NO" id="7uX-Ra-bnE">
@@ -362,7 +362,7 @@
                                                                         <constraint firstItem="UXg-TR-Xd8" firstAttribute="width" secondItem="Mau-Uw-y5c" secondAttribute="width" id="gfg-g7-sMK"/>
                                                                     </constraints>
                                                                 </stackView>
-                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jzT-rj-wgr">
+                                                                <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jzT-rj-wgr">
                                                                     <rect key="frame" x="87.5" y="182" width="200" height="35"/>
                                                                     <color key="backgroundColor" red="0.76470588235294112" green="0.58823529411764708" blue="0.1764705882352941" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <constraints>
@@ -4611,31 +4611,58 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view key="tableFooterView" contentMode="scaleToFill" id="Jez-AT-2EV" userLabel="Create Kasam Button">
-                                    <rect key="frame" x="0.0" y="536" width="375" height="64"/>
+                                    <rect key="frame" x="0.0" y="536" width="375" height="110"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     <subviews>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="beX-6z-JCN">
-                                            <rect key="frame" x="87.5" y="5" width="200" height="40"/>
-                                            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="et8-9C-o7B">
+                                            <rect key="frame" x="87.5" y="0.0" width="200" height="90"/>
+                                            <subviews>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="beX-6z-JCN">
+                                                    <rect key="frame" x="0.0" y="0.0" width="200" height="40"/>
+                                                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="40" id="5A2-6S-mQK"/>
+                                                        <constraint firstAttribute="width" secondItem="beX-6z-JCN" secondAttribute="height" multiplier="40:8" id="oaf-x6-HDk"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                                    <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <state key="normal" title="Create Challo">
+                                                        <color key="titleColor" red="0.93725490570000003" green="0.93725490570000003" blue="0.95686274770000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </state>
+                                                    <connections>
+                                                        <action selector="addButtonPress:" destination="uNf-cn-sv8" eventType="touchUpInside" id="fGg-2G-E7Y"/>
+                                                        <action selector="createKasam:" destination="SVf-Au-dIb" eventType="touchUpInside" id="TUE-4R-LTA"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sar-zC-gdI" userLabel="Delete Challo">
+                                                    <rect key="frame" x="0.0" y="50" width="200" height="40"/>
+                                                    <color key="backgroundColor" red="0.85882352941176465" green="0.28235294117647058" blue="0.1764705882352941" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" secondItem="sar-zC-gdI" secondAttribute="height" multiplier="40:8" id="55z-Xn-gyk"/>
+                                                        <constraint firstAttribute="height" constant="40" id="f0O-iC-CVB"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                                    <color key="tintColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <state key="normal" title="Delete Challo">
+                                                        <color key="titleColor" red="0.93725490570000003" green="0.93725490570000003" blue="0.95686274770000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </state>
+                                                    <connections>
+                                                        <action selector="addButtonPress:" destination="uNf-cn-sv8" eventType="touchUpInside" id="wQG-qE-u41"/>
+                                                        <action selector="createKasam:" destination="SVf-Au-dIb" eventType="touchUpInside" id="Rhf-IS-4Rs"/>
+                                                        <action selector="deleteChalloButtonPressed:" destination="zTU-TR-kVc" eventType="touchUpInside" id="ajf-iR-Po0"/>
+                                                        <action selector="deleteChalloPressed:" destination="SVf-Au-dIb" eventType="touchUpInside" id="agf-Kg-W9E"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
                                             <constraints>
-                                                <constraint firstAttribute="height" constant="40" id="5A2-6S-mQK"/>
-                                                <constraint firstAttribute="width" secondItem="beX-6z-JCN" secondAttribute="height" multiplier="40:8" id="oaf-x6-HDk"/>
+                                                <constraint firstItem="sar-zC-gdI" firstAttribute="width" secondItem="sar-zC-gdI" secondAttribute="height" multiplier="40:8" id="07c-Mo-y52"/>
                                             </constraints>
-                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                            <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <state key="normal" title="Create Kasam!">
-                                                <color key="titleColor" red="0.93725490570000003" green="0.93725490570000003" blue="0.95686274770000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                            </state>
-                                            <connections>
-                                                <action selector="addButtonPress:" destination="uNf-cn-sv8" eventType="touchUpInside" id="fGg-2G-E7Y"/>
-                                                <action selector="createKasam:" destination="SVf-Au-dIb" eventType="touchUpInside" id="TUE-4R-LTA"/>
-                                            </connections>
-                                        </button>
+                                        </stackView>
                                     </subviews>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
-                                        <constraint firstItem="beX-6z-JCN" firstAttribute="top" secondItem="Jez-AT-2EV" secondAttribute="top" constant="5" id="WdN-YA-hDC"/>
-                                        <constraint firstItem="beX-6z-JCN" firstAttribute="centerX" secondItem="Jez-AT-2EV" secondAttribute="centerX" id="cot-yD-e3a"/>
+                                        <constraint firstItem="et8-9C-o7B" firstAttribute="centerX" secondItem="Jez-AT-2EV" secondAttribute="centerX" id="Oqm-7c-W83"/>
+                                        <constraint firstItem="et8-9C-o7B" firstAttribute="top" secondItem="Jez-AT-2EV" secondAttribute="top" id="hFJ-ss-wdS"/>
                                     </constraints>
                                 </view>
                                 <prototypes>
@@ -4922,6 +4949,7 @@
                         <outlet property="blockPickerBG" destination="8Ei-1O-pe8" id="r6o-xn-Nbp"/>
                         <outlet property="constrainHeightHeaderImages" destination="5Np-Gi-HE9" id="rRT-Lx-h2C"/>
                         <outlet property="createKasam" destination="beX-6z-JCN" id="Xbp-LU-gtX"/>
+                        <outlet property="deleteChallo" destination="sar-zC-gdI" id="wi9-Bx-vSa"/>
                         <outlet property="headerClickView" destination="sde-Sv-Myk" id="DBj-q3-x9e"/>
                         <outlet property="headerClickViewHeight" destination="c2a-mB-MiJ" id="jaQ-lR-6Wh"/>
                         <outlet property="headerLabel" destination="LJe-qX-URx" id="GMP-WB-VZm"/>
@@ -4940,6 +4968,7 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5dB-wc-pOV" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="zTU-TR-kVc" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="4292" y="1023"/>
         </scene>
@@ -5083,7 +5112,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="375" height="170"/>
                                                                             <subviews>
                                                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xST-dz-BoM" customClass="SkyFloatingLabelTextField" customModule="SkyFloatingLabelTextField">
-                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="54"/>
+                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="68"/>
                                                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
                                                                                     <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
                                                                                     <userDefinedRuntimeAttributes>
@@ -5122,7 +5151,7 @@
                                                                                     </userDefinedRuntimeAttributes>
                                                                                 </textField>
                                                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Af2-Gf-WJf">
-                                                                                    <rect key="frame" x="50" y="59" width="275" height="37.5"/>
+                                                                                    <rect key="frame" x="50" y="73" width="275" height="37.5"/>
                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
@@ -6327,7 +6356,7 @@ AAAAz6M
         <image name="today_motivation_background2" width="500" height="333"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="uCq-GW-b5k"/>
+        <segue reference="RTg-s5-pVD"/>
         <segue reference="bfR-GK-E9V"/>
         <segue reference="HXx-lS-OGQ"/>
     </inferredMetricsTieBreakers>

@@ -82,7 +82,7 @@ import SwiftEntryKit
 
     //LOGOUT BUTTON CONFIRMATION---------------------------------------------------------------------------
 
-    func showLogoutConfirmation(title: String, description: String, completion:@escaping (Bool) -> ()) {
+    func showPopupConfirmation(title: String, description: String, image: UIImage, buttonText: String, completion:@escaping (Bool) -> ()) {
         var attributes: EKAttributes
         attributes = EKAttributes.centerFloat
         attributes.hapticFeedbackType = .success
@@ -101,14 +101,14 @@ import SwiftEntryKit
         attributes.positionConstraints.maxSize = .init(width: .intrinsic, height: .intrinsic)
         attributes.statusBar = .dark
         
-        let image = UIImage.init(icon: .fontAwesomeSolid(.doorOpen), size: CGSize(width: 30, height: 30), textColor: .white)
+        let image = image
         let title = title
         let description = description
         var themeImage: EKPopUpMessage.ThemeImage?
         themeImage = EKPopUpMessage.ThemeImage(image: EKProperty.ImageContent(image: image, displayMode: .light, size: CGSize(width: 60, height: 60), tint: .white, contentMode: .scaleAspectFit))
-        let finalTitle = EKProperty.LabelContent(text: title, style: .init(font: UIFont.systemFont(ofSize: 20, weight: .bold), color: .white, alignment: .center, displayMode: .light))
-        let finalDescription = EKProperty.LabelContent(text: description, style: .init(font: UIFont.systemFont(ofSize: 0, weight: .semibold), color: .white, alignment: .center, displayMode: .light))
-        let button = EKProperty.ButtonContent(label: .init(text: "Logout", style: .init(font: UIFont.systemFont(ofSize: 16, weight: .semibold), color: EKColor(UIColor.colorFive),displayMode: .light)), backgroundColor: .white, highlightedBackgroundColor: EKColor(UIColor.colorFive).with(alpha: 0.05), displayMode: .light)
+        let finalTitle = EKProperty.LabelContent(text: title, style: .init(font: UIFont.systemFont(ofSize: 23, weight: .bold), color: .white, alignment: .center, displayMode: .light))
+        let finalDescription = EKProperty.LabelContent(text: description, style: .init(font: UIFont.systemFont(ofSize: 17, weight: .semibold), color: .white, alignment: .center, displayMode: .light))
+        let button = EKProperty.ButtonContent(label: .init(text: buttonText, style: .init(font: UIFont.systemFont(ofSize: 16, weight: .semibold), color: EKColor(UIColor.colorFive),displayMode: .light)), backgroundColor: .white, highlightedBackgroundColor: EKColor(UIColor.colorFive).with(alpha: 0.05), displayMode: .light)
         let message = EKPopUpMessage(themeImage: themeImage, title: finalTitle, description: finalDescription, button: button) {
             completion(true)
             SwiftEntryKit.dismiss()

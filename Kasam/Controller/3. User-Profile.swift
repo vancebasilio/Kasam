@@ -65,6 +65,7 @@ class ProfileViewController: UIViewController {
     var kasamUserRefHandle: DatabaseHandle!
     var kasamHistoryRefHandle: DatabaseHandle!
     var tableViewHeight = CGFloat(0)
+    var noUserChallos = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -83,11 +84,10 @@ class ProfileViewController: UIViewController {
     }
     
     override func viewDidLayoutSubviews(){
-        //Table Resizing
+    //Table Resizing
         completedKasamsTable.frame = CGRect(x: completedKasamsTable.frame.origin.x, y: completedKasamsTable.frame.origin.y, width: completedKasamsTable.frame.size.width, height: completedKasamsTable.contentSize.height)
         self.completedKasamTableHeight.constant = self.completedKasamsTable.contentSize.height
         completedKasamsTable.reloadData()
-        
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
         
     //STEP 1 - Titles
@@ -239,19 +239,30 @@ class ProfileViewController: UIViewController {
     
     @objc func getMyChallos(){
         myChallosArray.removeAll()
-        userKasamDBHandle = userKasamDB.observe(.childAdded, with: {(snapshot) in
-            Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: {(snapshot) in
-                if let value = snapshot.value as? [String: Any] {
-                    let imageURL = URL(string: value["Image"] as? String ?? "")
-                    let myChallosBlock = EditMyChalloFormat(kasamID: value["KasamID"] as? String ?? "", kasamTitle: value["Title"] as? String ?? "", imageURL: imageURL ?? self.placeholder() as! URL)
-                    self.myChallosArray.append(myChallosBlock)
-                    self.editChallosCollectionView.reloadData()
-                    self.editChalloLabel.isHidden = false
-                    self.editChallosCollectionView.isHidden = false
-                    self.viewDidLayoutSubviews()
-                }
-                //remove observer
-                Database.database().reference().child("Coach-Kasams").child(snapshot.key).removeAllObservers()
+        userKasamDB.observeSingleEvent(of: .value, with:{(snap) in
+            let count = Int(snap.childrenCount)
+            if count == 0 {
+                //not following any kasams
+                self.noUserChallos = true
+                self.editChallosHeight.constant = 0
+            } else {
+                let cellWidth = ((self.view.frame.size.width - (15 * 4)) / 3)
+                self.editChallosHeight.constant = cellWidth + 40
+            }
+            self.userKasamDBHandle = self.userKasamDB.observe(.childAdded, with: {(snapshot) in
+                Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: {(snapshot) in
+                    if let value = snapshot.value as? [String: Any] {
+                        let imageURL = URL(string: value["Image"] as? String ?? "")
+                        let myChallosBlock = EditMyChalloFormat(kasamID: value["KasamID"] as? String ?? "", kasamTitle: value["Title"] as? String ?? "", imageURL: imageURL ?? self.placeholder() as! URL)
+                        self.myChallosArray.append(myChallosBlock)
+                        self.editChallosCollectionView.reloadData()
+                        self.editChalloLabel.isHidden = false
+                        self.editChallosCollectionView.isHidden = false
+                        self.viewDidLayoutSubviews()
+                    }
+                    //remove observer
+                    Database.database().reference().child("Coach-Kasams").child(snapshot.key).removeAllObservers()
+                })
             })
         })
     }
@@ -320,7 +331,11 @@ class ProfileViewController: UIViewController {
             segueTransferHolder.kasamMetricType = kasamMetricTypeGlobal
             segueTransferHolder.kasamImage = kasamImageGlobal
         } else if segue.identifier == "goToEditChallo" {
-            
+            let segueTransferHolder = segue.destination as! NewKasamViewController
+            segueTransferHolder.editChalloCheck = true
+            segueTransferHolder.kasamID = kasamIDGlobal
+            segueTransferHolder.kasamName = kasamTitleGlobal
+            segueTransferHolder.kasamImage = kasamImageGlobal
         }
     }
     
@@ -419,7 +434,9 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
         } else if collectionView == editChallosCollectionView {
-            
+            kasamTitleGlobal = myChallosArray[indexPath.row].kasamTitle
+            kasamIDGlobal = myChallosArray[indexPath.row].kasamID
+            kasamImageGlobal = myChallosArray[indexPath.row].imageURL
             self.performSegue(withIdentifier: "goToEditChallo", sender: indexPath)
         } else if collectionView == detailedStatsCollectionView {
             if detailedStats.count == 0 {

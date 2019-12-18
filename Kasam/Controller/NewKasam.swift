@@ -30,6 +30,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var newKasamDescription: SkyFloatingLabelTextField!
     @IBOutlet weak var addAnImageLabel: UILabel!
     @IBOutlet weak var createKasam: UIButton!
+    @IBOutlet weak var deleteChallo: UIButton!
     @IBOutlet weak var headerClickView: UIView!
     @IBOutlet weak var newBlockPicker: UIPickerView!
     @IBOutlet weak var blockPickerBG: UIView!
@@ -37,11 +38,17 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     var imagePicker: UIImagePickerController!
     var kasamIDGlobal = ""
     var kasamImageGlobal = ""
-    var headerBlurImageView:UIImageView!
-    var headerImageView:UIImageView!
+    var headerBlurImageView: UIImageView!
+    var headerImageView: UIImageView!
     var storageRef = Storage.storage().reference()
     let animationView = AnimationView()
     let animationOverlay = UIView()
+    
+    //edit Challo
+    var editChalloCheck = false
+    var kasamID = ""
+    var kasamName = ""
+    var kasamImage = URL(string: "")
     
     //No of Blocks Picker Variables
     var numberOfBlocks = 1
@@ -51,7 +58,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     var transferDurationMetric = [Int:String]()
     var tempBlockNoSelected = 1
     
-    //New Kasam Picker Variables
+    //New Challo Picker Variables
     let metricTypes = ["Metric ↑", "Reps", "Time", "Checkmark"]
     let kasamGenres = ["Genre ↑", "Fitness", "Personal", "Prayer", "Meditation"]
     let kasamLevels = ["Level ↑", "Beginner", "Intermediate", "Expert"]
@@ -72,8 +79,20 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     func setupLoad(){
         //setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
+        
         createKasam.layer.cornerRadius = 20.0
-        createKasam.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.magic), iconColor: UIColor.white, postfixText: "  Create a Challo", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 15)
+        var createChalloTitle = "  Create Challo"
+        if editChalloCheck == true {
+            loadChallo()
+            headerLabel.text = "Edit Challo"
+            createChalloTitle = "  Save Challo"
+            addAnImageLabel.text = "Change Image"
+        }
+        createKasam.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.magic), iconColor: UIColor.white, postfixText: createChalloTitle, postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 15)
+        
+        deleteChallo.layer.cornerRadius = 20.0
+        deleteChallo.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.trashAlt), iconColor: UIColor.white, postfixText: "  Delete Challo", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.init(hex: 0xDB482D), forState: .normal, iconSize: 15)
+        
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
         blockPickerBG.layer.cornerRadius = 15
@@ -122,14 +141,69 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         showChooseSourceTypeAlertController()
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
+    //------------------------------------------------------------------------------------------------------------------------------------------
+    
+    //Retrieves Kasam Data using Kasam ID selected
+    func loadChallo(){
+        newKasamTitle.text = kasamName
+        Database.database().reference().child("Coach-Kasams").child(kasamID).observe(.value, with: {(snapshot) in
+            if let value = snapshot.value as? [String: Any] {
+                //load challo information
+                self.newKasamDescription.text! = value["Description"] as? String ?? ""
+                if let index = self.kasamGenres.index(of: value["Genre"] as? String ?? "") {
+                    self.newGenre.selectRow(index, inComponent: 0, animated: false)
+                }
+                if let index = self.metricTypes.index(of: value["Metric"] as? String ?? "") {
+                    self.newMetric.selectRow(index, inComponent: 0, animated: false)
+                }
+                if let index = self.kasamLevels.index(of: value["Level"] as? String ?? "") {
+                    self.newKasamLevel.selectRow(index, inComponent: 0, animated: false)
+                }
+                self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: UIImage(named: "placeholder.png"))
+                
+                //load blocks information
+                if let blockValue = value["Blocks"] as? [String: Any] {
+                    self.newBlockPicker.selectRow((blockValue.count - 1), inComponent: 0, animated: false)
+                    
+                }
+            }
+        })
     }
     
-    //STEP 1 - Saves Kasam Text Data
+    @IBAction func deleteChalloPressed(_ sender: Any) {
+        if editChalloCheck == false {
+            //do not save Challo
+            self.navigationController?.popToRootViewController(animated: true)
+        } else {
+            //delete the existing Challo
+            let popupImage = UIImage.init(icon: .fontAwesomeRegular(.trashAlt), size: CGSize(width: 30, height: 30), textColor: .white)
+            showPopupConfirmation(title: "Are you sure?", description: "You won't be able to undo this action", image: popupImage, buttonText: "Delete Challo") {(success) in
+                Database.database().reference().child("Coach-Kasams").child(self.kasamID).removeValue()                //delete challo
+                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(self.kasamID).removeValue()
+                self.navigationController?.popToRootViewController(animated: true)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
+            }
+        }
+    }
+    
+    
     @IBAction func createKasam(_ sender: Any) {
+        if editChalloCheck == false {
+            createChallo()
+        } else {
+            updateChallo()
+        }
+    }
+    
+    func updateChallo(){
+        
+    }
+    
+    //STEP 1 - Saves Challo Text Data
+    func createChallo() {
         loadingAnimation(animationView: animationView, animation: "rocket-fast", height: 200, overlayView: animationOverlay, loop: true, completion: nil)
         if newKasamTitle.text == "" || newKasamDescription.text == "" || newMetric.selectedRow(inComponent: 0) == 0 || newGenre.selectedRow(inComponent: 0) == 0 {
+            //there are missing fields that need to be filled
             var missingFields: [String] = []
             if newKasamTitle.text == "" {missingFields.append("Title")}
             if newKasamDescription.text == "" {missingFields.append("Description")}
@@ -140,6 +214,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
             let description = "Please fill out the Kasam \(missingFieldString)"
             floatCellSelected(title: "Missing Fields", description: description)
         } else {
+            //all fields filled, so can create the Challo now
             self.view.isUserInteractionEnabled = false
             let kasamID = Database.database().reference().child("Coach-Kasams").childByAutoId()
             kasamIDGlobal = kasamID.key ?? ""
@@ -155,7 +230,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    //STEP 2 - Save Kasam Image
+    //STEP 2 - Save Challo Image
     func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
         //Saves Kasam Image in Firebase Storage
         storageRef = Storage.storage().reference().child(location)
@@ -174,7 +249,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         } else {completion(nil)}
     }
         
-    //STEP 3 - Register Kasam Data in Firebase Database
+    //STEP 3 - Register Challo Data in Firebase Database
     func registerKasamData (kasamID: DatabaseReference, imageUrl: String) {
         kasamImageGlobal = imageUrl
         let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": chosenGenre, "Description": newKasamDescription.text!, "Timing": "6:00pm - 7:00pm", "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": "User", "Rating": "5", "Blocks": "blocks", "Level":chosenLevel, "Metric": chosenMetric]
@@ -190,7 +265,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    //STEP 4 - Save block info under kasam
+    //STEP 4 - Save block info under Challo
     func saveBlocks(){
         self.view.endEditing(true)                  //for adding last text field value with dismiss keyboard
         let newBlock = Database.database().reference().child("Coach-Kasams").child(kasamIDGlobal).child("Blocks")
@@ -223,7 +298,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
                     if error != nil {
                         print(error!)
                     } else {
-                        //kasam successfully created
+                        //Challo successfully created
                         self.animationView.removeFromSuperview()
                         self.animationOverlay.removeFromSuperview()
                         NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
@@ -342,7 +417,6 @@ extension NewKasamViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 }
 
 extension NewKasamViewController: UITableViewDataSource, UITableViewDelegate {
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return numberOfBlocks
     }

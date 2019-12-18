@@ -54,8 +54,7 @@ extension UIViewController {
             if let window = view.window {
                 overlayView?.frame = window.frame
                 overlayView?.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
-                window.addSubview(overlayView!)
-            }
+                window.addSubview(overlayView!)            }
         }
         view.addSubview(animationView)
         animationView.translatesAutoresizingMaskIntoConstraints = false
