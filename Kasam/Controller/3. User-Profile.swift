@@ -35,17 +35,25 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var collectionViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     @IBOutlet weak var sideMenuButton: UIButton!
+    
     @IBOutlet weak var completedKasamsTable: SelfSizedTableView!
     @IBOutlet weak var completedKasamTableHeight: NSLayoutConstraint!
     @IBOutlet weak var completedLabel: UILabel!
     
+    @IBOutlet weak var editChalloLabel: UILabel!
+    @IBOutlet weak var editChallosCollectionView: UICollectionView!
+    @IBOutlet weak var editChallosHeight: NSLayoutConstraint!
+    
     var weeklyStats: [weekStatsFormat] = []
     var detailedStats: [UserStatsFormat] = []
+    var myChallosArray: [EditMyChalloFormat] = []
     var completedStats: [UserStatsFormat] = []
     var daysCompletedDict: [String:Int] = [:]
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
     let animationView = AnimationView()
+    let userKasamDB = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
+    var userKasamDBHandle: DatabaseHandle!
     
     //Kasam Following
     var kasamIDGlobal: String = ""
@@ -56,6 +64,7 @@ class ProfileViewController: UIViewController {
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
     var kasamUserRefHandle: DatabaseHandle!
     var kasamHistoryRefHandle: DatabaseHandle!
+    var tableViewHeight = CGFloat(0)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,8 +72,9 @@ class ProfileViewController: UIViewController {
         profileUpdate()
         profilePicture()
         setupDateDictionary()
-        viewSetup()
         getDetailedStats()
+        getMyChallos()
+        viewSetup()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -79,9 +89,20 @@ class ProfileViewController: UIViewController {
         completedKasamsTable.reloadData()
         
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        collectionViewHeight.constant = detailedStatsCollectionViewHeight.constant + challoStatsHeight.constant + 52.5 + 52.5
-        let tableViewHeight = completedKasamTableHeight.constant + 42.5                                          //42.5 is the completed label height
-        let contentViewHeight = topViewHeight.constant + collectionViewHeight.constant + tableViewHeight + 15 + 1   //15 is the bottom space
+        
+    //STEP 1 - Titles
+        var titleHeights = 52.5 * 3
+        if editChallosHeight.constant == 0 {
+            titleHeights = 52.5 * 2
+            editChallosHeight.constant = 0
+        }
+    //STEP 2 - CollectionViews
+        collectionViewHeight.constant = detailedStatsCollectionViewHeight.constant + challoStatsHeight.constant + editChallosHeight.constant + CGFloat(titleHeights)
+    //STEP 3 - TableView
+        if completedStats.count > 0 {
+            tableViewHeight = completedKasamTableHeight.constant + 42.5                //42.5 is the completed label height
+        }
+        let contentViewHeight = topViewHeight.constant + collectionViewHeight.constant + tableViewHeight
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {
@@ -96,7 +117,7 @@ class ProfileViewController: UIViewController {
         levelLineBack.clipsToBounds = true
         levelLine.layer.cornerRadius = 4
         levelLine.clipsToBounds = true
-        sideMenuButton.setIcon(icon: .fontAwesomeSolid(.bars), iconSize: 17, color: UIColor.darkGray, backgroundColor: .clear, forState: .normal)
+        sideMenuButton.setIcon(icon: .fontAwesomeSolid(.bars), iconSize: 20, color: UIColor.darkGray, backgroundColor: .clear, forState: .normal)
         self.navigationItem.title = ""
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
         
@@ -105,6 +126,7 @@ class ProfileViewController: UIViewController {
         
         let challoStatsUpdate = NSNotification.Name("ChalloStatsUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.getDetailedStats), name: challoStatsUpdate, object: nil)
+        
         let goToCreateKasam = NSNotification.Name("GoToCreateKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
         
@@ -121,6 +143,7 @@ class ProfileViewController: UIViewController {
     }
     
     @objc func showCompletionAnimation(){
+        getMyChallos()
         loadingAnimation(animationView: animationView, animation: "checkmark", height: 400, overlayView: nil, loop: false){
             self.animationView.removeFromSuperview()
         }
@@ -214,6 +237,25 @@ class ProfileViewController: UIViewController {
         }
     }
     
+    @objc func getMyChallos(){
+        myChallosArray.removeAll()
+        userKasamDBHandle = userKasamDB.observe(.childAdded, with: {(snapshot) in
+            Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: {(snapshot) in
+                if let value = snapshot.value as? [String: Any] {
+                    let imageURL = URL(string: value["Image"] as? String ?? "")
+                    let myChallosBlock = EditMyChalloFormat(kasamID: value["KasamID"] as? String ?? "", kasamTitle: value["Title"] as? String ?? "", imageURL: imageURL ?? self.placeholder() as! URL)
+                    self.myChallosArray.append(myChallosBlock)
+                    self.editChallosCollectionView.reloadData()
+                    self.editChalloLabel.isHidden = false
+                    self.editChallosCollectionView.isHidden = false
+                    self.viewDidLayoutSubviews()
+                }
+                //remove observer
+                Database.database().reference().child("Coach-Kasams").child(snapshot.key).removeAllObservers()
+            })
+        })
+    }
+    
     func setupDateDictionary(){
         let todayDay = Date().dayNumberOfWeek()
         if todayDay == 1 {
@@ -272,11 +314,13 @@ class ProfileViewController: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToStats" {
-            let kasamTransferHolder = segue.destination as! StatisticsViewController
-            kasamTransferHolder.kasamID = kasamIDGlobal
-            kasamTransferHolder.kasamName = kasamTitleGlobal
-            kasamTransferHolder.kasamMetricType = kasamMetricTypeGlobal
-            kasamTransferHolder.kasamImage = kasamImageGlobal
+            let segueTransferHolder = segue.destination as! StatisticsViewController
+            segueTransferHolder.kasamID = kasamIDGlobal
+            segueTransferHolder.kasamName = kasamTitleGlobal
+            segueTransferHolder.kasamMetricType = kasamMetricTypeGlobal
+            segueTransferHolder.kasamImage = kasamImageGlobal
+        } else if segue.identifier == "goToEditChallo" {
+            
         }
     }
     
@@ -302,6 +346,8 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             } else {
                 return weeklyStats.count                                     //user following active kasams
             }
+        } else if collectionView == editChallosCollectionView {
+            return myChallosArray.count
         } else {
             if detailedStats.count == 0 {
                 return 1
@@ -325,8 +371,13 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 cell.setBlock(cell: stat)                                                  //user following active kasams
             }
             return cell
+        } else if collectionView == editChallosCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditChalloCell", for: indexPath) as! KasamFollowingCell
+            let block = myChallosArray[indexPath.row]
+            cell.setMyChalloBlock(cell: block)
+            return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamFollowingCell", for: indexPath) as! KasamFollowingCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChalloStatsCell", for: indexPath) as! KasamFollowingCell
             if detailedStats.count == 0 {
                 cell.setPlaceholder()
             } else {
@@ -341,7 +392,13 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
         if collectionView == weekStatsCollectionView {
             challoStatsHeight.constant = (view.bounds.size.width * (2/5))
             return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
+        } else if collectionView == editChallosCollectionView {
+            //for edit challos -- which has a longer width
+            let cellWidth = ((view.frame.size.width - (15 * 4)) / 3)
+            editChallosHeight.constant = cellWidth + 40
+            return CGSize(width: cellWidth, height: cellWidth + 40)
         } else {
+            //for active challo stats + completed challo stats
             let cellWidth = ((view.frame.size.width - (15 * 4)) / 3)
             detailedStatsCollectionViewHeight.constant = cellWidth + 40
             return CGSize(width: cellWidth, height: cellWidth + 40)
@@ -361,6 +418,9 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 kasamImageGlobal = weeklyStats[indexPath.row].imageURL
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
+        } else if collectionView == editChallosCollectionView {
+            
+            self.performSegue(withIdentifier: "goToEditChallo", sender: indexPath)
         } else if collectionView == detailedStatsCollectionView {
             if detailedStats.count == 0 {
                //go to Discover Page when clicked

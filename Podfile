@@ -34,6 +34,7 @@ pod 'SkyFloatingLabelTextField'
 pod 'Charts'
 pod 'SwiftEntryKit', '1.1.4'
 pod 'SkeletonView'
+pod 'IQKeyboardManagerSwift'
 
 end
 

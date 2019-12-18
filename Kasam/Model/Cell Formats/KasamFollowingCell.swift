@@ -25,6 +25,13 @@ class KasamFollowingCell: UICollectionViewCell {
         kasamTitle.text = cell.kasamTitle
     }
     
+    func setMyChalloBlock(cell: EditMyChalloFormat) {
+        topImage.sd_setImage(with: cell.imageURL, placeholderImage: UIImage(named: "placeholder.png"))
+        topImage.layer.cornerRadius = 8.0
+        topImage.clipsToBounds = true
+        kasamTitle.text = cell.kasamTitle
+    }
+    
     func setPlaceholder(){
         statsPlaceholderIcon.isHidden = false
         statsPlaceholderIconHeight.constant = topImage.frame.height / 2

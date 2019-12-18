@@ -71,6 +71,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     
     func setupLoad(){
         //setup radius for kasam info block
+        self.hideKeyboardWhenTappedAround()
         createKasam.layer.cornerRadius = 20.0
         createKasam.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.magic), iconColor: UIColor.white, postfixText: "  Create a Challo", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 15)
         profileViewRadius.layer.cornerRadius = 16.0
@@ -158,7 +159,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
         //Saves Kasam Image in Firebase Storage
         storageRef = Storage.storage().reference().child(location)
-        let imageData = image?.jpegData(compressionQuality: 0.2)
+        let imageData = image?.jpegData(compressionQuality: 0.4)
         let metaData = StorageMetadata()
         metaData.contentType = "image/jpg"
         

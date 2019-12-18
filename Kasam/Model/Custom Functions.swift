@@ -74,8 +74,6 @@ extension UIViewController {
         }
     }
     
-    
-    
     func setupNavBar(){
         let logo = UIImage(named: "Challo-logo")
         let imageView = UIImageView(image:logo)
@@ -230,6 +228,10 @@ extension UIViewController {
         var avatarTransform = CATransform3DIdentity
         var headerTransform = CATransform3DIdentity
         
+        //controls the image white overlay, when it shows and when it disappears
+        let alignToNameLabel = -offset + mainTitle.frame.origin.y + headerView.frame.height + offsetHeaderStop
+        headerBlurImageView?.alpha = min (1.0, (offset + 220 - alignToNameLabel)/(offsetLabelHeader + 50))
+        
         // PULL DOWN -----------------
         if offset < 0 {
             let headerScaleFactor:CGFloat = -(offset) / headerView.bounds.height
@@ -248,22 +250,20 @@ extension UIViewController {
             
         // SCROLL UP/DOWN ------------
         else {
-            // Header -----------
+            //Header -----------
             headerTransform = CATransform3DTranslate(headerTransform, 0, max(-offsetHeaderStop, -offset), 0)
             
-            //  ------------ Label
+            //Label ------------
             headerLabel.isHidden = false
-            let alignToNameLabel = -offset + mainTitle.frame.origin.y + headerView.frame.height + offsetHeaderStop
             headerLabel.frame.origin = CGPoint(x: headerLabel.frame.origin.x, y: max(alignToNameLabel, offsetLabelHeader + offsetHeaderStop))
             
-            //  ------------ Blur
-            headerBlurImageView?.alpha = min (1.0, (offset + 220 - alignToNameLabel)/(offsetLabelHeader + 50))
+            //Blur ------------
             if let navBar = self.navigationController?.navigationBar {
                 let scrollPercentage = Double(min (1.0, (offset + 220 - alignToNameLabel)/(offsetLabelHeader + 50)))
                 navBar.tintColor = scrollColor(percent: scrollPercentage)
             }
             
-            // Avatar -----------
+            //Avatar -----------
             var avatarScaleFactor = CGFloat(0)
             avatarScaleFactor = (min(offsetHeaderStop, offset)) / (shrinkingButton?.bounds.height ?? 1) / 9.4 // Slow down the animation
             let avatarSizeVariation = (1.0 + avatarScaleFactor) / 2.0

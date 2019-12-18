@@ -44,13 +44,12 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupTableAndHeader()
+        self.view.showAnimatedSkeleton()
         setupNavBar()                   //global function
         getPreferences()
         getMotivationBackgrounds()
         getMotivations()
         setupNotifications()
-        self.view.showAnimatedSkeleton()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -72,27 +71,25 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     //Table Resizing----------------------------------------------------------------------------------------
-    override func viewDidLayoutSubviews(){
-        tableView.frame = CGRect(x: tableView.frame.origin.x, y: tableView.frame.origin.y, width: tableView.frame.size.width, height: tableView.contentSize.height)
-        self.tableViewHeight.constant = self.tableView.contentSize.height
-    }
     
     func updateContentTableHeight(){
+        //set the table row height, based on the screen size
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 150
+        
+        //sets the height of the whole tableview, based on the numnber of rows
+        tableView.frame = CGRect(x: tableView.frame.origin.x, y: tableView.frame.origin.y, width: tableView.frame.size.width, height: tableView.contentSize.height)
+         self.tableViewHeight.constant = self.tableView.contentSize.height
+        
+        //elongates the entire scrollview, based on the tableview height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let contentViewHeight = tableViewHeight.constant + 210 + 25         //25 is the additional space from the bottom
+        let contentViewHeight = tableViewHeight.constant + 210 + 35         //25 is the additional space from the bottom
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {
             let diff = frame.height - contentViewHeight
             contentView.constant = contentViewHeight + diff + 1
         }
-        viewDidLayoutSubviews()
-    }
-
-    func setupTableAndHeader(){
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 150
-        tableView.reloadData()
     }
     
     //-------------------------------------------------------------------------------------------------------
@@ -139,6 +136,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     SavedData.addKasam(kasam: preference)
                     if SavedData.kasamTodayArray.count == count {
                         self.retrieveKasams()
+                        self.getDayTracker()
+                        //update the user profile page
                         NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
                         self.kasamFollowingRef.removeObserver(withHandle: self.kasamFollowingRefHandle)
                     }
@@ -174,8 +173,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: self.dayTrackerArray)
                         self.kasamBlocks.append(block)
                         if todayKasamCount == SavedData.kasamTodayArray.count {
-                            self.getDayTracker()
-                            self.reloadTodayKasamData()
+                            //now know how many rows are there, so update table height and hide skeleton
+                            self.tableView.reloadData()
+                            self.updateContentTableHeight()
+                            self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
                         }
                     })
                 })
@@ -183,15 +184,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    func reloadTodayKasamData() {
-        setupTableAndHeader()
-        updateContentTableHeight()
-        self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
+    func getDayTracker() {
         self.dayTrackerDateArray.removeAll()
         self.dayTrackerArray.removeAll()
-    }
-    
-    func getDayTracker() {
         //for the active Kasams on the Today page
         for kasam in SavedData.kasamTodayArray {
             let kasamOrder = kasam.kasamOrder
@@ -228,7 +223,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         self.kasamBlocks[kasamOrder].dayTrackerArray = self.dayTrackerArray
                         SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)
                         dayTrackerKasamRef.removeAllObservers()
-                        self.reloadTodayKasamData()
+                        self.tableView.reloadData()
                     }
                 })
             })
@@ -432,7 +427,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
         return height
     }
     
-    //Skeleton View
+    //Skeleton View----------------------------------------------------------------------------------------------------------
     func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }

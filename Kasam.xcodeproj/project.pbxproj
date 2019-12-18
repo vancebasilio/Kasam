@@ -23,8 +23,8 @@
 		BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BC1FAF302269FAFA006A9245 /* Main.storyboard */; };
 		BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BC1FAF332269FAFA006A9245 /* Assets.xcassets */; };
 		BC1FAF372269FAFA006A9245 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BC1FAF352269FAFA006A9245 /* LaunchScreen.storyboard */; };
-		BC2B4C7823A6E8BE005F2255 /* rocket-fast.json in Resources */ = {isa = PBXBuildFile; fileRef = BC2B4C7723A6E8BE005F2255 /* rocket-fast.json */; };
-		BC2B4C7A23A6EDD7005F2255 /* checkmark.json in Resources */ = {isa = PBXBuildFile; fileRef = BC2B4C7923A6EDD7005F2255 /* checkmark.json */; };
+		BC2B4C8123A70437005F2255 /* rocket-fast.json in Resources */ = {isa = PBXBuildFile; fileRef = BC2B4C7F23A70436005F2255 /* rocket-fast.json */; };
+		BC2B4C8223A70437005F2255 /* checkmark.json in Resources */ = {isa = PBXBuildFile; fileRef = BC2B4C8023A70436005F2255 /* checkmark.json */; };
 		BC339E8E2376EB6D00E1D038 /* CustomSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */; };
 		BC339E902377242C00E1D038 /* LoginViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC339E8F2377242C00E1D038 /* LoginViewCell.swift */; };
 		BC339E9223772D6F00E1D038 /* RegisterViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC339E9123772D6F00E1D038 /* RegisterViewCell.swift */; };
@@ -93,8 +93,8 @@
 		BC1FAF332269FAFA006A9245 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BC1FAF362269FAFA006A9245 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BC1FAF382269FAFA006A9245 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		BC2B4C7723A6E8BE005F2255 /* rocket-fast.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "rocket-fast.json"; path = "../../../../../../Downloads/rocket-fast.json"; sourceTree = "<group>"; };
-		BC2B4C7923A6EDD7005F2255 /* checkmark.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = checkmark.json; path = ../../../../../../Downloads/checkmark.json; sourceTree = "<group>"; };
+		BC2B4C7F23A70436005F2255 /* rocket-fast.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "rocket-fast.json"; path = "Kasam/Assets.xcassets/rocket-fast.json"; sourceTree = SOURCE_ROOT; };
+		BC2B4C8023A70436005F2255 /* checkmark.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = checkmark.json; path = Kasam/Assets.xcassets/checkmark.json; sourceTree = SOURCE_ROOT; };
 		BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedControl.swift; sourceTree = "<group>"; };
 		BC339E8F2377242C00E1D038 /* LoginViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewCell.swift; sourceTree = "<group>"; };
 		BC339E9123772D6F00E1D038 /* RegisterViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewCell.swift; sourceTree = "<group>"; };
@@ -300,8 +300,8 @@
 			isa = PBXGroup;
 			children = (
 				BC16A20323292ABD00FDF70C /* loading.json */,
-				BC2B4C7923A6EDD7005F2255 /* checkmark.json */,
-				BC2B4C7723A6E8BE005F2255 /* rocket-fast.json */,
+				BC2B4C8023A70436005F2255 /* checkmark.json */,
+				BC2B4C7F23A70436005F2255 /* rocket-fast.json */,
 				BC1FAF382269FAFA006A9245 /* Info.plist */,
 				BC7042BF239861A100649D01 /* GoogleService-Info.plist */,
 			);
@@ -394,10 +394,10 @@
 				BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */,
 				BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */,
 				BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */,
-				BC2B4C7823A6E8BE005F2255 /* rocket-fast.json in Resources */,
-				BC2B4C7A23A6EDD7005F2255 /* checkmark.json in Resources */,
 				BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */,
+				BC2B4C8123A70437005F2255 /* rocket-fast.json in Resources */,
 				BC01664722D5790B0073186D /* UIImageViewAligned in Resources */,
+				BC2B4C8223A70437005F2255 /* checkmark.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -445,6 +445,7 @@
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/HGCircularSlider/HGCircularSlider.framework",
 				"${BUILT_PRODUCTS_DIR}/HMSegmentedControl/HMSegmentedControl.framework",
+				"${BUILT_PRODUCTS_DIR}/IQKeyboardManagerSwift/IQKeyboardManagerSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/MXPagerView/MXPagerView.framework",
 				"${BUILT_PRODUCTS_DIR}/MXParallaxHeader/MXParallaxHeader.framework",
 				"${BUILT_PRODUCTS_DIR}/MXSegmentedPager/MXSegmentedPager.framework",
@@ -479,6 +480,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HGCircularSlider.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HMSegmentedControl.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardManagerSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MXPagerView.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MXParallaxHeader.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MXSegmentedPager.framework",

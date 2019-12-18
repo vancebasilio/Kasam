@@ -281,10 +281,22 @@ class UserStatsFormat {
     init(kasamID: String, kasamTitle: String, imageURL: URL, joinedDate: Date, endDate: Date, metricType: String, order: Int){
         self.kasamID = kasamID
         self.kasamTitle = kasamTitle
+        self.imageURL = imageURL
         self.joinedDate = joinedDate
         self.endDate = endDate
-        self.imageURL = imageURL
         self.metricType = metricType
         self.order = order
+    }
+}
+
+class EditMyChalloFormat {
+    var kasamID: String
+    var kasamTitle: String
+    var imageURL: URL
+    
+    init(kasamID: String, kasamTitle: String, imageURL: URL){
+        self.kasamID = kasamID
+        self.kasamTitle = kasamTitle
+        self.imageURL = imageURL
     }
 }
