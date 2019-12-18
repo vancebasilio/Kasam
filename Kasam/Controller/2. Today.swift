@@ -185,10 +185,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func getDayTracker() {
-        self.dayTrackerDateArray.removeAll()
-        self.dayTrackerArray.removeAll()
         //for the active Kasams on the Today page
         for kasam in SavedData.kasamTodayArray {
+            self.dayTrackerDateArray.removeAll()
+            self.dayTrackerArray.removeAll()
             let kasamOrder = kasam.kasamOrder
             let dayTrackerKasamRef = self.dayTrackerRef.child(kasam.kasamID)
             let currentDate = self.getCurrentDate()
@@ -197,13 +197,14 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
             //Checks if there's kasam history
             self.dayTrackerRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
                 dayCount = Int(snap.childrenCount)
+                var dayTrackerArrayInternal = [Int]()
                     //Gets the DayTracker info - only goes into this loop if the user has kasam history
                     self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
                         let kasamDate = self.stringToDate(date: snap.key)
                         if kasamDate >= kasam.joinedDate {
                             let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                            self.dayTrackerDateArray[order] = snap.key      //to save the kasam date and order
-                            self.dayTrackerArray.append(order)              //places the gold dots on the right day in the today block tracker
+                            self.dayTrackerDateArray[order] = snap.key      //to save the Challo date and order
+                            dayTrackerArrayInternal.append(order)              //places the gold dots on the right day in the today block tracker
                         } else {
                             dayCount -= 1
                         }
@@ -213,14 +214,14 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                             let dictionary = snap.value as! Dictionary<String,Any>
                             let value = dictionary["Metric Percent"] as! Double
                             if value >= 1 {
-                                displayStatus = "Check"            //Kasam has been completed today
+                                displayStatus = "Check"            //Challo has been completed today
                             } else {
-                                displayStatus = "Progress"         //kasam has been started, but not completed
+                                displayStatus = "Progress"         //Challo has been started, but not completed
                         }
                     }
-                    if self.dayTrackerArray.count == dayCount && dayCount > 0 && kasamOrder < self.kasamBlocks.count {
+                    if dayTrackerArrayInternal.count == dayCount && dayCount > 0 && kasamOrder < self.kasamBlocks.count {
                         self.kasamBlocks[kasamOrder].displayStatus = displayStatus
-                        self.kasamBlocks[kasamOrder].dayTrackerArray = self.dayTrackerArray
+                        self.kasamBlocks[kasamOrder].dayTrackerArray = dayTrackerArrayInternal
                         SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)
                         dayTrackerKasamRef.removeAllObservers()
                         self.tableView.reloadData()
