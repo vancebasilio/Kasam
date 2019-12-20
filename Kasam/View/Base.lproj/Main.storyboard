@@ -2685,7 +2685,7 @@
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Motivation Text" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ntf-md-Ed9">
                                                                             <rect key="frame" x="20" y="54" width="146.5" height="27.5"/>
                                                                             <fontDescription key="fontDescription" name="Futura-Medium" family="Futura" pointSize="21"/>
-                                                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                            <color key="textColor" cyan="0.30623060460000001" magenta="0.41246461870000001" yellow="0.65315651890000004" black="0.46877533842702712" alpha="1" colorSpace="custom" customColorSpace="genericCMYKColorSpace"/>
                                                                             <nil key="highlightedColor"/>
                                                                             <userDefinedRuntimeAttributes>
                                                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>

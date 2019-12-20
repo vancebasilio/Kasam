@@ -10,16 +10,14 @@ import UIKit
 import SkyFloatingLabelTextField
 
 protocol NewBlockDelegate {
-    func sendBlockType(blockNo: Int, blockType: String)
     func sendDurationTime(blockNo: Int, duration: String)
     func sendDurationMetric(blockNo: Int, metric: String)
-    func createButtonPressed(blockNo: Int)
+    func addActivityButtonPressed(blockNo: Int)
 }
 
 class NewBlockCell: UITableViewCell {
     
     @IBOutlet weak var titleTextField: SkyFloatingLabelTextField!
-    @IBOutlet weak var blockTypePicker: UIPickerView!
     @IBOutlet weak var durationTimePicker: UIPickerView!
     @IBOutlet weak var durationMetricPicker: UIPickerView!
     @IBOutlet weak var dayNumber: UILabel!
@@ -30,17 +28,12 @@ class NewBlockCell: UITableViewCell {
     
     var blockNo = 1
     var delegate: NewBlockDelegate?
-//    var blockTypes = ["Timer", "Countdown", "Reps Counter"]
     var timeMetrics = ["secs", "mins", "hours"]
     
     var blockTypeSelected = ""
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
-//        blockTypeSelected = blockTypes[0]
-//        blockTypePicker.delegate = self
-//        blockTypePicker.dataSource = self
         durationTimePicker.delegate = self
         durationTimePicker.dataSource = self
         durationMetricPicker.delegate = self
@@ -58,8 +51,17 @@ class NewBlockCell: UITableViewCell {
         shadow.layer.shadowRadius = 4
     }
     
+    func loadChalloInfo(block: NewChalloLoadFormat) {
+        titleTextField.text = block.challoTitle
+        let timeIndex = ((block.time) / 5) - 1
+        durationTimePicker.selectRow(timeIndex, inComponent: 0, animated: false)
+        if let index = self.timeMetrics.index(of: block.timeMetric) {
+            durationMetricPicker.selectRow(index, inComponent: 0, animated: false)
+        }
+    }
+    
     @IBAction func createActivityButtonPressed(_ sender: Any) {
-        delegate?.createButtonPressed(blockNo: blockNo)
+        delegate?.addActivityButtonPressed(blockNo: blockNo)
     }
 }
 
@@ -70,8 +72,6 @@ extension NewBlockCell: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         pickerView.subviews.forEach({$0.isHidden = $0.frame.height < 1.0})
-//        if pickerView == blockTypePicker {
-//            return blockTypes.count}
         if pickerView == durationMetricPicker {
             return timeMetrics.count
         } else {
@@ -84,9 +84,6 @@ extension NewBlockCell: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-//        if pickerView == blockTypePicker {
-//            blockTypeSelected = blockTypes[row]
-//            delegate?.sendBlockType(blockNo: blockNo, blockType: blockTypes[row]) }
         if pickerView == durationMetricPicker {
             delegate?.sendDurationMetric(blockNo: blockNo, metric: timeMetrics[row])
         } else {
@@ -98,9 +95,6 @@ extension NewBlockCell: UIPickerViewDelegate, UIPickerViewDataSource {
         var label = UILabel()
         if let v = view as? UILabel { label = v }
         label.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-//        if pickerView == blockTypePicker {
-//            label.textAlignment = .left
-//            label.text = blockTypes[row]}
         if pickerView == durationMetricPicker {
             label.textAlignment = .left
             label.text = timeMetrics[row]

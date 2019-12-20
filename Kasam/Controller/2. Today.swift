@@ -37,7 +37,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     var motivationRefHandle: DatabaseHandle!
     let dayTrackerRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var dayTrackerRefHandle: DatabaseHandle!
-    var dayTrackerArray = [Int]()
     var dayTrackerDateArray = [Int:String]()
     var noKasamTracker = 0
     let animationView = AnimationView()
@@ -170,7 +169,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     //Gets the blockdata after the block is decided on
                     Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: { snapshot in
                         let value = snapshot.value as! Dictionary<String,Any>
-                        let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: self.dayTrackerArray)
+                        let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: nil)
                         self.kasamBlocks.append(block)
                         if todayKasamCount == SavedData.kasamTodayArray.count {
                             //now know how many rows are there, so update table height and hide skeleton
@@ -188,7 +187,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         //for the active Kasams on the Today page
         for kasam in SavedData.kasamTodayArray {
             self.dayTrackerDateArray.removeAll()
-            self.dayTrackerArray.removeAll()
             let kasamOrder = kasam.kasamOrder
             let dayTrackerKasamRef = self.dayTrackerRef.child(kasam.kasamID)
             let currentDate = self.getCurrentDate()
@@ -236,6 +234,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                 var dayCount = 0
                 //Checks if there's kasam history
                 self.dayTrackerRef.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
+                    var dayTrackerArray = [Int]()
                     dayCount = Int(snap.childrenCount)
                     //Gets the DayTracker info - only goes into this loop if the user has kasam history
                     self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
@@ -243,11 +242,11 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         if kasamDate >= kasam.joinedDate {
                             let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
                             self.dayTrackerDateArray[order] = snap.key      //to save the kasam date and order
-                            self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
+                            dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
                         } else {
                             dayCount -= 1
                         }
-                        if self.dayTrackerArray.count == dayCount && dayCount > 0 {
+                        if dayTrackerArray.count == dayCount && dayCount > 0 {
                             SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)
                             dayTrackerKasamRef.removeAllObservers()
                         }
@@ -281,12 +280,12 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     }
                     if snapshot.exists() {
                         //if there's progress for today, it adds it to the dayTracker
-                        self.kasamBlocks[kasamOrder].dayTrackerArray.append(dayOrder)
+                        self.kasamBlocks[kasamOrder].dayTrackerArray!.append(dayOrder)
                     }
                     else {
                         //removes the dayTracker for today if kasam is set to zero
-                        while let index = self.kasamBlocks[kasamOrder].dayTrackerArray.index(of: dayOrder) {
-                            self.kasamBlocks[kasamOrder].dayTrackerArray.remove(at: index)
+                        while let index = self.kasamBlocks[kasamOrder].dayTrackerArray!.index(of: dayOrder) {
+                            self.kasamBlocks[kasamOrder].dayTrackerArray!.remove(at: index)
                         }
                     }
                     self.kasamBlocks[kasamOrder].displayStatus = displayStatus

@@ -103,9 +103,9 @@ class TodayBlockFormat {
     var kasamName: String
     var statusType: String
     var displayStatus: String
-    var dayTrackerArray: [Int]
+    var dayTrackerArray: [Int]?
     
-    init(kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String, image: URL, statusType: String, displayStatus: String, dayTrackerArray: [Int]){
+    init(kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String, image: URL, statusType: String, displayStatus: String, dayTrackerArray: [Int]?){
         self.kasamID = kasamID
         self.blockID = blockID
         self.kasamName = kasamName
@@ -116,6 +116,18 @@ class TodayBlockFormat {
         self.statusType = statusType
         self.displayStatus = displayStatus
         self.dayTrackerArray = dayTrackerArray
+    }
+}
+
+class NewChalloLoadFormat{
+    var challoTitle: String
+    var time: Int
+    var timeMetric: String
+    
+    init(challoTitle: String, time: Int, timeMetric: String){
+        self.challoTitle = challoTitle
+        self.time = time
+        self.timeMetric = timeMetric
     }
 }
 

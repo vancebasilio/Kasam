@@ -457,9 +457,26 @@ extension UIView{
 }
 
 extension Double {
-    /// Rounds the double to decimal places value
+    // Rounds the double to decimal places value
     func rounded(toPlaces places:Int) -> Double {
         let divisor = pow(10.0, Double(places))
         return (self * divisor).rounded() / divisor
+    }
+}
+
+extension BidirectionalCollection where Element: StringProtocol {
+    var sentence: String {
+        guard let last = last else { return "" }
+        return count <= 2 ? joined(separator: " and ") :
+            dropLast().joined(separator: ", ") + ", and " + last
+    }
+}
+
+extension Int {
+    func convertIntTimeToSplitInt(fullIntTime: Int) -> (hours: Int, mins: Int, secs: Int) {
+        let hours = fullIntTime / 3600
+        let mins = fullIntTime / 60 % 60
+        let secs = fullIntTime % 60
+        return (hours: hours, mins: mins, secs: secs)
     }
 }
