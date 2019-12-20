@@ -150,15 +150,17 @@ class newActivityFormat {
     var description: String?
     var image: UIImage?
     var reps: Int?
+    var interval: Int?
     var hour: Int?
     var min: Int?
     var sec: Int?
     
-    init(title: String?, description: String?, image: UIImage?, reps: Int?, hour: Int?, min: Int?, sec: Int?) {
+    init(title: String?, description: String?, image: UIImage?, reps: Int?, interval: Int?, hour: Int?, min: Int?, sec: Int?) {
         self.title = title
         self.description = description
         self.image = image
         self.reps = reps
+        self.interval = interval
         self.hour = hour
         self.min = min
         self.sec = sec
@@ -186,6 +188,7 @@ class KasamActivityCellFormat {
     var activityTitle: String
     var activityDescription: String
     var totalMetric: String
+    var increment: String?
     var currentMetric: String
     var image: String
     var type: String
@@ -193,12 +196,13 @@ class KasamActivityCellFormat {
     var totalOrder: Int
     var currentText: String
     
-    init(kasamID: String, blockID: String, title: String, description: String, totalMetric: String, currentMetric: String, image: String, type: String, currentOrder: Int, totalOrder: Int, currentText: String){
+    init(kasamID: String, blockID: String, title: String, description: String, totalMetric: String, increment: String?, currentMetric: String, image: String, type: String, currentOrder: Int, totalOrder: Int, currentText: String){
         self.kasamID = kasamID
         self.blockID = blockID
         self.activityTitle = title
         self.activityDescription = description
         self.totalMetric = totalMetric
+        self.increment = increment
         self.currentMetric = currentMetric
         self.image = image
         self.type = type

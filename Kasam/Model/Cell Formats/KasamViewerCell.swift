@@ -58,7 +58,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     var totalOrder = 0
     var metricTotalNo = 0.0
     var count = 0
-    var increment = 10              //for the reps slider
+    var increment = 1              //for the reps slider
     
     //Timer variables
     var maxTime: TimeInterval = 0   //set max timer value
@@ -166,6 +166,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         activityDescription.text = activity.activityDescription
         currentOrder = activity.currentOrder
         totalOrder = activity.totalOrder
+        increment = Int(activity.increment ?? "1") ?? 1
         pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
         pickerView.reloadAllComponents()                                    //important so that the pickerview updates to the max metric
         activityNumber.text = "\(activity.currentOrder)/\(activity.totalOrder)"

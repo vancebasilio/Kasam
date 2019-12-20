@@ -203,7 +203,6 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
                     if self.challoTransferArray.count == self.numberOfBlocks {
                         self.dataLoadCheck = true
                         self.kasamDatabase.child(self.kasamID).removeObserver(withHandle: self.kasamDatabaseHandle)
-                        self.kasamBlocksDatabase.removeObserver(withHandle: self.kasamBlocksDatabaseHandle)
                         self.tableView.reloadData()
                     }
                 })
@@ -217,11 +216,13 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         self.kasamBlocksDatabaseHandle = self.kasamBlocksDatabase.observe(.childAdded) {(snapshot) in
         if let value = snapshot.value as? [String: Any] {
             var reps = 0
+            var interval = 1
             var hours = 0
             var mins = 0
             var secs = 0
             if self.chosenMetric == "Reps" {
-                reps = value["Metric"] as! Int
+                reps = Int(value["Metric"] as! String) ?? 0
+                interval = Int(value["Interval"] as! String) ?? 1
             } else if self.chosenMetric == "Timer" {
                 let totalTime = Int(value["Metric"] as! String)
                 hours = (totalTime?.convertIntTimeToSplitInt(fullIntTime: totalTime ?? 0).hours)!
@@ -231,9 +232,10 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
             let imageView = UIImageView()
             imageView.sd_setImage(with: URL(string:value["Image"] as! String))
             let image = imageView.image
-            let activity = [0: newActivityFormat(title: value["Title"] as? String, description: value["Description"] as? String, image: image, reps: reps, hour: hours, min: mins, sec: secs)]
+            let activity = [0: newActivityFormat(title: value["Title"] as? String, description: value["Description"] as? String, image: image, reps: reps, interval: interval, hour: hours, min: mins, sec: secs)]
             self.fullActivityMatrix[blockNo] = activity
             }
+            self.kasamBlocksDatabase.removeObserver(withHandle: self.kasamBlocksDatabaseHandle)
         }
     }
     
@@ -347,8 +349,11 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
             let transferBlockDuration = "\(transferDuration[j] ?? "15") \(transferDurationMetric[j] ?? "secs")"
             let blockActivity = fullActivityMatrix[j]
             var metric = 0
+            var increment = 1
             switch chosenMetric {
-                case "Reps": metric = blockActivity?[0]?.reps ?? 0          //using 0 as only one activity loaded per block
+                case "Reps":
+                    metric = blockActivity?[0]?.reps ?? 0          //using 0 as only one activity loaded per block
+                    increment = blockActivity?[0]?.interval ?? 1
                 case "Timer": do {
                     let hour = (blockActivity?[0]?.hour ?? 0) * 3600
                     let min = (blockActivity?[0]?.min ?? 0) * 60
@@ -361,7 +366,8 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
             saveImage(image: (blockActivity?[0]?.image), location: "kasam/\(kasamIDGlobal)/activity") {(savedImageURL) in
                 let activity = ["Description" : blockActivity?[0]?.description ?? "",
                                 "Image" : savedImageURL ?? defaultActivityImage,
-                                "Metric" : String(metric),
+                                "Metric" : String(metric * increment),
+                                "Interval" : String(increment),
                                 "Title" : blockActivity?[0]?.title ?? "",
                                 "Type" : self.chosenMetric] as [String : Any]
                 let activityMatrix = ["1":activity]

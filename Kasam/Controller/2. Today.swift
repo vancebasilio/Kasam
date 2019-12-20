@@ -280,11 +280,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     }
                     if snapshot.exists() {
                         //if there's progress for today, it adds it to the dayTracker
-                        self.kasamBlocks[kasamOrder].dayTrackerArray!.append(dayOrder)
-                    }
-                    else {
+                        self.kasamBlocks[kasamOrder].dayTrackerArray?.append(dayOrder)
+                    } else {
                         //removes the dayTracker for today if kasam is set to zero
-                        while let index = self.kasamBlocks[kasamOrder].dayTrackerArray!.index(of: dayOrder) {
+                        while let index = self.kasamBlocks[kasamOrder].dayTrackerArray?.index(of: dayOrder) {
                             self.kasamBlocks[kasamOrder].dayTrackerArray!.remove(at: index)
                         }
                     }

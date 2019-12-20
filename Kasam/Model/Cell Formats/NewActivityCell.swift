@@ -15,7 +15,7 @@ import SwiftIcons
 
 protocol NewActivityCellDelegate {
     func showChooseSourceTypeAlert()
-    func saveActivityData(activityNo: Int, title: String?, description: String?, image: UIImage?, reps: Int?, hour: Int?, min: Int?, sec: Int?)
+    func saveActivityData(activityNo: Int, title: String?, description: String?, image: UIImage?, reps: Int?, interval: Int?, hour: Int?, min: Int?, sec: Int?)
 }
 
 class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
@@ -33,13 +33,14 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
     @IBOutlet weak var restTitle: UILabel!
     @IBOutlet weak var restDescription: UILabel!
     @IBOutlet weak var repsPicker: UIPickerView!
+    @IBOutlet weak var intervalPicker: UIPickerView!
+    @IBOutlet weak var totalRepsPicker: UIPickerView!
     @IBOutlet weak var repsLabel: UIStackView!
     @IBOutlet weak var timePickerStackView: UIStackView!
     @IBOutlet weak var timeLabels: UIStackView!
     @IBOutlet weak var hourPicker: UIPickerView!
     @IBOutlet weak var minsPicker: UIPickerView!
     @IBOutlet weak var secsPicker: UIPickerView!
-    @IBOutlet weak var instruction: UILabel!
     @IBOutlet weak var restView: UIStackView!
     @IBOutlet weak var backButton: UIButton!
     
@@ -51,7 +52,8 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
     var hourChosen = 0
     var minsChosen = 0
     var secsChosen = 0
-    var increment = 10              //for the reps slider
+    var incrementChosen = 1
+    var totalRepsChosen = 0
     
     //Timer variables
     var maxTime: TimeInterval = 0   //set max timer value
@@ -106,7 +108,7 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
     func saveProgress(){
         if activityDescription.text == descriptionPlaceholder {activityDescription.text = ""}
         if animatedImageView.image != imagePlaceholder {addedImage = animatedImageView.image}
-        delegate?.saveActivityData(activityNo: activityNo, title: activityTitle.text, description: activityDescription.text, image: addedImage, reps: repsChosen, hour: hourChosen, min: minsChosen, sec: secsChosen)
+        delegate?.saveActivityData(activityNo: activityNo, title: activityTitle.text, description: activityDescription.text, image: addedImage, reps: repsChosen, interval: incrementChosen, hour: hourChosen, min: minsChosen, sec: secsChosen)
     }
     
     //Setup Functions---------------------------------------
@@ -136,8 +138,9 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         //hide picker views
         animatedImageView.isHidden = true
         repsPicker.isHidden = true
+        intervalPicker.isHidden = true
+        totalRepsPicker.isHidden = true
         repsLabel.isHidden = true
-        instruction.isHidden = true
         animatedImageMask.isHidden = true
         
         //setup timer
@@ -161,21 +164,34 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         hourPicker.selectRow(hour ?? 0, inComponent: 0, animated: false)
         minsPicker.selectRow(min ?? 0, inComponent: 0, animated: false)
         secsPicker.selectRow(sec ?? 0, inComponent: 0, animated: false)
+        
+        hourChosen = hour ?? 0
+        minsChosen = min ?? 0
+        secsChosen = sec ?? 0
     }
     
     //REPS PICKER-----------------------------------------------------------------------------------
     
-    func setupPicker(reps: Int?){
+    func setupPicker(reps: Int?, interval: Int?){
         timeLabels.isHidden = true
         timePickerStackView.isHidden = true
         repsPicker.delegate = self
         repsPicker.dataSource = self
+        intervalPicker.delegate = self
+        intervalPicker.dataSource = self
+        totalRepsPicker.delegate = self
+        totalRepsPicker.dataSource = self
         doneButton.layer.cornerRadius = 20.0
         circularSlider.isHidden = true
-        instruction.isHidden = true
         
         //get the past entries loaded in
+        repsChosen = reps ?? 0
+        incrementChosen = interval ?? 1
+        totalRepsChosen = repsChosen * incrementChosen
+        
         repsPicker.selectRow(reps ?? 0, inComponent: 0, animated: false)
+        intervalPicker.selectRow(((interval ?? 1) - 1), inComponent: 0, animated: false)
+        totalRepsPicker.selectRow(repsChosen * incrementChosen, inComponent: 0, animated: false)
     }
     
     //CHECKMARK---------------------------------------------------
@@ -183,8 +199,9 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
     func setupCheckmark(){
         //hide picker views
         repsPicker.isHidden = true
+        intervalPicker.isHidden = true
+        totalRepsPicker.isHidden = true
         timePickerStackView.isHidden = true
-        instruction.isHidden = true
         circularSlider.isHidden = true
         repsLabel.isHidden = true
         timeLabels.isHidden = true
@@ -210,6 +227,8 @@ extension NewActivityCell: UIPickerViewDelegate, UIPickerViewDataSource {
         pickerView.subviews.forEach({$0.isHidden = $0.frame.height < 1.0})
         switch pickerView {
             case repsPicker: return 300
+            case intervalPicker: return 20
+            case totalRepsPicker: return (300 * 20)
             case hourPicker: return 24
             case minsPicker: return 60
             case secsPicker: return 60
@@ -223,7 +242,7 @@ extension NewActivityCell: UIPickerViewDelegate, UIPickerViewDataSource {
         label.font = UIFont.systemFont(ofSize: 35, weight: .bold)
         label.textAlignment = .center
         switch pickerView {
-            case repsPicker: label.text =  String(row * increment)
+            case intervalPicker: label.text = String(row + 1)
             default: label.text =  String(row)
         }
         return label
@@ -235,7 +254,14 @@ extension NewActivityCell: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         switch pickerView {
-            case repsPicker: repsChosen = row
+            case repsPicker:
+                repsChosen = row
+                totalRepsPicker.selectRow(repsChosen * incrementChosen, inComponent: 0, animated: true)
+                totalRepsPicker.reloadAllComponents()
+            case intervalPicker:
+                incrementChosen = row + 1
+                totalRepsPicker.selectRow(repsChosen * incrementChosen, inComponent: 0, animated: true)
+                totalRepsPicker.reloadAllComponents()
             case hourPicker: hourChosen = row
             case minsPicker: minsChosen = row
             case secsPicker: secsChosen = row

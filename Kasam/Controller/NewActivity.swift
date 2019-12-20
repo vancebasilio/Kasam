@@ -47,8 +47,8 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     
     //Delegate Functions--------------------------------
     
-    func saveActivityData(activityNo: Int, title: String?, description: String?, image: UIImage?, reps: Int?, hour: Int?, min: Int?, sec: Int?) {
-        registerNewActivity[activityNo] = newActivityFormat(title: title, description: description, image: image, reps: reps, hour: hour, min: min, sec: sec)
+    func saveActivityData(activityNo: Int, title: String?, description: String?, image: UIImage?, reps: Int?, interval: Int?, hour: Int?, min: Int?, sec: Int?) {
+        registerNewActivity[activityNo] = newActivityFormat(title: title, description: description, image: image, reps: reps, interval: interval, hour: hour, min: min, sec: sec)
         callback?(registerNewActivity)
         _ = navigationController?.popViewController(animated: true)
     }
@@ -103,7 +103,7 @@ extension NewActivity: UICollectionViewDelegate, UICollectionViewDataSource, UIC
         let entryTransfer = pastEntry?[0]
         cell.setKasamViewer(title: entryTransfer?.title, description: entryTransfer?.description, image: entryTransfer?.image)
         if activityType == "Reps" {
-            cell.setupPicker(reps: entryTransfer?.reps)
+            cell.setupPicker(reps: entryTransfer?.reps, interval: entryTransfer?.interval)
         } else if activityType == "Timer" {
             cell.setupTimer(hour: entryTransfer?.hour, min: entryTransfer?.min, sec: entryTransfer?.sec)
         } else if activityType == "Checkmark" {

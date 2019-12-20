@@ -75,7 +75,7 @@ class KasamViewerTicker: UIViewController {
                         if snap.exists() {
                             currentText = snap.value as! String         //gets the text for the activity
                         }
-                        let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, currentMetric: currentMetric, image: value["Image"] as! String, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0, currentText: currentText)
+                        let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, image: value["Image"] as! String, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0, currentText: currentText)
                         self.activityBlocks.append(activity)
                         self.collectionView.reloadData()
                         if self.activityBlocks.count == count {
