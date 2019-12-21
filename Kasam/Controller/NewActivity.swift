@@ -15,7 +15,7 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     @IBOutlet weak var collectionView: UICollectionView!
     
     var imagePicker: UIImagePickerController!
-    var imagePicked = UIImage(named:"placeholder-add-activity")
+    var imagePicked: UIImage?
     var activityBlocks: [KasamActivityCellFormat] = []
     var registerNewActivity: [Int:newActivityFormat] = [:]
     var activityType = "Reps"
@@ -48,7 +48,7 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     //Delegate Functions--------------------------------
     
     func saveActivityData(activityNo: Int, title: String?, description: String?, image: UIImage?, reps: Int?, interval: Int?, hour: Int?, min: Int?, sec: Int?) {
-        registerNewActivity[activityNo] = newActivityFormat(title: title, description: description, image: image, reps: reps, interval: interval, hour: hour, min: min, sec: sec)
+        registerNewActivity[activityNo] = newActivityFormat(title: title, description: description, imageToLoad: nil, imageToSave: image, reps: reps, interval: interval, hour: hour, min: min, sec: sec)
         callback?(registerNewActivity)
         _ = navigationController?.popViewController(animated: true)
     }
@@ -76,8 +76,10 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             imagePicked = editedImage.withRenderingMode(.alwaysOriginal)
+            collectionView.reloadData()
         } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             imagePicked = originalImage.withRenderingMode(.alwaysOriginal)
+            collectionView.reloadData()
         }
         collectionView.reloadData()
         dismiss(animated: true, completion: nil)
@@ -99,9 +101,14 @@ extension NewActivity: UICollectionViewDelegate, UICollectionViewDataSource, UIC
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "NewActivityCell", for: indexPath) as! NewActivityCell
         cell.activityNo = indexPath.row
         cell.delegate = self
-        cell.animatedImageView.image = imagePicked
         let entryTransfer = pastEntry?[0]
-        cell.setKasamViewer(title: entryTransfer?.title, description: entryTransfer?.description, image: entryTransfer?.image)
+        var currentSessionImage: UIImage?
+        if imagePicked != nil {
+            currentSessionImage = imagePicked
+        } else if entryTransfer?.imageToSave != nil {
+            currentSessionImage = entryTransfer?.imageToSave
+        }
+        cell.setKasamViewer(title: entryTransfer?.title, description: entryTransfer?.description, imageToLoad: entryTransfer?.imageToLoad, newImagePicked: currentSessionImage)
         if activityType == "Reps" {
             cell.setupPicker(reps: entryTransfer?.reps, interval: entryTransfer?.interval)
         } else if activityType == "Timer" {

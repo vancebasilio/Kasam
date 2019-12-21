@@ -148,17 +148,19 @@ class kasamFollowingFormat {
 class newActivityFormat {
     var title: String?
     var description: String?
-    var image: UIImage?
+    var imageToLoad: URL?
+    var imageToSave: UIImage?
     var reps: Int?
     var interval: Int?
     var hour: Int?
     var min: Int?
     var sec: Int?
     
-    init(title: String?, description: String?, image: UIImage?, reps: Int?, interval: Int?, hour: Int?, min: Int?, sec: Int?) {
+    init(title: String?, description: String?, imageToLoad: URL?, imageToSave: UIImage?, reps: Int?, interval: Int?, hour: Int?, min: Int?, sec: Int?) {
         self.title = title
         self.description = description
-        self.image = image
+        self.imageToLoad = imageToLoad
+        self.imageToSave = imageToSave
         self.reps = reps
         self.interval = interval
         self.hour = hour

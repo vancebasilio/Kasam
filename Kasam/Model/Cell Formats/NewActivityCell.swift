@@ -73,7 +73,7 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         activityTitle.textAlignment = .center
         activityDescription.textColor = UIColor.lightGray
         activityDescription.delegate = self
-        animatedImageView.layer.cornerRadius = 20.0
+//        animatedImageView.layer.cornerRadius = 20.0
         backButton?.setIcon(icon: .fontAwesomeSolid(.arrowLeft), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
     }
     
@@ -107,18 +107,30 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
     
     func saveProgress(){
         if activityDescription.text == descriptionPlaceholder {activityDescription.text = ""}
-        if animatedImageView.image != imagePlaceholder {addedImage = animatedImageView.image}
+        if animatedImageView.image != imagePlaceholder {
+            addedImage = animatedImageView.image
+        }
         delegate?.saveActivityData(activityNo: activityNo, title: activityTitle.text, description: activityDescription.text, image: addedImage, reps: repsChosen, interval: incrementChosen, hour: hourChosen, min: minsChosen, sec: secsChosen)
     }
     
     //Setup Functions---------------------------------------
     
-    func setKasamViewer(title: String?, description: String?, image: UIImage?) {
+    func setKasamViewer(title: String?, description: String?, imageToLoad: URL?, newImagePicked: UIImage?) {
         restView.isHidden = true
         doneButton.layer.cornerRadius = 20.0
         currentOrder = 1
         totalOrder = 1
         activityTitle.text = title
+        if imageToLoad == nil && newImagePicked == nil {
+            //no image added so far for the activity
+            animatedImageView.image = imagePlaceholder
+        } else if imageToLoad != nil && newImagePicked == nil {
+            //just loading the previous image saved for the Challo
+            animatedImageView.sd_setImage(with: imageToLoad, completed: nil)
+        } else if newImagePicked != nil {
+            //user picked a new image to upload
+            animatedImageView.image = newImagePicked
+        }
         activityDescription.textContainer.maximumNumberOfLines = 3
         activityDescription.textContainer.lineBreakMode = .byClipping
         //set placeholders
@@ -128,7 +140,6 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         } else {
             activityDescription.text = descriptionPlaceholder
         }
-        if image != nil {animatedImageView.image = image}
         doneButton.setTitle("Save", for: .normal)
     }
     

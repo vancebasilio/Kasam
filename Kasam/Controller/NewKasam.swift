@@ -50,7 +50,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     var kasamName = ""                              //loaded in from segue
     var kasamImage = URL(string: "")                //loaded in from segue
     var loadedInChalloImage = UIImage()
-    var challoTransferArray = [Int:NewChalloLoadFormat]()
+    var challoTransferArray = [Int:NewChalloLoadFormat]()           //the INT in the dictinary is the blockNo
     var dataLoadCheck = false
     var kasamDatabase = Database.database().reference().child("Coach-Kasams")
     var kasamDatabaseHandle: DatabaseHandle!
@@ -229,10 +229,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
                 mins = (totalTime?.convertIntTimeToSplitInt(fullIntTime: totalTime ?? 0).mins)!
                 secs = (totalTime?.convertIntTimeToSplitInt(fullIntTime: totalTime ?? 0).secs)!
             }
-            let imageView = UIImageView()
-            imageView.sd_setImage(with: URL(string:value["Image"] as! String))
-            let image = imageView.image
-            let activity = [0: newActivityFormat(title: value["Title"] as? String, description: value["Description"] as? String, image: image, reps: reps, interval: interval, hour: hours, min: mins, sec: secs)]
+            let activity = [0: newActivityFormat(title: value["Title"] as? String, description: value["Description"] as? String, imageToLoad: URL(string:value["Image"] as! String), imageToSave: nil, reps: reps, interval: interval, hour: hours, min: mins, sec: secs)]
             self.fullActivityMatrix[blockNo] = activity
             }
             self.kasamBlocksDatabase.removeObserver(withHandle: self.kasamBlocksDatabaseHandle)
@@ -307,15 +304,15 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     //STEP 2 - Save Challo Image
     func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
         //Saves Kasam Image in Firebase Storage
-        storageRef = Storage.storage().reference().child(location)
+        storageRef = Storage.storage().reference()
         let imageData = image?.jpegData(compressionQuality: 0.6)
         let metaData = StorageMetadata()
         metaData.contentType = "image/jpg"
         
         if imageData != nil {
-            storageRef.putData(imageData!, metadata: metaData) { metaData, error in
+            storageRef.child(location).putData(imageData!, metadata: metaData) {(metaData, error) in
                 if error == nil, metaData != nil {
-                    self.storageRef.downloadURL { url, error in
+                    self.storageRef.child(location).downloadURL { url, error in
                         completion(url!.absoluteString)
                     }
                 }
@@ -363,7 +360,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
                 default: metric = 0
             }
             let defaultActivityImage = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"
-            saveImage(image: (blockActivity?[0]?.image), location: "kasam/\(kasamIDGlobal)/activity") {(savedImageURL) in
+            saveImage(image: (blockActivity?[0]?.imageToSave), location: "kasam/\(kasamIDGlobal)/activity\(j)") {(savedImageURL) in
                 let activity = ["Description" : blockActivity?[0]?.description ?? "",
                                 "Image" : savedImageURL ?? defaultActivityImage,
                                 "Metric" : String(metric * increment),
@@ -539,7 +536,8 @@ extension NewKasamViewController: NewBlockDelegate {
             kasamTransferHolder.activityType = chosenMetric
             kasamTransferHolder.blockNoSelected = tempBlockNoSelected
             kasamTransferHolder.pastEntry = fullActivityMatrix[tempBlockNoSelected]             //if there's a past entry, it'll load it in
-            //when the save button is pressed on the newActivityCell, it saves the data into a 'result' matrix and passes it to the fullActivityMatrix
+            
+            //when save button is pressed on the newActivityCell, it saves the data into a 'result' matrix and passes it to the fullActivityMatrix
             kasamTransferHolder.callback = { result in
                 self.fullActivityMatrix[self.tempBlockNoSelected] = result
             }
