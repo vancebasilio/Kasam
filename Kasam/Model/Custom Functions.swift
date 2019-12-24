@@ -231,7 +231,7 @@ extension UIViewController {
         //controls the image white overlay, when it shows and when it disappears
         let alignToNameLabel = -offset + mainTitle.frame.origin.y + headerView.frame.height + offsetHeaderStop
         headerBlurImageView?.alpha = min (1.0, (offset + 220 - alignToNameLabel)/(offsetLabelHeader + 50))
-        
+
         // PULL DOWN -----------------
         if offset < 0 {
             let headerScaleFactor:CGFloat = -(offset) / headerView.bounds.height
@@ -247,7 +247,6 @@ extension UIViewController {
                 navBar.tintColor = UIColor.white                //makes the back button white
             }
         }
-            
         // SCROLL UP/DOWN ------------
         else {
             //Header -----------

@@ -34,10 +34,10 @@ class NewBlockCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        durationTimePicker.delegate = self
-        durationTimePicker.dataSource = self
-        durationMetricPicker.delegate = self
-        durationMetricPicker.dataSource = self
+//        durationTimePicker.delegate = self
+//        durationTimePicker.dataSource = self
+//        durationMetricPicker.delegate = self
+//        durationMetricPicker.dataSource = self
     }
     
     func setupFormatting(){

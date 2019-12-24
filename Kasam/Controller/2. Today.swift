@@ -118,14 +118,14 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                 //Get Kasams from user following + their preference for each kasam
                 if let value = snapshot.value as? [String: Any] {
                     let kasamID = snapshot.key
-                    let kasamTitle = value["Kasam Name"] as? String ?? ""
+                    let kasamName = value["Kasam Name"] as? String ?? ""
                     let dateJoined = self.stringToDate(date: value["Date Joined"] as? String ?? "")
                     let startTime = value["Time"] as? String ?? ""
                     let kasamEndDate = Calendar.current.date(byAdding: .day, value: 30, to: dateJoined)!
                         var status = "active"
                         if Date() < dateJoined {status = "inactive"}
                         if Date() >= kasamEndDate {status = "completed"}
-                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamTitle, joinedDate: dateJoined, endDate: kasamEndDate, startTime: startTime, kasamOrder: kasamOrder, image: nil, metricType: nil, status: status)
+                    let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamName, joinedDate: dateJoined, endDate: kasamEndDate, startTime: startTime, kasamOrder: kasamOrder, image: nil, metricType: nil, status: status)
                     if status == "active" {
                         kasamOrder += 1
                         SavedData.kasamTodayArray.append(preference)
@@ -169,8 +169,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     //Gets the blockdata after the block is decided on
                     Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: { snapshot in
                         let value = snapshot.value as! Dictionary<String,Any>
-                        let block = TodayBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: nil)
+                        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: nil)
                         self.kasamBlocks.append(block)
+                        self.kasamBlocks = self.kasamBlocks.sorted(by: {$0.kasamOrder < $1.kasamOrder})
+                        SavedData.kasamTodayArray = SavedData.kasamTodayArray.sorted(by: { $0.kasamOrder < $1.kasamOrder })
                         if todayKasamCount == SavedData.kasamTodayArray.count {
                             //now know how many rows are there, so update table height and hide skeleton
                             self.tableView.reloadData()
@@ -184,7 +186,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func getDayTracker() {
-        //for the active Kasams on the Today page
+        //for the active Challos on the Today page
         for kasam in SavedData.kasamTodayArray {
             self.dayTrackerDateArray.removeAll()
             let kasamOrder = kasam.kasamOrder
@@ -201,8 +203,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         let kasamDate = self.stringToDate(date: snap.key)
                         if kasamDate >= kasam.joinedDate {
                             let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                            self.dayTrackerDateArray[order] = snap.key      //to save the Challo date and order
-                            dayTrackerArrayInternal.append(order)              //places the gold dots on the right day in the today block tracker
+                            self.dayTrackerDateArray[order] = snap.key          //to save the Challo date and order
+                            dayTrackerArrayInternal.append(order)               //places the gold dots on the right day in the today block tracker
                         } else {
                             dayCount -= 1
                         }

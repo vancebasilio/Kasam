@@ -1,5 +1,5 @@
 //
-//  NewKasamViewController.swift
+//  NewKasamController.swift
 //  Kasam 1.0
 //
 //  Created by Vance Basilio on 2019-04-23.
@@ -13,7 +13,7 @@ import SwiftEntryKit
 import SkyFloatingLabelTextField
 import Lottie
 
-class NewKasamViewController: UIViewController, UIScrollViewDelegate {
+class NewKasamController: UIViewController, UIScrollViewDelegate {
     
     //Twitter Parallax
     @IBOutlet weak var tableView: UITableView!  {didSet {tableView.estimatedRowHeight = 100}}
@@ -21,19 +21,16 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var profileView: UIView!
     @IBOutlet weak var profileViewRadius: UIView!
     @IBOutlet weak var headerLabel: UILabel!
+    @IBOutlet weak var metricTypeCollection: UICollectionView!
+    @IBOutlet weak var metricTypeCollectionHeight: NSLayoutConstraint!
     @IBOutlet weak var constrainHeightHeaderImages: NSLayoutConstraint!
     @IBOutlet weak var headerClickViewHeight: NSLayoutConstraint!
     @IBOutlet weak var newKasamTitle: SkyFloatingLabelTextField!
-    @IBOutlet weak var newKasamLevel: UIPickerView!
-    @IBOutlet weak var newMetric: UIPickerView!
-    @IBOutlet weak var newGenre: UIPickerView!
     @IBOutlet weak var newKasamDescription: SkyFloatingLabelTextField!
     @IBOutlet weak var addAnImageLabel: UILabel!
     @IBOutlet weak var createKasam: UIButton!
     @IBOutlet weak var deleteChallo: UIButton!
     @IBOutlet weak var headerClickView: UIView!
-    @IBOutlet weak var newBlockPicker: UIPickerView!
-    @IBOutlet weak var blockPickerBG: UIView!
     
     var imagePicker: UIImagePickerController!
     var kasamIDGlobal = ""
@@ -67,12 +64,12 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     var tempBlockNoSelected = 1
     
     //New Challo Picker Variables
-    let metricTypes = ["Metric ↑", "Reps", "Timer", "Checkmark"]
-    let kasamGenres = ["Genre ↑", "Fitness", "Personal", "Prayer", "Meditation"]
-    let kasamLevels = ["Level ↑", "Beginner", "Intermediate", "Expert"]
-    var chosenMetric = "Reps"
+    var chosenMetric = ""
     var chosenGenre = ""
     var chosenLevel = ""
+    
+    //Metrics
+    let metricsArray = ["Count", "Completion", "Timer"]
     
     //Activity Variables
     var fullActivityMatrix = [Int: [Int: newActivityFormat]]()
@@ -103,8 +100,6 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
-        blockPickerBG.layer.cornerRadius = 15
-        chosenLevel = kasamLevels[0]
     }
     
     //Twitter Parallax-------------------------------------------------------------------------------------------------------------------
@@ -123,21 +118,31 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
         
         headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerLabel: headerLabel)
     }
-
+    
+    //executes when the user scrolls
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetHeaderStop:CGFloat = headerHeight - 100         // At this offset the Header stops its transformations
-        let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
-        //shrinks the headerClickWindow that opens the imagePicker
-        headerClickViewHeight.constant = tableView.convert(tableView.frame.origin, to: nil).y - offsetLabelHeader
-        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, shrinkingButton2: nil, mainTitle: newKasamTitle)
+        if scrollView != metricTypeCollection {
+            let offsetHeaderStop:CGFloat = headerHeight - 100         // At this offset the Header stops its transformations
+            let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
+            //shrinks the headerClickWindow that opens the imagePicker
+            headerClickViewHeight.constant = tableView.convert(tableView.frame.origin, to: nil).y - offsetLabelHeader
+            twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, shrinkingButton2: nil, mainTitle: newKasamTitle)
+        }
     }
     
     //Puts the nav bar in
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        self.navigationController?.navigationBar.isTranslucent = true
     }
     
-    //------------------------------------------------------------------------------------------------------------------------------------------
+    @objc func dismissView(){
+        self.navigationController?.popToRootViewController(animated: true)
+    }
+    
+    //IMAGE PICKER----------------------------------------------------------------------------------------------------------------------------
     
     func setupImageHolders(){
         let imageTap = UITapGestureRecognizer(target: self, action: #selector(openImagePicker))
@@ -161,17 +166,6 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
                 //load challo information
                 self.newKasamDescription.text! = value["Description"] as? String ?? ""
                 self.chosenGenre = value["Genre"] as? String ?? ""
-                if let index = self.kasamGenres.index(of: self.chosenGenre) {
-                    self.newGenre.selectRow(index, inComponent: 0, animated: false)
-                }
-                self.chosenMetric = value["Metric"] as? String ?? ""
-                if let index = self.metricTypes.index(of: self.chosenMetric) {
-                    self.newMetric.selectRow(index, inComponent: 0, animated: false)
-                }
-                self.chosenLevel = value["Level"] as? String ?? ""
-                if let index = self.kasamLevels.index(of: self.chosenLevel) {
-                    self.newKasamLevel.selectRow(index, inComponent: 0, animated: false)
-                }
                 self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: UIImage(named: "placeholder.png"))
                 self.loadBlocks(value: value)
             }
@@ -181,7 +175,6 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     //STEP 2 - Load blocks information
     func loadBlocks(value: [String:Any]){
         if let blockArray = value["Blocks"] as? [String:Any] {
-            self.newBlockPicker.selectRow((blockArray.count - 1), inComponent: 0, animated: false)
             self.numberOfBlocks = blockArray.count
             for blockNo in 1...blockArray.count {
                 //Gets the blockdata after the block is decided on
@@ -263,14 +256,12 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
     
     //STEP 1 - Saves Challo Text Data
     func createChallo(existingKasamID: String?) {
-        if newKasamTitle.text == "" || newKasamDescription.text == "" || newMetric.selectedRow(inComponent: 0) == 0 || newGenre.selectedRow(inComponent: 0) == 0 {
+        if newKasamTitle.text == "" || newKasamDescription.text == "" || chosenMetric == "" {
             //there are missing fields that need to be filled
             var missingFields: [String] = []
             if newKasamTitle.text == "" {missingFields.append("Title")}
             if newKasamDescription.text == "" {missingFields.append("Description")}
-            if newMetric.selectedRow(inComponent: 0) == 0 {missingFields.append("Metric")}
-            if newGenre.selectedRow(inComponent: 0) == 0 {missingFields.append("Genre")}
-            if newKasamLevel.selectedRow(inComponent: 0) == 0 {missingFields.append("Level")}
+            if chosenMetric == "" {missingFields.append("Tracking Metric")}
             let missingFieldString = missingFields.sentence
             let description = "Please fill out the Challo \(missingFieldString)"
             floatCellSelected(title: "Missing Fields", description: description)
@@ -285,7 +276,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
             }
             if headerImageView.image != loadedInChalloImage {
                 //user has uploaded a new image, so save it
-                saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)", completion: { uploadedImageURL in
+                saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)/kasam_header", completion: { uploadedImageURL in
                     if uploadedImageURL != nil {
                         self.registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
                     } else {
@@ -360,7 +351,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
                 default: metric = 0
             }
             let defaultActivityImage = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"
-            saveImage(image: (blockActivity?[0]?.imageToSave), location: "kasam/\(kasamIDGlobal)/activity\(j)") {(savedImageURL) in
+            saveImage(image: (blockActivity?[0]?.imageToSave), location: "kasam/\(kasamIDGlobal)/activity/activity\(j)") {(savedImageURL) in
                 let activity = ["Description" : blockActivity?[0]?.description ?? "",
                                 "Image" : savedImageURL ?? defaultActivityImage,
                                 "Metric" : String(metric * increment),
@@ -392,7 +383,7 @@ class NewKasamViewController: UIViewController, UIScrollViewDelegate {
 }
 
 //Sets the selected image as the kasam image in create view
-extension NewKasamViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension NewKasamController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func showChooseSourceTypeAlertController() {
         let photoLibraryAction = UIAlertAction(title: "Choose a Photo", style: .default) { (action) in
             self.showImagePickerController(sourceType: .photoLibrary)
@@ -423,91 +414,13 @@ extension NewKasamViewController: UIImagePickerControllerDelegate, UINavigationC
     }
 }
 
-extension NewKasamViewController: UIPickerViewDelegate, UIPickerViewDataSource {
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        pickerView.subviews.forEach({$0.isHidden = $0.frame.height < 1.0})                      //removes the line above and below
-        if pickerView == newBlockPicker {
-            return 30
-        } else if pickerView == newMetric {
-            return metricTypes.count
-        } else if pickerView == newGenre {
-            return kasamGenres.count
-        } else {
-            return kasamLevels.count
-        }
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
-        var label = UILabel()
-        if let v = view as? UILabel { label = v }
-        if pickerView == newBlockPicker {
-            label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
-            label.textAlignment = .center
-            label.text =  String(row + 1)
-        } else {
-            label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
-            if row == 0 {
-                label.textColor = UIColor.lightGray
-            } else {
-                label.textColor = UIColor.black
-            }
-            if pickerView == newMetric {
-                label.textAlignment = .left
-                label.text = metricTypes[row]
-            } else if pickerView == newGenre {
-                label.text = kasamGenres[row]
-                label.textAlignment = .center
-            } else {
-                label.text = kasamLevels[row]
-                label.textAlignment = .right
-            }
-        }
-        return label
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        if pickerView == newBlockPicker {
-            numberOfBlocks = row + 1
-            tableView.reloadData()
-        } else if pickerView == newMetric {
-            chosenMetric = metricTypes[row]
-        } else if pickerView == newGenre {
-            chosenGenre = kasamGenres[row]
-        } else if pickerView == newKasamLevel {
-            chosenLevel = kasamLevels[row]
-        }
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-        if pickerView == newBlockPicker {
-            return 50.0
-        } else {
-            return 40.0
-        }
-    }
-}
-
-extension NewKasamViewController: UITableViewDataSource, UITableViewDelegate {
+extension NewKasamController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return numberOfBlocks
+        return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NewBlockCell") as! NewBlockCell
-        cell.setupFormatting()
-        if editChalloCheck == true && dataLoadCheck == true {
-            cell.loadChalloInfo(block: challoTransferArray[indexPath.row]!)
-        }
-        cell.delegate = self
-        cell.blockNo = indexPath.row
-        cell.dayNumber.text = String(indexPath.row + 1)
-        cell.titleTextField.delegate = self as? UITextFieldDelegate
-        cell.titleTextField.tag = 1
-        cell.titleTextField.addTarget(self, action: #selector(onTextChanged(sender:)), for: UIControl.Event.editingChanged)
         return cell
     }
         
@@ -522,7 +435,7 @@ extension NewKasamViewController: UITableViewDataSource, UITableViewDelegate {
     }
 }
 
-extension NewKasamViewController: NewBlockDelegate {
+extension NewKasamController: NewBlockDelegate {
     
     func addActivityButtonPressed(blockNo: Int) {
         transferBlockType[blockNo + 1] = chosenMetric
@@ -550,5 +463,45 @@ extension NewKasamViewController: NewBlockDelegate {
     
     func sendDurationMetric(blockNo: Int, metric: String) {
         transferDurationMetric[blockNo + 1] = metric                //only runs when the picker is slided
+    }
+}
+
+extension NewKasamController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return metricsArray.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MetricTypeCell", for: indexPath) as! MetricTypeCell
+        cell.setMetric(title: metricsArray[indexPath.row])
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let cellWidth = ((view.frame.size.width - (20 * 3)) / 3)
+        metricTypeCollectionHeight.constant = cellWidth + 40
+        return CGSize(width: cellWidth, height: cellWidth + 40)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if let cell = collectionView.cellForItem(at: indexPath) as? MetricTypeCell {
+            switch indexPath.row {
+                case 1: chosenMetric = "Reps"
+                case 2: chosenMetric = "Checkmark"
+                case 3: chosenMetric = "Timer"
+                default: chosenMetric = "Reps"
+            }
+            cell.metricTypeBG.backgroundColor = UIColor.init(hex: 0x9DC78D)
+            cell.metricBGOutline.isHidden = false
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MetricTypeCell else {
+            return
+        }
+        //unselect the other metrics when one is selected
+        cell.metricTypeBG.backgroundColor = UIColor.init(hex: 0xFBDE9A)
+        cell.metricBGOutline.isHidden = true
     }
 }

@@ -330,7 +330,7 @@ class ProfileViewController: UIViewController {
             segueTransferHolder.kasamMetricType = kasamMetricTypeGlobal
             segueTransferHolder.kasamImage = kasamImageGlobal
         } else if segue.identifier == "goToEditChallo" {
-            let segueTransferHolder = segue.destination as! NewKasamViewController
+            let segueTransferHolder = segue.destination as! NewKasamController
             segueTransferHolder.editChalloCheck = true
             segueTransferHolder.kasamID = kasamIDGlobal
             segueTransferHolder.kasamName = kasamTitleGlobal

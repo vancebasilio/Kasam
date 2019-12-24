@@ -94,6 +94,7 @@ class SquareKasamFormat {
 }
 
 class TodayBlockFormat {
+    var kasamOrder: Int
     var kasamID: String
     var blockID: String
     var image: URL
@@ -105,7 +106,8 @@ class TodayBlockFormat {
     var displayStatus: String
     var dayTrackerArray: [Int]?
     
-    init(kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String, image: URL, statusType: String, displayStatus: String, dayTrackerArray: [Int]?){
+    init(kasamOrder: Int, kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String, image: URL, statusType: String, displayStatus: String, dayTrackerArray: [Int]?){
+        self.kasamOrder = kasamOrder
         self.kasamID = kasamID
         self.blockID = blockID
         self.kasamName = kasamName

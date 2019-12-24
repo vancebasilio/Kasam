@@ -115,11 +115,10 @@ extension ViewController: LoginViewCellDelegate {
         guard let auth = user.authentication else { return }
         let credentials = GoogleAuthProvider.credential(withIDToken: auth.idToken, accessToken: auth.accessToken)
         Auth.auth().signIn(with: credentials) {(authResult, error) in
-                self.userLoginandRegistration(authResult: authResult, error: error)
-                //get the profile image for google
-                self.getProfilePicture(googleUser:user)
+            self.userLoginandRegistration(authResult: authResult, error: error)
+            //get the profile image for google
+            self.getProfilePicture(googleUser:user)
         }
-        self.dismiss(animated: true, completion: nil)
     }
     
     func CustomFBLogin(){
@@ -141,6 +140,47 @@ extension ViewController: LoginViewCellDelegate {
                 print(error?.localizedDescription as Any)
                 return
             }
+        }
+    }
+    
+    func userLoginandRegistration(authResult: AuthDataResult?, error: Error?){
+        if let error = error {
+            //error signing new user in
+            showError(error)
+            return
+        } else {
+            let ref = Database.database().reference().child("Users")
+            ref.observeSingleEvent(of: .value, with: {(snapshot) in
+                //if the user exists, don't add data
+                if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {
+                    //user already exists in Firebase, so just sign them in
+                    self.dismiss(animated: true, completion: nil)               //this takes them to the Today page
+                    return
+                } else {
+                    //user doesn't exist, so create a new profile for them
+                    let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
+                    let userDictionary = ["Name": authResult?.user.displayName!, "History" : "", "UserID": Auth.auth().currentUser?.uid, "Following": "", "Type": "User", "Wins": "5", "Blocks": "7"]
+                    
+                    newUser.setValue(userDictionary) {
+                        (error, reference) in
+                        if error != nil {
+                            print(error!)
+                        } else {
+                            print("Registration Successful!")
+                        }
+                    }
+                    let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
+                    changeRequest?.displayName = authResult?.user.displayName!
+                    changeRequest?.commitChanges {(error) in
+                        if error != nil{
+                            print(error!)
+                        } else {
+                            print ("Username update successful!")
+                            self.dismiss(animated: true, completion: nil)               //this takes them to the Today page
+                        }
+                    }
+                }
+            })
         }
     }
     
@@ -193,47 +233,6 @@ extension ViewController: LoginViewCellDelegate {
                     }
                 }
             }
-        }
-    }
-    
-    func userLoginandRegistration(authResult: AuthDataResult?, error: Error?){
-        if let error = error {
-            //error signing new user in
-            showError(error)
-            return
-        } else {
-            let ref = Database.database().reference().child("Users")
-            ref.observeSingleEvent(of: .value, with: { (snapshot) in
-                //if the user exists, don't add data
-                if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {
-                    //user already exists in Firebase
-                    return
-                } else {
-                    //new Firebase registration
-                    let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
-                    let userDictionary = ["Name": authResult?.user.displayName!, "History" : "", "UserID": Auth.auth().currentUser?.uid, "Following": "", "Type": "User", "Wins": "5", "Blocks": "7"]
-                    
-                    newUser.setValue(userDictionary) {
-                        (error, reference) in
-                        if error != nil {
-                            print(error!)
-                        } else {
-                            print ("Registration Successful!")
-                        }
-                    }
-                    let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
-                    changeRequest?.displayName = authResult?.user.displayName!
-                    changeRequest?.commitChanges { (error) in
-                        if error != nil{
-                            print(error!)
-                        } else {
-                            print ("username update successful!")
-                            self.performSegue(withIdentifier: "goToMainUser", sender: self)
-                            //end of new registration section
-                        }
-                    }
-                }
-            })
         }
     }
 }
