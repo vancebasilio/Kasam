@@ -25,7 +25,6 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBOutlet weak var activityDescription: UILabel!
     @IBOutlet weak var pickerView: UIPickerView!
     @IBOutlet weak var doneButton: UIButton!
-    @IBOutlet weak var activityNumber: UILabel!
     @IBOutlet weak var circularSlider: CircularSlider!
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var instruction: UILabel!
@@ -59,6 +58,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     var metricTotalNo = 0.0
     var count = 0
     var increment = 1              //for the reps slider
+    var viewOnlyCheck = false
     
     //Timer variables
     var maxTime: TimeInterval = 0   //set max timer value
@@ -169,7 +169,6 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         increment = Int(activity.increment ?? "1") ?? 1
         pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
         pickerView.reloadAllComponents()                                    //important so that the pickerview updates to the max metric
-        activityNumber.text = "\(activity.currentOrder)/\(activity.totalOrder)"
         animatedImageView.sd_setImage(with: URL(string: activity.image))
         if currentOrder == totalOrder {
             doneButton.setTitle("Done", for: .normal)
@@ -256,10 +255,12 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     @IBAction func doneButton(_ sender: UIButton) {
         if currentOrder == totalOrder {
+            if viewOnlyCheck == false {
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
+            }
             delegate?.dismissViewController()
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
         } else {
             delegate?.nextItem()
         }

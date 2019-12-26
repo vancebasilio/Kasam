@@ -77,14 +77,18 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.navigationBar.barStyle = .blackOpaque
         let navigationFont = UIFont.systemFont(ofSize: 20, weight: .semibold)
-        self.navigationController?.navigationBar.isTranslucent = false
+        self.navigationController?.navigationBar.backgroundColor = UIColor.white
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.init(hex: 0x4b3b00), NSAttributedString.Key.font: navigationFont]
-        self.navigationController?.navigationBar.barTintColor = UIColor.white
+        self.navigationController?.navigationBar.barTintColor = UIColor.white               //set navigation bar color BG to white
+        self.navigationController?.navigationBar.tintColor = UIColor.colorFour              //set back button to gold color
+        setStatusBarColor(color: UIColor.white)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.navigationBar.tintColor = UIColor.colorFour              //set back button to gold color
+    }
 }
 
 extension NewBlockController: UIPickerViewDelegate, UIPickerViewDataSource {
@@ -141,7 +145,7 @@ extension NewBlockController: UITableViewDataSource, UITableViewDelegate {
     }
         
     @objc func onTextChanged(sender: UITextField) {
-        let cell: UITableViewCell = sender.superview?.superview?.superview?.superview?.superview?.superview as! UITableViewCell
+        let cell: UITableViewCell = sender.superview?.superview?.superview?.superview?.superview as! UITableViewCell
         let table: UITableView = cell.superview as! UITableView
         let indexPath = table.indexPath(for: cell)
         let row = (indexPath?.row ?? 0) + 1

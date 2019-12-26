@@ -217,14 +217,16 @@ class KasamActivityCellFormat {
 }
 
 class BlockFormat {
-    var image: URL
+    var blockID: String
     var title: String
+    var image: URL
     var order: String
     var duration: String
     
-    init(title: String, order: String, duration: String, image: URL){
-        self.image = image
+    init(blockID: String, title: String, order: String, duration: String, image: URL){
+        self.blockID = blockID
         self.title = title
+        self.image = image
         self.order = order
         self.duration = duration
     }

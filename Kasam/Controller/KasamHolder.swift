@@ -44,6 +44,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var coachNameGlobal = ""
     var blockURLGlobal = ""
     var startDay = ""
+    var blockIDGlobal = ""
     
     // MARK: The view
     override func viewDidLoad() {
@@ -74,6 +75,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             coachTransferHolder.coachID = self.coachIDGlobal
             coachTransferHolder.coachGName = self.coachNameGlobal
             coachTransferHolder.previousWindow = self.kasamTitle.text!
+        } else if segue.identifier == "goToChalloActivityViewer" {
+            let kasamActivityHolder = segue.destination as! ChalloActivityViewer
+            kasamActivityHolder.kasamID = kasamID
+            kasamActivityHolder.blockID = blockIDGlobal
+            kasamActivityHolder.viewingOnlyCheck = true
+            kasamActivityHolder.dayOrder = "0"                  //this field is for saving kasam progress, so set it to zero
         }
     }
     
@@ -127,8 +134,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             for _ in 1...ratio {
                 Database.database().reference().child("Coach-Kasams").child(self.kasamID).child("Blocks").observe(.childAdded, with: { (snapshot) in
                     if let value = snapshot.value as? [String: Any] {
+                        let blockID = snapshot.key
                         let blockURL = URL(string: value["Image"] as? String ?? "")
-                        let block = BlockFormat(title: value["Title"] as? String ?? "", order: String(dayNumber), duration: value["Duration"] as? String ?? "", image: blockURL ?? self.placeholder() as! URL)
+                        let block = BlockFormat(blockID: blockID, title: value["Title"] as? String ?? "", order: String(dayNumber), duration: value["Duration"] as? String ?? "", image: blockURL ?? self.placeholder() as! URL)
                         dayNumber += 1
                         self.kasamBlocks.append(block)
                         self.tableView.reloadData()
@@ -246,7 +254,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
 }
 
 extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return kasamBlocks.count
     }
@@ -259,5 +266,9 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("hello")
+        blockIDGlobal = kasamBlocks[indexPath.row].blockID
+        performSegue(withIdentifier: "goToChalloActivityViewer", sender: indexPath)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }

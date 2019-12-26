@@ -32,6 +32,30 @@ extension UIViewController {
         view.addGestureRecognizer(tap)
     }
     
+    func setStatusBarColor(color: UIColor) {
+        if #available(iOS 13.0, *) {
+            let app = UIApplication.shared
+            let statusBarHeight: CGFloat = app.statusBarFrame.size.height
+            
+            let statusbarView = UIView()
+            statusbarView.backgroundColor = color
+            view.addSubview(statusbarView)
+          
+            statusbarView.translatesAutoresizingMaskIntoConstraints = false
+            statusbarView.heightAnchor
+                .constraint(equalToConstant: statusBarHeight).isActive = true
+            statusbarView.widthAnchor
+                .constraint(equalTo: view.widthAnchor, multiplier: 1.0).isActive = true
+            statusbarView.topAnchor
+                .constraint(equalTo: view.topAnchor).isActive = true
+            statusbarView.centerXAnchor
+                .constraint(equalTo: view.centerXAnchor).isActive = true
+        } else {
+            let statusBar = UIApplication.shared.value(forKeyPath: "statusBarWindow.statusBar") as? UIView
+            statusBar?.backgroundColor = color
+        }
+    }
+    
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -477,5 +501,27 @@ extension Int {
         let mins = fullIntTime / 60 % 60
         let secs = fullIntTime % 60
         return (hours: hours, mins: mins, secs: secs)
+    }
+}
+
+class CustomUISlider : UISlider {
+    @IBInspectable open var trackHeight:CGFloat = 2 {
+        didSet {setNeedsDisplay()}
+    }
+    
+    override func trackRect(forBounds bounds: CGRect) -> CGRect {
+        //keeps original origin and width, changes height, you get the idea
+        let defaultBounds = super.trackRect(forBounds: bounds)
+        return CGRect(
+            x: defaultBounds.origin.x,
+            y: defaultBounds.origin.y + defaultBounds.size.height/2 - trackHeight/2,
+            width: defaultBounds.size.width,
+            height: trackHeight
+        )
+    }
+    
+    override func awakeFromNib() {
+        self.setThumbImage(UIImage(named: "kasam-timer-button"), for: .normal)
+        super.awakeFromNib()
     }
 }

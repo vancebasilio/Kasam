@@ -22,6 +22,12 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
         self.dataSource = self
         self.delegate = self
         
+        for view in self.view.subviews {
+           if let scrollView = view as? UIScrollView {
+              scrollView.delegate = self
+           }
+        }
+        
         // This sets up the first view that will show up on our page control
         if let firstViewController = orderedViewControllers.first {
             setViewControllers([firstViewController], direction: .forward, animated: true, completion: nil)
@@ -31,6 +37,13 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
         newBackButton.image = UIImage(named: "back-button")
         self.navigationItem.leftBarButtonItem = newBackButton
         configurePageControl()
+        
+        let goToNext = NSNotification.Name("GoToNext")
+        NotificationCenter.default.addObserver(self, selector: #selector(NewChalloPageController.goToNext), name: goToNext, object: nil)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     @objc func back(sender: UIBarButtonItem) {
@@ -39,7 +52,15 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
         } else {
              if let firstViewController = orderedViewControllers.first {
                 setViewControllers([firstViewController], direction: .reverse, animated: true, completion: nil)
+                self.pageControl.currentPage = 0
             }
+        }
+    }
+    
+    @objc func goToNext(){
+        if let secondViewController = orderedViewControllers.last {
+            setViewControllers([secondViewController], direction: .forward, animated: true, completion: nil)
+            self.pageControl.currentPage = 1
         }
     }
 
@@ -64,11 +85,11 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
         self.pageControl.currentPage = orderedViewControllers.index(of: pageContentViewController)!
     }
     
+    //BEFORE FIRST CONTROLLER
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let viewControllerIndex = orderedViewControllers.index(of: viewController) else {
             return nil
         }
-        self.navigationItem.leftBarButtonItem?.tintColor = UIColor.white
         let previousIndex = viewControllerIndex - 1
         guard previousIndex >= 0 else {
             return nil
@@ -80,11 +101,11 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
         return orderedViewControllers[previousIndex]
     }
     
+    //AFTER LAST VIEW CONTROLLER
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let viewControllerIndex = orderedViewControllers.index(of: viewController) else {
             return nil
         }
-        self.navigationItem.leftBarButtonItem?.tintColor = UIColor.colorFour
         let nextIndex = viewControllerIndex + 1
         let orderedViewControllersCount = orderedViewControllers.count
         guard orderedViewControllersCount != nextIndex else {
@@ -94,5 +115,12 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
             return nil
         }
         return orderedViewControllers[nextIndex]
+    }
+}
+
+extension NewChalloPageController: UIScrollViewDelegate {
+    //prevents users from pulling views past the last controller (which shows up black)
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        scrollView.bounces = false
     }
 }

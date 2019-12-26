@@ -374,8 +374,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToKasamViewerTicker" {
-            let kasamActivityHolder = segue.destination as! KasamViewerTicker
+        if segue.identifier == "goToChalloActivityViewer" {
+            let kasamActivityHolder = segue.destination as! ChalloActivityViewer
             kasamActivityHolder.kasamID = kasamIDGlobal
             kasamActivityHolder.blockID = blockIDGlobal
             kasamActivityHolder.dayOrder = dayOrderGlobal
@@ -418,7 +418,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
             kasamIDGlobal = kasamBlocks[indexPath.row].kasamID
             blockIDGlobal = kasamBlocks[indexPath.row].blockID
             dayOrderGlobal = kasamBlocks[indexPath.row].dayOrder
-            performSegue(withIdentifier: "goToKasamViewerTicker", sender: indexPath)
+            performSegue(withIdentifier: "goToChalloActivityViewer", sender: indexPath)
         }
     }
     

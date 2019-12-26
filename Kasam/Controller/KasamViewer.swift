@@ -10,9 +10,10 @@ import UIKit
 import Firebase
 import SwiftIcons
 
-class KasamViewerTicker: UIViewController {
+class ChalloActivityViewer: UIViewController {
     
     @IBOutlet weak var closeButton: UIButton!
+    @IBOutlet weak var activityNumber: UILabel!
     @IBOutlet weak var collectionView: UICollectionView!
     
     var activityBlocks: [KasamActivityCellFormat] = []
@@ -30,6 +31,8 @@ class KasamViewerTicker: UIViewController {
     var transferMetricMatrix = [String: String]()
     var transferTextFieldMatrix = [String: String]()
     var kasamIDTransfer:[String: String] = ["kasamID": ""]
+    var viewingOnlyCheck = false
+    var activityCurrentValue = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,11 +44,14 @@ class KasamViewerTicker: UIViewController {
         kasamIDTransfer["kasamID"] = kasamID
     }
     
+    
     @IBAction func closeButton(_ sender: UIButton) {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
+        if viewingOnlyCheck == false {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
+        }
         dismiss(animated: true)
     }
     
@@ -79,6 +85,7 @@ class KasamViewerTicker: UIViewController {
                         self.activityBlocks.append(activity)
                         self.collectionView.reloadData()
                         if self.activityBlocks.count == count {
+                            self.activityNumber.text = "1/\(self.activityBlocks.count)"
                             completion()
                         }
                     })
@@ -112,7 +119,7 @@ class KasamViewerTicker: UIViewController {
     }
 }
 
-extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension ChalloActivityViewer: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return activityBlocks.count
     }
@@ -122,6 +129,7 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
         activityBlocks[indexPath.row].totalOrder = activityBlocks.count
         let activity = activityBlocks[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamViewerCell", for: indexPath) as! KasamViewerCell
+        cell.viewOnlyCheck = viewingOnlyCheck
         cell.kasamIDTransfer["kasamID"] = kasamID
         if activity.type == "Reps" {
             cell.setKasamViewer(activity: activity)
@@ -164,9 +172,14 @@ extension KasamViewerTicker: UICollectionViewDelegate, UICollectionViewDataSourc
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: view.frame.size.width, height: view.frame.size.height)
     }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        activityCurrentValue = Int(scrollView.contentOffset.x / scrollView.frame.size.width) + 1
+        activityNumber.text = "\(activityCurrentValue)/\(activityBlocks.count)"
+    }
 }
 
-extension KasamViewerTicker: KasamViewerCellDelegate {
+extension ChalloActivityViewer: KasamViewerCellDelegate {
     func dismissViewController() {
         dismiss(animated: true, completion: nil)
     }
@@ -177,6 +190,8 @@ extension KasamViewerTicker: KasamViewerCellDelegate {
         let nextItem: IndexPath = IndexPath(item: currentItem.item + 1, section: 0)
         if nextItem.row < activityBlocks.count {
             self.collectionView.scrollToItem(at: nextItem, at: .left, animated: true)
+            activityCurrentValue += 1
+            activityNumber.text = "\(activityCurrentValue)/\(activityBlocks.count)"
         }
     }
     

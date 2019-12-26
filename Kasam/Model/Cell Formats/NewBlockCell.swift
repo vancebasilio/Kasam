@@ -25,7 +25,6 @@ class NewBlockCell: UITableViewCell {
     @IBOutlet weak var contents: UIView!
     @IBOutlet weak var createButton: UIButton!
     
-    
     var blockNo = 1
     var delegate: NewBlockDelegate?
     var timeMetrics = ["secs", "mins", "hours"]
@@ -34,19 +33,20 @@ class NewBlockCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-//        durationTimePicker.delegate = self
-//        durationTimePicker.dataSource = self
-//        durationMetricPicker.delegate = self
-//        durationMetricPicker.dataSource = self
+        durationTimePicker.delegate = self
+        durationTimePicker.dataSource = self
+        durationMetricPicker.delegate = self
+        durationMetricPicker.dataSource = self
     }
     
     func setupFormatting(){
         createButton.layer.cornerRadius = createButton.frame.height / 2
-        contents.layer.cornerRadius = 8.0
+        createButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.pencilAlt), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.colorFour, forState: .normal, iconSize: 25)
+        contents.layer.cornerRadius = 20
         contents.clipsToBounds = true
-        shadow.layer.cornerRadius = 8.0
+        shadow.layer.cornerRadius = 20
         shadow.layer.shadowColor = UIColor.colorFive.cgColor
-        shadow.layer.shadowOpacity = 0.5
+        shadow.layer.shadowOpacity = 0.7
         shadow.layer.shadowOffset = CGSize.zero
         shadow.layer.shadowRadius = 4
     }
@@ -61,8 +61,10 @@ class NewBlockCell: UITableViewCell {
     }
     
     @IBAction func createActivityButtonPressed(_ sender: Any) {
+        print("hello")
         delegate?.addActivityButtonPressed(blockNo: blockNo)
     }
+    
 }
 
 extension NewBlockCell: UIPickerViewDelegate, UIPickerViewDataSource {

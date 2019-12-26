@@ -30,6 +30,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var addAnImageLabel: UILabel!
     @IBOutlet weak var createKasam: UIButton!
     @IBOutlet weak var deleteChallo: UIButton!
+    @IBOutlet weak var createActivitiesCircle: UIButton!
     @IBOutlet weak var headerClickView: UIView!
     
     var imagePicker: UIImagePickerController!
@@ -86,20 +87,44 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
         self.hideKeyboardWhenTappedAround()
         
         createKasam.layer.cornerRadius = 20.0
-        var createChalloTitle = "  Create Challo"
         if editChalloCheck == true {
             loadChallo()
             headerLabel.text = "Edit Challo"
-            createChalloTitle = "  Save Challo"
             addAnImageLabel.text = "Change Image"
         }
-        createKasam.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.magic), iconColor: UIColor.white, postfixText: createChalloTitle, postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 15)
+//        createKasam.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.magic), iconColor: UIColor.white, postfixText: createChalloTitle, postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 30)
+//
+////        deleteChallo.layer.cornerRadius = 20.0
+//        deleteChallo.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.trashAlt), iconColor: UIColor.white, postfixText: "  Delete Challo", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.init(hex: 0xDB482D), forState: .normal, iconSize: 15)
+//
         
-        deleteChallo.layer.cornerRadius = 20.0
-        deleteChallo.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.trashAlt), iconColor: UIColor.white, postfixText: "  Delete Challo", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.init(hex: 0xDB482D), forState: .normal, iconSize: 15)
+        createActivitiesCircle.layer.cornerRadius = createActivitiesCircle.frame.height / 2
+        createActivitiesCircle.clipsToBounds = true
+        createActivitiesCircle.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.arrowRight), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 25)
         
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
+    }
+    
+    @IBAction func createActivitiesButtonPressed(_ sender: Any) {
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
+    }
+    
+    //NAVIGTION-------------------------------------------------------------------------------------------------------------------
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        self.navigationController?.navigationBar.isTranslucent = true
+        self.navigationController?.navigationBar.backgroundColor = UIColor.clear            //set navigation bar color to clear
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        self.navigationController?.navigationBar.tintColor = UIColor.white                  //change back arrow color to white
+    }
+    
+    @objc func dismissView(){
+        self.navigationController?.popToRootViewController(animated: true)
     }
     
     //Twitter Parallax-------------------------------------------------------------------------------------------------------------------
@@ -128,18 +153,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
             headerClickViewHeight.constant = tableView.convert(tableView.frame.origin, to: nil).y - offsetLabelHeader
             twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, shrinkingButton2: nil, mainTitle: newKasamTitle)
         }
-    }
-    
-    //Puts the nav bar in
-    override func viewWillAppear(_ animated: Bool) {
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
-        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
-        self.navigationController?.navigationBar.shadowImage = UIImage()
-        self.navigationController?.navigationBar.isTranslucent = true
-    }
-    
-    @objc func dismissView(){
-        self.navigationController?.popToRootViewController(animated: true)
     }
     
     //IMAGE PICKER----------------------------------------------------------------------------------------------------------------------------
@@ -229,6 +242,8 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+    //----------------------------------------------------------------------------------------------------------------------------
+    
     @IBAction func deleteChalloPressed(_ sender: Any) {
         if editChalloCheck == false {
             //do not save Challo
@@ -276,7 +291,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
             }
             if headerImageView.image != loadedInChalloImage {
                 //user has uploaded a new image, so save it
-                saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)/kasam_header", completion: { uploadedImageURL in
+                saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)/kasam_header", completion: {uploadedImageURL in
                     if uploadedImageURL != nil {
                         self.registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
                     } else {
@@ -501,7 +516,7 @@ extension NewKasamController: UICollectionViewDelegate, UICollectionViewDataSour
             return
         }
         //unselect the other metrics when one is selected
-        cell.metricTypeBG.backgroundColor = UIColor.init(hex: 0xFBDE9A)
+        cell.metricTypeBG.backgroundColor = UIColor.init(hex: 0xEDD28A)
         cell.metricBGOutline.isHidden = true
     }
 }
