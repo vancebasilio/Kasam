@@ -321,6 +321,8 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        delegate?.sendCompletedMatrix(key: currentOrder, value: Double(row * increment), text: "")
+        if viewOnlyCheck == false {
+            delegate?.sendCompletedMatrix(key: currentOrder, value: Double(row * increment), text: "")
+        }
     }
 }

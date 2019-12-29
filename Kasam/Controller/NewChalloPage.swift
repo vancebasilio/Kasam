@@ -6,15 +6,24 @@
 //  Copyright © 2019 Vance Basilio. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegate, UIPageViewControllerDataSource {
 
     var pageControl = UIPageControl()
     lazy var orderedViewControllers: [UIViewController] = {
-        return [self.newVc(viewController: "NewChallo"),
-                self.newVc(viewController: "NewBlock")]
+        return [self.newVc(viewController: "NewChallo"), self.newVc(viewController: "NewBlock") ,self.newVc(viewController: "ChalloHolder")]
     }()
+    
+    var currentIndex:Int {
+        get {return orderedViewControllers.index(of: self.viewControllers!.first!)!}
+        set {
+            guard newValue >= 0,newValue < orderedViewControllers.count else {return}
+            let vc = orderedViewControllers[newValue]
+            let direction:UIPageViewController.NavigationDirection = newValue > currentIndex ? .forward : .reverse
+            self.setViewControllers([vc], direction: direction, animated: true, completion: nil)
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,16 +41,21 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
         if let firstViewController = orderedViewControllers.first {
             setViewControllers([firstViewController], direction: .forward, animated: true, completion: nil)
         }
+        if let thirdViewController = orderedViewControllers.last as? ChalloHolder {
+            thirdViewController.reviewOnly = true
+        }
         //customize action of back button
         let newBackButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(NewChalloPageController.back(sender:)))
         newBackButton.image = UIImage(named: "back-button")
         self.navigationItem.leftBarButtonItem = newBackButton
-        configurePageControl()
         
+        //next button
         let goToNext = NSNotification.Name("GoToNext")
         NotificationCenter.default.addObserver(self, selector: #selector(NewChalloPageController.goToNext), name: goToNext, object: nil)
+        
+        configurePageControl()
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         self.tabBarController?.tabBar.isHidden = false
     }
@@ -49,18 +63,22 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
     @objc func back(sender: UIBarButtonItem) {
         if self.pageControl.currentPage == 0 {
             _ = navigationController?.popToRootViewController(animated: true)
-        } else {
+        } else if self.pageControl.currentPage == 1 {
              if let firstViewController = orderedViewControllers.first {
                 setViewControllers([firstViewController], direction: .reverse, animated: true, completion: nil)
-                self.pageControl.currentPage = 0
+                self.pageControl.currentPage = self.currentIndex
+            }
+        } else if self.pageControl.currentPage == 2 {
+            if let secondViewController = orderedViewControllers[1] as? NewBlockController {
+                setViewControllers([secondViewController], direction: .reverse, animated: true, completion: nil)
+                self.pageControl.currentPage = self.currentIndex
             }
         }
     }
     
     @objc func goToNext(){
-        if let secondViewController = orderedViewControllers.last {
-            setViewControllers([secondViewController], direction: .forward, animated: true, completion: nil)
-            self.pageControl.currentPage = 1
+        goToNextPage(animated: true) {(true) in
+            self.pageControl.currentPage = self.currentIndex
         }
     }
 
@@ -83,6 +101,12 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         let pageContentViewController = pageViewController.viewControllers![0]
         self.pageControl.currentPage = orderedViewControllers.index(of: pageContentViewController)!
+        
+        if (!completed)
+        {
+          return
+        }
+        self.pageControl.currentPage = pageViewController.viewControllers!.first!.view.tag //Page Index
     }
     
     //BEFORE FIRST CONTROLLER
@@ -98,6 +122,7 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
         guard orderedViewControllers.count > previousIndex else {
             return nil
         }
+        
         return orderedViewControllers[previousIndex]
     }
     

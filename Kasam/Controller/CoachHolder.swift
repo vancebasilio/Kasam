@@ -164,7 +164,7 @@ extension CoachHolder: UICollectionViewDataSource, UICollectionViewDelegate {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToKasam" {
-            let kasamTransferHolder = segue.destination as! KasamHolder
+            let kasamTransferHolder = segue.destination as! ChalloHolder
             kasamTransferHolder.kasamID = kasamIDGlobal
         }
     }

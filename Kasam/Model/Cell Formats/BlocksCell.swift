@@ -17,7 +17,11 @@ class BlocksCell: UITableViewCell {
     @IBOutlet weak var blockDuration: UILabel!
     
     func setBlock(block: BlockFormat) {
-        blockImage.sd_setImage(with: block.image, placeholderImage: UIImage(named: "placeholder.png"))
+        if block.image != nil {
+            blockImage.image = block.image!
+        } else {
+            blockImage.sd_setImage(with: block.imageURL, placeholderImage: UIImage(named: "placeholder.png"))
+        }
         blockTitle.text = block.title
         dayNo.text = "DAY \(block.order)"
         blockDuration.text = block.duration

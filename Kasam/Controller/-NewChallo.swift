@@ -11,7 +11,6 @@ import Firebase
 import FirebaseStorage
 import SwiftEntryKit
 import SkyFloatingLabelTextField
-import Lottie
 
 class NewKasamController: UIViewController, UIScrollViewDelegate {
     
@@ -28,28 +27,15 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var newKasamTitle: SkyFloatingLabelTextField!
     @IBOutlet weak var newKasamDescription: SkyFloatingLabelTextField!
     @IBOutlet weak var addAnImageLabel: UILabel!
-    @IBOutlet weak var createKasam: UIButton!
-    @IBOutlet weak var deleteChallo: UIButton!
     @IBOutlet weak var createActivitiesCircle: UIButton!
     @IBOutlet weak var headerClickView: UIView!
+    @IBOutlet weak var createActivitiesLabel: UILabel!
     
     var imagePicker: UIImagePickerController!
-    var kasamIDGlobal = ""
-    var kasamImageGlobal = ""
     var headerBlurImageView: UIImageView!
     var headerImageView: UIImageView!
-    var storageRef = Storage.storage().reference()
-    let animationView = AnimationView()
-    let animationOverlay = UIView()
     
     //edit Challo
-    var editChalloCheck = false
-    var kasamID = ""                                //loaded in from segue
-    var kasamName = ""                              //loaded in from segue
-    var kasamImage = URL(string: "")                //loaded in from segue
-    var loadedInChalloImage = UIImage()
-    var challoTransferArray = [Int:NewChalloLoadFormat]()           //the INT in the dictinary is the blockNo
-    var dataLoadCheck = false
     var kasamDatabase = Database.database().reference().child("Coach-Kasams")
     var kasamDatabaseHandle: DatabaseHandle!
     var kasamBlocksDatabase = Database.database().reference().child("Coach-Kasams")
@@ -65,15 +51,12 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     var tempBlockNoSelected = 1
     
     //New Challo Picker Variables
-    var chosenMetric = ""
-    var chosenGenre = ""
-    var chosenLevel = ""
+    var chosenGenre = ""            //removed for personal challos, will include for professional ones
+    var chosenLevel = ""            //removed for personal challos, will include for professional ones
     
     //Metrics
     let metricsArray = ["Count", "Completion", "Timer"]
-    
-    //Activity Variables
-    var fullActivityMatrix = [Int: [Int: newActivityFormat]]()
+    let chosenMetricOptions = ["Reps", "Checkmark", "Timer"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -85,29 +68,33 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     func setupLoad(){
         //setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
-        
-        createKasam.layer.cornerRadius = 20.0
-        if editChalloCheck == true {
+        if NewChallo.editChalloCheck == true {
             loadChallo()
             headerLabel.text = "Edit Challo"
             addAnImageLabel.text = "Change Image"
+            createActivitiesLabel.text = "Edit Activities"
         }
-//        createKasam.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.magic), iconColor: UIColor.white, postfixText: createChalloTitle, postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 30)
-//
-////        deleteChallo.layer.cornerRadius = 20.0
-//        deleteChallo.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.trashAlt), iconColor: UIColor.white, postfixText: "  Delete Challo", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.init(hex: 0xDB482D), forState: .normal, iconSize: 15)
-//
-        
         createActivitiesCircle.layer.cornerRadius = createActivitiesCircle.frame.height / 2
         createActivitiesCircle.clipsToBounds = true
         createActivitiesCircle.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.arrowRight), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 25)
-        
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
     }
     
     @IBAction func createActivitiesButtonPressed(_ sender: Any) {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
+        if newKasamTitle.text == "" || newKasamDescription.text == "" || NewChallo.chosenMetric == "" {
+            //there are missing fields that need to be filled
+            var missingFields: [String] = []
+            if newKasamTitle.text == "" {missingFields.append("Title")}
+            if newKasamDescription.text == "" {missingFields.append("Description")}
+            if NewChallo.chosenMetric == "" {missingFields.append("Tracking Metric")}
+            let description = "Please fill out the Challo \(missingFields.sentence)"
+            floatCellSelected(title: "Missing Fields", description: description)
+        } else {
+            NewChallo.kasamName = newKasamTitle.text ?? "Challo Title"
+            NewChallo.kasamDescription = newKasamDescription.text ?? "Challo Description"
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
+        }
     }
     
     //NAVIGTION-------------------------------------------------------------------------------------------------------------------
@@ -171,15 +158,24 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     
     //Retrieves Kasam Data using Kasam ID selected
     func loadChallo(){
-        newKasamTitle.text = kasamName
-        kasamDatabase = Database.database().reference().child("Coach-Kasams").child(kasamID)
+        newKasamTitle.text = NewChallo.kasamName
+        kasamDatabase = Database.database().reference().child("Coach-Kasams").child(NewChallo.kasamID)
         kasamDatabaseHandle = kasamDatabase.observe(.value, with: {(snapshot) in
             //STEP 1 - Load Challo information
             if let value = snapshot.value as? [String: Any] {
                 //load challo information
                 self.newKasamDescription.text! = value["Description"] as? String ?? ""
-                self.chosenGenre = value["Genre"] as? String ?? ""
                 self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: UIImage(named: "placeholder.png"))
+                NewChallo.loadedInChalloImage = self.headerImageView.image!
+                NewChallo.loadedInChalloImageURL = URL(string: value["Image"] as? String ?? "")
+                NewChallo.kasamDescription = self.newKasamDescription.text!
+                
+                //selects the metric type from the collectionview
+                NewChallo.chosenMetric = value["Metric"] as? String ?? ""
+                if let index = self.chosenMetricOptions.index(of: NewChallo.chosenMetric) {
+                    self.metricTypeCollection.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [.centeredHorizontally])
+                    self.collectionView(self.metricTypeCollection, didSelectItemAt : IndexPath(item: index, section: 0))
+                }
                 self.loadBlocks(value: value)
             }
         })
@@ -201,15 +197,13 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
                     self.transferDurationMetric[blockNo] = self.blockDuration[blockNo]?.split(separator: " ").last.map(String.init)
                     
                     //load the blockdata into the viewcontroller so the user can see it
-                    self.challoTransferArray[blockNo - 1] = NewChalloLoadFormat(challoTitle: self.transferTitle[blockNo] ?? "Block Title", time: Int(self.transferDuration[blockNo]!)!, timeMetric: self.transferDurationMetric[blockNo] ?? "secs")
-                    
+                    NewChallo.challoTransferArray[blockNo - 1] = NewChalloLoadFormat(blockTitle: self.transferTitle[blockNo] ?? "Block Title", duration: Int(self.transferDuration[blockNo]!)!, durationMetric: self.transferDurationMetric[blockNo] ?? "secs")
                     self.loadActivities(blockNo: blockNo, blockID: blockID)
                     
                     //All the Challo data is downloaded, so display it
-                    if self.challoTransferArray.count == self.numberOfBlocks {
-                        self.dataLoadCheck = true
-                        self.kasamDatabase.child(self.kasamID).removeObserver(withHandle: self.kasamDatabaseHandle)
-                        self.tableView.reloadData()
+                    if NewChallo.challoTransferArray.count == self.numberOfBlocks {
+                        NewChallo.dataLoadCheck = true
+                        self.kasamDatabase.child(NewChallo.kasamID).removeObserver(withHandle: self.kasamDatabaseHandle)
                     }
                 })
             }
@@ -226,173 +220,21 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
             var hours = 0
             var mins = 0
             var secs = 0
-            if self.chosenMetric == "Reps" {
+            //if the chosenMetric is Reps
+            if NewChallo.chosenMetric == self.chosenMetricOptions[0] {
                 reps = Int(value["Metric"] as! String) ?? 0
                 interval = Int(value["Interval"] as! String) ?? 1
-            } else if self.chosenMetric == "Timer" {
+            //if the chosenMetric is Timer
+            } else if NewChallo.chosenMetric == self.chosenMetricOptions[1] {
                 let totalTime = Int(value["Metric"] as! String)
                 hours = (totalTime?.convertIntTimeToSplitInt(fullIntTime: totalTime ?? 0).hours)!
                 mins = (totalTime?.convertIntTimeToSplitInt(fullIntTime: totalTime ?? 0).mins)!
                 secs = (totalTime?.convertIntTimeToSplitInt(fullIntTime: totalTime ?? 0).secs)!
             }
             let activity = [0: newActivityFormat(title: value["Title"] as? String, description: value["Description"] as? String, imageToLoad: URL(string:value["Image"] as! String), imageToSave: nil, reps: reps, interval: interval, hour: hours, min: mins, sec: secs)]
-            self.fullActivityMatrix[blockNo] = activity
+            NewChallo.fullActivityMatrix[blockNo] = activity
             }
             self.kasamBlocksDatabase.removeObserver(withHandle: self.kasamBlocksDatabaseHandle)
-        }
-    }
-    
-    //----------------------------------------------------------------------------------------------------------------------------
-    
-    @IBAction func deleteChalloPressed(_ sender: Any) {
-        if editChalloCheck == false {
-            //do not save Challo
-            self.navigationController?.popToRootViewController(animated: true)
-        } else {
-            //delete the existing Challo
-            let popupImage = UIImage.init(icon: .fontAwesomeRegular(.trashAlt), size: CGSize(width: 30, height: 30), textColor: .white)
-            showPopupConfirmation(title: "Are you sure?", description: "You won't be able to undo this action", image: popupImage, buttonText: "Delete Challo") {(success) in
-                Database.database().reference().child("Coach-Kasams").child(self.kasamID).removeValue()                //delete challo
-                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(self.kasamID).removeValue()
-                self.navigationController?.popToRootViewController(animated: true)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
-            }
-        }
-    }
-    
-    
-    @IBAction func createKasam(_ sender: Any) {
-        if editChalloCheck == false {
-            createChallo(existingKasamID: nil)
-        } else {
-            createChallo(existingKasamID: kasamID)
-        }
-    }
-    
-    //STEP 1 - Saves Challo Text Data
-    func createChallo(existingKasamID: String?) {
-        if newKasamTitle.text == "" || newKasamDescription.text == "" || chosenMetric == "" {
-            //there are missing fields that need to be filled
-            var missingFields: [String] = []
-            if newKasamTitle.text == "" {missingFields.append("Title")}
-            if newKasamDescription.text == "" {missingFields.append("Description")}
-            if chosenMetric == "" {missingFields.append("Tracking Metric")}
-            let missingFieldString = missingFields.sentence
-            let description = "Please fill out the Challo \(missingFieldString)"
-            floatCellSelected(title: "Missing Fields", description: description)
-        } else {
-            //all fields filled, so can create the Challo now
-            loadingAnimation(animationView: animationView, animation: "rocket-fast", height: 200, overlayView: animationOverlay, loop: true, completion: nil)
-            self.view.isUserInteractionEnabled = false
-            var kasamID = Database.database().reference().child("Coach-Kasams").childByAutoId()
-            if existingKasamID != nil {
-                kasamID = Database.database().reference().child("Coach-Kasams").child(existingKasamID!)
-                kasamIDGlobal = kasamID.key ?? ""
-            }
-            if headerImageView.image != loadedInChalloImage {
-                //user has uploaded a new image, so save it
-                saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)/kasam_header", completion: {uploadedImageURL in
-                    if uploadedImageURL != nil {
-                        self.registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
-                    } else {
-                        //no image added, so use the default one
-                        self.registerKasamData(kasamID: kasamID, imageUrl: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e")
-                    }
-                })
-            } else {
-                //user using same image, so no need to save image
-                let uploadedImageURL = kasamImage?.absoluteString
-                self.registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
-            }
-        }
-    }
-    
-    //STEP 2 - Save Challo Image
-    func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
-        //Saves Kasam Image in Firebase Storage
-        storageRef = Storage.storage().reference()
-        let imageData = image?.jpegData(compressionQuality: 0.6)
-        let metaData = StorageMetadata()
-        metaData.contentType = "image/jpg"
-        
-        if imageData != nil {
-            storageRef.child(location).putData(imageData!, metadata: metaData) {(metaData, error) in
-                if error == nil, metaData != nil {
-                    self.storageRef.child(location).downloadURL { url, error in
-                        completion(url!.absoluteString)
-                    }
-                }
-            }
-        } else {completion(nil)}
-    }
-        
-    //STEP 3 - Register Challo Data in Firebase Database
-    func registerKasamData (kasamID: DatabaseReference, imageUrl: String) {
-        kasamImageGlobal = imageUrl
-        let kasamDictionary = ["Title": newKasamTitle.text!, "Genre": chosenGenre, "Description": newKasamDescription.text!, "Timing": "6:00pm - 7:00pm", "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": "User", "Rating": "5", "Blocks": "blocks", "Level":chosenLevel, "Metric": chosenMetric]
-            
-        kasamID.setValue(kasamDictionary) {(error, reference) in
-            if error != nil {
-                print(error!)
-            } else {
-            //kasam successfully created
-        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(self.kasamIDGlobal).setValue(self.newKasamTitle.text!)
-            self.saveBlocks()
-            }
-        }
-    }
-    
-    //STEP 4 - Save block info under Challo
-    func saveBlocks(){
-        self.view.endEditing(true)                  //for adding last text field value with dismiss keyboard
-        let newBlock = Database.database().reference().child("Coach-Kasams").child(kasamIDGlobal).child("Blocks")
-        var successBlockCount = 0
-        for j in 1...numberOfBlocks {
-            let blockID = newBlock.childByAutoId()
-            let transferBlockDuration = "\(transferDuration[j] ?? "15") \(transferDurationMetric[j] ?? "secs")"
-            let blockActivity = fullActivityMatrix[j]
-            var metric = 0
-            var increment = 1
-            switch chosenMetric {
-                case "Reps":
-                    metric = blockActivity?[0]?.reps ?? 0          //using 0 as only one activity loaded per block
-                    increment = blockActivity?[0]?.interval ?? 1
-                case "Timer": do {
-                    let hour = (blockActivity?[0]?.hour ?? 0) * 3600
-                    let min = (blockActivity?[0]?.min ?? 0) * 60
-                    let sec = (blockActivity?[0]?.sec ?? 0)
-                    metric = hour + min + sec
-                }
-                default: metric = 0
-            }
-            let defaultActivityImage = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"
-            saveImage(image: (blockActivity?[0]?.imageToSave), location: "kasam/\(kasamIDGlobal)/activity/activity\(j)") {(savedImageURL) in
-                let activity = ["Description" : blockActivity?[0]?.description ?? "",
-                                "Image" : savedImageURL ?? defaultActivityImage,
-                                "Metric" : String(metric * increment),
-                                "Interval" : String(increment),
-                                "Title" : blockActivity?[0]?.title ?? "",
-                                "Type" : self.chosenMetric] as [String : Any]
-                let activityMatrix = ["1":activity]
-                let blockDictionary = ["Activity": activityMatrix, "Duration": transferBlockDuration, "Image": self.kasamImageGlobal, "Order": String(j), "Rating": "5", "Title": self.transferTitle[j] ?? "Block Title", "BlockID": blockID.key!] as [String : Any]
-                blockID.setValue(blockDictionary) {
-                    (error, reference) in
-                    if error != nil {
-                        print(error!)
-                    } else {
-                        //Challo successfully created
-                        successBlockCount += 1
-                        //All the blocks and their images are saved, so go back to the profile view
-                        if successBlockCount == self.numberOfBlocks {
-                            self.animationView.removeFromSuperview()
-                            self.animationOverlay.removeFromSuperview()
-                            NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
-                            self.view.isUserInteractionEnabled = true
-                            self.navigationController?.popToRootViewController(animated: true)
-                        }
-                    }
-                }
-            }
         }
     }
 }
@@ -421,8 +263,10 @@ extension NewKasamController: UIImagePickerControllerDelegate, UINavigationContr
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             self.headerImageView?.image = editedImage.withRenderingMode(.alwaysOriginal)
+            NewChallo.challoImageToSave = editedImage.withRenderingMode(.alwaysOriginal)
         } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.headerImageView?.image = originalImage.withRenderingMode(.alwaysOriginal)
+            NewChallo.challoImageToSave = originalImage.withRenderingMode(.alwaysOriginal)
         }
         addAnImageLabel.text = "Change Image"
         dismiss(animated: true, completion: nil)
@@ -437,47 +281,6 @@ extension NewKasamController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NewBlockCell") as! NewBlockCell
         return cell
-    }
-        
-    @objc func onTextChanged(sender: UITextField) {
-        let cell: UITableViewCell = sender.superview?.superview?.superview?.superview?.superview?.superview as! UITableViewCell
-        let table: UITableView = cell.superview as! UITableView
-        let indexPath = table.indexPath(for: cell)
-        let row = (indexPath?.row ?? 0) + 1
-        if sender.tag == 1 {
-            transferTitle[row] = sender.text!
-        }
-    }
-}
-
-extension NewKasamController: NewBlockDelegate {
-    
-    func addActivityButtonPressed(blockNo: Int) {
-        transferBlockType[blockNo + 1] = chosenMetric
-        tempBlockNoSelected = blockNo + 1
-        self.performSegue(withIdentifier: "goToCreateActivity", sender: nil)
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToCreateActivity" {
-            let kasamTransferHolder = segue.destination as! NewActivity
-            kasamTransferHolder.activityType = chosenMetric
-            kasamTransferHolder.blockNoSelected = tempBlockNoSelected
-            kasamTransferHolder.pastEntry = fullActivityMatrix[tempBlockNoSelected]             //if there's a past entry, it'll load it in
-            
-            //when save button is pressed on the newActivityCell, it saves the data into a 'result' matrix and passes it to the fullActivityMatrix
-            kasamTransferHolder.callback = { result in
-                self.fullActivityMatrix[self.tempBlockNoSelected] = result
-            }
-        }
-    }
-    
-    func sendDurationTime(blockNo: Int, duration: String) {
-        transferDuration[blockNo + 1] = duration                    //only runs when the picker is slided
-    }
-    
-    func sendDurationMetric(blockNo: Int, metric: String) {
-        transferDurationMetric[blockNo + 1] = metric                //only runs when the picker is slided
     }
 }
 
@@ -501,10 +304,10 @@ extension NewKasamController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MetricTypeCell {
             switch indexPath.row {
-                case 1: chosenMetric = "Reps"
-                case 2: chosenMetric = "Checkmark"
-                case 3: chosenMetric = "Timer"
-                default: chosenMetric = "Reps"
+                case 1: NewChallo.chosenMetric = chosenMetricOptions[0]
+                case 2: NewChallo.chosenMetric = chosenMetricOptions[1]
+                case 3: NewChallo.chosenMetric = chosenMetricOptions[2]
+                default: NewChallo.chosenMetric = chosenMetricOptions[0]
             }
             cell.metricTypeBG.backgroundColor = UIColor.init(hex: 0x9DC78D)
             cell.metricBGOutline.isHidden = false

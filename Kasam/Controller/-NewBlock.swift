@@ -22,6 +22,7 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var blockPickerBG: UIView!
     @IBOutlet weak var blockSlider: UISlider!
     @IBOutlet weak var newActivityLabel: UILabel!
+    @IBOutlet weak var reviewChalloButton: UIButton!
     
     var imagePicker: UIImagePickerController!
     var kasamIDGlobal = ""
@@ -33,30 +34,12 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
     let animationOverlay = UIView()
     
     //edit Challo
-    var editChalloCheck = false
-    var kasamID = ""                                //loaded in from segue
-    var kasamName = ""                              //loaded in from segue
-    var kasamImage = URL(string: "")                //loaded in from segue
-    var loadedInChalloImage = UIImage()
-    var challoTransferArray = [Int:NewChalloLoadFormat]()           //the INT in the dictinary is the blockNo
-    var dataLoadCheck = false
     var kasamDatabase = Database.database().reference().child("Coach-Kasams")
     var kasamDatabaseHandle: DatabaseHandle!
     var kasamBlocksDatabase = Database.database().reference().child("Coach-Kasams")
     var kasamBlocksDatabaseHandle: DatabaseHandle!
     var blockDuration = [Int:String]()
-    
-    //No of Blocks Picker Variables
-    var numberOfBlocks = 1
-    var transferTitle = [Int:String]()
-    var transferBlockType = [Int:String]()
-    var transferDuration = [Int:String]()
-    var transferDurationMetric = [Int:String]()
     var tempBlockNoSelected = 1
-    var chosenMetric = "Reps"
-    
-    //Activity Variables
-    var fullActivityMatrix = [Int: [Int: newActivityFormat]]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,14 +49,27 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
     @IBAction func blockSliderChanged(_ sender: UISlider) {
         let valueSelected = Int(sender.value)
         newBlockPicker.selectRow(valueSelected - 1, inComponent: 0, animated: true)
-        numberOfBlocks = valueSelected
+        NewChallo.numberOfBlocks = valueSelected
         tableView.reloadData()
     }
     
     func setupLoad(){
         //setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
+        reviewChalloButton.layer.cornerRadius = reviewChalloButton.frame.height / 2
+        reviewChalloButton.clipsToBounds = true
+        reviewChalloButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.arrowRight), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 25)
+        
+        //load in the existing challo data to be visible on the VC
         blockPickerBG.layer.cornerRadius = 15
+        if NewChallo.challoTransferArray.count == 0 {
+            NewChallo.numberOfBlocks = 1
+        } else {
+            NewChallo.numberOfBlocks = NewChallo.challoTransferArray.count
+        }
+        newBlockPicker.selectRow(NewChallo.numberOfBlocks - 1, inComponent: 0, animated: false)
+        blockSlider.setValue(Float(NewChallo.numberOfBlocks), animated: false)
+        tableView.reloadData()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -84,6 +80,10 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
         self.navigationController?.navigationBar.barTintColor = UIColor.white               //set navigation bar color BG to white
         self.navigationController?.navigationBar.tintColor = UIColor.colorFour              //set back button to gold color
         setStatusBarColor(color: UIColor.white)
+    }
+    
+    @IBAction func reviewChalloButtonPressed(_ sender: Any) {
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -126,62 +126,74 @@ extension NewBlockController: UIPickerViewDelegate, UIPickerViewDataSource {
 
 extension NewBlockController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return numberOfBlocks
+        return NewChallo.numberOfBlocks
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NewBlockCell") as! NewBlockCell
         cell.setupFormatting()
-        if editChalloCheck == true && dataLoadCheck == true {
-            cell.loadChalloInfo(block: challoTransferArray[indexPath.row]!)
+        if NewChallo.editChalloCheck == true && NewChallo.dataLoadCheck == true && NewChallo.challoTransferArray[indexPath.row] != nil {
+            cell.loadChalloInfo(block: NewChallo.challoTransferArray[indexPath.row]!)
         }
         cell.delegate = self
         cell.blockNo = indexPath.row
+        cell.repeatsLabel.text = getRepeatLabel(daynumber: (indexPath.row + 1))
         cell.dayNumber.text = String(indexPath.row + 1)
         cell.titleTextField.delegate = self as? UITextFieldDelegate
         cell.titleTextField.tag = 1
         cell.titleTextField.addTarget(self, action: #selector(onTextChanged(sender:)), for: UIControl.Event.editingChanged)
         return cell
     }
+    
+    func getRepeatLabel(daynumber: Int) -> String {
+        var dayArray = [String]()
+        for day in stride(from: daynumber, through: 30, by: NewChallo.numberOfBlocks) {
+            dayArray.append(String(day))
+        }
+        var finalArray = [String]()
+        if dayArray.count > 3 {
+            finalArray = dayArray.prefix(3) + [dayArray.last!]
+        } else {
+            finalArray = dayArray
+        }
+        let label = "Repeats on Day \(finalArray.dayArraySentence)"
+        return label
+    }
         
     @objc func onTextChanged(sender: UITextField) {
         let cell: UITableViewCell = sender.superview?.superview?.superview?.superview?.superview as! UITableViewCell
         let table: UITableView = cell.superview as! UITableView
         let indexPath = table.indexPath(for: cell)
-        let row = (indexPath?.row ?? 0) + 1
+        let row = (indexPath?.row ?? 0)
         if sender.tag == 1 {
-            transferTitle[row] = sender.text!
+            print("trying to change")
+            NewChallo.challoTransferArray[row]?.blockTitle = sender.text!
         }
     }
 }
 
 extension NewBlockController: NewBlockDelegate {
-    
     func addActivityButtonPressed(blockNo: Int) {
-        transferBlockType[blockNo + 1] = chosenMetric
-        tempBlockNoSelected = blockNo + 1
+        tempBlockNoSelected = blockNo
         self.performSegue(withIdentifier: "goToCreateActivity", sender: nil)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToCreateActivity" {
             let kasamTransferHolder = segue.destination as! NewActivity
-            kasamTransferHolder.activityType = chosenMetric
             kasamTransferHolder.blockNoSelected = tempBlockNoSelected
-            kasamTransferHolder.pastEntry = fullActivityMatrix[tempBlockNoSelected]             //if there's a past entry, it'll load it in
-            
             //when save button is pressed on the newActivityCell, it saves the data into a 'result' matrix and passes it to the fullActivityMatrix
             kasamTransferHolder.callback = { result in
-                self.fullActivityMatrix[self.tempBlockNoSelected] = result
+                NewChallo.fullActivityMatrix[self.tempBlockNoSelected] = result
             }
         }
     }
     
     func sendDurationTime(blockNo: Int, duration: String) {
-        transferDuration[blockNo + 1] = duration                    //only runs when the picker is slided
+        NewChallo.challoTransferArray[blockNo]?.duration = Int(duration) ?? 15             //only runs when the picker is slided
     }
     
     func sendDurationMetric(blockNo: Int, metric: String) {
-        transferDurationMetric[blockNo + 1] = metric                //only runs when the picker is slided
+        NewChallo.challoTransferArray[blockNo]?.durationMetric = metric                //only runs when the picker is slided
     }
 }

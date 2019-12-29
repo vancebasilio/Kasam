@@ -74,7 +74,7 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         activityDescription.textColor = UIColor.lightGray
         activityDescription.delegate = self
 //        animatedImageView.layer.cornerRadius = 20.0
-        backButton?.setIcon(icon: .fontAwesomeSolid(.arrowLeft), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
+        backButton?.setIcon(icon: .fontAwesomeSolid(.times), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
@@ -110,7 +110,7 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         if animatedImageView.image != imagePlaceholder {
             addedImage = animatedImageView.image
         }
-        delegate?.saveActivityData(activityNo: activityNo, title: activityTitle.text, description: activityDescription.text, image: addedImage, reps: repsChosen, interval: incrementChosen, hour: hourChosen, min: minsChosen, sec: secsChosen)
+        delegate?.saveActivityData(activityNo: activityNo, title: activityTitle.text, description: activityDescription.text, image: addedImage, reps: repsChosen, interval: 1, hour: hourChosen, min: minsChosen, sec: secsChosen)
     }
     
     //Setup Functions---------------------------------------

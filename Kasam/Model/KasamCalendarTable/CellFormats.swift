@@ -122,14 +122,14 @@ class TodayBlockFormat {
 }
 
 class NewChalloLoadFormat{
-    var challoTitle: String
-    var time: Int
-    var timeMetric: String
+    var blockTitle: String
+    var duration: Int
+    var durationMetric: String
     
-    init(challoTitle: String, time: Int, timeMetric: String){
-        self.challoTitle = challoTitle
-        self.time = time
-        self.timeMetric = timeMetric
+    init(blockTitle: String, duration: Int, durationMetric: String){
+        self.blockTitle = blockTitle
+        self.duration = duration
+        self.durationMetric = durationMetric
     }
 }
 
@@ -219,13 +219,15 @@ class KasamActivityCellFormat {
 class BlockFormat {
     var blockID: String
     var title: String
-    var image: URL
+    var imageURL: URL?
+    var image: UIImage?
     var order: String
     var duration: String
     
-    init(blockID: String, title: String, order: String, duration: String, image: URL){
+    init(blockID: String, title: String, order: String, duration: String, imageURL: URL?, image: UIImage?){
         self.blockID = blockID
         self.title = title
+        self.imageURL = imageURL
         self.image = image
         self.order = order
         self.duration = duration

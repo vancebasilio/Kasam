@@ -24,6 +24,7 @@ class NewBlockCell: UITableViewCell {
     @IBOutlet weak var shadow: UIView!
     @IBOutlet weak var contents: UIView!
     @IBOutlet weak var createButton: UIButton!
+    @IBOutlet weak var repeatsLabel: UILabel!
     
     var blockNo = 1
     var delegate: NewBlockDelegate?
@@ -52,16 +53,15 @@ class NewBlockCell: UITableViewCell {
     }
     
     func loadChalloInfo(block: NewChalloLoadFormat) {
-        titleTextField.text = block.challoTitle
-        let timeIndex = ((block.time) / 5) - 1
+        titleTextField.text = block.blockTitle
+        let timeIndex = ((block.duration) / 5) - 1
         durationTimePicker.selectRow(timeIndex, inComponent: 0, animated: false)
-        if let index = self.timeMetrics.index(of: block.timeMetric) {
+        if let index = self.timeMetrics.index(of: block.durationMetric) {
             durationMetricPicker.selectRow(index, inComponent: 0, animated: false)
         }
     }
     
     @IBAction func createActivityButtonPressed(_ sender: Any) {
-        print("hello")
         delegate?.addActivityButtonPressed(blockNo: blockNo)
     }
     

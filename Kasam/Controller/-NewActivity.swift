@@ -26,6 +26,8 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     override func viewDidLoad() {
         super.viewDidLoad()
         setupButtons()
+        activityType = NewChallo.chosenMetric
+        pastEntry = NewChallo.fullActivityMatrix[blockNoSelected]           //if there's a past entry, it'll load it in
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -50,7 +52,7 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     func saveActivityData(activityNo: Int, title: String?, description: String?, image: UIImage?, reps: Int?, interval: Int?, hour: Int?, min: Int?, sec: Int?) {
         registerNewActivity[activityNo] = newActivityFormat(title: title, description: description, imageToLoad: nil, imageToSave: image, reps: reps, interval: interval, hour: hour, min: min, sec: sec)
         callback?(registerNewActivity)
-        _ = navigationController?.popViewController(animated: true)
+        dismiss(animated: true)
     }
     
     func showChooseSourceTypeAlert() {

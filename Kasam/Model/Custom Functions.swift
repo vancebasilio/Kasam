@@ -25,6 +25,7 @@ class ProgessView: UIProgressView {
 }
 
 extension UIViewController {
+    
     //func to hide keyboard when screen tapped
     func hideKeyboardWhenTappedAround() {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
@@ -493,6 +494,17 @@ extension BidirectionalCollection where Element: StringProtocol {
         return count <= 2 ? joined(separator: " and ") :
             dropLast().joined(separator: ", ") + ", and " + last
     }
+    
+    var dayArraySentence: String {
+        guard let last = last else { return "" }
+        if count == 3 {
+            return count > 3 ? joined(separator: ", ") :
+            dropLast().joined(separator: ", ") + " and " + last
+        } else {
+            return count <= 2 ? joined(separator: " and ") :
+            dropLast().joined(separator: ", ") + "..." + last
+        }
+    }
 }
 
 extension Int {
@@ -523,5 +535,15 @@ class CustomUISlider : UISlider {
     override func awakeFromNib() {
         self.setThumbImage(UIImage(named: "kasam-timer-button"), for: .normal)
         super.awakeFromNib()
+    }
+}
+
+extension UIPageViewController {
+    func goToNextPage(animated: Bool = true, completion: ((Bool) -> Void)? = nil) {
+        if let currentViewController = viewControllers?[0] {
+            if let nextPage = dataSource?.pageViewController(self, viewControllerAfter: currentViewController) {
+                setViewControllers([nextPage], direction: .forward, animated: animated, completion: completion)
+            }
+        }
     }
 }
