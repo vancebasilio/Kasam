@@ -19,7 +19,7 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     var activityBlocks: [KasamActivityCellFormat] = []
     var registerNewActivity: [Int:newActivityFormat] = [:]
     var activityType = "Reps"
-    var blockNoSelected = 1
+    var blockNoSelected = 1                                         //loaded in, starting from 1
     var pastEntry: [Int:newActivityFormat]? = [:]
     var callback : (([Int: newActivityFormat])->())?
     
@@ -44,7 +44,6 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     
     func setupButtons() {
         UIApplication.shared.endIgnoringInteractionEvents()
- 
     }
     
     //Delegate Functions--------------------------------

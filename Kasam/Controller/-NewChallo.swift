@@ -197,7 +197,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
                     self.transferDurationMetric[blockNo] = self.blockDuration[blockNo]?.split(separator: " ").last.map(String.init)
                     
                     //load the blockdata into the viewcontroller so the user can see it
-                    NewChallo.challoTransferArray[blockNo - 1] = NewChalloLoadFormat(blockTitle: self.transferTitle[blockNo] ?? "Block Title", duration: Int(self.transferDuration[blockNo]!)!, durationMetric: self.transferDurationMetric[blockNo] ?? "secs")
+                    NewChallo.challoTransferArray[blockNo] = NewChalloLoadFormat(blockTitle: self.transferTitle[blockNo] ?? "Block Title", duration: Int(self.transferDuration[blockNo]!)!, durationMetric: self.transferDurationMetric[blockNo] ?? "secs")
                     self.loadActivities(blockNo: blockNo, blockID: blockID)
                     
                     //All the Challo data is downloaded, so display it

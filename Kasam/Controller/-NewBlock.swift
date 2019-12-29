@@ -57,7 +57,6 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
         //setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
         reviewChalloButton.layer.cornerRadius = reviewChalloButton.frame.height / 2
-        reviewChalloButton.clipsToBounds = true
         reviewChalloButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.arrowRight), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 25)
         
         //load in the existing challo data to be visible on the VC
@@ -132,11 +131,11 @@ extension NewBlockController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NewBlockCell") as! NewBlockCell
         cell.setupFormatting()
-        if NewChallo.editChalloCheck == true && NewChallo.dataLoadCheck == true && NewChallo.challoTransferArray[indexPath.row] != nil {
-            cell.loadChalloInfo(block: NewChallo.challoTransferArray[indexPath.row]!)
+        if NewChallo.editChalloCheck == true && NewChallo.dataLoadCheck == true && NewChallo.challoTransferArray[indexPath.row + 1] != nil {
+            cell.loadChalloInfo(block: NewChallo.challoTransferArray[indexPath.row + 1]!)
         }
         cell.delegate = self
-        cell.blockNo = indexPath.row
+        cell.blockNo = indexPath.row + 1
         cell.repeatsLabel.text = getRepeatLabel(daynumber: (indexPath.row + 1))
         cell.dayNumber.text = String(indexPath.row + 1)
         cell.titleTextField.delegate = self as? UITextFieldDelegate
@@ -164,17 +163,17 @@ extension NewBlockController: UITableViewDataSource, UITableViewDelegate {
         let cell: UITableViewCell = sender.superview?.superview?.superview?.superview?.superview as! UITableViewCell
         let table: UITableView = cell.superview as! UITableView
         let indexPath = table.indexPath(for: cell)
-        let row = (indexPath?.row ?? 0)
+        let row = (indexPath?.row ?? 1)
         if sender.tag == 1 {
-            print("trying to change")
-            NewChallo.challoTransferArray[row]?.blockTitle = sender.text!
+            print("trying to change \(row + 1)")
+            NewChallo.challoTransferArray[row + 1]?.blockTitle = sender.text!
         }
     }
 }
 
 extension NewBlockController: NewBlockDelegate {
     func addActivityButtonPressed(blockNo: Int) {
-        tempBlockNoSelected = blockNo
+        tempBlockNoSelected = blockNo                                           //starting from 1
         self.performSegue(withIdentifier: "goToCreateActivity", sender: nil)
     }
     
@@ -191,9 +190,11 @@ extension NewBlockController: NewBlockDelegate {
     
     func sendDurationTime(blockNo: Int, duration: String) {
         NewChallo.challoTransferArray[blockNo]?.duration = Int(duration) ?? 15             //only runs when the picker is slided
+        print(blockNo)
     }
     
     func sendDurationMetric(blockNo: Int, metric: String) {
-        NewChallo.challoTransferArray[blockNo]?.durationMetric = metric                //only runs when the picker is slided
+        NewChallo.challoTransferArray[blockNo]?.durationMetric = metric                    //only runs when the picker is slided
+        print(blockNo)
     }
 }

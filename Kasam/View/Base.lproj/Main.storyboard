@@ -5225,7 +5225,7 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view key="tableFooterView" contentMode="scaleToFill" id="QMF-3z-plA" userLabel="Review Button">
-                                    <rect key="frame" x="0.0" y="406" width="375" height="60"/>
+                                    <rect key="frame" x="0.0" y="406" width="375" height="100"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="uKO-ni-3rb" userLabel="Create Blocks">

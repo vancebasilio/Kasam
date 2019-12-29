@@ -288,7 +288,8 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     //REVIEW ONLY------------------------------------------------------------------------------------------------------------------------
     
     func setupReviewOnly(){
-        //load in values
+        //load in values from add Challo pages
+        self.kasamBlocks.removeAll()
         coachName.isEnabled = false
         coachName.setTitle(Auth.auth().currentUser?.displayName, for: .normal)
         kasamTitle.text = NewChallo.kasamName
@@ -307,9 +308,9 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
         let ratio = 30 / NewChallo.numberOfBlocks
         for day in 1...ratio {
             for blockNo in 1...NewChallo.numberOfBlocks {
-            let duration = String(NewChallo.challoTransferArray[blockNo - 1]!.duration)
-            let durationMetric = NewChallo.challoTransferArray[blockNo - 1]!.durationMetric
-                let block = BlockFormat(blockID: "", title: NewChallo.challoTransferArray[blockNo - 1]?.blockTitle ?? "", order: String(day * blockNo), duration: "\(duration) \(durationMetric)", imageURL: nil, image: blockImage)
+                let duration = NewChallo.challoTransferArray[blockNo]?.duration
+                let durationMetric = NewChallo.challoTransferArray[blockNo]?.durationMetric
+                let block = BlockFormat(blockID: "", title: NewChallo.challoTransferArray[blockNo]?.blockTitle ?? "", order: String(day * blockNo), duration: "\(duration ?? 15) \(durationMetric ?? "secs")", imageURL: nil, image: blockImage)
                 self.kasamBlocks.append(block)
             }
             if day == ratio {
@@ -413,7 +414,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
         var successBlockCount = 0
         for j in 1...NewChallo.numberOfBlocks {
             let blockID = newBlock.childByAutoId()
-            let transferBlockDuration = "\(NewChallo.challoTransferArray[j - 1]?.duration ?? 15) \(NewChallo.challoTransferArray[j - 1]?.durationMetric ?? "secs")"
+            let transferBlockDuration = "\(NewChallo.challoTransferArray[j]?.duration ?? 15) \(NewChallo.challoTransferArray[j]?.durationMetric ?? "secs")"
             let blockActivity = NewChallo.fullActivityMatrix[j]
             var metric = 0
             var increment = 1
@@ -438,7 +439,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
                                 "Title" : blockActivity?[0]?.title ?? "",
                                 "Type" : NewChallo.chosenMetric] as [String : Any]
                 let activityMatrix = ["1":activity]
-                let blockDictionary = ["Activity": activityMatrix, "Duration": transferBlockDuration, "Image": self.kasamImageGlobal, "Order": String(j), "Rating": "5", "Title": NewChallo.challoTransferArray[j - 1]?.blockTitle ?? "Block Title", "BlockID": blockID.key!] as [String : Any]
+                let blockDictionary = ["Activity": activityMatrix, "Duration": transferBlockDuration, "Image": self.kasamImageGlobal, "Order": String(j), "Rating": "5", "Title": NewChallo.challoTransferArray[j]?.blockTitle ?? "Block Title", "BlockID": blockID.key!] as [String : Any]
                 blockID.setValue(blockDictionary) {
                     (error, reference) in
                     if error != nil {
@@ -462,7 +463,6 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         if reviewOnly == true {
-            setupReviewOnly()
             self.navigationController?.setNavigationBarHidden(false, animated: true)
             self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
             self.navigationController?.navigationBar.shadowImage = UIImage()
@@ -473,6 +473,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         if reviewOnly == true {
+            setupReviewOnly()
             self.navigationController?.navigationBar.tintColor = UIColor.white                  //change back arrow color to white
         }
     }

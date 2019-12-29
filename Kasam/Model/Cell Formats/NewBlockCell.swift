@@ -26,7 +26,7 @@ class NewBlockCell: UITableViewCell {
     @IBOutlet weak var createButton: UIButton!
     @IBOutlet weak var repeatsLabel: UILabel!
     
-    var blockNo = 1
+    var blockNo = 1                                 //loaded in, starting from 1
     var delegate: NewBlockDelegate?
     var timeMetrics = ["secs", "mins", "hours"]
     
