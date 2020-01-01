@@ -42,6 +42,8 @@ class DiscoverViewController: UIViewController {
         getExpertKasams()
         setupNavBar()
         self.view.showAnimatedSkeleton()
+        let getUserChallos = NSNotification.Name("GetUserChallos")
+        NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.getUserKasams), name: getUserChallos, object: nil)
         DispatchQueue.main.async {
             self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
         }
@@ -145,7 +147,7 @@ class DiscoverViewController: UIViewController {
     }
     
     //Part 3
-    func getUserKasams(){
+    @objc func getUserKasams(){
         myKasamArray.removeAll()
         userKasamDBHandle = userKasamDB.observe(.childAdded, with: { (snapshot) in
             Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: { (snapshot) in

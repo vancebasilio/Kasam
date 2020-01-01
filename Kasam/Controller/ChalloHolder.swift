@@ -56,8 +56,8 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     let animationView = AnimationView()
     let animationOverlay = UIView()
     var storageRef = Storage.storage().reference()
-    var kasamIDGlobal = ""
     var kasamImageGlobal = ""
+    var reviewOnlyBlockNo = 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -109,11 +109,16 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
             coachTransferHolder.coachGName = self.coachNameGlobal
             coachTransferHolder.previousWindow = self.kasamTitle.text!
         } else if segue.identifier == "goToChalloActivityViewer" {
-            let kasamActivityHolder = segue.destination as! ChalloActivityViewer
-            kasamActivityHolder.kasamID = kasamID
-            kasamActivityHolder.blockID = blockIDGlobal
-            kasamActivityHolder.viewingOnlyCheck = true
-            kasamActivityHolder.dayOrder = "0"                  //this field is for saving kasam progress, so set it to zero
+            let challoActivityHolder = segue.destination as! ChalloActivityViewer
+            if reviewOnly == false {
+                challoActivityHolder.kasamID = kasamID
+                challoActivityHolder.blockID = blockIDGlobal
+                challoActivityHolder.viewingOnlyCheck = true
+                challoActivityHolder.dayOrder = "0"          //this field is for saving challo progress, so set it to zero as we're only reviewing
+            } else if reviewOnly == true {
+                challoActivityHolder.reviewOnly = true
+                challoActivityHolder.blockID = blockIDGlobal        //this is the block No that gets transferred
+            }
         }
     }
     
@@ -162,7 +167,11 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     //Retrieves Blocks based on Kasam selected
     func getBlocksData() {
         Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").observeSingleEvent(of: .value, with:{ (snap) in
-            let ratio = 30 / (snap.childrenCount)
+            var blockNo = snap.childrenCount
+            if blockNo == 0 {
+                blockNo = 1
+            }
+            let ratio = 30 / (blockNo)
             var dayNumber = 1
             for _ in 1...ratio {
                 Database.database().reference().child("Coach-Kasams").child(self.kasamID).child("Blocks").observe(.childAdded, with: { (snapshot) in
@@ -265,7 +274,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func registeredCheck(){
-        Database.database().reference().child("Coach-Kasams").child(kasamID).child("Followers").observeSingleEvent(of: .value, with: { (snapshot) in
+        Database.database().reference().child("Coach-Kasams").child(kasamID).child("Followers").observeSingleEvent(of: .value, with: {(snapshot) in
             if SavedData.kasamDict[self.kasamID]?.status == "completed" {
                 //completed
                 self.addButton.tintColor = UIColor.black
@@ -285,7 +294,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
         })
     }
     
-    //REVIEW ONLY------------------------------------------------------------------------------------------------------------------------
+    //REVIEW ONLY-------------------------------------------------------------------------------------------
     
     func setupReviewOnly(){
         //load in values from add Challo pages
@@ -298,19 +307,25 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
         kasamType.text = "Personal"
         kasamLevel.text = "Beginner"
         var blockImage = UIImage()
-        if NewChallo.challoImageToSave == UIImage() {
+        if NewChallo.challoImageToSave == UIImage() && NewChallo.loadedInChalloImage != UIImage() {
+            //editing an existing Challo, and user has NOT changed header image, so use existing image
             headerImageView.image = NewChallo.loadedInChalloImage
             blockImage = NewChallo.loadedInChalloImage
-        } else {
+        } else if NewChallo.challoImageToSave != UIImage() && NewChallo.loadedInChalloImage == UIImage() {
+            //creating a new Challo, so use chosen image
             headerImageView.image = NewChallo.challoImageToSave
             blockImage = NewChallo.challoImageToSave
+        } else {
+            //user is creating new challo, and hasn't uploaded an image
+            headerImageView.image = UIImage(named: "image-add-placeholder")
+            blockImage = UIImage(named: "image-add-placeholder")!
         }
         let ratio = 30 / NewChallo.numberOfBlocks
         for day in 1...ratio {
             for blockNo in 1...NewChallo.numberOfBlocks {
                 let duration = NewChallo.challoTransferArray[blockNo]?.duration
                 let durationMetric = NewChallo.challoTransferArray[blockNo]?.durationMetric
-                let block = BlockFormat(blockID: "", title: NewChallo.challoTransferArray[blockNo]?.blockTitle ?? "", order: String(day * blockNo), duration: "\(duration ?? 15) \(durationMetric ?? "secs")", imageURL: nil, image: blockImage)
+                let block = BlockFormat(blockID: String(blockNo), title: NewChallo.challoTransferArray[blockNo]?.blockTitle ?? "", order: String(day * blockNo), duration: "\(duration ?? 15) \(durationMetric ?? "secs")", imageURL: nil, image: blockImage)
                 self.kasamBlocks.append(block)
             }
             if day == ratio {
@@ -322,10 +337,22 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func createChalloButtonPressed(_ sender: Any) {
-        if NewChallo.loadedInChalloImage == UIImage() {
-            createChallo(existingKasamID: nil)
-        } else {
-            createChallo(existingKasamID: NewChallo.kasamID)
+        completeCheck {(check) in
+            if check == true {
+                if NewChallo.loadedInChalloImage == UIImage() {
+                    //creating a new challo
+                    self.createChallo(existingKasamID: nil)
+                } else {
+                    //updating an existing challo
+                    self.createChallo(existingKasamID: NewChallo.kasamID)
+                }
+            } else {
+                let popupImage = UIImage.init(icon: .fontAwesomeSolid(.cookieBite), size: CGSize(width: 30, height: 30), textColor: .white)
+                showPopupConfirmation(title: "You're missing a few fields...", description: "", image: popupImage, buttonText: "Fill them in") {(success) in
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToBack"), object: self)
+                    SwiftEntryKit.dismiss()
+                }
+            }
         }
     }
     
@@ -337,11 +364,47 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
             //delete the existing Challo
             let popupImage = UIImage.init(icon: .fontAwesomeRegular(.trashAlt), size: CGSize(width: 30, height: 30), textColor: .white)
             showPopupConfirmation(title: "Are you sure?", description: "You won't be able to undo this action", image: popupImage, buttonText: "Delete Challo") {(success) in
-                Database.database().reference().child("Coach-Kasams").child(self.kasamID).removeValue()                //delete challo
-                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(self.kasamID).removeValue()
+                let coachKasamDB = Database.database().reference().child("Coach-Kasams")
+                let userKasamDB = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
+                
+                coachKasamDB.child(NewChallo.kasamID).removeValue()                 //delete challo
+                userKasamDB.child(NewChallo.kasamID).removeValue()                  //remove challo from creator's list
+                
+                //delete the pictures from the Challo if it's not the placeholder image
+                if NewChallo.loadedInChalloImage != UIImage(named: "image-add-placeholder") {
+                    if let fileToDelete = NewChallo.loadedInChalloImageURL {self.deleteFileFromURL(from: fileToDelete)}
+                }
+                
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "getUserChallos"), object: self)
                 self.navigationController?.popToRootViewController(animated: true)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
             }
+        }
+    }
+    
+    func deleteFileFromURL(from photoURL: URL) {
+        let photoStorageRef = Storage.storage().reference(forURL: photoURL.absoluteString)
+        photoStorageRef.delete(completion: {(error) in
+            if let error = error {
+                print(error)
+            } else {
+                // success
+                print("deleted \(photoURL)")
+            }
+        })
+    }
+    
+    func completeCheck(completion:@escaping (Bool) -> ()) {
+        var checkCount = 0
+        for blockNo in 1...NewChallo.numberOfBlocks {
+            if NewChallo.challoTransferArray[blockNo]?.complete == true {
+                checkCount += 1
+            }
+        }
+        if checkCount == NewChallo.numberOfBlocks {
+            completion(true)
+        } else {
+            completion(false)
         }
     }
     
@@ -354,20 +417,19 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
         if existingKasamID != nil {
             //creating a new Challo, so assign a new ChalloID
             kasamID = Database.database().reference().child("Coach-Kasams").child(existingKasamID!)
-            kasamIDGlobal = kasamID.key ?? ""
         }
         if NewChallo.challoImageToSave != NewChallo.loadedInChalloImage {
-            //user has uploaded a new image, so save it
-            saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)/kasam_header", completion: {uploadedImageURL in
+            //CASE 1 - user has uploaded a new image, so save it
+            saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)/challo_header", completion: {uploadedImageURL in
                 if uploadedImageURL != nil {
                     self.registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
-                } else {
-                    //no image added, so use the default one
-                    self.registerKasamData(kasamID: kasamID, imageUrl: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e")
                 }
             })
+        } else if NewChallo.challoImageToSave == UIImage() {
+            //CASE 2 - no image added, so use the default one
+            self.registerKasamData(kasamID: kasamID, imageUrl: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e")
         } else {
-            //user using same image, so no need to save image
+            //CASE 3 - user editing a challo and using same challo image, so no need to save image
             let uploadedImageURL = NewChallo.loadedInChalloImageURL?.absoluteString
             registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
         }
@@ -392,28 +454,43 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     }
     
     //STEP 3 - Register Challo Data in Firebase Database
-    func registerKasamData (kasamID: DatabaseReference, imageUrl: String) {
+    func registerKasamData(kasamID: DatabaseReference, imageUrl: String) {
         kasamImageGlobal = imageUrl
-        let kasamDictionary = ["Title": NewChallo.kasamName, "Genre": "Personal", "Description": NewChallo.kasamDescription, "Timing": "6:00pm - 7:00pm", "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Followers": "", "Type": "User", "Rating": "5", "Blocks": "blocks", "Level":"Beginner", "Metric": NewChallo.chosenMetric]
+        let challoDB = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(kasamID.key!)
+        let kasamDictionary = ["Title": NewChallo.kasamName, "Genre": "Personal", "Description": NewChallo.kasamDescription, "Timing": "6:00pm - 7:00pm", "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Type": "User", "Rating": "5", "Blocks": "blocks", "Level":"Beginner", "Metric": NewChallo.chosenMetric]
     
-        kasamID.setValue(kasamDictionary) {(error, reference) in
+        if NewChallo.kasamID != "" {
+            //updating existing challo
+            kasamID.updateChildValues(kasamDictionary as [AnyHashable : Any]) {(error, reference) in
             if error != nil {
-                print(error!)
-            } else {
-            //kasam successfully created
-        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(self.kasamIDGlobal).setValue(NewChallo.kasamName)
-            self.saveBlocks()
+                    print(error!)
+                } else {
+                //kasam successfully created
+             challoDB.setValue(NewChallo.kasamName)
+                self.saveBlocks(kasamID: kasamID)
+                }
+            }
+        } else {
+            //creating new challo
+            kasamID.setValue(kasamDictionary) {(error, reference) in
+                if error != nil {
+                    print(error!)
+                } else {
+                //kasam successfully created
+                challoDB.setValue(NewChallo.kasamName)
+                self.saveBlocks(kasamID: kasamID)
+                }
             }
         }
     }
     
     //STEP 4 - Save block info under Challo
-    func saveBlocks(){
-        self.view.endEditing(true)                  //for adding last text field value with dismiss keyboard
-        let newBlock = Database.database().reference().child("Coach-Kasams").child(kasamIDGlobal).child("Blocks")
+    func saveBlocks(kasamID: DatabaseReference){
+        let newBlockDB = Database.database().reference().child("Coach-Kasams").child(kasamID.key!).child("Blocks")
+        print(newBlockDB)
         var successBlockCount = 0
         for j in 1...NewChallo.numberOfBlocks {
-            let blockID = newBlock.childByAutoId()
+            let blockID = newBlockDB.childByAutoId()
             let transferBlockDuration = "\(NewChallo.challoTransferArray[j]?.duration ?? 15) \(NewChallo.challoTransferArray[j]?.durationMetric ?? "secs")"
             let blockActivity = NewChallo.fullActivityMatrix[j]
             var metric = 0
@@ -431,7 +508,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
                 default: metric = 0
             }
             let defaultActivityImage = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"
-            saveImage(image: (blockActivity?[0]?.imageToSave), location: "kasam/\(kasamIDGlobal)/activity/activity\(j)") {(savedImageURL) in
+            saveImage(image: (blockActivity?[0]?.imageToSave), location: "kasam/\(kasamID.key!)/activity/activity\(j)") {(savedImageURL) in
                 let activity = ["Description" : blockActivity?[0]?.description ?? "",
                                 "Image" : savedImageURL ?? defaultActivityImage,
                                 "Metric" : String(metric * increment),
@@ -494,7 +571,6 @@ extension ChalloHolder: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("hello")
         blockIDGlobal = kasamBlocks[indexPath.row].blockID
         performSegue(withIdentifier: "goToChalloActivityViewer", sender: indexPath)
         tableView.deselectRow(at: indexPath, animated: true)

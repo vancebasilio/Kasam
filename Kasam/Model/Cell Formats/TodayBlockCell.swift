@@ -114,7 +114,7 @@ class TodayBlockCell: UITableViewCell {
         } else if block.displayStatus == "Check" {
             statusButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: 30, color: UIColor.init(hex: 0x007f00), forState: .normal)
         } else if block.displayStatus == "Progress" {
-            statusButton?.setIcon(icon: .fontAwesomeSolid(.thermometerHalf), iconSize: 30, color: UIColor.colorFour, forState: .normal)
+            statusButton?.setIcon(icon: .fontAwesomeSolid(.cookieBite), iconSize: 30, color: UIColor.colorFour, forState: .normal)
         }
         cellFormatting()
     }

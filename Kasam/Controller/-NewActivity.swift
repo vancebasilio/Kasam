@@ -18,7 +18,6 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     var imagePicked: UIImage?
     var activityBlocks: [KasamActivityCellFormat] = []
     var registerNewActivity: [Int:newActivityFormat] = [:]
-    var activityType = "Reps"
     var blockNoSelected = 1                                         //loaded in, starting from 1
     var pastEntry: [Int:newActivityFormat]? = [:]
     var callback : (([Int: newActivityFormat])->())?
@@ -26,8 +25,11 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     override func viewDidLoad() {
         super.viewDidLoad()
         setupButtons()
-        activityType = NewChallo.chosenMetric
         pastEntry = NewChallo.fullActivityMatrix[blockNoSelected]           //if there's a past entry, it'll load it in
+        
+        if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            layout.scrollDirection = .horizontal
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -110,13 +112,15 @@ extension NewActivity: UICollectionViewDelegate, UICollectionViewDataSource, UIC
             currentSessionImage = entryTransfer?.imageToSave
         }
         cell.setKasamViewer(title: entryTransfer?.title, description: entryTransfer?.description, imageToLoad: entryTransfer?.imageToLoad, newImagePicked: currentSessionImage)
-        if activityType == "Reps" {
+        if NewChallo.chosenMetric == "Reps" {
             cell.setupPicker(reps: entryTransfer?.reps, interval: entryTransfer?.interval)
-        } else if activityType == "Timer" {
+        } else if NewChallo.chosenMetric == "Timer" {
+            print("timer")
             cell.setupTimer(hour: entryTransfer?.hour, min: entryTransfer?.min, sec: entryTransfer?.sec)
-        } else if activityType == "Checkmark" {
+        } else if NewChallo.chosenMetric == "Checkmark" {
+            print("checkmark")
             cell.setupCheckmark()
-        } else if activityType == "Rest" {
+        } else if NewChallo.chosenMetric == "Rest" {
             cell.setupRest()
         }
         return cell

@@ -93,6 +93,9 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
         } else {
             NewChallo.kasamName = newKasamTitle.text ?? "Challo Title"
             NewChallo.kasamDescription = newKasamDescription.text ?? "Challo Description"
+            if self.headerImageView?.image != UIImage(named: "image-add-placeholder") {
+                NewChallo.challoImageToSave = self.headerImageView!.image!
+            }
             NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
         }
     }
@@ -197,7 +200,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
                     self.transferDurationMetric[blockNo] = self.blockDuration[blockNo]?.split(separator: " ").last.map(String.init)
                     
                     //load the blockdata into the viewcontroller so the user can see it
-                    NewChallo.challoTransferArray[blockNo] = NewChalloLoadFormat(blockTitle: self.transferTitle[blockNo] ?? "Block Title", duration: Int(self.transferDuration[blockNo]!)!, durationMetric: self.transferDurationMetric[blockNo] ?? "secs")
+                    NewChallo.challoTransferArray[blockNo] = NewChalloLoadFormat(blockTitle: self.transferTitle[blockNo] ?? "Block Title", duration: Int(self.transferDuration[blockNo]!)!, durationMetric: self.transferDurationMetric[blockNo] ?? "secs", complete: true)
                     self.loadActivities(blockNo: blockNo, blockID: blockID)
                     
                     //All the Challo data is downloaded, so display it
@@ -263,10 +266,8 @@ extension NewKasamController: UIImagePickerControllerDelegate, UINavigationContr
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             self.headerImageView?.image = editedImage.withRenderingMode(.alwaysOriginal)
-            NewChallo.challoImageToSave = editedImage.withRenderingMode(.alwaysOriginal)
         } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.headerImageView?.image = originalImage.withRenderingMode(.alwaysOriginal)
-            NewChallo.challoImageToSave = originalImage.withRenderingMode(.alwaysOriginal)
         }
         addAnImageLabel.text = "Change Image"
         dismiss(animated: true, completion: nil)
@@ -304,9 +305,9 @@ extension NewKasamController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MetricTypeCell {
             switch indexPath.row {
-                case 1: NewChallo.chosenMetric = chosenMetricOptions[0]
-                case 2: NewChallo.chosenMetric = chosenMetricOptions[1]
-                case 3: NewChallo.chosenMetric = chosenMetricOptions[2]
+                case 0: NewChallo.chosenMetric = chosenMetricOptions[0]
+                case 1: NewChallo.chosenMetric = chosenMetricOptions[1]
+                case 2: NewChallo.chosenMetric = chosenMetricOptions[2]
                 default: NewChallo.chosenMetric = chosenMetricOptions[0]
             }
             cell.metricTypeBG.backgroundColor = UIColor.init(hex: 0x9DC78D)

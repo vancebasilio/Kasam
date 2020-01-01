@@ -125,11 +125,13 @@ class NewChalloLoadFormat{
     var blockTitle: String
     var duration: Int
     var durationMetric: String
+    var complete: Bool?
     
-    init(blockTitle: String, duration: Int, durationMetric: String){
+    init(blockTitle: String, duration: Int, durationMetric: String, complete: Bool?){
         self.blockTitle = blockTitle
         self.duration = duration
         self.durationMetric = durationMetric
+        self.complete = complete
     }
 }
 
@@ -194,13 +196,14 @@ class KasamActivityCellFormat {
     var totalMetric: String
     var increment: String?
     var currentMetric: String
-    var image: String
+    var imageURL: String
+    var image: UIImage?
     var type: String
     var currentOrder: Int
     var totalOrder: Int
     var currentText: String
     
-    init(kasamID: String, blockID: String, title: String, description: String, totalMetric: String, increment: String?, currentMetric: String, image: String, type: String, currentOrder: Int, totalOrder: Int, currentText: String){
+    init(kasamID: String, blockID: String, title: String, description: String, totalMetric: String, increment: String?, currentMetric: String, imageURL: String, image: UIImage?, type: String, currentOrder: Int, totalOrder: Int, currentText: String){
         self.kasamID = kasamID
         self.blockID = blockID
         self.activityTitle = title
@@ -208,6 +211,7 @@ class KasamActivityCellFormat {
         self.totalMetric = totalMetric
         self.increment = increment
         self.currentMetric = currentMetric
+        self.imageURL = imageURL
         self.image = image
         self.type = type
         self.currentOrder = currentOrder

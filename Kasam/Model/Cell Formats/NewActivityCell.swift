@@ -99,10 +99,12 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
     
     @IBAction func saveButtonPressed(_ sender: Any) {
         saveProgress()
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "CompletionCheck"), object: self)
     }
     
     @IBAction func backButtonPressed(_ sender: Any) {
         saveProgress()
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "CompletionCheck"), object: self)
     }
     
     func saveProgress(){
@@ -122,10 +124,10 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         totalOrder = 1
         activityTitle.text = title
         if imageToLoad == nil && newImagePicked == nil {
-            //no image added so far for the activity
+            //no image added for the activity
             animatedImageView.image = imagePlaceholder
         } else if imageToLoad != nil && newImagePicked == nil {
-            //just loading the previous image saved for the Challo
+            //loading the previous image saved for the Challo
             animatedImageView.sd_setImage(with: imageToLoad, completed: nil)
         } else if newImagePicked != nil {
             //user picked a new image to upload

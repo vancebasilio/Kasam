@@ -38,11 +38,13 @@ class NewBlockCell: UITableViewCell {
         durationTimePicker.dataSource = self
         durationMetricPicker.delegate = self
         durationMetricPicker.dataSource = self
+        titleTextField.addTarget(self, action: #selector(NewBlockCell.onTextChanged(sender:)), for: UIControl.Event.editingChanged)
+        let completionCheck = NSNotification.Name("CompletionCheck")
+        NotificationCenter.default.addObserver(self, selector: #selector(NewBlockCell.completionCheck), name: completionCheck, object: nil)
     }
     
     func setupFormatting(){
         createButton.layer.cornerRadius = createButton.frame.height / 2
-        createButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.pencilAlt), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.colorFour, forState: .normal, iconSize: 25)
         contents.layer.cornerRadius = 20
         contents.clipsToBounds = true
         shadow.layer.cornerRadius = 20
@@ -59,12 +61,59 @@ class NewBlockCell: UITableViewCell {
         if let index = self.timeMetrics.index(of: block.durationMetric) {
             durationMetricPicker.selectRow(index, inComponent: 0, animated: false)
         }
+        completionCheck()
+    }
+    
+    func greenCheck(){
+        NewChallo.challoTransferArray[blockNo]?.complete = true
+        createButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.pencilAlt), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.init(hex: 0x007f00), forState: .normal, iconSize: 25)
+    }
+    
+    func brownIncomplete(){
+        //missing field
+        NewChallo.challoTransferArray[blockNo]?.complete = false
+        createButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.pencilAlt), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.colorFour, forState: .normal, iconSize: 25)
+    }
+    
+    @objc func completionCheck(){
+        let activity = NewChallo.fullActivityMatrix[blockNo]
+        if NewChallo.chosenMetric == "Reps" {
+            if titleTextField.text != "" && activity?[0]?.title != "" && activity?[0]?.description != "" && activity?[0]?.title != nil && activity?[0]?.description != nil && activity?[0]?.reps != 0 {
+                greenCheck()
+            } else {
+                brownIncomplete()
+            }
+        } else if NewChallo.chosenMetric == "Checkmark" {
+            if titleTextField.text != "" && activity?[0]?.title != "" && activity?[0]?.description != "" && activity?[0]?.title != nil && activity?[0]?.description != nil {
+                greenCheck()
+            } else {
+                brownIncomplete()
+            }
+        } else if NewChallo.chosenMetric == "Timer" {
+            let sec = activity?[0]?.sec ?? 0
+            let min = activity?[0]?.min ?? 0
+            let hour = activity?[0]?.hour ?? 0
+            let totalTime =  hour + min + sec
+            if titleTextField.text != "" && activity?[0]?.title != "" && activity?[0]?.description != "" && activity?[0]?.title != nil && activity?[0]?.description != nil && totalTime > 0 {
+               greenCheck()
+            } else {
+                brownIncomplete()
+            }
+        }
+        else {
+            brownIncomplete()
+        }
+    }
+    
+    @objc func onTextChanged(sender: UITextField) {
+        if sender.tag == 1 {
+            completionCheck()
+        }
     }
     
     @IBAction func createActivityButtonPressed(_ sender: Any) {
         delegate?.addActivityButtonPressed(blockNo: blockNo)
     }
-    
 }
 
 extension NewBlockCell: UIPickerViewDelegate, UIPickerViewDataSource {
@@ -77,7 +126,7 @@ extension NewBlockCell: UIPickerViewDelegate, UIPickerViewDataSource {
         if pickerView == durationMetricPicker {
             return timeMetrics.count
         } else {
-            return 11
+            return 11           //number of time duration options
         }
     }
     

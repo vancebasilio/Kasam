@@ -72,6 +72,34 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
     }
     
+    //BASIC SETUP-----------------------------------------------------------------------------------
+    
+    func setKasamViewer(activity: KasamActivityCellFormat) {
+        restView.isHidden = true
+        textField.isHidden = true
+        activityTitle.text = activity.activityTitle
+        activityDescription.text = activity.activityDescription
+        currentOrder = activity.currentOrder
+        totalOrder = activity.totalOrder
+        increment = Int(activity.increment ?? "1") ?? 1
+        pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
+        pickerView.reloadAllComponents()                                    //important so that the pickerview updates to the max metric
+        if activity.image == nil {
+            if activity.imageURL == "" {
+                animatedImageView.sd_setImage(with: URL(string: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"))
+            } else {
+                animatedImageView.sd_setImage(with: URL(string: activity.imageURL))
+            }
+        } else {
+            animatedImageView.image = activity.image
+        }
+        if currentOrder == totalOrder {
+            doneButton.setTitle("Done", for: .normal)
+        } else {
+            doneButton.setTitle("Next", for: .normal)
+        }
+    }
+    
     //COUNTDOWN-----------------------------------------------------------------------------------
     
     func setupCountdown(maxtime: String, pastProgress: Double){
@@ -158,24 +186,6 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     }
     
     //PICKER-----------------------------------------------------------------------------------
-    
-    func setKasamViewer(activity: KasamActivityCellFormat) {
-        restView.isHidden = true
-        textField.isHidden = true
-        activityTitle.text = activity.activityTitle
-        activityDescription.text = activity.activityDescription
-        currentOrder = activity.currentOrder
-        totalOrder = activity.totalOrder
-        increment = Int(activity.increment ?? "1") ?? 1
-        pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
-        pickerView.reloadAllComponents()                                    //important so that the pickerview updates to the max metric
-        animatedImageView.sd_setImage(with: URL(string: activity.image))
-        if currentOrder == totalOrder {
-            doneButton.setTitle("Done", for: .normal)
-        } else {
-            doneButton.setTitle("Next", for: .normal)
-        }
-    }
     
     func setupPicker(){
         pickerView.selectRow(16, inComponent: 0, animated: false)

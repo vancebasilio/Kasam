@@ -50,6 +50,9 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
         let valueSelected = Int(sender.value)
         newBlockPicker.selectRow(valueSelected - 1, inComponent: 0, animated: true)
         NewChallo.numberOfBlocks = valueSelected
+        if NewChallo.challoTransferArray[valueSelected] == nil {
+            NewChallo.challoTransferArray[valueSelected] = NewChalloLoadFormat(blockTitle: "", duration: 15, durationMetric: "secs", complete: false)
+        }
         tableView.reloadData()
     }
     
@@ -68,6 +71,10 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
         }
         newBlockPicker.selectRow(NewChallo.numberOfBlocks - 1, inComponent: 0, animated: false)
         blockSlider.setValue(Float(NewChallo.numberOfBlocks), animated: false)
+        //setup the first block
+        if NewChallo.challoTransferArray[1] == nil {
+            NewChallo.challoTransferArray[1] = NewChalloLoadFormat(blockTitle: "", duration: 15, durationMetric: "secs", complete: false)
+        }
         tableView.reloadData()
     }
     
@@ -82,6 +89,7 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func reviewChalloButtonPressed(_ sender: Any) {
+        self.view.endEditing(true)                  //for adding last text field value with dismiss keyboard
         NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
     }
     
@@ -123,7 +131,7 @@ extension NewBlockController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
 }
 
-extension NewBlockController: UITableViewDataSource, UITableViewDelegate {
+extension NewBlockController: UITableViewDataSource, UITableViewDelegate, NewBlockDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return NewChallo.numberOfBlocks
     }
@@ -133,6 +141,8 @@ extension NewBlockController: UITableViewDataSource, UITableViewDelegate {
         cell.setupFormatting()
         if NewChallo.editChalloCheck == true && NewChallo.dataLoadCheck == true && NewChallo.challoTransferArray[indexPath.row + 1] != nil {
             cell.loadChalloInfo(block: NewChallo.challoTransferArray[indexPath.row + 1]!)
+        } else {
+            cell.completionCheck()
         }
         cell.delegate = self
         cell.blockNo = indexPath.row + 1
@@ -159,19 +169,27 @@ extension NewBlockController: UITableViewDataSource, UITableViewDelegate {
         return label
     }
         
+    //Block Title added
     @objc func onTextChanged(sender: UITextField) {
         let cell: UITableViewCell = sender.superview?.superview?.superview?.superview?.superview as! UITableViewCell
         let table: UITableView = cell.superview as! UITableView
         let indexPath = table.indexPath(for: cell)
         let row = (indexPath?.row ?? 1)
         if sender.tag == 1 {
-            print("trying to change \(row + 1)")
             NewChallo.challoTransferArray[row + 1]?.blockTitle = sender.text!
         }
     }
-}
-
-extension NewBlockController: NewBlockDelegate {
+    
+    //Block Duration added
+    func sendDurationTime(blockNo: Int, duration: String) {
+        NewChallo.challoTransferArray[blockNo]?.duration = Int(duration) ?? 15             //only runs when the picker is slided
+    }
+    
+    //Block Duration Metric added
+    func sendDurationMetric(blockNo: Int, metric: String) {
+        NewChallo.challoTransferArray[blockNo]?.durationMetric = metric                    //only runs when the picker is slided
+    }
+    
     func addActivityButtonPressed(blockNo: Int) {
         tempBlockNoSelected = blockNo                                           //starting from 1
         self.performSegue(withIdentifier: "goToCreateActivity", sender: nil)
@@ -186,15 +204,5 @@ extension NewBlockController: NewBlockDelegate {
                 NewChallo.fullActivityMatrix[self.tempBlockNoSelected] = result
             }
         }
-    }
-    
-    func sendDurationTime(blockNo: Int, duration: String) {
-        NewChallo.challoTransferArray[blockNo]?.duration = Int(duration) ?? 15             //only runs when the picker is slided
-        print(blockNo)
-    }
-    
-    func sendDurationMetric(blockNo: Int, metric: String) {
-        NewChallo.challoTransferArray[blockNo]?.durationMetric = metric                    //only runs when the picker is slided
-        print(blockNo)
     }
 }

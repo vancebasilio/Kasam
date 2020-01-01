@@ -33,17 +33,22 @@ class ChalloActivityViewer: UIViewController {
     var kasamIDTransfer:[String: String] = ["kasamID": ""]
     var viewingOnlyCheck = false
     var activityCurrentValue = 0
+    var reviewOnly = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         getBlockActivities{self.setupMetricMatrix()}
+        if reviewOnly == false {
+            
+            kasamIDTransfer["kasamID"] = kasamID                    //for the Challo Activity Viewer Cell
+        } else {
+            viewingOnlyCheck = true
+        }
         setupButtons()
         self.hideKeyboardWhenTappedAround()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        kasamIDTransfer["kasamID"] = kasamID
     }
-    
     
     @IBAction func closeButton(_ sender: UIButton) {
         if viewingOnlyCheck == false {
@@ -63,37 +68,51 @@ class ChalloActivityViewer: UIViewController {
     func getBlockActivities(_ completion: @escaping () -> ()){
         activityBlocks.removeAll()
         var count = 0
-        self.activityRef = Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").child(blockID).child("Activity")
-        self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
-            if let value = snapshot.value as? [String: Any] {
-                //check if user has past progress from today and download metric
-                let currentDate = self.getCurrentDate()
-                var currentMetric = "0"
-                var currentText = ""
-                count += 1
-            
-                self.historyRef.child(self.kasamID).child(currentDate ?? "").child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
-                    if snap.exists(){
-                        currentMetric = snap.value as! String               //gets the metric for the activity
-                    }
+        if reviewOnly == false {
+            self.activityRef = Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").child(blockID).child("Activity")
+            self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
+                if let value = snapshot.value as? [String: Any] {
+                    //check if user has past progress from today and download metric
+                    let currentDate = self.getCurrentDate()
+                    var currentMetric = "0"
+                    var currentText = ""
+                    count += 1
                 
-                    self.historyRef.child(self.kasamID).child(currentDate ?? "").child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
-                        if snap.exists() {
-                            currentText = snap.value as! String         //gets the text for the activity
+                    //load in past history
+                    self.historyRef.child(self.kasamID).child(currentDate ?? "").child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                        if snap.exists(){
+                            currentMetric = snap.value as! String               //gets the metric for the activity
                         }
-                        let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, image: value["Image"] as! String, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0, currentText: currentText)
-                        self.activityBlocks.append(activity)
-                        self.collectionView.reloadData()
-                        if self.activityBlocks.count == count {
-                            self.activityNumber.text = "1/\(self.activityBlocks.count)"
-                            completion()
-                        }
+                    
+                        self.historyRef.child(self.kasamID).child(currentDate ?? "").child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                            if snap.exists() {
+                                currentText = snap.value as! String         //gets the text for the activity
+                            }
+                            let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, imageURL: value["Image"] as! String, image: nil, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0, currentText: currentText)
+                            self.activityBlocks.append(activity)
+                            self.collectionView.reloadData()
+                            if self.activityBlocks.count == count {
+                                self.activityNumber.text = "1/\(self.activityBlocks.count)"
+                                completion()
+                            }
+                        })
                     })
-                })
-                self.transferMetricMatrix[String(count)] = "0"
+                    self.transferMetricMatrix[String(count)] = "0"
+                }
+                self.collectionView.reloadData()
+                self.activityRef.removeObserver(withHandle: self.activityRefHandle!)
             }
+        } else {
+            count += 1
+            let blockNo = Int(blockID) ?? 1
+            let blockActivity = NewChallo.fullActivityMatrix[blockNo]
+            let activity = KasamActivityCellFormat(kasamID: "", blockID: "", title: blockActivity?[0]?.title ?? "Activity Title", description: blockActivity?[0]?.description ?? "Activity Description", totalMetric: String(describing: blockActivity?[0]?.reps), increment: String(describing: blockActivity?[0]?.interval), currentMetric: "", imageURL: "", image: blockActivity?[0]?.imageToSave, type: NewChallo.chosenMetric, currentOrder: 0, totalOrder: 0, currentText: "")
+            self.activityBlocks.append(activity)
             self.collectionView.reloadData()
-            self.activityRef.removeObserver(withHandle: self.activityRefHandle!)
+            if self.activityBlocks.count == count {
+                self.activityNumber.text = "1/\(self.activityBlocks.count)"
+                completion()
+            }
         }
     }
     
@@ -131,32 +150,27 @@ extension ChalloActivityViewer: UICollectionViewDelegate, UICollectionViewDataSo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamViewerCell", for: indexPath) as! KasamViewerCell
         cell.viewOnlyCheck = viewingOnlyCheck
         cell.kasamIDTransfer["kasamID"] = kasamID
+        cell.setKasamViewer(activity: activity)
         if activity.type == "Reps" {
-            cell.setKasamViewer(activity: activity)
             cell.setupPicker()
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.pickerView.selectRow(Int(pastProgress) / 10, inComponent: 0, animated: false)
         } else if activity.type == "Countdown" {
-            cell.setKasamViewer(activity: activity)
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.setupCountdown(maxtime: activity.totalMetric, pastProgress: pastProgress)
         } else if activity.type == "CountdownText" {
-            cell.setKasamViewer(activity: activity)
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.setupCountdown(maxtime: activity.totalMetric, pastProgress: pastProgress)
             cell.textField.isHidden = false
         } else if activity.type == "Timer" {
-            cell.setKasamViewer(activity: activity)
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.setupTimer(maxtime: activity.totalMetric, pastProgress: pastProgress)
         } else if activity.type == "Checkmark" {
-            cell.setKasamViewer(activity: activity)
             cell.textField.isHidden = false
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             let pastText = activityBlocks[indexPath.row].currentText
             cell.setupCheckmark(pastProgress: pastProgress, pastText: pastText)
         } else if activity.type == "CheckmarkText" {
-            cell.setKasamViewer(activity: activity)
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             let pastText = activityBlocks[indexPath.row].currentText
             cell.textField.isHidden = false

@@ -53,6 +53,10 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
         let goToNext = NSNotification.Name("GoToNext")
         NotificationCenter.default.addObserver(self, selector: #selector(NewChalloPageController.goToNext), name: goToNext, object: nil)
         
+        //back button
+        let goToBack = NSNotification.Name("GoToBack")
+        NotificationCenter.default.addObserver(self, selector: #selector(NewChalloPageController.back(sender:)), name: goToBack, object: nil)
+        
         configurePageControl()
     }
 
@@ -101,7 +105,6 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         let pageContentViewController = pageViewController.viewControllers![0]
         self.pageControl.currentPage = orderedViewControllers.index(of: pageContentViewController)!
-        
         if (!completed)
         {
           return
