@@ -31,12 +31,14 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     var blockIDGlobal = ""
     var dayOrderGlobal = ""
     let semaphore = DispatchSemaphore(value: 1)
+    
     var kasamFollowingRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     var kasamFollowingRefHandle: DatabaseHandle!
     let motivationRef = Database.database().reference().child("Assets").child("Motivation Images")
     var motivationRefHandle: DatabaseHandle!
     let dayTrackerRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var dayTrackerRefHandle: DatabaseHandle!
+    
     var dayTrackerDateArray = [Int:String]()
     var noKasamTracker = 0
     let animationView = AnimationView()
@@ -133,7 +135,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     } else {
                         count -= 1
                     }
-                    SavedData.addKasam(kasam: preference)
+                    SavedData.addChallo(challo: preference)                   //adds all challos that the user is following
                     if SavedData.kasamTodayArray.count == count {
                         self.retrieveKasams()
                         self.getDayTracker()
@@ -189,7 +191,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     func getDayTracker() {
         //for the active Challos on the Today page
         for kasam in SavedData.kasamTodayArray {
-            self.dayTrackerDateArray.removeAll()
             let kasamOrder = kasam.kasamOrder
             let dayTrackerKasamRef = self.dayTrackerRef.child(kasam.kasamID)
             let currentDate = self.getCurrentDate()
@@ -205,6 +206,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         if kasamDate >= kasam.joinedDate {
                             let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
                             self.dayTrackerDateArray[order] = snap.key          //to save the Challo date and order
+                            //dayTrackerDateArray is correct
+                            SavedData.dayTrackerDict[kasam.kasamID] = self.dayTrackerDateArray      //saves the progress for detailed stats
                             dayTrackerArrayInternal.append(order)               //places the gold dots on the right day in the today block tracker
                         } else {
                             dayCount -= 1
@@ -223,7 +226,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     if dayTrackerArrayInternal.count == dayCount && dayCount > 0 && kasamOrder < self.kasamBlocks.count {
                         self.kasamBlocks[kasamOrder].displayStatus = displayStatus
                         self.kasamBlocks[kasamOrder].dayTrackerArray = dayTrackerArrayInternal
-                        SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)
+                        self.dayTrackerDateArray.removeAll()
                         dayTrackerKasamRef.removeAllObservers()
                         self.tableView.reloadData()
                     }
@@ -250,7 +253,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                             dayCount -= 1
                         }
                         if dayTrackerArray.count == dayCount && dayCount > 0 {
-                            SavedData.addDayTracker(kasam: kasam.kasamID, dayTrackerArray: self.dayTrackerDateArray)
+                            SavedData.dayTrackerDict[kasam.kasamID] = self.dayTrackerDateArray
                             dayTrackerKasamRef.removeAllObservers()
                         }
                     })
@@ -469,12 +472,18 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TodayMotivationCell", for: indexPath) as! TodayMotivationCell
         if indexPath.row < motivationBackground.count  {
             cell.backgroundImage.sd_setImage(with: URL(string: motivationBackground[indexPath.row]))
-        } else {
-             cell.backgroundImage.image = PlaceHolders.challoLoadingImage
+        } else if indexPath.row > motivationBackground.count  {
+//             cell.backgroundImage.image = PlaceHolders.challoLoadingImage
         }
         cell.motivationText.text = motivationArray[indexPath.row].motivationText
         cell.motivationID["motivationID"] = motivationArray[indexPath.row].motivationID
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let attributes = FormFieldPresetFactory.attributes()
+        let motivationID = motivationArray[indexPath.row].motivationID
+        changeMotivationPopup(attributes: attributes, style: .light, motivationID: motivationID)
     }
     
     //Skeleton View

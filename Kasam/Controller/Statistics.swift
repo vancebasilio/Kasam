@@ -88,24 +88,27 @@ class StatisticsViewController: UIViewController {
     @objc func getKasamStats(){
         self.kasamBlocks.removeAll()
         joinedDate = SavedData.kasamDict[kasamID]?.joinedDate
-        let kasamDay = ((Calendar.current.dateComponents([.day], from: joinedDate!, to: Date()).day!) + 1)
-        self.dayNoValue.text = "Day \(kasamDay)"
+        let challoDay = ((Calendar.current.dateComponents([.day], from: joinedDate!, to: Date()).day!) + 1)
+        self.dayNoValue.text = "Day \(challoDay)"
         //if the kasam is active
-        if kasamDay > 30 && SavedData.dayTrackerDict[kasamID] == nil {
+        if challoDay > 30 && SavedData.dayTrackerDict[kasamID] == nil {
             //for completed kasams without saved day trackers
             getCompletedKasamDayTracker()
         } else {
             //for in progress kasams and completed kasams with saved day trackers
-            getChartAndTableStats(kasamDay: kasamDay)
+            getChartAndTableStats(challoDay: challoDay)
         }
     }
     
-    func getChartAndTableStats(kasamDay: Int){
+    func getChartAndTableStats(challoDay: Int){
         let dateArray = SavedData.dayTrackerDict[kasamID]
         var metricTotal = 0
         var metricType = ""
-        for day in 1...kasamDay {
+        print("kasamDay \(challoDay)")
+        //challoDay is the current day of the Challo that the user is on
+        for day in 1...challoDay {
             if dateArray?[day] != nil {
+                print(dateArray?[day])
                 self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child((dateArray![day]!)).observe(.value, with:{(snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     let metric = Int(value["Total Metric"] as? Double ?? 0.0)
@@ -128,7 +131,9 @@ class StatisticsViewController: UIViewController {
                     let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(indieMetric.removeZerosFromEnd()) \(indieMetricType)", text: textField as? String ?? "")
                     self.kasamBlocks.append(block)
                 }
+                print(self.kasamBlocks.count, dateArray?.count)
                 if self.kasamBlocks.count == dateArray?.count {
+                    print("hello")
                     self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
                     if metricType == "Reps" {
                          self.avgMetric.text = "\(metricTotal) Total \(metricType)"
@@ -137,7 +142,7 @@ class StatisticsViewController: UIViewController {
                         let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: metricType)
                         self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
                     } else if metricType == "Checkmark" {
-                        let avgMetric = (metricTotal) / (kasamDay)
+                        let avgMetric = (metricTotal) / (challoDay)
                         self.avgMetric.text = "Avg. \(avgMetric) %"
                     }
                     self.historyTableView.reloadData()
@@ -170,9 +175,9 @@ class StatisticsViewController: UIViewController {
                     dayCount -= 1
                 }
                 if self.dayTrackerArray.count == dayCount && dayCount > 0 {
-                    SavedData.addDayTracker(kasam: self.kasamID, dayTrackerArray: self.dayTrackerDateArray)
+                    SavedData.dayTrackerDict[self.kasamID] = self.dayTrackerDateArray
                     dayTrackerKasamRef.removeAllObservers()
-                    self.getChartAndTableStats(kasamDay: 30)
+                    self.getChartAndTableStats(challoDay: 30)
                 }
             })
         })

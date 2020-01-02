@@ -9,19 +9,15 @@
 import Foundation
 
 struct SavedData {
-    static var kasamTodayArray: [KasamSavedFormat] = []
-    static var kasamArray: [KasamSavedFormat] = []
-    static var kasamDict: [String:KasamSavedFormat] = [:]
-    static var dayTrackerArray: [String] = []
+    static var kasamTodayArray: [KasamSavedFormat] = []                 //kasamTodayArray includes only active kasams that the user is following
+    static var kasamArray: [KasamSavedFormat] = []                      //kasamArray includes all kasams that the user is following
+    
+    static var kasamDict: [String:KasamSavedFormat] = [:]               //kasamDict is used to update kasams when progress is made
     static var dayTrackerDict: [String: [Int:String]] = [:]
 
-    static func addKasam(kasam: KasamSavedFormat) {
-        self.kasamArray.append(kasam)
-        self.kasamDict[kasam.kasamID] = kasam
-    }
-    
-    static func addDayTracker(kasam: String, dayTrackerArray: [Int:String]) {
-        self.dayTrackerDict[kasam] = dayTrackerArray
+    static func addChallo(challo: KasamSavedFormat) {
+        self.kasamArray.append(challo)
+        self.kasamDict[challo.kasamID] = challo
     }
 }
 
