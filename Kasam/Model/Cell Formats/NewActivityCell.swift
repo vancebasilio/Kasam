@@ -227,7 +227,7 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         bottomView.isHidden = true
         restTitle.text = ""
         restDescription.text = ""
-        restImageView.sd_setImage(with: URL(string: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2FRest_animation.gif?alt=media&token=347b9eca-6d37-40fc-82f3-12483d71e440"))
+        restImageView.sd_setImage(with: URL(string: PlaceHolders.challoActivityRestImageURL))
     }
 }
 

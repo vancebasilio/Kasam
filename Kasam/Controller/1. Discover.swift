@@ -124,7 +124,7 @@ class DiscoverViewController: UIViewController {
                 self.userCreator.child(creatorID).child("Name").observeSingleEvent(of: .value, with: {(snap) in
                     let creatorName = snap.value as! String
                     let imageURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? self.placeholder() as! URL, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "")
+                    let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.challoLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "")
                     self.expertKasamArray.append(kasam)
                     self.categoryCollection.reloadData()
                     self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
@@ -139,7 +139,7 @@ class DiscoverViewController: UIViewController {
         freeKasamDBHandle = kasamDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Free").observe(.childAdded) { (snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let imageURL = URL(string: value["Image"] as? String ?? "")
-                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? self.placeholder() as! URL, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.challoLoadingImageURL)!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
                 self.freeKasamArray.append(categoryBlock)
                 self.discoverCollection.reloadData()
             }
@@ -153,7 +153,7 @@ class DiscoverViewController: UIViewController {
             Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: { (snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let imageURL = URL(string: value["Image"] as? String ?? "")
-                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? self.placeholder() as! URL, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.challoLoadingImageURL)!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
                 self.myKasamArray.append(categoryBlock)
                 self.myKasamCollection.reloadData()
                 }

@@ -19,14 +19,14 @@ class KasamFollowingCell: UICollectionViewCell {
     
     func setBlock(cell: UserStatsFormat) {
         statsPlaceholderIcon.isHidden = true
-        topImage.sd_setImage(with: cell.imageURL, placeholderImage: UIImage(named: "placeholder.png"))
+        topImage.sd_setImage(with: cell.imageURL, placeholderImage: PlaceHolders.challoLoadingImage)
         topImage.layer.cornerRadius = 8.0
         topImage.clipsToBounds = true
         kasamTitle.text = cell.kasamTitle
     }
     
     func setMyChalloBlock(cell: EditMyChalloFormat) {
-        topImage.sd_setImage(with: cell.imageURL, placeholderImage: UIImage(named: "placeholder.png"))
+        topImage.sd_setImage(with: cell.imageURL, placeholderImage: PlaceHolders.challoLoadingImage)
         topImage.layer.cornerRadius = 8.0
         topImage.clipsToBounds = true
         kasamTitle.text = cell.kasamTitle

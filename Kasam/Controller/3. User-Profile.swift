@@ -164,7 +164,7 @@ class ProfileViewController: UIViewController {
                 let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
                 kasam.image = snapshot["Image"]! as! String
                 kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
-                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, joinedDate: kasam.joinedDate, endDate: kasam.endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
+                    let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.challoLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: kasam.endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
                 if kasam.status == "completed" {
                     self.completedStats.append(userStats)
                     self.completedKasamsTable.reloadData()
@@ -228,7 +228,7 @@ class ProfileViewController: UIViewController {
                         if metricCount != 0 {
                             avgMetric = (metricMatrix / metricCount)
                         }
-                        self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? self.placeholder() as! URL, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
+                        self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.challoLoadingImageURL)!, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
                         self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
                         self.weekStatsCollectionView.reloadData()
                     }
@@ -253,7 +253,7 @@ class ProfileViewController: UIViewController {
                 Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: {(snapshot) in
                     if let value = snapshot.value as? [String: Any] {
                         let imageURL = URL(string: value["Image"] as? String ?? "")
-                        let myChallosBlock = EditMyChalloFormat(kasamID: value["KasamID"] as? String ?? "", kasamTitle: value["Title"] as? String ?? "", imageURL: imageURL ?? self.placeholder() as! URL)
+                        let myChallosBlock = EditMyChalloFormat(kasamID: value["KasamID"] as? String ?? "", kasamTitle: value["Title"] as? String ?? "", imageURL: imageURL ?? URL(string:PlaceHolders.challoLoadingImageURL)!)
                         self.myChallosArray.append(myChallosBlock)
                         self.editChallosCollectionView.reloadData()
                         self.editChalloLabel.isHidden = false
@@ -315,7 +315,7 @@ class ProfileViewController: UIViewController {
             profilePicRef.downloadURL { (url, error) in
                 if url != nil {
                     //Get the image from Firebase
-                    self.profileImage?.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder.png"), options: [], completed: { (image, error, cache, url) in
+                    self.profileImage?.sd_setImage(with: url, placeholderImage: PlaceHolders.challoLoadingImage, options: [], completed: { (image, error, cache, url) in
                         self.profileImage.hideSkeleton()
                     })
                 }

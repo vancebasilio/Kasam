@@ -17,7 +17,7 @@ class DiscoverCategoryCell: UICollectionViewCell {
     @IBOutlet weak var topImage: UIImageView!
     
     func setBlock(cell: expertKasamFormat) {
-        topImage.sd_setImage(with: cell.image, placeholderImage: UIImage(named: "placeholder.png"))
+        topImage.sd_setImage(with: cell.image, placeholderImage: PlaceHolders.challoLoadingImage)
         categoryTitle.text = cell.title
         kasamCreator.text = cell.creator
     }

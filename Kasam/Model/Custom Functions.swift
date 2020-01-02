@@ -66,11 +66,6 @@ extension UIViewController {
         return truncUserFirst
     }
     
-    func placeholder() -> Any {
-        let placeholder = URL(string: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fplaceholder.jpg?alt=media&token=580f119e-b022-4782-9bfd-0464a5b55c7e")!
-        return placeholder
-    }
-    
     func loadingAnimation(animationView: AnimationView, animation: String, height: Int, overlayView: UIView?, loop: Bool, completion: (() -> Void)?){
         animationView.animation = Animation.named(animation)
         animationView.contentMode = .scaleAspectFit

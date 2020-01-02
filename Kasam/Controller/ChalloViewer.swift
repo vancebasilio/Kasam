@@ -210,20 +210,25 @@ extension ChalloActivityViewer: KasamViewerCellDelegate {
     }
     
     func sendCompletedMatrix(key: Int, value: Double, text: String) {
+        print(key, value)
         transferMetricMatrix[String(key)] = String(value)
         transferTextFieldMatrix[String(key)] = text
         activityBlocks[key - 1].currentMetric = String(value)
         let statusDateTime = getCurrentDateTime()
         let statusDate = getCurrentDate()
+        var transferAvg = 1.0
         var sum = 0.0
         
         for (_, avg) in transferMetricMatrix {
             sum += Double(avg) ?? 0.0
         }
-        let  transferAvg : Double = sum / Double(self.summedTotalMetric)
+        
+        if self.summedTotalMetric > 0 {
+            transferAvg = sum / Double(self.summedTotalMetric)
+        }
 
         if transferAvg > 0.0 {
-            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg, "Day Order" : dayOrder, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
+            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg.rounded(toPlaces: 2), "Day Order" : dayOrder, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
         } else {
             Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").setValue(nil)
             //removes the dayTracker for today if kasam is set to zero

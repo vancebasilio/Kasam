@@ -93,9 +93,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
         } else {
             NewChallo.kasamName = newKasamTitle.text ?? "Challo Title"
             NewChallo.kasamDescription = newKasamDescription.text ?? "Challo Description"
-            if self.headerImageView?.image != UIImage(named: "image-add-placeholder") {
-                NewChallo.challoImageToSave = self.headerImageView!.image!
-            }
             NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
         }
     }
@@ -128,7 +125,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
         //Header - Image
         self.headerImageView = UIImageView(frame: self.headerView.bounds)
         self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-        self.headerImageView?.image = UIImage(named: "image-add-placeholder")
+        self.headerImageView?.image = PlaceHolders.challoHeaderPlaceholderImage
         self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
         
         headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerLabel: headerLabel)
@@ -168,7 +165,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
             if let value = snapshot.value as? [String: Any] {
                 //load challo information
                 self.newKasamDescription.text! = value["Description"] as? String ?? ""
-                self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: UIImage(named: "placeholder.png"))
+                self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: PlaceHolders.challoLoadingImage)
                 NewChallo.loadedInChalloImage = self.headerImageView.image!
                 NewChallo.loadedInChalloImageURL = URL(string: value["Image"] as? String ?? "")
                 NewChallo.kasamDescription = self.newKasamDescription.text!
@@ -266,8 +263,14 @@ extension NewKasamController: UIImagePickerControllerDelegate, UINavigationContr
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             self.headerImageView?.image = editedImage.withRenderingMode(.alwaysOriginal)
+            if self.headerImageView?.image != PlaceHolders.challoHeaderPlaceholderImage {
+                NewChallo.challoImageToSave = self.headerImageView!.image!
+            }
         } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.headerImageView?.image = originalImage.withRenderingMode(.alwaysOriginal)
+            if self.headerImageView?.image != PlaceHolders.challoHeaderPlaceholderImage {
+                NewChallo.challoImageToSave = self.headerImageView!.image!
+            }
         }
         addAnImageLabel.text = "Change Image"
         dismiss(animated: true, completion: nil)

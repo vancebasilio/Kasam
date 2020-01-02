@@ -15,7 +15,7 @@ class CompletedKasamCell: UITableViewCell {
     @IBOutlet weak var joinedDates: UILabel!
     
     func setBlock(block: UserStatsFormat) {
-        kasamImage.sd_setImage(with: block.imageURL, placeholderImage: UIImage(named: "placeholder.png"))
+        kasamImage.sd_setImage(with: block.imageURL, placeholderImage: PlaceHolders.challoLoadingImage)
         kasamImage.layer.cornerRadius = 8.0
         kasamImage.clipsToBounds = true
         kasamName.text = block.kasamTitle

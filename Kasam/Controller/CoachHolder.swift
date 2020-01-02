@@ -117,7 +117,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
                 
                 //Header - Image
                 let headerURL = URL(string: value["ProfileImage"] as? String ?? "")
-                self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: UIImage(named: "placeholder.png"))
+                self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: PlaceHolders.challoLoadingImage)
             }
         })
     }

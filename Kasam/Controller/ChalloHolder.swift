@@ -159,7 +159,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamType.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = value["Level"] as? String ?? ""
                 let headerURL = URL(string: value["Image"] as? String ?? "")
-                self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: UIImage(named: "placeholder.png"))
+                self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: PlaceHolders.challoLoadingImage)
             }
         })
     }
@@ -178,7 +178,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
                     if let value = snapshot.value as? [String: Any] {
                         let blockID = snapshot.key
                         let blockURL = URL(string: value["Image"] as? String ?? "")
-                        let block = BlockFormat(blockID: blockID, title: value["Title"] as? String ?? "", order: String(dayNumber), duration: value["Duration"] as? String ?? "", imageURL: blockURL ?? self.placeholder() as! URL, image: nil)
+                        let block = BlockFormat(blockID: blockID, title: value["Title"] as? String ?? "", order: String(dayNumber), duration: value["Duration"] as? String ?? "", imageURL: blockURL ?? URL(string:PlaceHolders.challoLoadingImageURL), image: nil)
                         dayNumber += 1
                         self.kasamBlocks.append(block)
                         self.tableView.reloadData()
@@ -307,18 +307,22 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
         kasamType.text = "Personal"
         kasamLevel.text = "Beginner"
         var blockImage = UIImage()
-        if NewChallo.challoImageToSave == UIImage() && NewChallo.loadedInChalloImage != UIImage() {
-            //editing an existing Challo, and user has NOT changed header image, so use existing image
-            headerImageView.image = NewChallo.loadedInChalloImage
-            blockImage = NewChallo.loadedInChalloImage
-        } else if NewChallo.challoImageToSave != UIImage() && NewChallo.loadedInChalloImage == UIImage() {
-            //creating a new Challo, so use chosen image
+        if NewChallo.challoImageToSave != UIImage() && NewChallo.loadedInChalloImage == UIImage() {
+        //CASE 1 - creating a new Challo, and image added
             headerImageView.image = NewChallo.challoImageToSave
             blockImage = NewChallo.challoImageToSave
-        } else {
-            //user is creating new challo, and hasn't uploaded an image
-            headerImageView.image = UIImage(named: "image-add-placeholder")
-            blockImage = UIImage(named: "image-add-placeholder")!
+        } else if NewChallo.challoImageToSave == UIImage() && NewChallo.loadedInChalloImage == UIImage() {
+        //CASE 2 - creating new challo, and hasn't uploaded an image
+           headerImageView.image = PlaceHolders.challoHeaderPlaceholderImage
+           blockImage = PlaceHolders.challoHeaderPlaceholderImage!
+        } else if NewChallo.challoImageToSave != UIImage() && NewChallo.loadedInChalloImage != UIImage() {
+        //CASE 3 - editing existing Challo, and user is using a new image, so save new image
+            headerImageView.image = NewChallo.challoImageToSave
+            blockImage = NewChallo.challoImageToSave
+        } else if NewChallo.challoImageToSave == UIImage() && NewChallo.loadedInChalloImage != UIImage() {
+        //CASE 4 - editing existing Challo, and user has NOT changed header image, so use existing image
+            headerImageView.image = NewChallo.loadedInChalloImage
+            blockImage = NewChallo.loadedInChalloImage
         }
         let ratio = 30 / NewChallo.numberOfBlocks
         for day in 1...ratio {
@@ -371,8 +375,11 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
                 userKasamDB.child(NewChallo.kasamID).removeValue()                  //remove challo from creator's list
                 
                 //delete the pictures from the Challo if it's not the placeholder image
-                if NewChallo.loadedInChalloImage != UIImage(named: "image-add-placeholder") {
-                    if let fileToDelete = NewChallo.loadedInChalloImageURL {self.deleteFileFromURL(from: fileToDelete)}
+                if let headerImageToDelete = NewChallo.loadedInChalloImageURL {self.deleteFileFromURL(from: headerImageToDelete)}
+                for block in 1...NewChallo.fullActivityMatrix.count {
+                    if let activityImageToDelete = NewChallo.fullActivityMatrix[block]?[0]?.imageToLoad {
+                        self.deleteFileFromURL(from: activityImageToDelete)
+                    }
                 }
                 
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "getUserChallos"), object: self)
@@ -383,15 +390,17 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func deleteFileFromURL(from photoURL: URL) {
-        let photoStorageRef = Storage.storage().reference(forURL: photoURL.absoluteString)
-        photoStorageRef.delete(completion: {(error) in
-            if let error = error {
-                print(error)
-            } else {
-                // success
-                print("deleted \(photoURL)")
-            }
-        })
+        if photoURL != URL(string:PlaceHolders.challoHeaderPlaceholderURL) || photoURL != URL(string:PlaceHolders.challoActivityPlaceholderURL) {
+            let photoStorageRef = Storage.storage().reference(forURL: photoURL.absoluteString)
+            photoStorageRef.delete(completion: {(error) in
+                if let error = error {
+                    print(error)
+                } else {
+                    // success
+                    print("deleted \(photoURL)")
+                }
+            })
+        }
     }
     
     func completeCheck(completion:@escaping (Bool) -> ()) {
@@ -410,6 +419,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     
     //STEP 1 - Saves Challo Text Data
     func createChallo(existingKasamID: String?) {
+        print("1. creating challo")
         //all fields filled, so can create the Challo now
         loadingAnimation(animationView: animationView, animation: "rocket-fast", height: 200, overlayView: animationOverlay, loop: true, completion: nil)
         self.view.isUserInteractionEnabled = false
@@ -422,13 +432,16 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
             //CASE 1 - user has uploaded a new image, so save it
             saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)/challo_header", completion: {uploadedImageURL in
                 if uploadedImageURL != nil {
+                    print("case 1")
                     self.registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
                 }
             })
         } else if NewChallo.challoImageToSave == UIImage() {
             //CASE 2 - no image added, so use the default one
-            self.registerKasamData(kasamID: kasamID, imageUrl: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e")
+            print("case 2")
+            self.registerKasamData(kasamID: kasamID, imageUrl: PlaceHolders.challoHeaderPlaceholderURL)
         } else {
+            print("case 3")
             //CASE 3 - user editing a challo and using same challo image, so no need to save image
             let uploadedImageURL = NewChallo.loadedInChalloImageURL?.absoluteString
             registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
@@ -437,6 +450,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     
     //STEP 2 - Save Challo Image
     func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
+        print("2. saving image")
         //Saves Kasam Image in Firebase Storage
         let imageData = image?.jpegData(compressionQuality: 0.6)
         let metaData = StorageMetadata()
@@ -455,6 +469,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     
     //STEP 3 - Register Challo Data in Firebase Database
     func registerKasamData(kasamID: DatabaseReference, imageUrl: String) {
+        print("3. registering challo")
         kasamImageGlobal = imageUrl
         let challoDB = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams").child(kasamID.key!)
         let kasamDictionary = ["Title": NewChallo.kasamName, "Genre": "Personal", "Description": NewChallo.kasamDescription, "Timing": "6:00pm - 7:00pm", "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Type": "User", "Rating": "5", "Blocks": "blocks", "Level":"Beginner", "Metric": NewChallo.chosenMetric]
@@ -486,6 +501,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     
     //STEP 4 - Save block info under Challo
     func saveBlocks(kasamID: DatabaseReference){
+        print("4. saving blocks")
         let newBlockDB = Database.database().reference().child("Coach-Kasams").child(kasamID.key!).child("Blocks")
         print(newBlockDB)
         var successBlockCount = 0
@@ -503,11 +519,16 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
                     let hour = (blockActivity?[0]?.hour ?? 0) * 3600
                     let min = (blockActivity?[0]?.min ?? 0) * 60
                     let sec = (blockActivity?[0]?.sec ?? 0)
+                    increment = 1
                     metric = hour + min + sec
+                }
+                case "Checkmark" : do {
+                    metric = 100
+                    increment = 1
                 }
                 default: metric = 0
             }
-            let defaultActivityImage = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"
+            let defaultActivityImage = PlaceHolders.challoActivityPlaceholderURL
             saveImage(image: (blockActivity?[0]?.imageToSave), location: "kasam/\(kasamID.key!)/activity/activity\(j)") {(savedImageURL) in
                 let activity = ["Description" : blockActivity?[0]?.description ?? "",
                                 "Image" : savedImageURL ?? defaultActivityImage,

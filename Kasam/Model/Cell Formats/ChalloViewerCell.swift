@@ -86,7 +86,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         pickerView.reloadAllComponents()                                    //important so that the pickerview updates to the max metric
         if activity.image == nil {
             if activity.imageURL == "" {
-                animatedImageView.sd_setImage(with: URL(string: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"))
+                animatedImageView.sd_setImage(with: URL(string: PlaceHolders.challoActivityPlaceholderURL))
             } else {
                 animatedImageView.sd_setImage(with: URL(string: activity.imageURL))
             }
@@ -260,7 +260,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         restTitle.text = activity.activityTitle
         restDescription.text = activity.activityDescription
         restDoneButton.layer.cornerRadius = 20.0
-        restImageView.sd_setImage(with: URL(string: "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2FRest_animation.gif?alt=media&token=347b9eca-6d37-40fc-82f3-12483d71e440"))
+        restImageView.sd_setImage(with: URL(string: PlaceHolders.challoActivityRestImageURL))
     }
     
     @IBAction func doneButton(_ sender: UIButton) {

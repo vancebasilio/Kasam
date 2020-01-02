@@ -63,7 +63,7 @@ class StatisticsViewController: UIViewController {
     }
     
     func setupView(){
-        kasamImageView.sd_setImage(with: kasamImage, placeholderImage: UIImage(named: "placeholder.png"))
+        kasamImageView.sd_setImage(with: kasamImage, placeholderImage: PlaceHolders.challoLoadingImage)
         kasamImageView.layer.cornerRadius = kasamImageView.frame.width / 2
         kasamImageView.clipsToBounds = true
         imageWhiteBack.backgroundColor = UIColor.init(hex: 0xFFD062).withAlphaComponent(0.5)

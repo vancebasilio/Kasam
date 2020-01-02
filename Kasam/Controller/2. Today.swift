@@ -126,6 +126,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         if Date() < dateJoined {status = "inactive"}
                         if Date() >= kasamEndDate {status = "completed"}
                     let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamName, joinedDate: dateJoined, endDate: kasamEndDate, startTime: startTime, kasamOrder: kasamOrder, image: nil, metricType: nil, status: status)
+                    print(kasamName, kasamOrder)
                     if status == "active" {
                         kasamOrder += 1
                         SavedData.kasamTodayArray.append(preference)
@@ -169,7 +170,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     //Gets the blockdata after the block is decided on
                     Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: { snapshot in
                         let value = snapshot.value as! Dictionary<String,Any>
-                        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? self.placeholder() as! URL, statusType: "", displayStatus: "Checkmark", dayTrackerArray: nil)
+                        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.challoLoadingImageURL)!, statusType: "", displayStatus: "Checkmark", dayTrackerArray: nil)
                         self.kasamBlocks.append(block)
                         self.kasamBlocks = self.kasamBlocks.sorted(by: {$0.kasamOrder < $1.kasamOrder})
                         SavedData.kasamTodayArray = SavedData.kasamTodayArray.sorted(by: { $0.kasamOrder < $1.kasamOrder })
@@ -263,6 +264,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         if let kasamID = notification.userInfo?["kasamID"] as? String {
             let kasam = SavedData.kasamDict[kasamID]
             let kasamOrder = (SavedData.kasamDict[kasamID]!.kasamOrder)
+            print(kasamOrder)
             //Updates the DayTracker
             self.dayTrackerRefHandle = self.dayTrackerRef.child(kasamID).child(getCurrentDate() ?? "").observe(.value, with: {(snapshot) in
                 let kasamDate = self.stringToDate(date: snapshot.key)
@@ -285,7 +287,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         self.kasamBlocks[kasamOrder].dayTrackerArray?.append(dayOrder)
                     } else {
                         //removes the dayTracker for today if kasam is set to zero
-                        while let index = self.kasamBlocks[kasamOrder].dayTrackerArray?.index(of: dayOrder) {
+                        if let index = self.kasamBlocks[kasamOrder].dayTrackerArray?.index(of: dayOrder) {
                             self.kasamBlocks[kasamOrder].dayTrackerArray!.remove(at: index)
                         }
                     }
@@ -468,7 +470,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         if indexPath.row < motivationBackground.count  {
             cell.backgroundImage.sd_setImage(with: URL(string: motivationBackground[indexPath.row]))
         } else {
-             cell.backgroundImage.image = UIImage(named: "placeholder.png")
+             cell.backgroundImage.image = PlaceHolders.challoLoadingImage
         }
         cell.motivationText.text = motivationArray[indexPath.row].motivationText
         cell.motivationID["motivationID"] = motivationArray[indexPath.row].motivationID
