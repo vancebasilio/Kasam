@@ -395,6 +395,47 @@ extension UIColor {
     convenience init(rgb: Int) {
         self.init(red: (rgb >> 16) & 0xFF, green: (rgb >> 8) & 0xFF, blue: rgb & 0xFF)
     }
+    
+    var isDarkColor: Bool {
+        var r, g, b, a: CGFloat
+        (r, g, b, a) = (0, 0, 0, 0)
+        self.getRed(&r, green: &g, blue: &b, alpha: &a)
+        let lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+        return  lum < 0.50 ? true : false
+    }
+}
+
+extension CGImage {
+    var isDark: Bool {
+        get {
+            guard let imageData = self.dataProvider?.data else { return false }
+            guard let ptr = CFDataGetBytePtr(imageData) else { return false }
+            let length = CFDataGetLength(imageData)
+            let threshold = Int(Double(self.width * self.height) * 0.45)
+            var darkPixels = 0
+            for i in stride(from: 0, to: length, by: 4) {
+                let r = ptr[i]
+                let g = ptr[i + 1]
+                let b = ptr[i + 2]
+                let luminance = (0.299 * Double(r) + 0.587 * Double(g) + 0.114 * Double(b))
+                if luminance < 150 {
+                    darkPixels += 1
+                    if darkPixels > threshold {
+                        return true
+                    }
+                }
+            }
+            return false
+        }
+    }
+}
+
+extension UIImage {
+    var isDark: Bool {
+        get {
+            return self.cgImage?.isDark ?? false
+        }
+    }
 }
 
 extension String {

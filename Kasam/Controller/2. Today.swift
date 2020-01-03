@@ -128,7 +128,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         if Date() < dateJoined {status = "inactive"}
                         if Date() >= kasamEndDate {status = "completed"}
                     let preference = KasamSavedFormat(kasamID: kasamID, kasamName: kasamName, joinedDate: dateJoined, endDate: kasamEndDate, startTime: startTime, kasamOrder: kasamOrder, image: nil, metricType: nil, status: status)
-                    print(kasamName, kasamOrder)
                     if status == "active" {
                         kasamOrder += 1
                         SavedData.kasamTodayArray.append(preference)
@@ -267,7 +266,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         if let kasamID = notification.userInfo?["kasamID"] as? String {
             let kasam = SavedData.kasamDict[kasamID]
             let kasamOrder = (SavedData.kasamDict[kasamID]!.kasamOrder)
-            print(kasamOrder)
             //Updates the DayTracker
             self.dayTrackerRefHandle = self.dayTrackerRef.child(kasamID).child(getCurrentDate() ?? "").observe(.value, with: {(snapshot) in
                 let kasamDate = self.stringToDate(date: snapshot.key)
@@ -352,30 +350,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @objc func editMotivation(_ notification: NSNotification){
         if let motivationID = notification.userInfo?["motivationID"] as? String {
-            let attributes = FormFieldPresetFactory.attributes()
-            changeMotivationPopup(attributes: attributes, style: .light, motivationID: motivationID)
-        }
-    }
-    
-    private func changeMotivationPopup(attributes: EKAttributes, style: FormStyle, motivationID: String) {
-        let titleStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15), color: .standardContent, alignment: .center, displayMode: .light)
-        let title = EKProperty.LabelContent(text: "Add your motivation!", style: titleStyle)
-        let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
-        let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
-            let newMotivation = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
-            if motivationID == "" {
-                newMotivation.childByAutoId().setValue(textFields[0].textContent) { (error, ref) -> Void in
-                    self.getMotivations()
-                }
-            } else if motivationID != "" {
-                newMotivation.child(motivationID).setValue(textFields[0].textContent) { (error, ref) -> Void in
-                    self.getMotivations()
-                }
+            changeMotivationPopup(motivationID: motivationID) { (true) in
+                self.getMotivations()
             }
-            SwiftEntryKit.dismiss()
         }
-        let contentView = EKFormMessageView(with: title, textFieldsContent: textFields, buttonContent: button)
-        SwiftEntryKit.display(entry: contentView, using: attributes)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -481,9 +459,10 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let attributes = FormFieldPresetFactory.attributes()
         let motivationID = motivationArray[indexPath.row].motivationID
-        changeMotivationPopup(attributes: attributes, style: .light, motivationID: motivationID)
+        changeMotivationPopup(motivationID: motivationID) { (true) in
+            self.getMotivations()
+        }
     }
     
     //Skeleton View

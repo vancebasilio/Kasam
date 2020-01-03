@@ -91,6 +91,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
                 animatedImageView.sd_setImage(with: URL(string: activity.imageURL))
             }
         } else {
+            //only activated when creating a Challo and a full image is loaded in directly
             animatedImageView.image = activity.image
         }
         if currentOrder == totalOrder {

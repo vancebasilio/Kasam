@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftEntryKit
+import Firebase
 
     //BOTTOM FLOAT CELL----------------------------------------------------------------------------------------
     func floatCellSelected(title: String, description: String) {
@@ -167,3 +168,25 @@ import SwiftEntryKit
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
+    func changeMotivationPopup(motivationID: String, completion:@escaping (Bool) -> ()) {
+        let style: FormStyle = .light
+        let attributes = FormFieldPresetFactory.attributes()
+        let titleStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15), color: .standardContent, alignment: .center, displayMode: .light)
+        let title = EKProperty.LabelContent(text: "Add your motivation!", style: titleStyle)
+        let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
+        let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
+            let newMotivation = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
+            if motivationID == "" {
+                newMotivation.childByAutoId().setValue(textFields[0].textContent) { (error, ref) -> Void in
+                    completion(true)
+                }
+            } else if motivationID != "" {
+                newMotivation.child(motivationID).setValue(textFields[0].textContent) { (error, ref) -> Void in
+                    completion(true)
+                }
+            }
+            SwiftEntryKit.dismiss()
+        }
+        let contentView = EKFormMessageView(with: title, textFieldsContent: textFields, buttonContent: button)
+        SwiftEntryKit.display(entry: contentView, using: attributes)
+    }

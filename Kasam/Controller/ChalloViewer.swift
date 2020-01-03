@@ -138,7 +138,7 @@ class ChalloActivityViewer: UIViewController {
     }
 }
 
-extension ChalloActivityViewer: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension ChalloActivityViewer: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, KasamViewerCellDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return activityBlocks.count
     }
@@ -191,14 +191,8 @@ extension ChalloActivityViewer: UICollectionViewDelegate, UICollectionViewDataSo
         activityCurrentValue = Int(scrollView.contentOffset.x / scrollView.frame.size.width) + 1
         activityNumber.text = "\(activityCurrentValue)/\(activityBlocks.count)"
     }
-}
-
-extension ChalloActivityViewer: KasamViewerCellDelegate {
-    func dismissViewController() {
-        dismiss(animated: true, completion: nil)
-    }
     
-   func nextItem() {
+    func nextItem() {
         let visibleItems: NSArray = self.collectionView.indexPathsForVisibleItems as NSArray
         let currentItem: IndexPath = visibleItems.object(at: 0) as! IndexPath
         let nextItem: IndexPath = IndexPath(item: currentItem.item + 1, section: 0)
@@ -207,6 +201,10 @@ extension ChalloActivityViewer: KasamViewerCellDelegate {
             activityCurrentValue += 1
             activityNumber.text = "\(activityCurrentValue)/\(activityBlocks.count)"
         }
+    }
+    
+    func dismissViewController() {
+        dismiss(animated: true, completion: nil)
     }
     
     func sendCompletedMatrix(key: Int, value: Double, text: String) {
