@@ -57,6 +57,7 @@
 		BC9EC1D92390DD0400637C94 /* CompletedKasamCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */; };
 		BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06122A9D22E008C5A7D /* AppContainer.swift */; };
 		BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06322A9D2AB008C5A7D /* AppManager.swift */; };
+		BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */ = {isa = PBXBuildFile; fileRef = BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */; };
 		BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */; };
 		BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */; };
 		BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BCC79A05226BD56000B72D65 /* Default-568h@2x.png */; };
@@ -130,6 +131,7 @@
 		BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedKasamCell.swift; sourceTree = "<group>"; };
 		BCA9A06122A9D22E008C5A7D /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		BCA9A06322A9D2AB008C5A7D /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
+		BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fireworks-loading.json"; path = "Kasam/Assets.xcassets/fireworks-loading.json"; sourceTree = SOURCE_ROOT; };
 		BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KasamTrackerCell.swift; sourceTree = "<group>"; };
 		BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
 		BCC79A05226BD56000B72D65 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -309,6 +311,7 @@
 			isa = PBXGroup;
 			children = (
 				BC16A20323292ABD00FDF70C /* loading.json */,
+				BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */,
 				BC2B4C8023A70436005F2255 /* checkmark.json */,
 				BC2B4C7F23A70436005F2255 /* rocket-fast.json */,
 				BC1FAF382269FAFA006A9245 /* Info.plist */,
@@ -397,6 +400,7 @@
 			files = (
 				BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */,
 				BC16A20423292ABD00FDF70C /* loading.json in Resources */,
+				BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */,
 				BC1FAF372269FAFA006A9245 /* LaunchScreen.storyboard in Resources */,
 				BC1092A723A0553400575EDB /* AddKasamController.xib in Resources */,
 				BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */,
@@ -470,6 +474,7 @@
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/lottie-ios/Lottie.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
+				"${BUILT_PRODUCTS_DIR}/youtube-ios-player-helper/youtube_ios_player_helper.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -505,6 +510,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Lottie.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/youtube_ios_player_helper.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

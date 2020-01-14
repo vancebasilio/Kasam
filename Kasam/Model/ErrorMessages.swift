@@ -18,10 +18,7 @@ import Firebase
         attributes.hapticFeedbackType = .success
         attributes.entryBackground = .gradient(gradient: .init(colors: [EKColor(UIColor.colorFour), EKColor(UIColor.colorFive)], startPoint: .zero, endPoint: CGPoint(x: 1, y: 1)))
         attributes.entryInteraction = .delayExit(by: 3)
-        attributes.scroll = .enabled(
-            swipeable: true,
-            pullbackAnimation: .jolt
-        )
+        attributes.scroll = .enabled(swipeable: true, pullbackAnimation: .jolt)
         attributes.statusBar = .dark
         attributes.positionConstraints.maxSize = .init(width: .intrinsic,height: .intrinsic)
         let title = title

@@ -39,7 +39,6 @@ class ChalloActivityViewer: UIViewController {
         super.viewDidLoad()
         getBlockActivities{self.setupMetricMatrix()}
         if reviewOnly == false {
-            
             kasamIDTransfer["kasamID"] = kasamID                    //for the Challo Activity Viewer Cell
         } else {
             viewingOnlyCheck = true

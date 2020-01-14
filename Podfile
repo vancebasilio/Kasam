@@ -15,6 +15,7 @@ pod 'Firebase/Analytics'
 pod 'Fabric'
 pod 'Crashlytics'
 pod 'GoogleSignIn'
+pod ‘youtube-ios-player-helper’
 
 pod 'SVProgressHUD'
 pod 'ChameleonFramework'

@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import SwiftEntryKit
 import Lottie
+import youtube_ios_player_helper
 
 class ChalloHolder: UIViewController, UIScrollViewDelegate {
     
@@ -31,6 +32,8 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var deleteChalloButton: UIButton!
     @IBOutlet weak var createDeleteButtonStackView: UIStackView!
     @IBOutlet weak var challoDeetsStackView: UIStackView!
+    @IBOutlet weak var previewButton: UIButton!
+    @IBOutlet weak var playerView: YTPlayerView!
     
     var headerBlurImageView:UIImageView!
     var headerImageView:UIImageView!
@@ -39,6 +42,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     var chosenRepeat = ""
     var chosenDate : [String:Int] = [:]
     var startDate = ""
+    var previewLink = ""
     var kasamBlocks: [BlockFormat] = []
     var followerCountGlobal = 0
     var kasamID: String = ""            //transfered in values from previous vc
@@ -50,10 +54,10 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     var blockURLGlobal = ""
     var startDay = ""
     var blockIDGlobal = ""
+    let animationView = AnimationView()
     
     //Review Only Variables
     var reviewOnly = false
-    let animationView = AnimationView()
     let animationOverlay = UIView()
     var storageRef = Storage.storage().reference()
     var kasamImageGlobal = ""
@@ -63,6 +67,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
         super.viewDidLoad()
         setupLoad()
         setupTwitterParallax()
+        self.playerView.delegate = self
         if reviewOnly == false {
             getKasamData()
             getBlocksData()
@@ -72,8 +77,9 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func setupLoad(){
-        //setup radius for kasam info block
-        addButton.setImage(UIImage(named:"kasam-add"), for: .normal)
+        previewButton.layer.cornerRadius = 15
+        previewButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.play), iconColor: UIColor.white, postfixText: "  Preview", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 15)
+        
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
         headerLabel.text = kasamGTitle
@@ -82,6 +88,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
             createChalloTitle = "  Update Challo"
         }
         if reviewOnly == true {
+            previewButton.isHidden = true
             challoDeetsStackView.isHidden = true
             createDeleteButtonStackView.isHidden = false
             addButton.isHidden = true
@@ -100,6 +107,13 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
         if reviewOnly == false {
             self.performSegue(withIdentifier: "goToCoach", sender: self)
         }
+    }
+    
+    @IBAction func previewButtonPressed(_ sender: Any) {
+        playerView.load(withVideoId: previewLink)
+        playerView.isHidden = false
+        loadingAnimation(animationView: animationView, animation: "fireworks-loading", height: 200, overlayView: nil, loop: true, completion: nil)
+        self.view.isUserInteractionEnabled = true
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -159,6 +173,10 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamType.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = value["Level"] as? String ?? ""
                 let headerURL = URL(string: value["Image"] as? String ?? "")
+                self.previewLink = value["Preview"] as? String ?? ""
+                if self.previewLink != "" {
+                    self.previewButton.isHidden = false
+                }
                 self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: PlaceHolders.challoLoadingImage)
             }
         })
@@ -274,6 +292,7 @@ class ChalloHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func registeredCheck(){
+        self.addButton.setImage(UIImage(named:"kasam-add"), for: .normal)
         Database.database().reference().child("Coach-Kasams").child(kasamID).child("Followers").observeSingleEvent(of: .value, with: {(snapshot) in
             if SavedData.kasamDict[self.kasamID]?.status == "completed" {
                 //completed
@@ -595,5 +614,13 @@ extension ChalloHolder: UITableViewDataSource, UITableViewDelegate {
         blockIDGlobal = kasamBlocks[indexPath.row].blockID
         performSegue(withIdentifier: "goToChalloActivityViewer", sender: indexPath)
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+extension ChalloHolder: YTPlayerViewDelegate {
+    func playerViewDidBecomeReady(_ playerView: YTPlayerView) {
+        self.playerView.playVideo()
+        animationView.removeFromSuperview()
+        self.view.isUserInteractionEnabled = true
     }
 }

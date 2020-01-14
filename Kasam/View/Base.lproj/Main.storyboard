@@ -2402,19 +2402,41 @@
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yt8-10-PaP" userLabel="Middle">
                                                     <rect key="frame" x="117.5" y="0.0" width="108" height="40"/>
                                                     <subviews>
+                                                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DUs-Em-KrD" customClass="YTPlayerView">
+                                                            <rect key="frame" x="49" y="15" width="10" height="10"/>
+                                                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="height" constant="10" id="DBF-Tr-Poj"/>
+                                                                <constraint firstAttribute="width" constant="10" id="NHZ-0r-esS"/>
+                                                            </constraints>
+                                                        </view>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Kasam Type" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mce-Ds-VRQ" userLabel="Kasam Type">
                                                             <rect key="frame" x="0.0" y="0.0" width="108" height="40"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                                                             <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
+                                                        <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZAy-0a-liT">
+                                                            <rect key="frame" x="0.0" y="5" width="108" height="30"/>
+                                                            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            <state key="normal" title="Preview"/>
+                                                            <connections>
+                                                                <action selector="previewButtonPressed:" destination="uNf-cn-sv8" eventType="touchUpInside" id="uuA-qT-Dbk"/>
+                                                            </connections>
+                                                        </button>
                                                     </subviews>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <constraints>
+                                                        <constraint firstItem="ZAy-0a-liT" firstAttribute="leading" secondItem="Yt8-10-PaP" secondAttribute="leading" id="5FX-2M-NEK"/>
                                                         <constraint firstAttribute="bottom" secondItem="mce-Ds-VRQ" secondAttribute="bottom" id="DEN-pL-QE9"/>
+                                                        <constraint firstAttribute="bottom" secondItem="ZAy-0a-liT" secondAttribute="bottom" constant="5" id="J6j-fw-tLk"/>
+                                                        <constraint firstAttribute="trailing" secondItem="ZAy-0a-liT" secondAttribute="trailing" id="Lvx-Kq-qAl"/>
+                                                        <constraint firstItem="DUs-Em-KrD" firstAttribute="centerY" secondItem="Yt8-10-PaP" secondAttribute="centerY" id="T9u-aI-e92"/>
                                                         <constraint firstItem="mce-Ds-VRQ" firstAttribute="leading" secondItem="Yt8-10-PaP" secondAttribute="leading" id="VLz-4h-GV7"/>
                                                         <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="iPl-xi-dUh"/>
+                                                        <constraint firstItem="DUs-Em-KrD" firstAttribute="centerX" secondItem="Yt8-10-PaP" secondAttribute="centerX" id="jvU-xT-adh"/>
                                                         <constraint firstAttribute="trailing" secondItem="mce-Ds-VRQ" secondAttribute="trailing" id="nj9-pp-mGW"/>
+                                                        <constraint firstItem="ZAy-0a-liT" firstAttribute="top" secondItem="Yt8-10-PaP" secondAttribute="top" constant="5" id="nrn-0m-Rey"/>
                                                         <constraint firstItem="mce-Ds-VRQ" firstAttribute="top" secondItem="Yt8-10-PaP" secondAttribute="top" id="v5w-Yw-XSk"/>
                                                     </constraints>
                                                 </view>
@@ -2444,7 +2466,7 @@
                                                 <constraint firstItem="Xmj-P3-wMM" firstAttribute="width" secondItem="ocJ-Dn-yee" secondAttribute="width" id="Wki-IQ-QT6"/>
                                             </constraints>
                                         </stackView>
-                                        <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Qi7-Nc-j8l" userLabel="Buttons">
+                                        <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Qi7-Nc-j8l" userLabel="Create Buttons">
                                             <rect key="frame" x="16" y="152" width="344" height="40"/>
                                             <subviews>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="95W-29-lnL" userLabel="Create">
@@ -2689,6 +2711,8 @@
                         <outlet property="kasamLevel" destination="zgZ-gJ-xnl" id="7OZ-9x-Oyu"/>
                         <outlet property="kasamTitle" destination="tG3-pf-WZt" id="llg-kb-GhW"/>
                         <outlet property="kasamType" destination="mce-Ds-VRQ" id="aQp-bN-zBR"/>
+                        <outlet property="playerView" destination="DUs-Em-KrD" id="SxQ-vU-dMk"/>
+                        <outlet property="previewButton" destination="ZAy-0a-liT" id="eH1-6N-VPS"/>
                         <outlet property="profileView" destination="npC-MF-4Gr" id="Sap-gh-CRb"/>
                         <outlet property="profileViewRadius" destination="4O6-Yp-80u" id="6pi-ZC-z1V"/>
                         <outlet property="tableView" destination="4FX-UX-MCP" id="3h2-B7-ZZN"/>
