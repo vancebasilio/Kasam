@@ -16,7 +16,7 @@
         <!--App Container-->
         <scene sceneID="ry8-tj-an5">
             <objects>
-                <viewController id="ibm-Jb-yAM" customClass="AppContainer" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="ibm-Jb-yAM" customClass="AppContainer" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="9pn-9j-dPH">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -31,7 +31,7 @@
         <!--Login Screen-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController storyboardIdentifier="LoginViewController" id="BYZ-38-t0r" userLabel="Login Screen" customClass="ViewController" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LoginViewController" id="BYZ-38-t0r" userLabel="Login Screen" customClass="ViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -67,7 +67,7 @@
                                                             <constraint firstAttribute="width" secondItem="Hiw-qv-Kq3" secondAttribute="height" multiplier="67:29" id="jxY-fI-FSV"/>
                                                         </constraints>
                                                     </imageView>
-                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qak-IZ-RJj" customClass="CustomSegmentedControl" customModule="Challo" customModuleProvider="target">
+                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qak-IZ-RJj" customClass="CustomSegmentedControl" customModule="Kasam" customModuleProvider="target">
                                                         <rect key="frame" x="80" y="110.5" width="215" height="40"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -136,7 +136,7 @@
                                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 </collectionViewFlowLayout>
                                                 <cells>
-                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="LoginViewCell" id="cJQ-k2-xDq" customClass="LoginViewCell" customModule="Challo" customModuleProvider="target">
+                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="LoginViewCell" id="cJQ-k2-xDq" customClass="LoginViewCell" customModule="Kasam" customModuleProvider="target">
                                                         <rect key="frame" x="0.0" y="0.0" width="375" height="395"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -261,17 +261,17 @@
                                                             <outlet property="passwordTextfield" destination="MJh-C0-L6v" id="z4E-WY-A4v"/>
                                                         </connections>
                                                     </collectionViewCell>
-                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="RegisterViewCell" id="Ard-jq-0gq" customClass="RegisterViewCell" customModule="Challo" customModuleProvider="target">
+                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="RegisterViewCell" id="Ard-jq-0gq" customClass="RegisterViewCell" customModule="Kasam" customModuleProvider="target">
                                                         <rect key="frame" x="375" y="0.0" width="375" height="251"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
                                                             <rect key="frame" x="0.0" y="0.0" width="375" height="251"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                             <subviews>
-                                                                <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="-3" translatesAutoresizingMaskIntoConstraints="NO" id="Lcu-yT-oxJ">
+                                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="-3" translatesAutoresizingMaskIntoConstraints="NO" id="Lcu-yT-oxJ">
                                                                     <rect key="frame" x="37.5" y="8" width="300" height="144"/>
                                                                     <subviews>
-                                                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mau-Uw-y5c" userLabel="Username">
+                                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mau-Uw-y5c" userLabel="Username">
                                                                             <rect key="frame" x="0.0" y="0.0" width="300" height="50"/>
                                                                             <subviews>
                                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="EmailBox" translatesAutoresizingMaskIntoConstraints="NO" id="Idw-pN-RZ9" userLabel="UserNameBox">
@@ -293,14 +293,14 @@
                                                                                 <constraint firstAttribute="trailing" secondItem="xSv-SN-Mhv" secondAttribute="trailing" id="3MC-km-Jqa"/>
                                                                                 <constraint firstItem="xSv-SN-Mhv" firstAttribute="leading" secondItem="Mau-Uw-y5c" secondAttribute="leading" constant="15" id="4jf-ig-Y9w"/>
                                                                                 <constraint firstAttribute="width" constant="300" id="5yl-Td-nxA"/>
+                                                                                <constraint firstAttribute="height" constant="50" id="Cvj-5Q-hXb"/>
                                                                                 <constraint firstAttribute="bottom" secondItem="xSv-SN-Mhv" secondAttribute="bottom" id="DAE-RP-tBq"/>
                                                                                 <constraint firstItem="xSv-SN-Mhv" firstAttribute="top" secondItem="Mau-Uw-y5c" secondAttribute="top" id="IFe-v4-pyd"/>
                                                                                 <constraint firstItem="Idw-pN-RZ9" firstAttribute="centerX" secondItem="Mau-Uw-y5c" secondAttribute="centerX" id="dh4-PN-iIJ"/>
-                                                                                <constraint firstAttribute="height" constant="50" id="phM-bR-eCi"/>
                                                                                 <constraint firstItem="Idw-pN-RZ9" firstAttribute="centerY" secondItem="Mau-Uw-y5c" secondAttribute="centerY" id="vyk-Z8-6UQ"/>
                                                                             </constraints>
                                                                         </view>
-                                                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UXg-TR-Xd8" userLabel="Email">
+                                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UXg-TR-Xd8" userLabel="Email">
                                                                             <rect key="frame" x="0.0" y="47" width="300" height="50"/>
                                                                             <subviews>
                                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Field" translatesAutoresizingMaskIntoConstraints="NO" id="Zom-jl-z7d" userLabel="EmailBox">
@@ -327,7 +327,7 @@
                                                                                 <constraint firstAttribute="trailing" secondItem="cus-hn-FMu" secondAttribute="trailing" id="nst-FK-9I1"/>
                                                                             </constraints>
                                                                         </view>
-                                                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bO5-Zh-lGd" userLabel="Password">
+                                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bO5-Zh-lGd" userLabel="Password">
                                                                             <rect key="frame" x="0.0" y="94" width="300" height="50"/>
                                                                             <subviews>
                                                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="PasswordBox" translatesAutoresizingMaskIntoConstraints="NO" id="7uX-Ra-bnE">
@@ -355,14 +355,8 @@
                                                                             </constraints>
                                                                         </view>
                                                                     </subviews>
-                                                                    <constraints>
-                                                                        <constraint firstItem="bO5-Zh-lGd" firstAttribute="width" secondItem="Mau-Uw-y5c" secondAttribute="width" id="6rJ-uP-NWa"/>
-                                                                        <constraint firstItem="UXg-TR-Xd8" firstAttribute="height" secondItem="Mau-Uw-y5c" secondAttribute="height" id="X4G-32-BjR"/>
-                                                                        <constraint firstItem="bO5-Zh-lGd" firstAttribute="height" secondItem="Mau-Uw-y5c" secondAttribute="height" id="gDw-Wo-8ME"/>
-                                                                        <constraint firstItem="UXg-TR-Xd8" firstAttribute="width" secondItem="Mau-Uw-y5c" secondAttribute="width" id="gfg-g7-sMK"/>
-                                                                    </constraints>
                                                                 </stackView>
-                                                                <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jzT-rj-wgr">
+                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jzT-rj-wgr">
                                                                     <rect key="frame" x="87.5" y="182" width="200" height="35"/>
                                                                     <color key="backgroundColor" red="0.76470588235294112" green="0.58823529411764708" blue="0.1764705882352941" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <constraints>
@@ -435,7 +429,7 @@
         <!--Statistics View Controller-->
         <scene sceneID="1N5-2F-Iia">
             <objects>
-                <viewController id="CPy-n1-J8i" customClass="StatisticsViewController" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="CPy-n1-J8i" customClass="StatisticsViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="qTZ-BU-bDB">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -584,7 +578,7 @@
                                                             <constraint firstAttribute="height" constant="200" id="1Q2-BQ-Qzi"/>
                                                         </constraints>
                                                         <prototypes>
-                                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="KasamStatsCell" id="vOr-NC-Yh7" customClass="KasamHistoryTableCell" customModule="Challo" customModuleProvider="target">
+                                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="KasamStatsCell" id="vOr-NC-Yh7" customClass="KasamHistoryTableCell" customModule="Kasam" customModuleProvider="target">
                                                                 <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="vOr-NC-Yh7" id="YDH-Vb-zYG">
@@ -617,6 +611,7 @@
                                                                         <constraint firstItem="a28-VI-lsP" firstAttribute="centerY" secondItem="YDH-Vb-zYG" secondAttribute="centerY" id="hSe-Pe-fAr"/>
                                                                         <constraint firstItem="Eox-5f-70s" firstAttribute="centerY" secondItem="YDH-Vb-zYG" secondAttribute="centerY" id="j3t-YM-MbK"/>
                                                                         <constraint firstAttribute="trailing" secondItem="MpE-Xh-Ieq" secondAttribute="trailing" constant="30" id="n4L-aF-7kF"/>
+                                                                        <constraint firstItem="MpE-Xh-Ieq" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Eox-5f-70s" secondAttribute="trailing" constant="5" id="nlv-Mj-Rm8"/>
                                                                         <constraint firstItem="Eox-5f-70s" firstAttribute="leading" secondItem="YDH-Vb-zYG" secondAttribute="leadingMargin" constant="85" id="yPq-gw-DQL"/>
                                                                     </constraints>
                                                                 </tableViewCellContentView>
@@ -726,7 +721,7 @@
         <!--Profile View-->
         <scene sceneID="DqG-5Q-2vd">
             <objects>
-                <viewController storyboardIdentifier="profile" id="Glx-BM-B2u" userLabel="Profile View" customClass="ProfileViewController" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="profile" id="Glx-BM-B2u" userLabel="Profile View" customClass="ProfileViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Rc7-i4-QrQ">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="1200"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -936,7 +931,7 @@
                                                             <inset key="sectionInset" minX="15" minY="0.0" maxX="15" maxY="0.0"/>
                                                         </collectionViewFlowLayout>
                                                         <cells>
-                                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="KasamStatsCell" id="zXJ-6L-vn9" customClass="WeeklyStatsCell" customModule="Challo" customModuleProvider="target">
+                                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="KasamStatsCell" id="zXJ-6L-vn9" customClass="WeeklyStatsCell" customModule="Kasam" customModuleProvider="target">
                                                                 <rect key="frame" x="15" y="0.0" width="353" height="135"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -1315,7 +1310,7 @@
                                                             <inset key="sectionInset" minX="15" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                         </collectionViewFlowLayout>
                                                         <cells>
-                                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="KasamStatsCell" id="cb8-jg-T3a" customClass="KasamFollowingCell" customModule="Challo" customModuleProvider="target">
+                                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="KasamStatsCell" id="cb8-jg-T3a" customClass="KasamFollowingCell" customModule="Kasam" customModuleProvider="target">
                                                                 <rect key="frame" x="15" y="0.0" width="106" height="140"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -1374,7 +1369,7 @@
                                                                 </connections>
                                                             </collectionViewCell>
                                                         </cells>
-                                                        <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="QN7-JY-dEv">
+                                                        <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="profileStatisticsCollectionFooter" id="QN7-JY-dEv">
                                                             <rect key="frame" x="121" y="0.0" width="15" height="140"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </collectionReusableView>
@@ -1402,7 +1397,7 @@
                                                             <inset key="sectionInset" minX="15" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                         </collectionViewFlowLayout>
                                                         <cells>
-                                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="EditKasamCell" id="2ae-eo-dAF" customClass="KasamFollowingCell" customModule="Challo" customModuleProvider="target">
+                                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="EditKasamCell" id="2ae-eo-dAF" customClass="KasamFollowingCell" customModule="Kasam" customModuleProvider="target">
                                                                 <rect key="frame" x="15" y="0.0" width="106" height="140"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -1449,7 +1444,7 @@
                                                                 </connections>
                                                             </collectionViewCell>
                                                         </cells>
-                                                        <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="L2E-iq-DqZ">
+                                                        <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="profileEditKasamCollectionFooter" id="L2E-iq-DqZ">
                                                             <rect key="frame" x="121" y="0.0" width="15" height="140"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </collectionReusableView>
@@ -1490,14 +1485,14 @@
                                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="23"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" estimatedSectionHeaderHeight="-1" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="3Yd-IB-SaK" customClass="SelfSizedTableView" customModule="Challo" customModuleProvider="target">
+                                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" estimatedSectionHeaderHeight="-1" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="3Yd-IB-SaK" customClass="SelfSizedTableView" customModule="Kasam" customModuleProvider="target">
                                                         <rect key="frame" x="15" y="42.5" width="345" height="200"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="200" id="YkL-b3-O57"/>
                                                         </constraints>
                                                         <prototypes>
-                                                            <tableViewCell opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="CompletedKasamCell" rowHeight="90" id="0Qt-VK-q8Y" customClass="CompletedKasamCell" customModule="Challo" customModuleProvider="target">
+                                                            <tableViewCell opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="CompletedKasamCell" rowHeight="90" id="0Qt-VK-q8Y" customClass="CompletedKasamCell" customModule="Kasam" customModuleProvider="target">
                                                                 <rect key="frame" x="0.0" y="28" width="345" height="90"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="0Qt-VK-q8Y" id="fnx-Jp-iNj">
@@ -1738,7 +1733,7 @@
         <!--Discover-->
         <scene sceneID="tzv-VS-ssl">
             <objects>
-                <viewController storyboardIdentifier="Discover" id="1ds-W5-IlG" userLabel="Discover" customClass="DiscoverViewController" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Discover" id="1ds-W5-IlG" userLabel="Discover" customClass="DiscoverViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="uyQ-Kr-07J">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="807"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1771,7 +1766,7 @@
                                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 </collectionViewFlowLayout>
                                                 <cells>
-                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ExpertKasamCell" id="gwR-c7-mhv" customClass="DiscoverCategoryCell" customModule="Challo" customModuleProvider="target">
+                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ExpertKasamCell" id="gwR-c7-mhv" customClass="DiscoverCategoryCell" customModule="Kasam" customModuleProvider="target">
                                                         <rect key="frame" x="0.0" y="0.0" width="350" height="200"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -1907,7 +1902,7 @@
                                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 </collectionViewFlowLayout>
                                                 <cells>
-                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FreeKasamCell" id="vzX-XE-NDF" customClass="DiscoverHorizontalCell" customModule="Challo" customModuleProvider="target">
+                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FreeKasamCell" id="vzX-XE-NDF" customClass="DiscoverHorizontalCell" customModule="Kasam" customModuleProvider="target">
                                                         <rect key="frame" x="15" y="2" width="125" height="196"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -2004,7 +1999,7 @@
                                                             <constraint firstItem="viD-t7-buc" firstAttribute="top" secondItem="vzX-XE-NDF" secondAttribute="top" id="mZc-DD-BIn"/>
                                                         </constraints>
                                                         <userDefinedRuntimeAttributes>
-                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="NO"/>
+                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
                                                         </userDefinedRuntimeAttributes>
                                                         <connections>
                                                             <outlet property="containerView" destination="viD-t7-buc" id="OsQ-ZG-euT"/>
@@ -2018,7 +2013,7 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="15" height="200"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </collectionReusableView>
-                                                <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="V7b-Dc-28J">
+                                                <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="popularDiscoverCollectionFooter" id="V7b-Dc-28J">
                                                     <rect key="frame" x="140" y="0.0" width="15" height="200"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </collectionReusableView>
@@ -2046,7 +2041,7 @@
                                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                                 </collectionViewFlowLayout>
                                                 <cells>
-                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="MyKasamCell" id="ORL-Rc-hWY" customClass="DiscoverHorizontalCell" customModule="Challo" customModuleProvider="target">
+                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="MyKasamCell" id="ORL-Rc-hWY" customClass="DiscoverHorizontalCell" customModule="Kasam" customModuleProvider="target">
                                                         <rect key="frame" x="15" y="2" width="125" height="196"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -2157,7 +2152,7 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="15" height="200"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </collectionReusableView>
-                                                <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="4m0-El-xwg">
+                                                <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="myKasamDiscoverCollectionFooter" id="4m0-El-xwg">
                                                     <rect key="frame" x="140" y="0.0" width="15" height="200"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </collectionReusableView>
@@ -2246,7 +2241,7 @@
         <!--Tab Bar-->
         <scene sceneID="tNA-UH-hy8">
             <objects>
-                <tabBarController storyboardIdentifier="MainViewController" id="0ES-yB-e4E" customClass="TabBar" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="MainViewController" id="0ES-yB-e4E" customClass="TabBar" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
                     <splitViewMasterSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="XHb-6B-ZCa">
@@ -2326,13 +2321,13 @@
         <!--Kasam Holder-->
         <scene sceneID="Xvi-NU-nOy">
             <objects>
-                <viewController storyboardIdentifier="KasamHolder" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uNf-cn-sv8" customClass="KasamHolder" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="KasamHolder" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uNf-cn-sv8" customClass="KasamHolder" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="bzo-M5-nb0">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qWS-Uv-207" userLabel="White BG">
-                                <rect key="frame" x="0.0" y="250" width="375" height="467"/>
+                                <rect key="frame" x="0.0" y="250" width="375" height="418"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NAT-ag-6Y7" userLabel="Header View">
@@ -2377,6 +2372,16 @@
                                             <color key="textColor" red="0.20392156862745098" green="0.16862745098039217" blue="0.27058823529411763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pE2-Br-ecd" userLabel="CompletionCheck">
+                                            <rect key="frame" x="307.5" y="84.5" width="40" height="40"/>
+                                            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="40" id="BHT-ke-RvH"/>
+                                                <constraint firstAttribute="height" constant="40" id="HjV-of-RTZ"/>
+                                            </constraints>
+                                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <state key="normal" title="W"/>
+                                        </button>
                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="gxe-pw-Bhb" userLabel="Kasam Deets">
                                             <rect key="frame" x="16" y="162" width="343" height="40"/>
                                             <subviews>
@@ -2541,7 +2546,7 @@
                                                 <action selector="coachNamePress:" destination="uNf-cn-sv8" eventType="touchUpInside" id="VN8-rw-LG5"/>
                                             </connections>
                                         </button>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="Description" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FBI-cP-gIZ">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="Description" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="FBI-cP-gIZ">
                                             <rect key="frame" x="16" y="91" width="81" height="18"/>
                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                                             <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -2551,6 +2556,7 @@
                                             <rect key="frame" x="300" y="10" width="55" height="59.5"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="55" id="dkL-pq-Ura"/>
+                                                <constraint firstAttribute="height" constant="59.5" id="rwG-bD-iz2"/>
                                             </constraints>
                                             <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <state key="normal" backgroundImage="kasam-add"/>
@@ -2568,12 +2574,12 @@
                                         <constraint firstItem="tG3-pf-WZt" firstAttribute="top" secondItem="npC-MF-4Gr" secondAttribute="top" constant="5" id="07P-re-2ib"/>
                                         <constraint firstItem="YYV-FH-itr" firstAttribute="top" secondItem="gxe-pw-Bhb" secondAttribute="bottom" id="1gc-qG-n2G"/>
                                         <constraint firstItem="FBI-cP-gIZ" firstAttribute="top" secondItem="eLc-TR-mrZ" secondAttribute="bottom" constant="5" id="2FH-xv-UDk"/>
-                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="tG3-pf-WZt" secondAttribute="trailing" constant="100" id="3QE-La-fZ2"/>
+                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="tG3-pf-WZt" secondAttribute="trailing" constant="85" id="3QE-La-fZ2"/>
+                                        <constraint firstItem="pE2-Br-ecd" firstAttribute="top" secondItem="NGs-m8-5jn" secondAttribute="bottom" constant="15" id="4uX-eu-qQO"/>
                                         <constraint firstItem="vMI-CS-vkV" firstAttribute="top" secondItem="npC-MF-4Gr" secondAttribute="top" constant="10" id="6Rv-Gm-irM"/>
                                         <constraint firstItem="eLc-TR-mrZ" firstAttribute="top" secondItem="tG3-pf-WZt" secondAttribute="bottom" constant="5" id="AFC-jl-Jht"/>
                                         <constraint firstItem="gxe-pw-Bhb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="FBI-cP-gIZ" secondAttribute="bottom" constant="5" id="BHT-le-nWO"/>
                                         <constraint firstItem="4O6-Yp-80u" firstAttribute="top" secondItem="npC-MF-4Gr" secondAttribute="top" constant="-16" id="CxG-1I-JkZ"/>
-                                        <constraint firstItem="NGs-m8-5jn" firstAttribute="width" secondItem="NGs-m8-5jn" secondAttribute="height" multiplier="47:51" id="DoW-kb-ehE"/>
                                         <constraint firstItem="YYV-FH-itr" firstAttribute="leading" secondItem="npC-MF-4Gr" secondAttribute="leading" id="Ft0-wg-b79"/>
                                         <constraint firstAttribute="trailing" secondItem="YYV-FH-itr" secondAttribute="trailing" id="GMi-ID-Dzn"/>
                                         <constraint firstItem="vMI-CS-vkV" firstAttribute="height" secondItem="NGs-m8-5jn" secondAttribute="height" id="J5w-ct-a0U"/>
@@ -2581,6 +2587,7 @@
                                         <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="FBI-cP-gIZ" secondAttribute="trailing" constant="16" id="Npm-N7-ddN"/>
                                         <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="eLc-TR-mrZ" secondAttribute="trailing" constant="16" id="PO7-e3-yfC"/>
                                         <constraint firstAttribute="trailing" secondItem="Qi7-Nc-j8l" secondAttribute="trailing" constant="15" id="PvG-QI-zlr"/>
+                                        <constraint firstAttribute="trailing" secondItem="pE2-Br-ecd" secondAttribute="trailing" constant="27.5" id="U3D-7f-dug"/>
                                         <constraint firstItem="FBI-cP-gIZ" firstAttribute="leading" secondItem="npC-MF-4Gr" secondAttribute="leading" constant="16" id="Ylh-rZ-qCe"/>
                                         <constraint firstItem="eLc-TR-mrZ" firstAttribute="leading" secondItem="npC-MF-4Gr" secondAttribute="leading" constant="16" id="ZGi-eW-Dbb"/>
                                         <constraint firstItem="tG3-pf-WZt" firstAttribute="leading" secondItem="npC-MF-4Gr" secondAttribute="leading" constant="16" id="Zkk-nb-21i"/>
@@ -2601,7 +2608,7 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="KasamBlock" rowHeight="90" id="dGZ-Mf-vvW" customClass="BlocksCell" customModule="Challo" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="KasamBlock" rowHeight="90" id="dGZ-Mf-vvW" customClass="BlocksCell" customModule="Kasam" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="248" width="375" height="90"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="dGZ-Mf-vvW" id="1bz-R5-1pz">
@@ -2633,6 +2640,7 @@
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D15-hq-AEX">
                                                     <rect key="frame" x="103" y="34" width="38.5" height="21.5"/>
                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="18"/>
+                                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
@@ -2699,6 +2707,7 @@
                         <outlet property="addButton" destination="NGs-m8-5jn" id="5WS-YJ-eAe"/>
                         <outlet property="addButtonText" destination="vMI-CS-vkV" id="w5i-uk-K6H"/>
                         <outlet property="coachName" destination="eLc-TR-mrZ" id="32J-lc-nfe"/>
+                        <outlet property="completionCheck" destination="pE2-Br-ecd" id="Yuf-rX-6Gq"/>
                         <outlet property="constraintHeightHeaerImages" destination="ESq-24-bW5" id="u4O-b7-c3b"/>
                         <outlet property="createDeleteButtonStackView" destination="Qi7-Nc-j8l" id="iO2-EG-XlC"/>
                         <outlet property="createKasamButton" destination="p1U-af-4ie" id="exl-6W-8Dd"/>
@@ -2708,6 +2717,7 @@
                         <outlet property="headerView" destination="NAT-ag-6Y7" id="nQl-zV-XKj"/>
                         <outlet property="kasamDeetsStackView" destination="gxe-pw-Bhb" id="f0Y-rK-gge"/>
                         <outlet property="kasamDescription" destination="FBI-cP-gIZ" id="sYm-iq-z7Q"/>
+                        <outlet property="kasamDescriptionTrailingMargin" destination="Npm-N7-ddN" id="6Tl-Q0-apl"/>
                         <outlet property="kasamLevel" destination="zgZ-gJ-xnl" id="7OZ-9x-Oyu"/>
                         <outlet property="kasamTitle" destination="tG3-pf-WZt" id="llg-kb-GhW"/>
                         <outlet property="kasamType" destination="mce-Ds-VRQ" id="aQp-bN-zBR"/>
@@ -2727,7 +2737,7 @@
         <!--Today-->
         <scene sceneID="hKK-i0-wv0">
             <objects>
-                <viewController storyboardIdentifier="KasamViewController" id="1JF-97-QwZ" userLabel="Today" customClass="TodayBlocksViewController" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="KasamViewController" id="1JF-97-QwZ" userLabel="Today" customClass="TodayBlocksViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ODe-ER-GSE">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="756"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -2751,7 +2761,7 @@
                                                     <inset key="sectionInset" minX="15" minY="0.0" maxX="15" maxY="0.0"/>
                                                 </collectionViewFlowLayout>
                                                 <cells>
-                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TodayMotivationCell" id="qkT-TN-Dgo" customClass="TodayMotivationCell" customModule="Challo" customModuleProvider="target">
+                                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="TodayMotivationCell" id="qkT-TN-Dgo" customClass="TodayMotivationCell" customModule="Kasam" customModuleProvider="target">
                                                         <rect key="frame" x="15" y="0.0" width="353" height="135"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -2854,14 +2864,14 @@
                                                 <color key="textColor" red="0.1764705882352941" green="0.18431372549019609" blue="0.24705882352941178" alpha="1" colorSpace="calibratedRGB"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" estimatedSectionHeaderHeight="-1" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="MmB-d7-voK" customClass="SelfSizedTableView" customModule="Challo" customModuleProvider="target">
+                                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" estimatedSectionHeaderHeight="-1" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="MmB-d7-voK" customClass="SelfSizedTableView" customModule="Kasam" customModuleProvider="target">
                                                 <rect key="frame" x="15" y="210" width="345" height="393"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="393" id="fLa-xj-Qr0"/>
                                                 </constraints>
                                                 <prototypes>
-                                                    <tableViewCell opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="TodayKasamCell" rowHeight="125" id="zle-RG-RD7" customClass="TodayBlockCell" customModule="Challo" customModuleProvider="target">
+                                                    <tableViewCell opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="TodayKasamCell" rowHeight="125" id="zle-RG-RD7" customClass="TodayBlockCell" customModule="Kasam" customModuleProvider="target">
                                                         <rect key="frame" x="0.0" y="28" width="345" height="125"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="zle-RG-RD7" id="A7h-IQ-fXE">
@@ -3412,7 +3422,7 @@
         <!--Kasam Viewer-->
         <scene sceneID="w7L-mb-F9i">
             <objects>
-                <viewController id="ejW-bE-e0v" userLabel="Kasam Viewer" customClass="KasamActivityViewer" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="ejW-bE-e0v" userLabel="Kasam Viewer" customClass="KasamActivityViewer" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="9HA-Q5-L0t">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -3427,7 +3437,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="KasamViewerCell" id="TKu-Q0-8wu" customClass="KasamViewerCell" customModule="Challo" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="KasamViewerCell" id="TKu-Q0-8wu" customClass="KasamViewerCell" customModule="Kasam" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="-9" width="375" height="665"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -3883,7 +3893,7 @@
         <!--New Kasam Page Controller-->
         <scene sceneID="KtU-1X-zIy">
             <objects>
-                <pageViewController storyboardIdentifier="NewKasamPageController" autoresizesArchivedViewToFullSize="NO" transitionStyle="scroll" navigationOrientation="horizontal" spineLocation="none" id="OZP-fg-bwZ" customClass="NewKasamPageController" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <pageViewController storyboardIdentifier="NewKasamPageController" autoresizesArchivedViewToFullSize="NO" transitionStyle="scroll" navigationOrientation="horizontal" spineLocation="none" id="OZP-fg-bwZ" customClass="NewKasamPageController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <navigationItem key="navigationItem" id="mM6-HN-Mhi"/>
                     <nil key="simulatedBottomBarMetrics"/>
                 </pageViewController>
@@ -3909,13 +3919,13 @@
         <!--Coach Details View-->
         <scene sceneID="mRk-SQ-Hk6">
             <objects>
-                <viewController storyboardIdentifier="CoachHolder" useStoryboardIdentifierAsRestorationIdentifier="YES" id="8Un-c2-rIU" userLabel="Coach Details View" customClass="CoachHolder" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="CoachHolder" useStoryboardIdentifierAsRestorationIdentifier="YES" id="8Un-c2-rIU" userLabel="Coach Details View" customClass="CoachHolder" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="76g-ws-Z6u">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="G3I-ZV-gXq" userLabel="White BG">
-                                <rect key="frame" x="0.0" y="250" width="375" height="467"/>
+                                <rect key="frame" x="0.0" y="250" width="375" height="418"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WUW-Rm-KH0" userLabel="Header View">
@@ -4117,7 +4127,7 @@
                                         <inset key="sectionInset" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
                                     </collectionViewFlowLayout>
                                     <cells>
-                                        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="DiscoverHorizontalCell" id="KF0-RE-Erh" customClass="DiscoverHorizontalCell" customModule="Challo" customModuleProvider="target">
+                                        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="DiscoverHorizontalCell" id="KF0-RE-Erh" customClass="DiscoverHorizontalCell" customModule="Kasam" customModuleProvider="target">
                                             <rect key="frame" x="16" y="25" width="106" height="150"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -4292,7 +4302,7 @@
         <!--New Kasam-->
         <scene sceneID="lF2-bs-D1P">
             <objects>
-                <viewController storyboardIdentifier="NewKasam" useStoryboardIdentifierAsRestorationIdentifier="YES" id="SVf-Au-dIb" userLabel="New Kasam" customClass="NewKasamController" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="NewKasam" useStoryboardIdentifierAsRestorationIdentifier="YES" id="SVf-Au-dIb" userLabel="New Kasam" customClass="NewKasamController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="Arc-sy-CFX">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -4467,7 +4477,7 @@
                                                 <inset key="sectionInset" minX="20" minY="0.0" maxX="0.0" maxY="0.0"/>
                                             </collectionViewFlowLayout>
                                             <cells>
-                                                <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="MetricTypeCell" id="bUY-Os-Tig" userLabel="MetricTypeCell" customClass="MetricTypeCell" customModule="Challo" customModuleProvider="target">
+                                                <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="MetricTypeCell" id="bUY-Os-Tig" userLabel="MetricTypeCell" customClass="MetricTypeCell" customModule="Kasam" customModuleProvider="target">
                                                     <rect key="frame" x="20" y="0.0" width="106" height="140"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -4537,7 +4547,7 @@
                                                     </connections>
                                                 </collectionViewCell>
                                             </cells>
-                                            <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="IWi-AC-ck8">
+                                            <collectionReusableView key="sectionFooterView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="newKasamMetricTypeCollectionFooter" id="IWi-AC-ck8">
                                                 <rect key="frame" x="126" y="0.0" width="20" height="140"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </collectionReusableView>
@@ -4670,7 +4680,7 @@
         <!--New Activity-->
         <scene sceneID="Aae-UP-2nS">
             <objects>
-                <viewController storyboardIdentifier="NewActivity" id="U6q-5a-cbP" customClass="NewActivity" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="NewActivity" id="U6q-5a-cbP" customClass="NewActivity" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="0u7-K8-KOF">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -4685,7 +4695,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="NewActivityCell" id="2nX-9X-bGy" customClass="NewActivityCell" customModule="Challo" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="NewActivityCell" id="2nX-9X-bGy" customClass="NewActivityCell" customModule="Kasam" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="14" width="375" height="619"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -4817,7 +4827,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="375" height="170"/>
                                                                             <subviews>
                                                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xST-dz-BoM" customClass="SkyFloatingLabelTextField" customModule="SkyFloatingLabelTextField">
-                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="68"/>
+                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="54"/>
                                                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
                                                                                     <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
                                                                                     <userDefinedRuntimeAttributes>
@@ -4856,7 +4866,7 @@
                                                                                     </userDefinedRuntimeAttributes>
                                                                                 </textField>
                                                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Af2-Gf-WJf">
-                                                                                    <rect key="frame" x="50" y="73" width="275" height="37.5"/>
+                                                                                    <rect key="frame" x="50" y="59" width="275" height="37.5"/>
                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
@@ -5156,7 +5166,7 @@
         <!--New Block-->
         <scene sceneID="lln-Uh-b0Q">
             <objects>
-                <viewController storyboardIdentifier="NewBlock" useStoryboardIdentifierAsRestorationIdentifier="YES" id="hlf-TU-Mq9" userLabel="New Block" customClass="NewBlockController" customModule="Challo" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="NewBlock" useStoryboardIdentifierAsRestorationIdentifier="YES" id="hlf-TU-Mq9" userLabel="New Block" customClass="NewBlockController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="KvQ-94-64g">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -5186,7 +5196,7 @@
                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Zxi-ya-R7s" userLabel="No of Blocks">
                                             <rect key="frame" x="20" y="116.5" width="335" height="50"/>
                                             <subviews>
-                                                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="1" maxValue="30" translatesAutoresizingMaskIntoConstraints="NO" id="iZj-eW-udb" customClass="CustomUISlider" customModule="Challo" customModuleProvider="target">
+                                                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="1" maxValue="30" translatesAutoresizingMaskIntoConstraints="NO" id="iZj-eW-udb" customClass="CustomUISlider" customModule="Kasam" customModuleProvider="target">
                                                     <rect key="frame" x="-2" y="0.0" width="269" height="51"/>
                                                     <color key="tintColor" red="0.83921568629999999" green="0.68627450980000004" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <userDefinedRuntimeAttributes>
@@ -5295,7 +5305,7 @@
                                     </constraints>
                                 </view>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="NewBlockCell" rowHeight="150" id="wAv-el-cXB" customClass="NewBlockCell" customModule="Challo" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="NewBlockCell" rowHeight="150" id="wAv-el-cXB" customClass="NewBlockCell" customModule="Kasam" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="228" width="375" height="150"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="wAv-el-cXB" id="dUu-OW-nLG">
@@ -6445,9 +6455,9 @@ AAAAz6M
         <image name="today_motivation_background2" width="500" height="333"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="mxq-HQ-QCj"/>
+        <segue reference="1EJ-Rg-BDQ"/>
         <segue reference="wnm-Aa-p59"/>
         <segue reference="bfR-GK-E9V"/>
-        <segue reference="qsA-Lh-7RI"/>
+        <segue reference="HXx-lS-OGQ"/>
     </inferredMetricsTieBreakers>
 </document>

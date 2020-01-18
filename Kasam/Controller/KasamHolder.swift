@@ -21,8 +21,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var addButtonText: UIButton!
     @IBOutlet var kasamTitle : UILabel!
+    @IBOutlet weak var completionCheck: UIButton!
     @IBOutlet weak var coachName: UIButton!
     @IBOutlet weak var kasamDescription: UILabel!
+    @IBOutlet weak var kasamDescriptionTrailingMargin: NSLayoutConstraint!
     @IBOutlet weak var kasamType: UILabel!
     @IBOutlet weak var kasamLevel: UILabel!
     @IBOutlet weak var followersNo: UILabel!
@@ -343,17 +345,20 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         self.addButton.setImage(UIImage(named:"kasam-add"), for: .normal)
         Database.database().reference().child("Coach-Kasams").child(kasamID).child("Followers").observeSingleEvent(of: .value, with: {(snapshot) in
             if SavedData.kasamDict[self.kasamID]?.status == "completed" {
-                //completed
-                self.addButton.tintColor = UIColor.black
-                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.trophy), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
-            }
-            else {
-                if snapshot.hasChild((Auth.auth().currentUser?.uid)!){
-                    //registered
+                //kasam completed in the past
+                self.kasamDescriptionTrailingMargin.constant = 79.5
+                self.completionCheck.isHidden = false
+                self.completionCheck.setIcon(icon: .fontAwesomeSolid(.trophy), iconSize: 18, color: .white, backgroundColor: .darkGray, forState: .normal)
+                self.completionCheck.layer.cornerRadius = self.completionCheck.frame.height / 2
+                self.completionCheck.clipsToBounds = true
+                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.redo), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
+            } else {
+                if snapshot.hasChild((Auth.auth().currentUser?.uid)!) {
+                    //user registered to kasam
                     self.registerCheck = 1
                     self.addButtonText.setIcon(icon: .fontAwesomeSolid(.check), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
                 } else{
-                    //not registered
+                    //user not registered to kasam
                     self.registerCheck = 0
                     self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
                 }

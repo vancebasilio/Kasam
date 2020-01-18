@@ -67,6 +67,7 @@ class WeeklyStatsCell: UICollectionViewCell {
             averageMetric.text = String(cell.avgMetric)
             averageMetricLabel.text = "Avg. \(cell.metricType)"
         } else if cell.metricType == "Checkmark" {
+            
             averageMetric.text = String(cell.avgMetric)
             averageMetricLabel.text = "Avg. %"
         }

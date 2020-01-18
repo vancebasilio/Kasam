@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "BC1FAF282269FAFA006A9245"
-               BuildableName = "Challo.app"
+               BuildableName = "Kasam.app"
                BlueprintName = "Kasam"
                ReferencedContainer = "container:Kasam.xcodeproj">
             </BuildableReference>
@@ -31,7 +31,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BC1FAF282269FAFA006A9245"
-            BuildableName = "Challo.app"
+            BuildableName = "Kasam.app"
             BlueprintName = "Kasam"
             ReferencedContainer = "container:Kasam.xcodeproj">
          </BuildableReference>
@@ -54,7 +54,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BC1FAF282269FAFA006A9245"
-            BuildableName = "Challo.app"
+            BuildableName = "Kasam.app"
             BlueprintName = "Kasam"
             ReferencedContainer = "container:Kasam.xcodeproj">
          </BuildableReference>
@@ -71,7 +71,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BC1FAF282269FAFA006A9245"
-            BuildableName = "Challo.app"
+            BuildableName = "Kasam.app"
             BlueprintName = "Kasam"
             ReferencedContainer = "container:Kasam.xcodeproj">
          </BuildableReference>

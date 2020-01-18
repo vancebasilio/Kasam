@@ -226,7 +226,13 @@ class ProfileViewController: UIViewController {
                     }
                     if checkerCount == 7 {
                         if metricCount != 0 {
-                            avgMetric = (metricMatrix / metricCount)
+                            if kasam.metricType == "Checkmark" {
+                                //divide 100% checkmark completion by number of days in the week past
+                                let daysPast = (Date().dayNumberOfWeek() ?? 8) - 1
+                                avgMetric = (metricMatrix / daysPast)
+                            } else {
+                                avgMetric = (metricMatrix / metricCount)
+                            }
                         }
                         self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
                         self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
