@@ -16,16 +16,24 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var slidingHandle: UIView!
     
     var startDate = ""
+    let calendar = Calendar.current
+    let formatter = DateFormatter()
     var formattedTime: String {
-        let formatter = DateFormatter()
         formatter.timeStyle = .short
         return formatter.string(from: datePicker.date)
     }
     
     var formattedDate: String {
-        let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: datePicker.date)
+    }
+    
+    var hour: Int {
+        return calendar.component(.hour, from: datePicker.date)
+    }
+    
+    var min: Int {
+        return calendar.component(.minute, from: datePicker.date)
     }
     
     override func viewDidLoad() {

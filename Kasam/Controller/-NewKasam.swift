@@ -35,7 +35,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     var headerBlurImageView: UIImageView!
     var headerImageView: UIImageView!
     
-    //edit Challo
+    //edit Kasam
     var kasamDatabase = Database.database().reference().child("Coach-Kasams")
     var kasamDatabaseHandle: DatabaseHandle!
     var kasamBlocksDatabase = Database.database().reference().child("Coach-Kasams")
@@ -50,9 +50,9 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     var transferDurationMetric = [Int:String]()
     var tempBlockNoSelected = 1
     
-    //New Challo Picker Variables
-    var chosenGenre = ""            //removed for personal challos, will include for professional ones
-    var chosenLevel = ""            //removed for personal challos, will include for professional ones
+    //New Kasam Picker Variables
+    var chosenGenre = ""            //removed for personal kasams, will include for professional ones
+    var chosenLevel = ""            //removed for personal kasams, will include for professional ones
     
     //Metrics
     let metricsArray = ["Count", "Completion", "Timer"]
@@ -68,9 +68,9 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     func setupLoad(){
         //setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
-        if NewChallo.editChalloCheck == true {
-            loadChallo()
-            headerLabel.text = "Edit Challo"
+        if NewKasam.editKasamCheck == true {
+            loadKasam()
+            headerLabel.text = "Edit Kasam"
             addAnImageLabel.text = "Change Image"
             createActivitiesLabel.text = "Edit Activities"
         }
@@ -82,17 +82,17 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func createActivitiesButtonPressed(_ sender: Any) {
-        if newKasamTitle.text == "" || newKasamDescription.text == "" || NewChallo.chosenMetric == "" {
+        if newKasamTitle.text == "" || newKasamDescription.text == "" || NewKasam.chosenMetric == "" {
             //there are missing fields that need to be filled
             var missingFields: [String] = []
             if newKasamTitle.text == "" {missingFields.append("Title")}
             if newKasamDescription.text == "" {missingFields.append("Description")}
-            if NewChallo.chosenMetric == "" {missingFields.append("Tracking Metric")}
-            let description = "Please fill out the Challo \(missingFields.sentence)"
+            if NewKasam.chosenMetric == "" {missingFields.append("Tracking Metric")}
+            let description = "Please fill out the Kasam \(missingFields.sentence)"
             floatCellSelected(title: "Missing Fields", description: description)
         } else {
-            NewChallo.kasamName = newKasamTitle.text ?? "Challo Title"
-            NewChallo.kasamDescription = newKasamDescription.text ?? "Challo Description"
+            NewKasam.kasamName = newKasamTitle.text ?? "Kasam Title"
+            NewKasam.kasamDescription = newKasamDescription.text ?? "Kasam Description"
             NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
         }
     }
@@ -125,7 +125,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
         //Header - Image
         self.headerImageView = UIImageView(frame: self.headerView.bounds)
         self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-        self.headerImageView?.image = PlaceHolders.challoHeaderPlaceholderImage
+        self.headerImageView?.image = PlaceHolders.kasamHeaderPlaceholderImage
         self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
         
         headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerLabel: headerLabel)
@@ -157,22 +157,22 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     //------------------------------------------------------------------------------------------------------------------------------------------
     
     //Retrieves Kasam Data using Kasam ID selected
-    func loadChallo(){
-        newKasamTitle.text = NewChallo.kasamName
-        kasamDatabase = Database.database().reference().child("Coach-Kasams").child(NewChallo.kasamID)
+    func loadKasam(){
+        newKasamTitle.text = NewKasam.kasamName
+        kasamDatabase = Database.database().reference().child("Coach-Kasams").child(NewKasam.kasamID)
         kasamDatabaseHandle = kasamDatabase.observe(.value, with: {(snapshot) in
-            //STEP 1 - Load Challo information
+            //STEP 1 - Load Kasam information
             if let value = snapshot.value as? [String: Any] {
-                //load challo information
+                //load kasam information
                 self.newKasamDescription.text! = value["Description"] as? String ?? ""
-                self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: PlaceHolders.challoLoadingImage)
-                NewChallo.loadedInChalloImage = self.headerImageView.image!
-                NewChallo.loadedInChalloImageURL = URL(string: value["Image"] as? String ?? "")
-                NewChallo.kasamDescription = self.newKasamDescription.text!
+                self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: PlaceHolders.kasamLoadingImage)
+                NewKasam.loadedInKasamImage = self.headerImageView.image!
+                NewKasam.loadedInKasamImageURL = URL(string: value["Image"] as? String ?? "")
+                NewKasam.kasamDescription = self.newKasamDescription.text!
                 
                 //selects the metric type from the collectionview
-                NewChallo.chosenMetric = value["Metric"] as? String ?? ""
-                if let index = self.chosenMetricOptions.index(of: NewChallo.chosenMetric) {
+                NewKasam.chosenMetric = value["Metric"] as? String ?? ""
+                if let index = self.chosenMetricOptions.index(of: NewKasam.chosenMetric) {
                     self.metricTypeCollection.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [.centeredHorizontally])
                     self.collectionView(self.metricTypeCollection, didSelectItemAt : IndexPath(item: index, section: 0))
                 }
@@ -197,13 +197,13 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
                     self.transferDurationMetric[blockNo] = self.blockDuration[blockNo]?.split(separator: " ").last.map(String.init)
                     
                     //load the blockdata into the viewcontroller so the user can see it
-                    NewChallo.challoTransferArray[blockNo] = NewChalloLoadFormat(blockTitle: self.transferTitle[blockNo] ?? "Block Title", duration: Int(self.transferDuration[blockNo]!)!, durationMetric: self.transferDurationMetric[blockNo] ?? "secs", complete: true)
+                    NewKasam.kasamTransferArray[blockNo] = NewKasamLoadFormat(blockTitle: self.transferTitle[blockNo] ?? "Block Title", duration: Int(self.transferDuration[blockNo]!)!, durationMetric: self.transferDurationMetric[blockNo] ?? "secs", complete: true)
                     self.loadActivities(blockNo: blockNo, blockID: blockID)
                     
-                    //All the Challo data is downloaded, so display it
-                    if NewChallo.challoTransferArray.count == self.numberOfBlocks {
-                        NewChallo.dataLoadCheck = true
-                        self.kasamDatabase.child(NewChallo.kasamID).removeObserver(withHandle: self.kasamDatabaseHandle)
+                    //All the Kasam data is downloaded, so display it
+                    if NewKasam.kasamTransferArray.count == self.numberOfBlocks {
+                        NewKasam.dataLoadCheck = true
+                        self.kasamDatabase.child(NewKasam.kasamID).removeObserver(withHandle: self.kasamDatabaseHandle)
                     }
                 })
             }
@@ -221,18 +221,18 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
             var mins = 0
             var secs = 0
             //if the chosenMetric is Reps
-            if NewChallo.chosenMetric == self.chosenMetricOptions[0] {
+            if NewKasam.chosenMetric == self.chosenMetricOptions[0] {
                 reps = Int(value["Metric"] as! String) ?? 0
                 interval = Int(value["Interval"] as! String) ?? 1
             //if the chosenMetric is Timer
-            } else if NewChallo.chosenMetric == self.chosenMetricOptions[1] {
+            } else if NewKasam.chosenMetric == self.chosenMetricOptions[1] {
                 let totalTime = Int(value["Metric"] as! String)
                 hours = (totalTime?.convertIntTimeToSplitInt(fullIntTime: totalTime ?? 0).hours)!
                 mins = (totalTime?.convertIntTimeToSplitInt(fullIntTime: totalTime ?? 0).mins)!
                 secs = (totalTime?.convertIntTimeToSplitInt(fullIntTime: totalTime ?? 0).secs)!
             }
             let activity = [0: newActivityFormat(title: value["Title"] as? String, description: value["Description"] as? String, imageToLoad: URL(string:value["Image"] as! String), imageToSave: nil, reps: reps, interval: interval, hour: hours, min: mins, sec: secs)]
-            NewChallo.fullActivityMatrix[blockNo] = activity
+            NewKasam.fullActivityMatrix[blockNo] = activity
             }
             self.kasamBlocksDatabase.removeObserver(withHandle: self.kasamBlocksDatabaseHandle)
         }
@@ -263,13 +263,13 @@ extension NewKasamController: UIImagePickerControllerDelegate, UINavigationContr
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             self.headerImageView?.image = editedImage.withRenderingMode(.alwaysOriginal)
-            if self.headerImageView?.image != PlaceHolders.challoHeaderPlaceholderImage {
-                NewChallo.challoImageToSave = self.headerImageView!.image!
+            if self.headerImageView?.image != PlaceHolders.kasamHeaderPlaceholderImage {
+                NewKasam.kasamImageToSave = self.headerImageView!.image!
             }
         } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.headerImageView?.image = originalImage.withRenderingMode(.alwaysOriginal)
-            if self.headerImageView?.image != PlaceHolders.challoHeaderPlaceholderImage {
-                NewChallo.challoImageToSave = self.headerImageView!.image!
+            if self.headerImageView?.image != PlaceHolders.kasamHeaderPlaceholderImage {
+                NewKasam.kasamImageToSave = self.headerImageView!.image!
             }
         }
         addAnImageLabel.text = "Change Image"
@@ -308,10 +308,10 @@ extension NewKasamController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? MetricTypeCell {
             switch indexPath.row {
-                case 0: NewChallo.chosenMetric = chosenMetricOptions[0]
-                case 1: NewChallo.chosenMetric = chosenMetricOptions[1]
-                case 2: NewChallo.chosenMetric = chosenMetricOptions[2]
-                default: NewChallo.chosenMetric = chosenMetricOptions[0]
+                case 0: NewKasam.chosenMetric = chosenMetricOptions[0]
+                case 1: NewKasam.chosenMetric = chosenMetricOptions[1]
+                case 2: NewKasam.chosenMetric = chosenMetricOptions[2]
+                default: NewKasam.chosenMetric = chosenMetricOptions[0]
             }
             cell.metricTypeBG.backgroundColor = UIColor.init(hex: 0x9DC78D)
             cell.metricBGOutline.isHidden = false

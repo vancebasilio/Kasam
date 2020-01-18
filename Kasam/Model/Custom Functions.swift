@@ -95,7 +95,7 @@ extension UIViewController {
     }
     
     func setupNavBar(){
-        let logo = UIImage(named: "Challo-logo")
+        let logo = UIImage(named: "Kasam-logo")
         let imageView = UIImageView(image:logo)
         imageView.contentMode = .scaleAspectFit
         self.navigationItem.titleView = imageView

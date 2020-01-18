@@ -25,7 +25,7 @@ class NewActivity: UIViewController, UIImagePickerControllerDelegate, UINavigati
     override func viewDidLoad() {
         super.viewDidLoad()
         setupButtons()
-        pastEntry = NewChallo.fullActivityMatrix[blockNoSelected]           //if there's a past entry, it'll load it in
+        pastEntry = NewKasam.fullActivityMatrix[blockNoSelected]           //if there's a past entry, it'll load it in
         
         if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.scrollDirection = .horizontal
@@ -112,15 +112,15 @@ extension NewActivity: UICollectionViewDelegate, UICollectionViewDataSource, UIC
             currentSessionImage = entryTransfer?.imageToSave
         }
         cell.setKasamViewer(title: entryTransfer?.title, description: entryTransfer?.description, imageToLoad: entryTransfer?.imageToLoad, newImagePicked: currentSessionImage)
-        if NewChallo.chosenMetric == "Reps" {
+        if NewKasam.chosenMetric == "Reps" {
             cell.setupPicker(reps: entryTransfer?.reps, interval: entryTransfer?.interval)
-        } else if NewChallo.chosenMetric == "Timer" {
+        } else if NewKasam.chosenMetric == "Timer" {
             print("timer")
             cell.setupTimer(hour: entryTransfer?.hour, min: entryTransfer?.min, sec: entryTransfer?.sec)
-        } else if NewChallo.chosenMetric == "Checkmark" {
+        } else if NewKasam.chosenMetric == "Checkmark" {
             print("checkmark")
             cell.setupCheckmark()
-        } else if NewChallo.chosenMetric == "Rest" {
+        } else if NewKasam.chosenMetric == "Rest" {
             cell.setupRest()
         }
         return cell

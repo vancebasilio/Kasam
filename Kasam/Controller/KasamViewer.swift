@@ -10,7 +10,7 @@ import UIKit
 import Firebase
 import SwiftIcons
 
-class ChalloActivityViewer: UIViewController {
+class KasamActivityViewer: UIViewController {
     
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var activityNumber: UILabel!
@@ -39,7 +39,7 @@ class ChalloActivityViewer: UIViewController {
         super.viewDidLoad()
         getBlockActivities{self.setupMetricMatrix()}
         if reviewOnly == false {
-            kasamIDTransfer["kasamID"] = kasamID                    //for the Challo Activity Viewer Cell
+            kasamIDTransfer["kasamID"] = kasamID                    //for the Kasam Activity Viewer Cell
         } else {
             viewingOnlyCheck = true
         }
@@ -52,7 +52,7 @@ class ChalloActivityViewer: UIViewController {
     @IBAction func closeButton(_ sender: UIButton) {
         if viewingOnlyCheck == false {
             NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
         }
@@ -104,8 +104,8 @@ class ChalloActivityViewer: UIViewController {
         } else {
             count += 1
             let blockNo = Int(blockID) ?? 1
-            let blockActivity = NewChallo.fullActivityMatrix[blockNo]
-            let activity = KasamActivityCellFormat(kasamID: "", blockID: "", title: blockActivity?[0]?.title ?? "Activity Title", description: blockActivity?[0]?.description ?? "Activity Description", totalMetric: String(describing: blockActivity?[0]?.reps), increment: String(describing: blockActivity?[0]?.interval), currentMetric: "", imageURL: "", image: blockActivity?[0]?.imageToSave, type: NewChallo.chosenMetric, currentOrder: 0, totalOrder: 0, currentText: "")
+            let blockActivity = NewKasam.fullActivityMatrix[blockNo]
+            let activity = KasamActivityCellFormat(kasamID: "", blockID: "", title: blockActivity?[0]?.title ?? "Activity Title", description: blockActivity?[0]?.description ?? "Activity Description", totalMetric: String(describing: blockActivity?[0]?.reps), increment: String(describing: blockActivity?[0]?.interval), currentMetric: "", imageURL: "", image: blockActivity?[0]?.imageToSave, type: NewKasam.chosenMetric, currentOrder: 0, totalOrder: 0, currentText: "")
             self.activityBlocks.append(activity)
             self.collectionView.reloadData()
             if self.activityBlocks.count == count {
@@ -137,7 +137,7 @@ class ChalloActivityViewer: UIViewController {
     }
 }
 
-extension ChalloActivityViewer: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, KasamViewerCellDelegate {
+extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, KasamViewerCellDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return activityBlocks.count
     }

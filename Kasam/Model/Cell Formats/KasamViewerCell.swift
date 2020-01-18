@@ -86,12 +86,12 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         pickerView.reloadAllComponents()                                    //important so that the pickerview updates to the max metric
         if activity.image == nil {
             if activity.imageURL == "" {
-                animatedImageView.sd_setImage(with: URL(string: PlaceHolders.challoActivityPlaceholderURL))
+                animatedImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityPlaceholderURL))
             } else {
                 animatedImageView.sd_setImage(with: URL(string: activity.imageURL))
             }
         } else {
-            //only activated when creating a Challo and a full image is loaded in directly
+            //only activated when creating a Kasam and a full image is loaded in directly
             animatedImageView.image = activity.image
         }
         if currentOrder == totalOrder {
@@ -261,14 +261,14 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         restTitle.text = activity.activityTitle
         restDescription.text = activity.activityDescription
         restDoneButton.layer.cornerRadius = 20.0
-        restImageView.sd_setImage(with: URL(string: PlaceHolders.challoActivityRestImageURL))
+        restImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityRestImageURL))
     }
     
     @IBAction func doneButton(_ sender: UIButton) {
         if currentOrder == totalOrder {
             if viewOnlyCheck == false {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
             }
             delegate?.dismissViewController()
@@ -285,7 +285,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
             delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime), text: textField.text ?? "")
         }
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
     }
     
@@ -293,7 +293,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         if timerOrCountdown == "Checkmark" {
             delegate?.sendCompletedMatrix(key: currentOrder, value: 0.0, text: textField.text ?? "")
             NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
             delegate?.dismissViewController()
             

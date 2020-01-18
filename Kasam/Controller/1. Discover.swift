@@ -42,8 +42,8 @@ class DiscoverViewController: UIViewController {
         getExpertKasams()
         setupNavBar()
         self.view.showAnimatedSkeleton()
-        let getUserChallos = NSNotification.Name("GetUserChallos")
-        NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.getUserKasams), name: getUserChallos, object: nil)
+        let getUserKasams = NSNotification.Name("GetUserKasams")
+        NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.getUserKasams), name: getUserKasams, object: nil)
         DispatchQueue.main.async {
             self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
         }
@@ -110,7 +110,7 @@ class DiscoverViewController: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToKasam" {
-            let kasamTransferHolder = segue.destination as! ChalloHolder
+            let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDGlobal
         }
     }
@@ -124,7 +124,7 @@ class DiscoverViewController: UIViewController {
                 self.userCreator.child(creatorID).child("Name").observeSingleEvent(of: .value, with: {(snap) in
                     let creatorName = snap.value as! String
                     let imageURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.challoLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "")
+                    let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "")
                     self.expertKasamArray.append(kasam)
                     self.categoryCollection.reloadData()
                     self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
@@ -139,7 +139,7 @@ class DiscoverViewController: UIViewController {
         freeKasamDBHandle = kasamDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Free").observe(.childAdded) { (snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let imageURL = URL(string: value["Image"] as? String ?? "")
-                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.challoLoadingImageURL)!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
                 self.freeKasamArray.append(categoryBlock)
                 self.discoverCollection.reloadData()
             }
@@ -153,7 +153,7 @@ class DiscoverViewController: UIViewController {
             Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: { (snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let imageURL = URL(string: value["Image"] as? String ?? "")
-                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.challoLoadingImageURL)!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
                 self.myKasamArray.append(categoryBlock)
                 self.myKasamCollection.reloadData()
                 }
@@ -207,7 +207,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
                 return cell
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MyKasamCell", for: indexPath) as! DiscoverHorizontalCell
-                cell.kasamTitle.text = "Create a Challo"
+                cell.kasamTitle.text = "Create a Kasam"
                 cell.topImage.image = UIImage(named: "placeholder-add-kasam")!
                 cell.kasamRating.rating = 5.0
                 cell.topImage.layer.cornerRadius = 8.0

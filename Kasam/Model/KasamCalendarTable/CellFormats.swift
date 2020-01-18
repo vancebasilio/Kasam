@@ -121,7 +121,7 @@ class TodayBlockFormat {
     }
 }
 
-class NewChalloLoadFormat{
+class NewKasamLoadFormat{
     var blockTitle: String
     var duration: Int
     var durationMetric: String
@@ -317,7 +317,7 @@ class UserStatsFormat {
     }
 }
 
-class EditMyChalloFormat {
+class EditMyKasamFormat {
     var kasamID: String
     var kasamTitle: String
     var imageURL: URL

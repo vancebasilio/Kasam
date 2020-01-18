@@ -15,49 +15,49 @@ struct SavedData {
     static var kasamDict: [String:KasamSavedFormat] = [:]               //kasamDict is used to update kasams when progress is made
     static var dayTrackerDict: [String: [Int:String]] = [:]
 
-    static func addChallo(challo: KasamSavedFormat) {
-        self.kasamArray.append(challo)
-        self.kasamDict[challo.kasamID] = challo
+    static func addKasam(kasam: KasamSavedFormat) {
+        self.kasamArray.append(kasam)
+        self.kasamDict[kasam.kasamID] = kasam
     }
 }
 
-struct NewChallo {
-    static var editChalloCheck = false
+struct NewKasam {
+    static var editKasamCheck = false
     static var kasamID = ""
     static var kasamName = ""
     static var kasamDescription = ""
     static var chosenMetric = ""
-    static var loadedInChalloImage = UIImage()
-    static var loadedInChalloImageURL = URL(string: "")
-    static var challoImageToSave = UIImage()
+    static var loadedInKasamImage = UIImage()
+    static var loadedInKasamImageURL = URL(string: "")
+    static var kasamImageToSave = UIImage()
     static var dataLoadCheck = false
     static var numberOfBlocks = 1
-    static var challoTransferArray = [Int:NewChalloLoadFormat]()
+    static var kasamTransferArray = [Int:NewKasamLoadFormat]()
     static var fullActivityMatrix = [Int: [Int: newActivityFormat]]()
     
-    static func resetChallo(){
-        self.editChalloCheck = false
+    static func resetKasam(){
+        self.editKasamCheck = false
         self.kasamID = ""
         self.kasamName = ""
         self.kasamDescription = ""
         self.chosenMetric = ""
-        self.loadedInChalloImage = UIImage()
-        self.loadedInChalloImageURL = URL(string: "")
-        self.challoImageToSave = UIImage()
+        self.loadedInKasamImage = UIImage()
+        self.loadedInKasamImageURL = URL(string: "")
+        self.kasamImageToSave = UIImage()
         self.dataLoadCheck = false
         self.numberOfBlocks = 1
-        self.challoTransferArray.removeAll()
+        self.kasamTransferArray.removeAll()
         self.fullActivityMatrix.removeAll()
     }
 }
 
 struct PlaceHolders {
-    static var challoHeaderPlaceholderImage = UIImage(named: "image-add-placeholder")
-    static var challoHeaderPlaceholderURL =  "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e"
-    static var challoActivityPlaceholderURL = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"
+    static var kasamHeaderPlaceholderImage = UIImage(named: "image-add-placeholder")
+    static var kasamHeaderPlaceholderURL =  "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e"
+    static var kasamActivityPlaceholderURL = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"
     
-    static var challoLoadingImageURL = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fplaceholder.jpg?alt=media&token=580f119e-b022-4782-9bfd-0464a5b55c7e"
-    static var challoLoadingImage = UIImage(named: "placeholder.png")
+    static var kasamLoadingImageURL = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fplaceholder.jpg?alt=media&token=580f119e-b022-4782-9bfd-0464a5b55c7e"
+    static var kasamLoadingImage = UIImage(named: "placeholder.png")
     
-    static var challoActivityRestImageURL = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2FRest_animation.gif?alt=media&token=347b9eca-6d37-40fc-82f3-12483d71e440"
+    static var kasamActivityRestImageURL = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2FRest_animation.gif?alt=media&token=347b9eca-6d37-40fc-82f3-12483d71e440"
 }

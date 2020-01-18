@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>1056043309290-v3dadb40ga1lgqbkfcn2ukndt1r79c17.apps.googleusercontent.com</string>
+	<string>1056043309290-ga3hchu4hsr3mkiaenvlheqrhn3sema5.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.1056043309290-v3dadb40ga1lgqbkfcn2ukndt1r79c17</string>
+	<string>com.googleusercontent.apps.1056043309290-ga3hchu4hsr3mkiaenvlheqrhn3sema5</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDEYTBiJ25vZwpuc8qlKbeH2V3gTfIE3sc</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.vancebasilio.Challo</string>
+	<string>com.vancebasilio.Kasam</string>
 	<key>PROJECT_ID</key>
 	<string>kasam-coach</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +29,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1056043309290:ios:65e5b1669abceb22509f93</string>
+	<string>1:1056043309290:ios:dbe9bb2f16a11286509f93</string>
 	<key>DATABASE_URL</key>
 	<string>https://kasam-coach.firebaseio.com</string>
 </dict>

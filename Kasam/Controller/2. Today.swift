@@ -51,6 +51,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         getMotivationBackgrounds()
         getMotivations()
         setupNotifications()
+        printLocalNotifications()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -69,6 +70,20 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         
         let editMotivation = NSNotification.Name("EditMotivation")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.editMotivation), name: editMotivation, object: nil)
+    }
+    
+    func printLocalNotifications(){
+        let center = UNUserNotificationCenter.current()
+        
+//        center.removeAllDeliveredNotifications() // To remove all delivered notifications
+//        center.removeAllPendingNotificationRequests()
+        
+        center.getPendingNotificationRequests { (notifications) in
+            print("Count: \(notifications.count)")
+            for item in notifications {
+                print(item.content.title, item.content.body, item.content)
+            }
+        }
     }
     
     //Table Resizing----------------------------------------------------------------------------------------
@@ -134,12 +149,12 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     } else {
                         count -= 1
                     }
-                    SavedData.addChallo(challo: preference)                   //adds all challos that the user is following
+                    SavedData.addKasam(kasam: preference)                   //adds all kasams that the user is following
                     if SavedData.kasamTodayArray.count == count {
                         self.retrieveKasams()
                         self.getDayTracker()
                         //update the user profile page
-                        NotificationCenter.default.post(name: Notification.Name(rawValue: "ChalloStatsUpdate"), object: self)
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                         self.kasamFollowingRef.removeObserver(withHandle: self.kasamFollowingRefHandle)
                     }
                 }
@@ -171,7 +186,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     //Gets the blockdata after the block is decided on
                     Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: { snapshot in
                         let value = snapshot.value as! Dictionary<String,Any>
-                        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.challoLoadingImageURL)!, statusType: "", displayStatus: "Checkmark", dayTrackerArray: nil)
+                        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", kasamName: kasam.kasamName, title: value["Title"] as! String, dayOrder: String(dayOrder), duration: value["Duration"] as! String, image: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, statusType: "", displayStatus: "Checkmark", dayTrackerArray: nil)
                         self.kasamBlocks.append(block)
                         self.kasamBlocks = self.kasamBlocks.sorted(by: {$0.kasamOrder < $1.kasamOrder})
                         SavedData.kasamTodayArray = SavedData.kasamTodayArray.sorted(by: { $0.kasamOrder < $1.kasamOrder })
@@ -188,7 +203,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func getDayTracker() {
-        //for the active Challos on the Today page
+        //for the active Kasams on the Today page
         for kasam in SavedData.kasamTodayArray {
             let kasamOrder = kasam.kasamOrder
             let dayTrackerKasamRef = self.dayTrackerRef.child(kasam.kasamID)
@@ -204,7 +219,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         let kasamDate = self.stringToDate(date: snap.key)
                         if kasamDate >= kasam.joinedDate {
                             let order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                            self.dayTrackerDateArray[order] = snap.key          //to save the Challo date and order
+                            self.dayTrackerDateArray[order] = snap.key          //to save the Kasam date and order
                             //dayTrackerDateArray is correct
                             SavedData.dayTrackerDict[kasam.kasamID] = self.dayTrackerDateArray      //saves the progress for detailed stats
                             dayTrackerArrayInternal.append(order)               //places the gold dots on the right day in the today block tracker
@@ -217,9 +232,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                             let dictionary = snap.value as! Dictionary<String,Any>
                             let value = dictionary["Metric Percent"] as! Double
                             if value >= 1 {
-                                displayStatus = "Check"            //Challo has been completed today
+                                displayStatus = "Check"            //Kasam has been completed today
                             } else {
-                                displayStatus = "Progress"         //Challo has been started, but not completed
+                                displayStatus = "Progress"         //Kasam has been started, but not completed
                         }
                     }
                     if dayTrackerArrayInternal.count == dayCount && dayCount > 0 && kasamOrder < self.kasamBlocks.count {
@@ -277,10 +292,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     if let value = snap.value as? Double {
                         if value >= 1 {
                             displayStatus = "Check"        //Kasam has been completed today
-                            Analytics.logEvent("completed_Challo", parameters: nil)
+                            Analytics.logEvent("completed_Kasam", parameters: nil)
                         } else if value < 1 {
                             displayStatus = "Progress"     //kasam has been started, but not completed
-                            Analytics.logEvent("working_Challo", parameters: ["metric_percent": value.rounded(toPlaces: 2)])
+                            Analytics.logEvent("working_Kasam", parameters: ["metric_percent": value.rounded(toPlaces: 2)])
                         }
                     }
                     if snapshot.exists() {
@@ -357,8 +372,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToChalloActivityViewer" {
-            let kasamActivityHolder = segue.destination as! ChalloActivityViewer
+        if segue.identifier == "goToKasamActivityViewer" {
+            let kasamActivityHolder = segue.destination as! KasamActivityViewer
             kasamActivityHolder.kasamID = kasamIDGlobal
             kasamActivityHolder.blockID = blockIDGlobal
             kasamActivityHolder.dayOrder = dayOrderGlobal
@@ -401,7 +416,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
             kasamIDGlobal = kasamBlocks[indexPath.row].kasamID
             blockIDGlobal = kasamBlocks[indexPath.row].blockID
             dayOrderGlobal = kasamBlocks[indexPath.row].dayOrder
-            performSegue(withIdentifier: "goToChalloActivityViewer", sender: indexPath)
+            performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
         }
     }
     
@@ -451,7 +466,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         if indexPath.row < motivationBackground.count  {
             cell.backgroundImage.sd_setImage(with: URL(string: motivationBackground[indexPath.row]))
         } else if indexPath.row > motivationBackground.count  {
-//             cell.backgroundImage.image = PlaceHolders.challoLoadingImage
+//             cell.backgroundImage.image = PlaceHolders.kasamLoadingImage
         }
         cell.motivationText.text = motivationArray[indexPath.row].motivationText
         cell.motivationID["motivationID"] = motivationArray[indexPath.row].motivationID

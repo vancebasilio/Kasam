@@ -127,7 +127,7 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
             //no image added for the activity
             animatedImageView.image = imagePlaceholder
         } else if imageToLoad != nil && newImagePicked == nil {
-            //loading the previous image saved for the Challo
+            //loading the previous image saved for the Kasam
             animatedImageView.sd_setImage(with: imageToLoad, completed: nil)
         } else if newImagePicked != nil {
             //user picked a new image to upload
@@ -227,7 +227,7 @@ class NewActivityCell:UICollectionViewCell, UITextViewDelegate {
         bottomView.isHidden = true
         restTitle.text = ""
         restDescription.text = ""
-        restImageView.sd_setImage(with: URL(string: PlaceHolders.challoActivityRestImageURL))
+        restImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityRestImageURL))
     }
 }
 

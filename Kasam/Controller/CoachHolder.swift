@@ -117,7 +117,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
                 
                 //Header - Image
                 let headerURL = URL(string: value["ProfileImage"] as? String ?? "")
-                self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: PlaceHolders.challoLoadingImage)
+                self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: PlaceHolders.kasamLoadingImage)
             }
         })
     }
@@ -164,7 +164,7 @@ extension CoachHolder: UICollectionViewDataSource, UICollectionViewDelegate {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToKasam" {
-            let kasamTransferHolder = segue.destination as! ChalloHolder
+            let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDGlobal
         }
     }

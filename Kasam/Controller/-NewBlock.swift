@@ -22,7 +22,7 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var blockPickerBG: UIView!
     @IBOutlet weak var blockSlider: UISlider!
     @IBOutlet weak var newActivityLabel: UILabel!
-    @IBOutlet weak var reviewChalloButton: UIButton!
+    @IBOutlet weak var reviewKasamButton: UIButton!
     
     var imagePicker: UIImagePickerController!
     var kasamIDGlobal = ""
@@ -33,7 +33,7 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
     let animationView = AnimationView()
     let animationOverlay = UIView()
     
-    //edit Challo
+    //edit Kasam
     var kasamDatabase = Database.database().reference().child("Coach-Kasams")
     var kasamDatabaseHandle: DatabaseHandle!
     var kasamBlocksDatabase = Database.database().reference().child("Coach-Kasams")
@@ -49,9 +49,9 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
     @IBAction func blockSliderChanged(_ sender: UISlider) {
         let valueSelected = Int(sender.value)
         newBlockPicker.selectRow(valueSelected - 1, inComponent: 0, animated: true)
-        NewChallo.numberOfBlocks = valueSelected
-        if NewChallo.challoTransferArray[valueSelected] == nil {
-            NewChallo.challoTransferArray[valueSelected] = NewChalloLoadFormat(blockTitle: "", duration: 15, durationMetric: "secs", complete: false)
+        NewKasam.numberOfBlocks = valueSelected
+        if NewKasam.kasamTransferArray[valueSelected] == nil {
+            NewKasam.kasamTransferArray[valueSelected] = NewKasamLoadFormat(blockTitle: "", duration: 15, durationMetric: "secs", complete: false)
         }
         tableView.reloadData()
     }
@@ -59,21 +59,21 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
     func setupLoad(){
         //setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
-        reviewChalloButton.layer.cornerRadius = reviewChalloButton.frame.height / 2
-        reviewChalloButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.arrowRight), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 25)
+        reviewKasamButton.layer.cornerRadius = reviewKasamButton.frame.height / 2
+        reviewKasamButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.arrowRight), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 25)
         
-        //load in the existing challo data to be visible on the VC
+        //load in the existing kasam data to be visible on the VC
         blockPickerBG.layer.cornerRadius = 15
-        if NewChallo.challoTransferArray.count == 0 {
-            NewChallo.numberOfBlocks = 1
+        if NewKasam.kasamTransferArray.count == 0 {
+            NewKasam.numberOfBlocks = 1
         } else {
-            NewChallo.numberOfBlocks = NewChallo.challoTransferArray.count
+            NewKasam.numberOfBlocks = NewKasam.kasamTransferArray.count
         }
-        newBlockPicker.selectRow(NewChallo.numberOfBlocks - 1, inComponent: 0, animated: false)
-        blockSlider.setValue(Float(NewChallo.numberOfBlocks), animated: false)
+        newBlockPicker.selectRow(NewKasam.numberOfBlocks - 1, inComponent: 0, animated: false)
+        blockSlider.setValue(Float(NewKasam.numberOfBlocks), animated: false)
         //setup the first block
-        if NewChallo.challoTransferArray[1] == nil {
-            NewChallo.challoTransferArray[1] = NewChalloLoadFormat(blockTitle: "", duration: 15, durationMetric: "secs", complete: false)
+        if NewKasam.kasamTransferArray[1] == nil {
+            NewKasam.kasamTransferArray[1] = NewKasamLoadFormat(blockTitle: "", duration: 15, durationMetric: "secs", complete: false)
         }
         tableView.reloadData()
     }
@@ -88,7 +88,7 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
         setStatusBarColor(color: UIColor.white)
     }
     
-    @IBAction func reviewChalloButtonPressed(_ sender: Any) {
+    @IBAction func reviewKasamButtonPressed(_ sender: Any) {
         self.view.endEditing(true)                  //for adding last text field value with dismiss keyboard
         NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
     }
@@ -133,14 +133,14 @@ extension NewBlockController: UIPickerViewDelegate, UIPickerViewDataSource {
 
 extension NewBlockController: UITableViewDataSource, UITableViewDelegate, NewBlockDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return NewChallo.numberOfBlocks
+        return NewKasam.numberOfBlocks
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NewBlockCell") as! NewBlockCell
         cell.setupFormatting()
-        if NewChallo.editChalloCheck == true && NewChallo.dataLoadCheck == true && NewChallo.challoTransferArray[indexPath.row + 1] != nil {
-            cell.loadChalloInfo(block: NewChallo.challoTransferArray[indexPath.row + 1]!)
+        if NewKasam.editKasamCheck == true && NewKasam.dataLoadCheck == true && NewKasam.kasamTransferArray[indexPath.row + 1] != nil {
+            cell.loadKasamInfo(block: NewKasam.kasamTransferArray[indexPath.row + 1]!)
         } else {
             cell.completionCheck()
         }
@@ -156,7 +156,7 @@ extension NewBlockController: UITableViewDataSource, UITableViewDelegate, NewBlo
     
     func getRepeatLabel(daynumber: Int) -> String {
         var dayArray = [String]()
-        for day in stride(from: daynumber, through: 30, by: NewChallo.numberOfBlocks) {
+        for day in stride(from: daynumber, through: 30, by: NewKasam.numberOfBlocks) {
             dayArray.append(String(day))
         }
         var finalArray = [String]()
@@ -176,18 +176,18 @@ extension NewBlockController: UITableViewDataSource, UITableViewDelegate, NewBlo
         let indexPath = table.indexPath(for: cell)
         let row = (indexPath?.row ?? 1)
         if sender.tag == 1 {
-            NewChallo.challoTransferArray[row + 1]?.blockTitle = sender.text!
+            NewKasam.kasamTransferArray[row + 1]?.blockTitle = sender.text!
         }
     }
     
     //Block Duration added
     func sendDurationTime(blockNo: Int, duration: String) {
-        NewChallo.challoTransferArray[blockNo]?.duration = Int(duration) ?? 15             //only runs when the picker is slided
+        NewKasam.kasamTransferArray[blockNo]?.duration = Int(duration) ?? 15             //only runs when the picker is slided
     }
     
     //Block Duration Metric added
     func sendDurationMetric(blockNo: Int, metric: String) {
-        NewChallo.challoTransferArray[blockNo]?.durationMetric = metric                    //only runs when the picker is slided
+        NewKasam.kasamTransferArray[blockNo]?.durationMetric = metric                    //only runs when the picker is slided
     }
     
     func addActivityButtonPressed(blockNo: Int) {
@@ -201,7 +201,7 @@ extension NewBlockController: UITableViewDataSource, UITableViewDelegate, NewBlo
             kasamTransferHolder.blockNoSelected = tempBlockNoSelected
             //when save button is pressed on the newActivityCell, it saves the data into a 'result' matrix and passes it to the fullActivityMatrix
             kasamTransferHolder.callback = { result in
-                NewChallo.fullActivityMatrix[self.tempBlockNoSelected] = result
+                NewKasam.fullActivityMatrix[self.tempBlockNoSelected] = result
             }
         }
     }

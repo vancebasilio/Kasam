@@ -8,11 +8,11 @@
 
 import UIKit
 
-class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegate, UIPageViewControllerDataSource {
+class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate, UIPageViewControllerDataSource {
 
     var pageControl = UIPageControl()
     lazy var orderedViewControllers: [UIViewController] = {
-        return [self.newVc(viewController: "NewChallo"), self.newVc(viewController: "NewBlock") ,self.newVc(viewController: "ChalloHolder")]
+        return [self.newVc(viewController: "NewKasam"), self.newVc(viewController: "NewBlock") ,self.newVc(viewController: "KasamHolder")]
     }()
     
     var currentIndex:Int {
@@ -41,21 +41,21 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
         if let firstViewController = orderedViewControllers.first {
             setViewControllers([firstViewController], direction: .forward, animated: true, completion: nil)
         }
-        if let thirdViewController = orderedViewControllers.last as? ChalloHolder {
+        if let thirdViewController = orderedViewControllers.last as? KasamHolder {
             thirdViewController.reviewOnly = true
         }
         //customize action of back button
-        let newBackButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(NewChalloPageController.back(sender:)))
+        let newBackButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(NewKasamPageController.back(sender:)))
         newBackButton.image = UIImage(named: "back-button")
         self.navigationItem.leftBarButtonItem = newBackButton
         
         //next button
         let goToNext = NSNotification.Name("GoToNext")
-        NotificationCenter.default.addObserver(self, selector: #selector(NewChalloPageController.goToNext), name: goToNext, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(NewKasamPageController.goToNext), name: goToNext, object: nil)
         
         //back button
         let goToBack = NSNotification.Name("GoToBack")
-        NotificationCenter.default.addObserver(self, selector: #selector(NewChalloPageController.back(sender:)), name: goToBack, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(NewKasamPageController.back(sender:)), name: goToBack, object: nil)
         
         configurePageControl()
     }
@@ -146,7 +146,7 @@ class NewChalloPageController: UIPageViewController, UIPageViewControllerDelegat
     }
 }
 
-extension NewChalloPageController: UIScrollViewDelegate {
+extension NewKasamPageController: UIScrollViewDelegate {
     //prevents users from pulling views past the last controller (which shows up black)
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollView.bounces = false

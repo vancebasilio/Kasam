@@ -68,7 +68,7 @@ class TodayBlockCell: UITableViewCell {
         cellFormatting()
         blockPlaceholderView.isHidden = false
         blockContents.isHidden = true
-        blockShadow.backgroundColor = UIColor(patternImage: PlaceHolders.challoHeaderPlaceholderImage!)
+        blockShadow.backgroundColor = UIColor(patternImage: PlaceHolders.kasamHeaderPlaceholderImage!)
         blockPlaceholderView.isHidden = false
         blockPlaceholderAdd.setIcon(icon: .fontAwesomeSolid(.plus), textColor: .white, backgroundColor: .lightGray, size: CGSize(width: 25, height: 25))
         blockPlaceholderBG.layer.cornerRadius = blockPlaceholderBG.frame.width / 2

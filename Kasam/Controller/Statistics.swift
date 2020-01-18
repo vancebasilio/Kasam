@@ -63,7 +63,7 @@ class StatisticsViewController: UIViewController {
     }
     
     func setupView(){
-        kasamImageView.sd_setImage(with: kasamImage, placeholderImage: PlaceHolders.challoLoadingImage)
+        kasamImageView.sd_setImage(with: kasamImage, placeholderImage: PlaceHolders.kasamLoadingImage)
         kasamImageView.layer.cornerRadius = kasamImageView.frame.width / 2
         kasamImageView.clipsToBounds = true
         imageWhiteBack.backgroundColor = UIColor.init(hex: 0xFFD062).withAlphaComponent(0.5)
@@ -88,27 +88,25 @@ class StatisticsViewController: UIViewController {
     @objc func getKasamStats(){
         self.kasamBlocks.removeAll()
         joinedDate = SavedData.kasamDict[kasamID]?.joinedDate
-        let challoDay = ((Calendar.current.dateComponents([.day], from: joinedDate!, to: Date()).day!) + 1)
-        self.dayNoValue.text = "Day \(challoDay)"
+        let kasamDay = ((Calendar.current.dateComponents([.day], from: joinedDate!, to: Date()).day!) + 1)
+        self.dayNoValue.text = "Day \(kasamDay)"
         //if the kasam is active
-        if challoDay > 30 && SavedData.dayTrackerDict[kasamID] == nil {
+        if kasamDay > 30 && SavedData.dayTrackerDict[kasamID] == nil {
             //for completed kasams without saved day trackers
             getCompletedKasamDayTracker()
         } else {
             //for in progress kasams and completed kasams with saved day trackers
-            getChartAndTableStats(challoDay: challoDay)
+            getChartAndTableStats(kasamDay: kasamDay)
         }
     }
     
-    func getChartAndTableStats(challoDay: Int){
+    func getChartAndTableStats(kasamDay: Int){
         let dateArray = SavedData.dayTrackerDict[kasamID]
         var metricTotal = 0
         var metricType = ""
-        print("kasamDay \(challoDay)")
-        //challoDay is the current day of the Challo that the user is on
-        for day in 1...challoDay {
+        //kasamDay is the current day of the Kasam that the user is on
+        for day in 1...kasamDay {
             if dateArray?[day] != nil {
-                print(dateArray?[day])
                 self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child((dateArray![day]!)).observe(.value, with:{(snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     let metric = Int(value["Total Metric"] as? Double ?? 0.0)
@@ -131,9 +129,7 @@ class StatisticsViewController: UIViewController {
                     let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(indieMetric.removeZerosFromEnd()) \(indieMetricType)", text: textField as? String ?? "")
                     self.kasamBlocks.append(block)
                 }
-                print(self.kasamBlocks.count, dateArray?.count)
                 if self.kasamBlocks.count == dateArray?.count {
-                    print("hello")
                     self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
                     if metricType == "Reps" {
                          self.avgMetric.text = "\(metricTotal) Total \(metricType)"
@@ -142,7 +138,7 @@ class StatisticsViewController: UIViewController {
                         let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: metricType)
                         self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
                     } else if metricType == "Checkmark" {
-                        let avgMetric = (metricTotal) / (challoDay)
+                        let avgMetric = (metricTotal) / (kasamDay)
                         self.avgMetric.text = "Avg. \(avgMetric) %"
                     }
                     self.historyTableView.reloadData()
@@ -177,7 +173,7 @@ class StatisticsViewController: UIViewController {
                 if self.dayTrackerArray.count == dayCount && dayCount > 0 {
                     SavedData.dayTrackerDict[self.kasamID] = self.dayTrackerDateArray
                     dayTrackerKasamRef.removeAllObservers()
-                    self.getChartAndTableStats(challoDay: 30)
+                    self.getChartAndTableStats(kasamDay: 30)
                 }
             })
         })

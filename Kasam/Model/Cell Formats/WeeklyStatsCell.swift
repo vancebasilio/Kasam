@@ -1,5 +1,5 @@
 //
-//  ChalloStatsCell.swift
+//  KasamStatsCell.swift
 //  Kasam
 //
 //  Created by Vance Basilio on 2019-09-12.
@@ -41,7 +41,7 @@ class WeeklyStatsCell: UICollectionViewCell {
     }
     
     func setPlaceholder() {
-        kasamTitle.text = "Time to add a Challo!"
+        kasamTitle.text = "Time to add a Kasam!"
         averageMetric.text = "TBD"
         daysLeft.text = "30"
     }

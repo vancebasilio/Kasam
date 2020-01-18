@@ -17,7 +17,7 @@ class KasamSquareCell: UICollectionViewCell {
     @IBOutlet weak var cellDuration: UILabel!
     
     func setBlock(cell: SquareKasamFormat) {
-        cellImage.sd_setImage(with: cell.image, placeholderImage: PlaceHolders.challoLoadingImage)
+        cellImage.sd_setImage(with: cell.image, placeholderImage: PlaceHolders.kasamLoadingImage)
         cellTitle.text = cell.title
         cellType.text = cell.type
         cellDuration.text = cell.duration

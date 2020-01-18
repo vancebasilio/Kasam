@@ -20,7 +20,7 @@ class BlocksCell: UITableViewCell {
         if block.image != nil {
             blockImage.image = block.image!
         } else {
-            blockImage.sd_setImage(with: block.imageURL, placeholderImage: PlaceHolders.challoLoadingImage)
+            blockImage.sd_setImage(with: block.imageURL, placeholderImage: PlaceHolders.kasamLoadingImage)
         }
         blockTitle.text = block.title
         dayNo.text = "DAY \(block.order)"

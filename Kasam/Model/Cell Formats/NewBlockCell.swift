@@ -54,7 +54,7 @@ class NewBlockCell: UITableViewCell {
         shadow.layer.shadowRadius = 4
     }
     
-    func loadChalloInfo(block: NewChalloLoadFormat) {
+    func loadKasamInfo(block: NewKasamLoadFormat) {
         titleTextField.text = block.blockTitle
         let timeIndex = ((block.duration) / 5) - 1
         durationTimePicker.selectRow(timeIndex, inComponent: 0, animated: false)
@@ -65,31 +65,31 @@ class NewBlockCell: UITableViewCell {
     }
     
     func greenCheck(){
-        NewChallo.challoTransferArray[blockNo]?.complete = true
+        NewKasam.kasamTransferArray[blockNo]?.complete = true
         createButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.pencilAlt), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.init(hex: 0x007f00), forState: .normal, iconSize: 25)
     }
     
     func brownIncomplete(){
         //missing field
-        NewChallo.challoTransferArray[blockNo]?.complete = false
+        NewKasam.kasamTransferArray[blockNo]?.complete = false
         createButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.pencilAlt), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.colorFour, forState: .normal, iconSize: 25)
     }
     
     @objc func completionCheck(){
-        let activity = NewChallo.fullActivityMatrix[blockNo]
-        if NewChallo.chosenMetric == "Reps" {
+        let activity = NewKasam.fullActivityMatrix[blockNo]
+        if NewKasam.chosenMetric == "Reps" {
             if titleTextField.text != "" && activity?[0]?.title != "" && activity?[0]?.description != "" && activity?[0]?.title != nil && activity?[0]?.description != nil && activity?[0]?.reps != 0 {
                 greenCheck()
             } else {
                 brownIncomplete()
             }
-        } else if NewChallo.chosenMetric == "Checkmark" {
+        } else if NewKasam.chosenMetric == "Checkmark" {
             if titleTextField.text != "" && activity?[0]?.title != "" && activity?[0]?.description != "" && activity?[0]?.title != nil && activity?[0]?.description != nil {
                 greenCheck()
             } else {
                 brownIncomplete()
             }
-        } else if NewChallo.chosenMetric == "Timer" {
+        } else if NewKasam.chosenMetric == "Timer" {
             let sec = activity?[0]?.sec ?? 0
             let min = activity?[0]?.min ?? 0
             let hour = activity?[0]?.hour ?? 0

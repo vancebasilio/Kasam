@@ -57,7 +57,7 @@ class RegisterViewCell: UICollectionViewCell {
                     if error != nil{
                         print(error!)
                     } else {
-                        print ("username update successful!")
+                        //username update successful
                     }
                 }
             }

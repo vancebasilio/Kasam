@@ -19,14 +19,14 @@ class KasamFollowingCell: UICollectionViewCell {
     
     func setBlock(cell: UserStatsFormat) {
         statsPlaceholderIcon.isHidden = true
-        topImage.sd_setImage(with: cell.imageURL, placeholderImage: PlaceHolders.challoLoadingImage)
+        topImage.sd_setImage(with: cell.imageURL, placeholderImage: PlaceHolders.kasamLoadingImage)
         topImage.layer.cornerRadius = 8.0
         topImage.clipsToBounds = true
         kasamTitle.text = cell.kasamTitle
     }
     
-    func setMyChalloBlock(cell: EditMyChalloFormat) {
-        topImage.sd_setImage(with: cell.imageURL, placeholderImage: PlaceHolders.challoLoadingImage)
+    func setMyKasamBlock(cell: EditMyKasamFormat) {
+        topImage.sd_setImage(with: cell.imageURL, placeholderImage: PlaceHolders.kasamLoadingImage)
         topImage.layer.cornerRadius = 8.0
         topImage.clipsToBounds = true
         kasamTitle.text = cell.kasamTitle
@@ -40,6 +40,6 @@ class KasamFollowingCell: UICollectionViewCell {
         statsPlaceholderIcon.setIcon(icon: .fontAwesomeSolid(.dice), textColor: .white, backgroundColor: .clear, size: CGSize(width: statsPlaceholderIconHeight.constant, height: statsPlaceholderIconHeight.constant))
         topImage.layer.cornerRadius = 8.0
         topImage.clipsToBounds = true
-        kasamTitle.text = "Add a Challo"
+        kasamTitle.text = "Add a Kasam"
     }
 }
