@@ -19,6 +19,7 @@ class ProfileViewController: UIViewController {
    
     @IBOutlet weak var userFirstName: UILabel!
     @IBOutlet weak var profileImage: UIImageView!
+    @IBOutlet weak var profileImageClickArea: UIView!
     @IBOutlet weak var calendarNo: UILabel!
     @IBOutlet weak var followingNo: UILabel!
     @IBOutlet weak var topView: UIView!
@@ -54,16 +55,23 @@ class ProfileViewController: UIViewController {
     let animationView = AnimationView()
     let userKasamDB = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
     var userKasamDBHandle: DatabaseHandle!
+    var saveStorageRef = Storage.storage().reference()
     
     //Kasam Following
     var kasamIDGlobal: String = ""
     var kasamTitleGlobal: String = ""
     var kasamMetricTypeGlobal: String = ""
     var kasamImageGlobal: URL!
+    
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
+    var kasamHistoryRefHandle: DatabaseHandle!
+    
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
     var kasamUserRefHandle: DatabaseHandle!
-    var kasamHistoryRefHandle: DatabaseHandle!
+    
+    var kasamUserFollowRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
+    var kasamUserFollowRefHandle: DatabaseHandle!
+    
     var tableViewHeight = CGFloat(0)
     var noUserKasams = false
     
@@ -76,6 +84,7 @@ class ProfileViewController: UIViewController {
         getDetailedStats()
         getMyKasams()
         viewSetup()
+        setupImageHolders()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -303,7 +312,7 @@ class ProfileViewController: UIViewController {
         var followingcount: [String: String] = [:]
         calendarNo.text = String(kasamcount)
         followingNo.text = String(followingcount.count)
-            self.kasamUserRefHandle = self.kasamUserRef.child("Kasam-Following").observe(.childAdded) { (snapshot) in
+            self.kasamUserFollowRefHandle = self.kasamUserFollowRef.observe(.childAdded) {(snapshot) in
                 kasamcount += 1
                 followingcount = [snapshot.key: "1"]
                 self.calendarNo.text = String(kasamcount)
@@ -313,18 +322,30 @@ class ProfileViewController: UIViewController {
     
     func profilePicture() {
         if let user = Auth.auth().currentUser {
-            let storage = Storage.storage()
-            let storageRef = storage.reference(forURL: "gs://kasam-coach.appspot.com")
-            let profilePicRef = storageRef.child("users/"+user.uid+"/profile_pic.jpg")
-            
-            //Check if the image is stored in Firebase
-            profilePicRef.downloadURL { (url, error) in
-                if url != nil {
-                    //Get the image from Firebase
-                    self.profileImage?.sd_setImage(with: url, placeholderImage: PlaceHolders.kasamLoadingImage, options: [], completed: { (image, error, cache, url) in
-                        self.profileImage.hideSkeleton()
-                    })
+            let storageRef = Storage.storage().reference(forURL: "gs://kasam-coach.appspot.com")
+            //check if user has manually set a profile image
+            self.kasamUserRef.child("ProfilePic").observeSingleEvent(of: .value, with:{(snap) in
+                if snap.exists() {
+                    //get the manually set Image
+                    let profilePicRef = storageRef.child("users/"+user.uid+"/manual_profile_pic.jpg")
+                    self.setProfileImage(profilePicRef: profilePicRef)
+                } else {
+                    //get the Facebook or Google Image
+                    let profilePicRef = storageRef.child("users/"+user.uid+"/profile_pic.jpg")
+                    self.setProfileImage(profilePicRef: profilePicRef)
                 }
+            })
+        }
+    }
+    
+    func setProfileImage(profilePicRef: StorageReference){
+        //Check if the image is stored in Firebase
+        profilePicRef.downloadURL {(url, error) in
+            if url != nil {
+                //Get the image from Firebase
+                self.profileImage?.sd_setImage(with: url, placeholderImage: PlaceHolders.kasamLoadingImage, options: [], completed: { (image, error, cache, url) in
+                    self.profileImage.hideSkeleton()
+                })
             }
         }
     }
@@ -387,7 +408,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 cell.setBlankBlock(cell: blankStat)                                       //user following kasams that aren't active yet
             } else {
                 let stat = weeklyStats[indexPath.row]
-                cell.setBlock(cell: stat)                                                  //user following active kasams
+                cell.setBlock(cell: stat)                                                 //user following active kasams
             }
             return cell
         } else if collectionView == editKasamsCollectionView {
@@ -426,10 +447,16 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == weekStatsCollectionView {
-            if weeklyStats.count == 0 {
+            if detailedStats.count == 0 {                                   //user not following any kasams
                 //go to Discover Page when clicked
                 animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
                 self.tabBarController?.selectedIndex = 0
+            } else if detailedStats.count != 0 && weeklyStats.count == 0 {  //user following kasams that aren't active yet
+                kasamTitleGlobal = detailedStats[indexPath.row].kasamTitle
+                kasamIDGlobal = detailedStats[indexPath.row].kasamID
+                kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
+                kasamImageGlobal = detailedStats[indexPath.row].imageURL
+                self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             } else {
                 kasamTitleGlobal = weeklyStats[indexPath.row].kasamTitle
                 kasamIDGlobal = weeklyStats[indexPath.row].kasamID
@@ -483,5 +510,86 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
         kasamMetricTypeGlobal = completedStats[indexPath.row].metricType
         kasamImageGlobal = completedStats[indexPath.row].imageURL
         self.performSegue(withIdentifier: "goToStats", sender: indexPath)
+    }
+}
+
+//Changing the profile image
+extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func setupImageHolders(){
+        let imageTap = UITapGestureRecognizer(target: self, action: #selector(openImagePicker))
+        profileImageClickArea.addGestureRecognizer(imageTap)
+    }
+    
+    @objc func openImagePicker(_ sender:Any) {
+        // Open Image Picker
+        showChooseSourceTypeAlertController()
+    }
+    
+    func showChooseSourceTypeAlertController() {
+        let photoLibraryAction = UIAlertAction(title: "Choose a Photo", style: .default) { (action) in
+            self.showImagePickerController(sourceType: .photoLibrary)
+        }
+        let cameraAction = UIAlertAction(title: "Take a New Photo", style: .default) { (action) in
+            self.showImagePickerController(sourceType: .camera)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        AlertService.showAlert(style: .actionSheet, title: nil, message: nil, actions: [photoLibraryAction, cameraAction, cancelAction], completion: nil)
+    }
+    
+    func showImagePickerController(sourceType: UIImagePickerController.SourceType) {
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        imagePickerController.allowsEditing = true
+        imagePickerController.sourceType = sourceType
+        present(imagePickerController, animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
+            self.profileImage.image = editedImage.withRenderingMode(.alwaysOriginal)
+            if self.profileImage?.image != PlaceHolders.kasamHeaderPlaceholderImage {
+                loadingAnimation(animationView: animationView, animation: "success", height: 100, overlayView: nil, loop: false) {
+                    self.animationView.removeFromSuperview()
+                }
+                profileImage.hideSkeleton()
+                saveImage(image: self.profileImage!.image!, location: "users/"+Auth.auth().currentUser!.uid+"/manual_profile_pic.jpg", completion: {uploadedProfileImageURL in
+                    if uploadedProfileImageURL != nil {
+                        self.kasamUserRef.child("ProfilePic").setValue(uploadedProfileImageURL)
+                    }
+                })
+            }
+        } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            self.profileImage?.image = originalImage.withRenderingMode(.alwaysOriginal)
+            if self.profileImage?.image != PlaceHolders.kasamHeaderPlaceholderImage {
+                loadingAnimation(animationView: animationView, animation: "success", height: 100, overlayView: nil, loop: false) {
+                    self.animationView.removeFromSuperview()
+                }
+                profileImage.hideSkeleton()
+                saveImage(image: self.profileImage!.image!, location: "users/"+Auth.auth().currentUser!.uid+"/manual_profile_pic.jpg", completion: {uploadedProfileImageURL in
+                    if uploadedProfileImageURL != nil {
+                        self.kasamUserRef.child("ProfilePic").setValue(uploadedProfileImageURL)
+                    }
+                })
+            }
+        }
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
+        //Saves Profile Image in Firebase Storage
+        let imageData = image?.jpegData(compressionQuality: 0.5)
+        let metaData = StorageMetadata()
+        metaData.contentType = "image/jpg"
+    
+        if imageData != nil {
+            saveStorageRef.child(location).putData(imageData!, metadata: metaData) {(metaData, error) in
+                if error == nil, metaData != nil {
+                    self.saveStorageRef.child(location).downloadURL { url, error in
+                        completion(url!.absoluteString)
+                    }
+                }
+            }
+        } else {completion(nil)}
     }
 }

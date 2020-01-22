@@ -124,7 +124,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         noKasamTracker = 0
         kasamFollowingRef.observeSingleEvent(of: .value, with:{(snap) in
             var kasamOrder = 0
-            var count = Int(snap.childrenCount)
+            var count = Int(snap.childrenCount)                 //counts number of Kasams that the user is following
             if count == 0 {
                 //not following any kasams
                 self.noKasamTracker = 1
@@ -165,6 +165,11 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func retrieveKasams() {
         self.kasamBlocks.removeAll()
         var todayKasamCount = 0
+        if SavedData.kasamTodayArray.count == 0 {                   //user is following Kasams that aren't active yet
+            self.noKasamTracker = 1
+            self.tableView.reloadData()
+            self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
+        }
         for kasam in SavedData.kasamTodayArray {
             var dayOrder = 0
             //Seeing which blocks are needed for the day
@@ -182,7 +187,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     } else {
                         blockOrder = String((blockCount / dayOrder) + 1)
                     }
-                    
                     //Gets the blockdata after the block is decided on
                     Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: { snapshot in
                         let value = snapshot.value as! Dictionary<String,Any>
@@ -192,9 +196,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                         SavedData.kasamTodayArray = SavedData.kasamTodayArray.sorted(by: { $0.kasamOrder < $1.kasamOrder })
                         if todayKasamCount == SavedData.kasamTodayArray.count {
                             //now know how many rows are there, so update table height and hide skeleton
-                            self.tableView.reloadData()
                             self.updateContentTableHeight()
                             self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
+                            self.tableView.reloadData()
                         }
                     })
                 })

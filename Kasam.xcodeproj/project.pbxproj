@@ -63,6 +63,7 @@
 		BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BCC79A05226BD56000B72D65 /* Default-568h@2x.png */; };
 		BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */; };
 		BCD7315723B07A9B000A1AF8 /* -NewBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD7315623B07A9B000A1AF8 /* -NewBlock.swift */; };
+		BCD824D323D7C0B40051C499 /* success.json in Resources */ = {isa = PBXBuildFile; fileRef = BCD824D223D7C0B40051C499 /* success.json */; };
 		BCE0232D23B092E2007B25A0 /* MetricTypeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE0232C23B092E2007B25A0 /* MetricTypeCell.swift */; };
 		BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCE4B4B823666E0500C75480 /* UserOptionsController.xib */; };
 		BCE4B4BB23666E2800C75480 /* -UserOptionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4B4BA23666E2800C75480 /* -UserOptionsController.swift */; };
@@ -89,7 +90,7 @@
 		BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamFollowingCell.swift; sourceTree = "<group>"; };
 		BC12F1ED233FC17100D93227 /* Statistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Statistics.swift; sourceTree = "<group>"; };
 		BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedStatsCell.swift; sourceTree = "<group>"; };
-		BC16A20323292ABD00FDF70C /* loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = loading.json; path = Kasam/Assets.xcassets/loading.json; sourceTree = SOURCE_ROOT; };
+		BC16A20323292ABD00FDF70C /* loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = loading.json; path = "Supporting Files/Lottie Animations/loading.json"; sourceTree = SOURCE_ROOT; };
 		BC1D469423CE995800AFA79B /* Challo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Challo.entitlements; sourceTree = "<group>"; };
 		BC1FAF292269FAFA006A9245 /* Kasam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kasam.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC1FAF2C2269FAFA006A9245 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -98,8 +99,8 @@
 		BC1FAF332269FAFA006A9245 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BC1FAF362269FAFA006A9245 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BC1FAF382269FAFA006A9245 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		BC2B4C7F23A70436005F2255 /* rocket-fast.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "rocket-fast.json"; path = "Kasam/Assets.xcassets/rocket-fast.json"; sourceTree = SOURCE_ROOT; };
-		BC2B4C8023A70436005F2255 /* checkmark.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = checkmark.json; path = Kasam/Assets.xcassets/checkmark.json; sourceTree = SOURCE_ROOT; };
+		BC2B4C7F23A70436005F2255 /* rocket-fast.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "rocket-fast.json"; path = "Supporting Files/Lottie Animations/rocket-fast.json"; sourceTree = SOURCE_ROOT; };
+		BC2B4C8023A70436005F2255 /* checkmark.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = checkmark.json; path = "Supporting Files/Lottie Animations/checkmark.json"; sourceTree = SOURCE_ROOT; };
 		BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedControl.swift; sourceTree = "<group>"; };
 		BC339E8F2377242C00E1D038 /* LoginViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewCell.swift; sourceTree = "<group>"; };
 		BC339E9123772D6F00E1D038 /* RegisterViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewCell.swift; sourceTree = "<group>"; };
@@ -132,12 +133,13 @@
 		BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedKasamCell.swift; sourceTree = "<group>"; };
 		BCA9A06122A9D22E008C5A7D /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		BCA9A06322A9D2AB008C5A7D /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
-		BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fireworks-loading.json"; path = "Kasam/Assets.xcassets/fireworks-loading.json"; sourceTree = SOURCE_ROOT; };
+		BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fireworks-loading.json"; path = "Supporting Files/Lottie Animations/fireworks-loading.json"; sourceTree = SOURCE_ROOT; };
 		BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KasamTrackerCell.swift; sourceTree = "<group>"; };
 		BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
 		BCC79A05226BD56000B72D65 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizedTableView.swift; sourceTree = "<group>"; };
 		BCD7315623B07A9B000A1AF8 /* -NewBlock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "-NewBlock.swift"; sourceTree = "<group>"; };
+		BCD824D223D7C0B40051C499 /* success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = success.json; sourceTree = "<group>"; };
 		BCE0232C23B092E2007B25A0 /* MetricTypeCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetricTypeCell.swift; sourceTree = "<group>"; };
 		BCE4B4B823666E0500C75480 /* UserOptionsController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UserOptionsController.xib; sourceTree = "<group>"; };
 		BCE4B4BA23666E2800C75480 /* -UserOptionsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "-UserOptionsController.swift"; sourceTree = "<group>"; };
@@ -180,6 +182,18 @@
 				7097DC07EF7C4EA01ED3C8B9 /* Pods-Kasam.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		BC1C678023D5558300E44DEE /* Lottie Animations */ = {
+			isa = PBXGroup;
+			children = (
+				BC16A20323292ABD00FDF70C /* loading.json */,
+				BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */,
+				BC2B4C8023A70436005F2255 /* checkmark.json */,
+				BCD824D223D7C0B40051C499 /* success.json */,
+				BC2B4C7F23A70436005F2255 /* rocket-fast.json */,
+			);
+			path = "Lottie Animations";
 			sourceTree = "<group>";
 		};
 		BC1FAF202269FAFA006A9245 = {
@@ -312,10 +326,7 @@
 		BCC79A00226BD50600B72D65 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				BC16A20323292ABD00FDF70C /* loading.json */,
-				BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */,
-				BC2B4C8023A70436005F2255 /* checkmark.json */,
-				BC2B4C7F23A70436005F2255 /* rocket-fast.json */,
+				BC1C678023D5558300E44DEE /* Lottie Animations */,
 				BC1FAF382269FAFA006A9245 /* Info.plist */,
 				BC7042BF239861A100649D01 /* GoogleService-Info.plist */,
 			);
@@ -411,6 +422,7 @@
 				BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */,
 				BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */,
 				BC2B4C8123A70437005F2255 /* rocket-fast.json in Resources */,
+				BCD824D323D7C0B40051C499 /* success.json in Resources */,
 				BC01664722D5790B0073186D /* UIImageViewAligned in Resources */,
 				BC2B4C8223A70437005F2255 /* checkmark.json in Resources */,
 			);
@@ -759,6 +771,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = EYFDDEA2GM;
 				INFOPLIST_FILE = "$(SRCROOT)/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -768,7 +781,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Kasam/Model/Kasam-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -780,6 +793,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = EYFDDEA2GM;
 				INFOPLIST_FILE = "$(SRCROOT)/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -788,7 +802,7 @@
 				PRODUCT_NAME = Kasam;
 				SWIFT_OBJC_BRIDGING_HEADER = "Kasam/Model/Kasam-Bridging-Header.h";
 				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

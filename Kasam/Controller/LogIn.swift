@@ -14,13 +14,22 @@ import GoogleSignIn
 class ViewController: UIViewController, GIDSignInDelegate {
     
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var segmentedControl: CustomSegmentedControl!
+    @IBOutlet weak var kasamLogo: UIImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        kasamLogo.image = UIImage(named: "kasam-logo")!.withRenderingMode(.alwaysTemplate)
+        kasamLogo.tintColor = UIColor.colorFour
         GIDSignIn.sharedInstance()?.presentingViewController = self
         GIDSignIn.sharedInstance().delegate = self
         self.hideKeyboardWhenTappedAround()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        collectionView.shouldIgnoreScrollingAdjustment = true
+        scrollView.shouldIgnoreScrollingAdjustment = false
     }
     
     //make the login screen move with the segmented control
@@ -88,7 +97,6 @@ extension ViewController: RegisterViewCellDelegate {
 }
 
 extension ViewController: LoginViewCellDelegate {
-    
     func showError(_ error: Error) {
         if let errorCode = AuthErrorCode(rawValue: error._code) {
             print(errorCode.errorMessage)
