@@ -174,11 +174,11 @@ import Firebase
         let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
             let newMotivation = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
             if motivationID == "" {
-                newMotivation.childByAutoId().setValue(textFields[0].textContent) { (error, ref) -> Void in
+                newMotivation.childByAutoId().setValue(textFields[0].textContent) {(error, ref) -> Void in
                     completion(true)
                 }
             } else if motivationID != "" {
-                newMotivation.child(motivationID).setValue(textFields[0].textContent) { (error, ref) -> Void in
+                newMotivation.child(motivationID).setValue(textFields[0].textContent) {(error, ref) -> Void in
                     completion(true)
                 }
             }

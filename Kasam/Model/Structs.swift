@@ -6,7 +6,9 @@
 //  Copyright © 2019 Vance Basilio. All rights reserved.
 //
 
+import UIKit
 import Foundation
+import Firebase
 
 struct SavedData {
     static var kasamTodayArray: [KasamSavedFormat] = []                 //kasamTodayArray includes only active kasams that the user is following
@@ -19,6 +21,10 @@ struct SavedData {
         self.kasamArray.append(kasam)
         self.kasamDict[kasam.kasamID] = kasam
     }
+}
+
+struct DBRef {
+    static var userKasamFollowing = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
 }
 
 struct NewKasam {

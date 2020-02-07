@@ -62,6 +62,7 @@ class ProfileViewController: UIViewController {
     var kasamTitleGlobal: String = ""
     var kasamMetricTypeGlobal: String = ""
     var kasamImageGlobal: URL!
+    var joinedDateGlobal: Date?
     
     var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var kasamHistoryRefHandle: DatabaseHandle!
@@ -69,7 +70,7 @@ class ProfileViewController: UIViewController {
     var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
     var kasamUserRefHandle: DatabaseHandle!
     
-    var kasamUserFollowRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
+    var kasamUserFollowRef: DatabaseReference! = DBRef.userKasamFollowing
     var kasamUserFollowRefHandle: DatabaseHandle!
     
     var tableViewHeight = CGFloat(0)
@@ -173,8 +174,9 @@ class ProfileViewController: UIViewController {
                 let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
                 kasam.image = snapshot["Image"]! as! String
                 kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
-                    let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: kasam.endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
-                if kasam.status == "completed" {
+                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: kasam.endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
+                if kasam.currentStatus == "completed" {
+                    //if the kasam has been completed, and not rejoined
                     self.completedStats.append(userStats)
                     self.completedKasamsTable.reloadData()
                 } else {
@@ -183,6 +185,18 @@ class ProfileViewController: UIViewController {
                     self.detailedStatsCollectionView.reloadData()
                     self.weekStatsCollectionView.reloadData()
                 }
+                  
+                //get past joined dates (if kasam was completed and rejoined)
+                if kasam.pastKasamJoinDates.count != 0 {
+                    for pastJoinDate in kasam.pastKasamJoinDates {
+                        let pastDateJoined = self.stringToDate(date: pastJoinDate)
+                        let pastEndDate = Calendar.current.date(byAdding: .day, value: 30, to: pastDateJoined)!
+                        let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: pastDateJoined, endDate: pastEndDate, metricType: kasam.metricType, order: kasam.kasamOrder)
+                        self.completedStats.append(userStats)
+                        self.completedKasamsTable.reloadData()
+                    }
+                }
+                    
                 if self.detailedStats.count + self.completedStats.count == SavedData.kasamArray.count {
                     self.getWeeklyStats()
                 }
@@ -357,6 +371,7 @@ class ProfileViewController: UIViewController {
             segueTransferHolder.kasamName = kasamTitleGlobal
             segueTransferHolder.kasamMetricType = kasamMetricTypeGlobal
             segueTransferHolder.kasamImage = kasamImageGlobal
+            segueTransferHolder.joinedDate = joinedDateGlobal
         } else if segue.identifier == "goToEditKasam" {
             NewKasam.editKasamCheck = true
             NewKasam.kasamID = kasamIDGlobal
@@ -456,6 +471,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 kasamIDGlobal = detailedStats[indexPath.row].kasamID
                 kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
                 kasamImageGlobal = detailedStats[indexPath.row].imageURL
+                joinedDateGlobal = detailedStats[indexPath.row].joinedDate
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             } else {
                 kasamTitleGlobal = weeklyStats[indexPath.row].kasamTitle
@@ -479,6 +495,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 kasamIDGlobal = detailedStats[indexPath.row].kasamID
                 kasamMetricTypeGlobal = detailedStats[indexPath.row].metricType
                 kasamImageGlobal = detailedStats[indexPath.row].imageURL
+                joinedDateGlobal = detailedStats[indexPath.row].joinedDate
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
         }
@@ -509,6 +526,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
         kasamIDGlobal = completedStats[indexPath.row].kasamID
         kasamMetricTypeGlobal = completedStats[indexPath.row].metricType
         kasamImageGlobal = completedStats[indexPath.row].imageURL
+        joinedDateGlobal = completedStats[indexPath.row].joinedDate
         self.performSegue(withIdentifier: "goToStats", sender: indexPath)
     }
 }

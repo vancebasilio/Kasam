@@ -207,7 +207,6 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func sendCompletedMatrix(key: Int, value: Double, text: String) {
-        print(key, value)
         transferMetricMatrix[String(key)] = String(value)
         transferTextFieldMatrix[String(key)] = text
         activityBlocks[key - 1].currentMetric = String(value)

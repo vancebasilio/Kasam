@@ -44,7 +44,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var chosenTimeHour = 0
     var chosenTimeMin = 0
     var chosenRepeat = ""
-    var chosenDate : [String:Int] = [:]
     var startDate = ""
     var previewLink = ""
     var kasamBlocks: [BlockFormat] = []
@@ -58,6 +57,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var blockURLGlobal = ""
     var startDay = ""
     var blockIDGlobal = ""
+    var pastJoinDate = ""
     let animationView = AnimationView()
     
     //Review Only Variables
@@ -187,7 +187,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     //Retrieves Blocks based on Kasam selected
     func getBlocksData() {
-        Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").observeSingleEvent(of: .value, with:{ (snap) in
+        Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").observeSingleEvent(of: .value, with:{(snap) in
             var blockNo = snap.childrenCount
             if blockNo == 0 {
                 blockNo = 1
@@ -195,7 +195,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             let ratio = 30 / (blockNo)
             var dayNumber = 1
             for _ in 1...ratio {
-                Database.database().reference().child("Coach-Kasams").child(self.kasamID).child("Blocks").observe(.childAdded, with: { (snapshot) in
+                Database.database().reference().child("Coach-Kasams").child(self.kasamID).child("Blocks").observe(.childAdded, with: {(snapshot) in
                     if let value = snapshot.value as? [String: Any] {
                         let blockID = snapshot.key
                         let blockURL = URL(string: value["Image"] as? String ?? "")
@@ -217,7 +217,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     @IBAction func addButtonPress(_ sender: Any) {
         if registerCheck == 0 {
             addKasamPopup()
-            observer = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "saveTime"), object: nil, queue: OperationQueue.main) { (notification) in
+            observer = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "saveTime"), object: nil, queue: OperationQueue.main) {(notification) in
                 let timeVC = notification.object as! AddKasamController
                 self.chosenTime = timeVC.formattedTime
                 self.chosenTimeHour = timeVC.hour
@@ -279,7 +279,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func registerUserToKasam() {
         setupNotifications()
-        //STEP 1: Adds the user to the kasam-following list
+        //STEP 1: Adds the user to the Kasam-following list
         Database.database().reference().child("Coach-Kasams").child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         
         //STEP 2: Adds the user to the Coach-following list
@@ -287,23 +287,33 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         self.addButtonText.setIcon(icon: .fontAwesomeSolid(.check), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
         countFollowers()
         registeredCheck()
-        
-        //STEP 3: Adds the kasam to the user's following list
-        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following").updateChildValues([kasamID:kasamTitle.text!]) {
-            (error, reference) in
+                
+        //STEP 3: Adds the user preferences to the Kasam they just followed
+        DBRef.userKasamFollowing.child(self.kasamID).observeSingleEvent(of: .value, with: {(snap) in
+            if snap.exists() {
+                //The user is continuing a completed kasam
+                if let value = snap.value as? [String: Any] {
+                    self.pastJoinDate = value["Date Joined"] as? String ?? ""
+                    self.addUserPreferncestoKasam()
+                }
+            } else {
+                //user is joining the kasam for the first time
+                self.addUserPreferncestoKasam()
+            }
+        })
+    }
+    
+    func addUserPreferncestoKasam(){
+        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Day Joined": self.startDay, "Time": self.chosenTime]) {(error, reference) in
+            if self.pastJoinDate != "" {
+                DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(self.pastJoinDate).setValue(self.pastJoinDate)
+            }
             if error != nil {
                 print(error!)
             } else {
-                //STEP 4: Adds the user preferences to the Kasam they just followed
-                Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following").child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Day Joined": self.startDay, "Time": self.chosenTime, "Days": self.chosenDate]) {(error, reference) in
-                    if error != nil {
-                        print(error!)
-                    } else {
-                        Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-                        NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveTodayKasams"), object: self)
-                        NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
-                    }
-                }
+                Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveTodayKasams"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
             }
         }
     }
@@ -318,7 +328,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         registeredCheck()
         
         //Removes the kasam from the user's following list
-        Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following").child(kasamID).setValue(nil) {(error, reference) in
+        DBRef.userKasamFollowing.child(kasamID).setValue(nil) {(error, reference) in
             if error != nil {
                 print(error!)
             } else {
@@ -344,7 +354,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func registeredCheck(){
         self.addButton.setImage(UIImage(named:"kasam-add"), for: .normal)
         Database.database().reference().child("Coach-Kasams").child(kasamID).child("Followers").observeSingleEvent(of: .value, with: {(snapshot) in
-            if SavedData.kasamDict[self.kasamID]?.status == "completed" {
+            if SavedData.kasamDict[self.kasamID]?.currentStatus == "completed" || (SavedData.kasamDict[self.kasamID]?.pastKasamJoinDates.count != 0 && SavedData.kasamDict[self.kasamID]?.pastKasamJoinDates.count != nil) {
                 //kasam completed in the past
                 self.kasamDescriptionTrailingMargin.constant = 79.5
                 self.completionCheck.isHidden = false
