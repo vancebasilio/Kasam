@@ -148,6 +148,7 @@
 		BCE50BDF22D04A37000F2534 /* FXBlurView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXBlurView.h; sourceTree = "<group>"; };
 		BCE50BE322D04B26000F2534 /* Kasam-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Kasam-Bridging-Header.h"; sourceTree = "<group>"; };
 		BCED0D86237285E80054E66B /* AlertService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertService.swift; sourceTree = "<group>"; };
+		BCEE9D2123EF5F0500553BEB /* Kasam.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kasam.entitlements; sourceTree = "<group>"; };
 		BCF2A76A227F08F0009D2368 /* KasamBlocksCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamBlocksCell.swift; sourceTree = "<group>"; };
 		BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverHCell.swift; sourceTree = "<group>"; };
 		BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverCategoryCell.swift; sourceTree = "<group>"; };
@@ -219,6 +220,7 @@
 		BC1FAF2B2269FAFA006A9245 /* Kasam */ = {
 			isa = PBXGroup;
 			children = (
+				BCEE9D2123EF5F0500553BEB /* Kasam.entitlements */,
 				BC1D469423CE995800AFA79B /* Challo.entitlements */,
 				BCF2A773227FB55E009D2368 /* Services */,
 				BCC799FD226BD4F700B72D65 /* Model */,
@@ -769,9 +771,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_ENTITLEMENTS = Kasam/Kasam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = EYFDDEA2GM;
 				INFOPLIST_FILE = "$(SRCROOT)/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -791,9 +793,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_ENTITLEMENTS = Kasam/Kasam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = EYFDDEA2GM;
 				INFOPLIST_FILE = "$(SRCROOT)/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;

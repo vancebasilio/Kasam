@@ -11,6 +11,7 @@ import Firebase
 import SwiftEntryKit
 import Lottie
 import youtube_ios_player_helper
+import AVFoundation
 
 class KasamHolder: UIViewController, UIScrollViewDelegate {
     
@@ -25,9 +26,15 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var coachName: UIButton!
     @IBOutlet weak var kasamDescription: UILabel!
     @IBOutlet weak var kasamDescriptionTrailingMargin: NSLayoutConstraint!
+    
+    @IBOutlet weak var followingIcon: UIButton!
+    @IBOutlet weak var TypeIcon: UIButton!
+    @IBOutlet weak var levelIcon: UIButton!
+    
     @IBOutlet weak var kasamType: UILabel!
     @IBOutlet weak var kasamLevel: UILabel!
     @IBOutlet weak var followersNo: UILabel!
+    
     @IBOutlet var headerLabel : UILabel!
     @IBOutlet weak var constraintHeightHeaerImages: NSLayoutConstraint!
     @IBOutlet weak var createKasamButton: UIButton!
@@ -83,7 +90,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func setupLoad(){
         previewButton.layer.cornerRadius = 15
         previewButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.play), iconColor: UIColor.white, postfixText: "  Preview", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 15)
-        
+        followingIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.userFriends), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
         headerLabel.text = kasamGTitle
@@ -113,6 +120,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func previewButtonPressed(_ sender: Any) {
+        do {
+           try AVAudioSession.sharedInstance().setCategory(.playback)
+        } catch(let error) {
+            print(error.localizedDescription)
+        }
         playerView.load(withVideoId: previewLink)
         playerView.isHidden = false
         loadingAnimation(animationView: animationView, animation: "fireworks-loading", height: 200, overlayView: nil, loop: true, completion: nil)
@@ -141,11 +153,13 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     //Twitter Parallax-------------------------------------------------------------------------------------------------------------------
     
-    let headerHeight = UIScreen.main.bounds.width * 0.65            //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
+    //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
+    let headerHeight = UIScreen.main.bounds.height - (518 * (UIScreen.main.bounds.width / 375))
     
     func setupTwitterParallax(){
-        tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)     //setup floating header
-        constraintHeightHeaerImages.constant = headerHeight                                                   //setup floating header
+        constraintHeightHeaerImages.constant = headerHeight
+        headerView.layoutIfNeeded()
+        tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)
         
         //Header - Image
         self.headerImageView = UIImageView(frame: self.headerView.bounds)
@@ -173,8 +187,14 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamDescription.text! = value["Description"] as? String ?? ""
                 self.coachName.setTitle(value["CreatorName"] as? String ?? "", for: .normal)        //in the future, get this name from the userdatabase, so it's the most uptodate name
                 self.coachIDGlobal = value["CreatorID"] as! String
+                
                 self.kasamType.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = value["Level"] as? String ?? ""
+                
+                //Set icons
+                self.setKasamTypeIcon(kasamType: self.kasamType.text!, button: self.TypeIcon)
+                self.setKasamLevelIcon(kasamLevel: self.kasamLevel.text!, button: self.levelIcon)
+        
                 let headerURL = URL(string: value["Image"] as? String ?? "")
                 self.previewLink = value["Preview"] as? String ?? ""
                 if self.previewLink != "" {
@@ -274,8 +294,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             }
         }
     }
-    
-    
     
     func registerUserToKasam() {
         setupNotifications()

@@ -196,8 +196,8 @@ class ProfileViewController: UIViewController {
                         self.completedKasamsTable.reloadData()
                     }
                 }
-                    
-                if self.detailedStats.count + self.completedStats.count == SavedData.kasamArray.count {
+                
+                if self.detailedStats.count == SavedData.kasamArray.count {
                     self.getWeeklyStats()
                 }
             
@@ -214,7 +214,7 @@ class ProfileViewController: UIViewController {
                 if total <= 30 {
                     self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
                 } else if total > 30 && total <= 90 {
-                    self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.laugh), postfixText: " Intermediate", size: 15)
+                    self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.laugh), postfixText: " Hard", size: 15)
                     self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 90.0)
                 }
             })
@@ -258,7 +258,9 @@ class ProfileViewController: UIViewController {
                             }
                         }
                         self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
-                        self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
+                        
+                        //orders the array as kasams with no history will always show up first, even though they were loaded later
+                        self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
                         self.weekStatsCollectionView.reloadData()
                     }
                 })

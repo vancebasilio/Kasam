@@ -56,7 +56,7 @@ class WeeklyStatsCell: UICollectionViewCell {
         DispatchQueue.main.async {
             self.daysLeft.text = String(30 - cell.daysLeft) //async loading this as it takes a long time to gather
         }
-        if cell.metricType == "Time" && cell.avgMetric < 60 {
+        if cell.metricType == "Time" && cell.avgMetric <= 60 {
             averageMetric.text = String(cell.avgMetric)
             averageMetricLabel.text = "Avg. secs"
         } else if cell.metricType == "Time" && cell.avgMetric > 60 {
@@ -67,7 +67,6 @@ class WeeklyStatsCell: UICollectionViewCell {
             averageMetric.text = String(cell.avgMetric)
             averageMetricLabel.text = "Avg. \(cell.metricType)"
         } else if cell.metricType == "Checkmark" {
-            
             averageMetric.text = String(cell.avgMetric)
             averageMetricLabel.text = "Avg. %"
         }
