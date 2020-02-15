@@ -91,7 +91,6 @@
 		BC12F1ED233FC17100D93227 /* Statistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Statistics.swift; sourceTree = "<group>"; };
 		BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedStatsCell.swift; sourceTree = "<group>"; };
 		BC16A20323292ABD00FDF70C /* loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = loading.json; path = "Supporting Files/Lottie Animations/loading.json"; sourceTree = SOURCE_ROOT; };
-		BC1D469423CE995800AFA79B /* Challo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Challo.entitlements; sourceTree = "<group>"; };
 		BC1FAF292269FAFA006A9245 /* Kasam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kasam.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC1FAF2C2269FAFA006A9245 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BC1FAF2E2269FAFA006A9245 /* LogIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogIn.swift; sourceTree = "<group>"; };
@@ -221,7 +220,6 @@
 			isa = PBXGroup;
 			children = (
 				BCEE9D2123EF5F0500553BEB /* Kasam.entitlements */,
-				BC1D469423CE995800AFA79B /* Challo.entitlements */,
 				BCF2A773227FB55E009D2368 /* Services */,
 				BCC799FD226BD4F700B72D65 /* Model */,
 				BCC799FE226BD4FC00B72D65 /* View */,
@@ -773,7 +771,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Kasam/Kasam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = EYFDDEA2GM;
 				INFOPLIST_FILE = "$(SRCROOT)/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -795,7 +793,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Kasam/Kasam.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = EYFDDEA2GM;
 				INFOPLIST_FILE = "$(SRCROOT)/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
