@@ -15,6 +15,7 @@ class BlocksCell: UITableViewCell {
     @IBOutlet weak var blockImage: UIImageView!
     @IBOutlet weak var dayNo: UILabel!
     @IBOutlet weak var blockDuration: UILabel!
+    @IBOutlet weak var benefitsLabel: UILabel!
     
     func setBlock(block: BlockFormat) {
         if block.image != nil {
@@ -27,5 +28,14 @@ class BlocksCell: UITableViewCell {
         blockDuration.text = block.duration
         blockImage.layer.cornerRadius = 10
         blockImage.clipsToBounds = true
+    }
+    
+    func setBenefits(benefits: String) {
+        benefitsLabel.isHidden = false
+        blockTitle.isHidden = true
+        blockImage.isHidden = true
+        dayNo.isHidden = true
+        blockDuration.isHidden = true
+        benefitsLabel.text = "\u{2022} \(benefits)"
     }
 }

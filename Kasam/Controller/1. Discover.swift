@@ -12,34 +12,28 @@ import SkeletonView
 
 class DiscoverViewController: UIViewController {
     
-    @IBOutlet weak var discoverCollection: UICollectionView!
     @IBOutlet weak var categoryCollection: UICollectionView!
-    @IBOutlet weak var myKasamCollection: UICollectionView!
+    @IBOutlet weak var discoverTableView: UITableView!
+    @IBOutlet weak var discoverTableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var expertPageControl: UIPageControl!
     @IBOutlet weak var expertHeight: NSLayoutConstraint!
-    @IBOutlet weak var popularHeight: NSLayoutConstraint!
-    @IBOutlet weak var myKasamHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
-    var freeKasamArray: [freeKasamFormat] = []
-    var expertKasamArray: [expertKasamFormat] = []
-    var myKasamArray: [freeKasamFormat] = []
+    let discoverCriteriaArray = ["Basic", "User"]
+    let discoverTitlesArray = ["Popular Kasams, My Kasams"]
+    var discoverKasamArray = [Int:[discoverKasamFormat]]()
+    var discoverKasamDBHandle: DatabaseHandle!
+    
+    var featuredKasamArray: [discoverKasamFormat] = []
     var kasamIDGlobal: String = ""
     var kasamTitleGlobal: String = ""
     var timer = Timer()
     var counter = 0
-    let userKasamDB = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
-    let userCreator = Database.database().reference().child("Users")
-    var userKasamDBHandle: DatabaseHandle!
-    let kasamDB = Database.database().reference().child("Coach-Kasams")
-    var freeKasamDBHandle: DatabaseHandle!
-    var expertKasamDBHandle: DatabaseHandle!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        getFreeKasams()
-        getUserKasams()
-        getExpertKasams()
+        getDiscoverKasams(criteria: "Challenge")
+        for discoverCriteria in discoverCriteriaArray {getDiscoverKasams(criteria: discoverCriteria)}
         setupNavBar()
         self.view.showAnimatedSkeleton()
         let getUserKasams = NSNotification.Name("GetUserKasams")
@@ -47,6 +41,10 @@ class DiscoverViewController: UIViewController {
         DispatchQueue.main.async {
             self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
         }
+    }
+    
+    @objc func getUserKasams(){
+        getDiscoverKasams(criteria: "User")
     }
     
     //Puts the nav bars back
@@ -58,18 +56,40 @@ class DiscoverViewController: UIViewController {
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        self.kasamDB.removeObserver(withHandle: self.freeKasamDBHandle)
-        self.kasamDB.removeObserver(withHandle: self.expertKasamDBHandle)
-        self.userKasamDB.removeObserver(withHandle: self.userKasamDBHandle)
+        DBRef.coachKasams.removeObserver(withHandle: self.discoverKasamDBHandle)
     }
     
-   override func viewDidLayoutSubviews(){
+//   override func viewDidLayoutSubviews(){
+//        let frame = self.view.safeAreaLayoutGuide.layoutFrame
+//        let expertHeightValue = expertHeight.constant + 61
+//        let popularHeightValue = popularHeight.constant + 49                //the 49 and 61 are the title heights
+//        contentView.constant =  discoverTableView.fr + 15    //15 is the additional space from the bottom
+//        let contentViewHeight = contentView.constant + 1
+//        if contentViewHeight > frame.height {
+//            contentView.constant = contentViewHeight
+//        } else if contentViewHeight <= frame.height {
+//            let diff = frame.height - contentViewHeight
+//            contentView.constant = contentViewHeight + diff + 1
+//        }
+//    }
+
+    //Table Resizing----------------------------------------------------------------------
+    
+    func updateContentTableHeight(){
+        //set the table row height, based on the screen size
+        discoverTableView.rowHeight = UITableView.automaticDimension
+        discoverTableView.estimatedRowHeight = (view.bounds.size.width / 2.3) + 60
+        
+        //sets the height of the whole tableview, based on the numnber of rows
+        var tableFrame = discoverTableView.frame
+        tableFrame.size.height = discoverTableView.contentSize.height
+        discoverTableView.frame = tableFrame
+        self.discoverTableViewHeight.constant = self.discoverTableView.contentSize.height
+        
+        //elongates the entire scrollview, based on the tableview height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let expertHeightValue = expertHeight.constant + 61
-        let popularHeightValue = popularHeight.constant + 49                //the 49 and 61 are the title heights
-        let myKasamHeightValue = myKasamHeight.constant + 49
-        contentView.constant =  popularHeightValue + expertHeightValue + myKasamHeightValue + 15    //15 is the additional space from the bottom
-        let contentViewHeight = contentView.constant + 1
+        let featureViewHeight = view.bounds.size.width * (8/13)
+        let contentViewHeight = discoverTableViewHeight.constant + featureViewHeight + 61 + 25         //25 is the additional space from the bottom and 61 is the height of the Discover Title
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {
@@ -77,11 +97,10 @@ class DiscoverViewController: UIViewController {
             contentView.constant = contentViewHeight + diff + 1
         }
     }
-    
 
     //make the expert slider automatically scroll
     @objc func changeImage() {
-        if counter < expertKasamArray.count {
+        if counter < featuredKasamArray.count {
             let index = IndexPath.init(item: counter, section: 0)
             self.categoryCollection.scrollToItem(at: index, at: .centeredHorizontally, animated: true)
             expertPageControl.currentPage = counter
@@ -110,130 +129,115 @@ class DiscoverViewController: UIViewController {
         }
     }
     
-    //Part 1
-    func getExpertKasams() {
-        expertKasamArray.removeAll()
-        expertKasamDBHandle = kasamDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Expert").observe(.childAdded) { (snapshot) in
+    func getDiscoverKasams(criteria: String) {
+        discoverKasamArray.removeAll()      //THIS WILL CAUSE ISSUES WHEN USER ADDS A NEW KASAM AND IT WIPES OUT EVERYTHING!!!!
+        var tempArray = [discoverKasamFormat]()
+        discoverKasamDBHandle = DBRef.coachKasams.queryOrdered(byChild: "Type").queryEqual(toValue: criteria).observe(.childAdded) {(snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let creatorID = value["CreatorID"] as? String ?? ""
-                self.userCreator.child(creatorID).child("Name").observeSingleEvent(of: .value, with: {(snap) in
+                DBRef.userCreator.child(creatorID).child("Name").observeSingleEvent(of: .value, with: {(snap) in
                     let creatorName = snap.value as! String
                     let imageURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = expertKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "")
-                    self.expertKasamArray.append(kasam)
-                    self.categoryCollection.reloadData()
-                    self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
+                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "")
+                    if criteria == "Challenge" {
+                        self.featuredKasamArray.append(kasam)
+                        self.categoryCollection.reloadData()
+                        self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
+                    } else {
+                        if let index = self.discoverCriteriaArray.index(of: criteria) {
+                            if (criteria == "User" && creatorID == Auth.auth().currentUser?.uid) || criteria != "User" {
+                                tempArray.append(kasam)
+                                self.discoverKasamArray[index] = tempArray
+                                self.updateContentTableHeight()
+                                self.discoverTableView.reloadData()
+                            }
+                        }
+                    }
                 })
             }
         }
     }
-    
-    //Part 2
-    func getFreeKasams() {
-        freeKasamArray.removeAll()
-        freeKasamDBHandle = kasamDB.queryOrdered(byChild: "Type").queryEqual(toValue: "Free").observe(.childAdded) { (snapshot) in
-            if let value = snapshot.value as? [String: Any] {
-                let imageURL = URL(string: value["Image"] as? String ?? "")
-                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
-                self.freeKasamArray.append(categoryBlock)
-                self.discoverCollection.reloadData()
-            }
-        }
+}
+
+//TableView-----------------------------------------------------------
+
+extension DiscoverViewController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return discoverCriteriaArray.count
     }
     
-    //Part 3
-    @objc func getUserKasams(){
-        myKasamArray.removeAll()
-        userKasamDBHandle = userKasamDB.observe(.childAdded, with: { (snapshot) in
-            Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: { (snapshot) in
-            if let value = snapshot.value as? [String: Any] {
-                let imageURL = URL(string: value["Image"] as? String ?? "")
-                let categoryBlock = freeKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
-                self.myKasamArray.append(categoryBlock)
-                self.myKasamCollection.reloadData()
-                }
-                //remove observer
-                Database.database().reference().child("Coach-Kasams").child(snapshot.key).removeAllObservers()
-            })
-        })
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "DiscoverKasamCell") as! DiscoverKasamCell
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let height = (view.bounds.size.width / 2.3) + 60
+        return height
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let tableViewCell = cell as? DiscoverKasamCell else { return }
+        tableViewCell.setCollectionViewDataSourceDelegate(dataSourceDelegate: self, forRow: indexPath.row)
     }
 }
 
-extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, SkeletonCollectionViewDataSource {
+extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     //Number of cells
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == discoverCollection {
-            return freeKasamArray.count
-        } else if collectionView == categoryCollection {
-            let count = expertKasamArray.count
+        if collectionView == categoryCollection {
+            let count = featuredKasamArray.count
             expertPageControl.numberOfPages = count
             expertPageControl.isHidden = !(count > 1)
-            return expertKasamArray.count
+            return featuredKasamArray.count
         } else {
-            if myKasamArray.count == 0 {
-                return 1
+            if discoverCriteriaArray[collectionView.tag] == "User" {
+                return discoverKasamArray[collectionView.tag]?.count ?? 1
             } else {
-                return myKasamArray.count
+                return discoverKasamArray[collectionView.tag]?.count ?? 0
             }
         }
     }
     
     //Populate cells
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == discoverCollection {
-            let block = freeKasamArray[indexPath.row]
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FreeKasamCell", for: indexPath) as! DiscoverHorizontalCell
-            cell.setBlock(cell: block)
-            cell.topImage.layer.cornerRadius = 8.0
-            cell.topImage.clipsToBounds = true
-            return cell
-        } else if collectionView == categoryCollection {
-            let block = expertKasamArray[indexPath.row]
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ExpertKasamCell", for: indexPath) as! DiscoverCategoryCell
+        if collectionView == categoryCollection {
+            let block = featuredKasamArray[indexPath.row]
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FeaturedKasamCell", for: indexPath) as! DiscoverCategoryCell
             cell.setBlock(cell: block)
             return cell
         } else {
-            if myKasamArray.count != 0 {
-                let block = myKasamArray[indexPath.row]
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MyKasamCell", for: indexPath) as! DiscoverHorizontalCell
-                cell.setBlock(cell: block)
-                cell.topImage.layer.cornerRadius = 8.0
-                cell.topImage.clipsToBounds = true
-                return cell
-            } else {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MyKasamCell", for: indexPath) as! DiscoverHorizontalCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DiscoverKasamCell", for: indexPath) as! DiscoverHorizontalCell
+            if discoverKasamArray[collectionView.tag] == nil {
                 cell.kasamTitle.text = "Create a Kasam"
                 cell.topImage.image = UIImage(named: "placeholder-add-kasam")!
                 cell.kasamRating.rating = 5.0
                 cell.topImage.layer.cornerRadius = 8.0
                 cell.topImage.clipsToBounds = true
-                return cell
+            } else {
+                let block = discoverKasamArray[collectionView.tag]![indexPath.row]
+                cell.setBlock(cell: block)
             }
+            return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == discoverCollection {
-            let kasamID = freeKasamArray[indexPath.row].kasamID
-            let kasamName = freeKasamArray[indexPath.row].title
-            kasamTitleGlobal = kasamName
-            kasamIDGlobal = kasamID
-            self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
-        } else if collectionView == categoryCollection {
-            let kasamID = expertKasamArray[indexPath.row].kasamID
-            let kasamName = expertKasamArray[indexPath.row].title
+        if collectionView == categoryCollection {
+            let kasamID = featuredKasamArray[indexPath.row].kasamID
+            let kasamName = featuredKasamArray[indexPath.row].title
             kasamTitleGlobal = kasamName
             kasamIDGlobal = kasamID
             self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
         } else {
-            if myKasamArray.count != 0 {
-                let kasamID = myKasamArray[indexPath.row].kasamID
-                let kasamName = myKasamArray[indexPath.row].title
-                kasamTitleGlobal = kasamName
-                kasamIDGlobal = kasamID
-                self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
-            } else {
+            if discoverCriteriaArray[collectionView.tag] == "User" && discoverKasamArray[collectionView.tag] == nil {
                 self.performSegue(withIdentifier: "goToNewKasam", sender: indexPath)
+            } else {
+                let kasamID = discoverKasamArray[collectionView.tag]?[indexPath.row].kasamID
+                let kasamName = discoverKasamArray[collectionView.tag]?[indexPath.row].title
+                kasamTitleGlobal = kasamName!
+                kasamIDGlobal = kasamID!
+                self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
             }
         }
     }
@@ -242,9 +246,8 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
         if collectionView == categoryCollection {
             expertHeight.constant = (view.bounds.size.width * (8/13))
             return CGSize(width: view.bounds.size.width, height: view.bounds.size.width * (8/13))
-        } else {
-            popularHeight.constant = (view.bounds.size.width / 2.3)
-            myKasamHeight.constant = popularHeight.constant
+        }
+        else {
             viewSafeAreaInsetsDidChange()
             return CGSize(width: view.bounds.size.width / 2, height: view.bounds.size.width / 2.3)
         }

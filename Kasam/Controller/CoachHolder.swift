@@ -29,7 +29,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     var observer: NSObjectProtocol?
 
     //local variables
-    var discoverArray: [freeKasamFormat] = []
+    var discoverArray: [discoverKasamFormat] = []
     var followerCountGlobal = 0
     var coachID: String = ""                //transfered in value
     var coachGName: String = ""             //transfered in value
@@ -76,7 +76,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
             Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: { (snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     let kasamURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = freeKasamFormat(title: value["Title"] as? String ?? "", image: kasamURL!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: kasamURL!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
                     self.discoverArray.append(kasam)
                     self.kasamSquareCollection.reloadData()
                 }

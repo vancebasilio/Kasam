@@ -31,7 +31,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var TypeIcon: UIButton!
     @IBOutlet weak var levelIcon: UIButton!
     
-    @IBOutlet weak var kasamType: UILabel!
+    @IBOutlet weak var kasamGenre: UILabel!
     @IBOutlet weak var kasamLevel: UILabel!
     @IBOutlet weak var followersNo: UILabel!
     
@@ -66,6 +66,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var blockIDGlobal = ""
     var pastJoinDate = ""
     let animationView = AnimationView()
+    var kasamType = ""
+    var benefitsArray = [""]
     
     //Review Only Variables
     var reviewOnly = false
@@ -179,7 +181,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     //Retrieves Kasam Data using Kasam ID selected
     func getKasamData(){
-        Database.database().reference().child("Coach-Kasams").child(kasamID).observe(.value, with: { (snapshot) in
+        Database.database().reference().child("Coach-Kasams").child(kasamID).observe(.value, with: {(snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 self.kasamGTitle = value["Title"] as? String ?? ""
                 self.headerLabel.text! = self.kasamGTitle
@@ -187,12 +189,22 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamDescription.text! = value["Description"] as? String ?? ""
                 self.coachName.setTitle(value["CreatorName"] as? String ?? "", for: .normal)        //in the future, get this name from the userdatabase, so it's the most uptodate name
                 self.coachIDGlobal = value["CreatorID"] as! String
-                
-                self.kasamType.text! = value["Genre"] as? String ?? ""
+                self.kasamGenre.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = value["Level"] as? String ?? ""
+                let benefitsString = value["Benefits"] as? String ?? ""
+                self.benefitsArray = benefitsString.components(separatedBy: ";")
+                
+                if value["Type"] as? String ?? "" == "Basic" {
+                    self.tableView.separatorStyle = .none
+                    self.tableView.allowsSelection = false
+                    self.kasamType = "Basic"
+                    self.tableView.reloadData()
+                } else {
+                    self.kasamType = "Challenge"
+                }
                 
                 //Set icons
-                self.setKasamTypeIcon(kasamType: self.kasamType.text!, button: self.TypeIcon)
+                self.setKasamTypeIcon(kasamType: self.kasamGenre.text!, button: self.TypeIcon)
                 self.setKasamLevelIcon(kasamLevel: self.kasamLevel.text!, button: self.levelIcon)
         
                 let headerURL = URL(string: value["Image"] as? String ?? "")
@@ -236,7 +248,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     //Add Kasam to Following List of user
     @IBAction func addButtonPress(_ sender: Any) {
         if registerCheck == 0 {
-            addKasamPopup()
+            addKasamPopup(type: kasamType)
             observer = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "saveTime"), object: nil, queue: OperationQueue.main) {(notification) in
                 let timeVC = notification.object as! AddKasamController
                 self.chosenTime = timeVC.formattedTime
@@ -404,7 +416,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         kasamTitle.text = NewKasam.kasamName
         headerLabel.text = NewKasam.kasamName
         kasamDescription.text = NewKasam.kasamDescription
-        kasamType.text = "Personal"
+        kasamGenre.text = "Personal"
         kasamLevel.text = "Beginner"
         var blockImage = UIImage()
         if NewKasam.kasamImageToSave != UIImage() && NewKasam.loadedInKasamImage == UIImage() {
@@ -678,20 +690,40 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
 
 extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return kasamBlocks.count
+        if kasamType == "Basic" {
+            return benefitsArray.count
+        } else {
+            return kasamBlocks.count
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let block = kasamBlocks[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "KasamBlock") as! BlocksCell
-        cell.setBlock(block: block)
+        if kasamType == "Basic" {
+            cell.setBenefits(benefits: benefitsArray[indexPath.row])
+        } else {
+            let block = kasamBlocks[indexPath.row]
+            cell.setBlock(block: block)
+        }
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        blockIDGlobal = kasamBlocks[indexPath.row].blockID
-        performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
-        tableView.deselectRow(at: indexPath, animated: true)
+        if kasamType == "Basic" {
+            //do nothing
+        } else {
+            blockIDGlobal = kasamBlocks[indexPath.row].blockID
+            performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
+            tableView.deselectRow(at: indexPath, animated: true)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if kasamType == "Basic" {
+            return 30
+        } else {
+            return 90
+        }
     }
 }
 

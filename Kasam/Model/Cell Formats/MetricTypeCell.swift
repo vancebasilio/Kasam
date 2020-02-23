@@ -30,10 +30,12 @@ class MetricTypeCell: UICollectionViewCell {
         metricTypeBG.clipsToBounds = true
         metricIconBG.layer.cornerRadius = 20
         metricIconBG.clipsToBounds = true
+        
         metricBGOutline.layer.cornerRadius = 25
         metricBGOutline.clipsToBounds = true
         metricBGOutline.layer.borderColor = UIColor.init(hex: 0x66A058).cgColor
         metricBGOutline.layer.borderWidth = 3.0
+        
         metricTypeTitle.text = title
     }
 }

@@ -141,7 +141,7 @@ import Firebase
     }
 
     //ADD KASAM---------------------------------------------------------------------------------------------
-    func addKasamPopup() {
+    func addKasamPopup(type:String) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -160,8 +160,8 @@ import Firebase
         attributes.positionConstraints.verticalOffset = 0
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark
-        
         let viewController = AddKasamController()
+        viewController.type = "Basic"
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 

@@ -203,7 +203,7 @@ class ProfileViewController: UIViewController {
             
             //Kasam Level
             self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
-            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasam.kasamID).observe(.childAdded, with:{ (snapshot) in
+            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
                 self.daysCompletedDict[snapshot.key] = 1
                 let total = self.daysCompletedDict.count
                 if total == 1 {

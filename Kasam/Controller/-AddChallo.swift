@@ -14,7 +14,9 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var slidingHandle: UIView!
+    @IBOutlet weak var startDateTimeLabel: UILabel!
     
+    var type = ""
     var startDate = ""
     let calendar = Calendar.current
     let formatter = DateFormatter()
@@ -38,6 +40,10 @@ class AddKasamController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if type == "Basic" {
+            startDateTimeLabel.text = "Start Date"
+            datePicker.datePickerMode = UIDatePicker.Mode.date
+        }
         setupKeyboardDismissRecognizer()
         datePicker.minimumDate = Date()
         datePicker.maximumDate = Calendar.current.date(byAdding: .month, value: 1, to: Date())

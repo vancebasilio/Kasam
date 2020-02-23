@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class freeKasamFormat {
+class discoverKasamFormat {
     var image: URL
     var title: String
     var rating: String
@@ -36,22 +36,6 @@ class kasamFollowingCellFormat {
         self.title = title
         self.kasamID = kasamID
         self.metricType = metricType
-    }
-}
-
-class expertKasamFormat {
-    var image: URL
-    var title: String
-    var rating: String
-    var creator: String
-    var kasamID: String
-    
-    init(title: String, image: URL, rating: String, creator: String, kasamID: String){
-        self.image = image
-        self.title = title
-        self.rating = rating
-        self.creator = creator
-        self.kasamID = kasamID
     }
 }
 
@@ -104,9 +88,9 @@ class TodayBlockFormat {
     var kasamName: String
     var statusType: String
     var displayStatus: String
-    var dayTrackerArray: [Int]?
+    var dayTrackerArray: [(Int,Bool)]?
     
-    init(kasamOrder: Int, kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String, image: URL, statusType: String, displayStatus: String, dayTrackerArray: [Int]?){
+    init(kasamOrder: Int, kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String, image: URL, statusType: String, displayStatus: String, dayTrackerArray: [(Int,Bool)]?){
         self.kasamOrder = kasamOrder
         self.kasamID = kasamID
         self.blockID = blockID
@@ -284,8 +268,9 @@ class KasamSavedFormat {
     var metricType: String
     var currentStatus: String
     var pastKasamJoinDates: [String]
+    var type: String
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, endDate: Date, startTime: String, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String]){
+    init(kasamID: String, kasamName: String, joinedDate: Date, endDate: Date, startTime: String, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String], type: String){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
@@ -296,6 +281,7 @@ class KasamSavedFormat {
         self.metricType = metricType ?? ""
         self.currentStatus = currentStatus
         self.pastKasamJoinDates = pastKasamJoinDates
+        self.type = type
     }
 }
 

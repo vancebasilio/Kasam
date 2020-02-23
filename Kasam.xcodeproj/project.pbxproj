@@ -50,6 +50,7 @@
 		BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74E1F22336748E00653381 /* CountdownTimer.swift */; };
 		BC791A21234BF93600A9D25A /* TodayMotivationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */; };
 		BC85E72C23B11EC500330F60 /* NewKasamPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC85E72B23B11EC500330F60 /* NewKasamPage.swift */; };
+		BC89B8CA23F86A4800EA3813 /* DiscoverKasamCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC89B8C923F86A4800EA3813 /* DiscoverKasamCell.swift */; };
 		BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */; };
 		BC96F8482292085200E161FC /* TodayBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC96F8462292085200E161FC /* TodayBlockCell.swift */; };
 		BC9C2424226FD6FF00E7B64B /* -NewKasam.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */; };
@@ -61,6 +62,7 @@
 		BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */; };
 		BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */; };
 		BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BCC79A05226BD56000B72D65 /* Default-568h@2x.png */; };
+		BCCD252923FB26C00030F6FC /* TodayChallengesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCD252823FB26C00030F6FC /* TodayChallengesCell.swift */; };
 		BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */; };
 		BCD7315723B07A9B000A1AF8 /* -NewBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD7315623B07A9B000A1AF8 /* -NewBlock.swift */; };
 		BCD824D323D7C0B40051C499 /* success.json in Resources */ = {isa = PBXBuildFile; fileRef = BCD824D223D7C0B40051C499 /* success.json */; };
@@ -125,6 +127,7 @@
 		BC74E1F22336748E00653381 /* CountdownTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayMotivationCell.swift; sourceTree = "<group>"; };
 		BC85E72B23B11EC500330F60 /* NewKasamPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewKasamPage.swift; sourceTree = "<group>"; };
+		BC89B8C923F86A4800EA3813 /* DiscoverKasamCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverKasamCell.swift; sourceTree = "<group>"; };
 		BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+constraints.swift"; sourceTree = "<group>"; };
 		BC96F8462292085200E161FC /* TodayBlockCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayBlockCell.swift; sourceTree = "<group>"; };
 		BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-NewKasam.swift"; sourceTree = "<group>"; };
@@ -136,6 +139,7 @@
 		BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KasamTrackerCell.swift; sourceTree = "<group>"; };
 		BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
 		BCC79A05226BD56000B72D65 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		BCCD252823FB26C00030F6FC /* TodayChallengesCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayChallengesCell.swift; sourceTree = "<group>"; };
 		BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizedTableView.swift; sourceTree = "<group>"; };
 		BCD7315623B07A9B000A1AF8 /* -NewBlock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "-NewBlock.swift"; sourceTree = "<group>"; };
 		BCD824D223D7C0B40051C499 /* success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = success.json; sourceTree = "<group>"; };
@@ -244,9 +248,11 @@
 				BC08B956229D585900F90288 /* CellFormats.swift */,
 				BCFCB43422AF02C800DC2DD7 /* DiscoverHCell.swift */,
 				BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */,
+				BC89B8C923F86A4800EA3813 /* DiscoverKasamCell.swift */,
 				BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */,
 				BC96F8462292085200E161FC /* TodayBlockCell.swift */,
 				BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */,
+				BCCD252823FB26C00030F6FC /* TodayChallengesCell.swift */,
 				BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */,
 				BC74AE98237DDCD100676B10 /* NewActivityCell.swift */,
 				BC45558C2321F6D300F1227B /* KasamViewerCell.swift */,
@@ -600,6 +606,7 @@
 				BC01664522D53E970073186D /* CoachHolder.swift in Sources */,
 				BCF2A76B227F08F0009D2368 /* KasamBlocksCell.swift in Sources */,
 				BC339E902377242C00E1D038 /* LoginViewCell.swift in Sources */,
+				BC89B8CA23F86A4800EA3813 /* DiscoverKasamCell.swift in Sources */,
 				BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */,
 				BC1FAF2D2269FAFA006A9245 /* AppDelegate.swift in Sources */,
 				BC74AE99237DDCD100676B10 /* NewActivityCell.swift in Sources */,
@@ -619,6 +626,7 @@
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
 				BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */,
 				BCED0D87237285E80054E66B /* AlertService.swift in Sources */,
+				BCCD252923FB26C00030F6FC /* TodayChallengesCell.swift in Sources */,
 				BC55CC69232B4552003C87F6 /* WeeklyStatsCell.swift in Sources */,
 				BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */,
 				BC85E72C23B11EC500330F60 /* NewKasamPage.swift in Sources */,
