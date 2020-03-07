@@ -70,4 +70,6 @@ struct PlaceHolders {
     static var kasamLoadingImage = UIImage(named: "placeholder.png")
     
     static var kasamActivityRestImageURL = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2FRest_animation.gif?alt=media&token=347b9eca-6d37-40fc-82f3-12483d71e440"
+    
+    static var motivationPlaceholder = UIImage(named: "today_motivation_background4")
 }

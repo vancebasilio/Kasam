@@ -14,55 +14,34 @@ protocol TodayCellDelegate {
     func clickedButton(kasamID: String, blockID: String, status: String)
 }
 
+protocol TableCellDelegate : class {
+    func updateKasamButtonPressed(_ sender: UIButton, kasamOrder: Int)
+}
+
 class TodayBlockCell: UITableViewCell {
     
     @IBOutlet weak var kasamName: UILabel!
     @IBOutlet weak var blockImage: UIImageView!
     @IBOutlet weak var dayNumber: UILabel!
-    @IBOutlet weak var blockDuration: UILabel!
+    @IBOutlet weak var currentDayStreak: UILabel!
     @IBOutlet weak var blockContents: UIView!
-    @IBOutlet weak var blockShadow: UIView!
+    @IBOutlet weak var statsContent: UIView!
+    @IBOutlet weak var statsShadow: UIView!
+    @IBOutlet weak var streakShadow: UIView!
     @IBOutlet weak var blockPlaceholderView: UIStackView!
     @IBOutlet weak var blockPlaceholderBG: UIView!
     @IBOutlet weak var blockPlaceholderAdd: UIImageView!
-    @IBOutlet weak var statusButton: UIButton!
-    @IBOutlet weak var blockOutline: UIView!
+    @IBOutlet weak var yesButton: UIButton!
+    @IBOutlet weak var noButton: UIButton!
+    @IBOutlet private weak var dayTrackerCollectionView: UICollectionView!
     
-    @IBOutlet weak var day1: UIView!
-    @IBOutlet weak var day2: UIView!
-    @IBOutlet weak var day3: UIView!
-    @IBOutlet weak var day4: UIView!
-    @IBOutlet weak var day5: UIView!
-    @IBOutlet weak var day6: UIView!
-    @IBOutlet weak var day7: UIView!
-    @IBOutlet weak var day8: UIView!
-    @IBOutlet weak var day9: UIView!
-    @IBOutlet weak var day10: UIView!
-    @IBOutlet weak var day11: UIView!
-    @IBOutlet weak var day12: UIView!
-    @IBOutlet weak var day13: UIView!
-    @IBOutlet weak var day14: UIView!
-    @IBOutlet weak var day15: UIView!
-    @IBOutlet weak var day16: UIView!
-    @IBOutlet weak var day17: UIView!
-    @IBOutlet weak var day18: UIView!
-    @IBOutlet weak var day19: UIView!
-    @IBOutlet weak var day20: UIView!
-    @IBOutlet weak var day21: UIView!
-    @IBOutlet weak var day22: UIView!
-    @IBOutlet weak var day23: UIView!
-    @IBOutlet weak var day24: UIView!
-    @IBOutlet weak var day25: UIView!
-    @IBOutlet weak var day26: UIView!
-    @IBOutlet weak var day27: UIView!
-    @IBOutlet weak var day28: UIView!
-    @IBOutlet weak var day29: UIView!
-    @IBOutlet weak var day30: UIView!
-    
+    var cellDelegate: TableCellDelegate?
     var delegate: TodayCellDelegate?
+    var row = 0
     var kasamID: String?
     var blockID: String?
     var tempBlock: TodayBlockFormat?
+    var today: Int?
     var processedStatus: String?
     let progress = Progress(totalUnitCount: 30)
     
@@ -70,11 +49,15 @@ class TodayBlockCell: UITableViewCell {
         cellFormatting()
         blockPlaceholderView.isHidden = false
         blockContents.isHidden = true
-        blockShadow.backgroundColor = UIColor(patternImage: PlaceHolders.kasamHeaderPlaceholderImage!)
+        statsShadow.backgroundColor = UIColor(patternImage: PlaceHolders.kasamHeaderPlaceholderImage!)
         blockPlaceholderView.isHidden = false
         blockPlaceholderAdd.setIcon(icon: .fontAwesomeSolid(.plus), textColor: .white, backgroundColor: .lightGray, size: CGSize(width: 25, height: 25))
         blockPlaceholderBG.layer.cornerRadius = blockPlaceholderBG.frame.width / 2
         blockPlaceholderBG.clipsToBounds = true
+    }
+    
+    func reloadCollectionView(){
+        dayTrackerCollectionView.reloadData()
     }
     
     func removePlaceholder(){
@@ -82,72 +65,91 @@ class TodayBlockCell: UITableViewCell {
         blockPlaceholderView.isHidden = true
     }
     
+    func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
+        dayTrackerCollectionView.delegate = dataSourceDelegate
+        dayTrackerCollectionView.dataSource = dataSourceDelegate
+        dayTrackerCollectionView.tag = row
+        dayTrackerCollectionView.reloadData()
+    }
+    
     func setBlock(block: TodayBlockFormat) {
         cellFormatting()
         statusUpdate()
         tempBlock = block
-        let dayTrackerArray = [day1, day2, day3, day4, day5, day6, day7, day8, day9, day10, day11, day12, day13, day14, day15, day16, day17, day18, day19, day20, day21, day22, day23, day24, day25, day26, day27, day28, day29, day30]
         kasamID = block.kasamID
         kasamName.text = block.kasamName
         blockID = block.title
         blockImage.sd_setImage(with: block.image)
-        dayNumber.text = "Day \(block.dayOrder) • "
-        blockDuration.text = "\(block.duration)"
+        today = Int(block.dayOrder)
+        dayNumber.text = "Day \(block.dayOrder)"
+        if block.currentStreak != nil {currentDayStreak.text = "\(String(describing: block.currentStreak!))"}
         processedStatus = block.displayStatus
         
-        //DayTracker
-        day1.roundedLeft()
-        day30.roundedRight()
-        
-        for i in 0...29 {
-            dayTrackerArray[i]?.backgroundColor = UIColor.init(hex: 0xEFEFF4)
-        }
-        
-        if block.dayTrackerArray != nil {
-            let count = block.dayTrackerArray!.count
-            if count > 0 {
-                for i in 1...count {
-                    let day = block.dayTrackerArray![i - 1].0
-                    let status = block.dayTrackerArray![i - 1].1
-                    if status == true {
-                        dayTrackerArray[day - 1]?.backgroundColor = UIColor.init(hex: 0xE1C270)
-                    } else {
-                        dayTrackerArray[day - 1]?.backgroundColor = UIColor.init(hex: 0x000000)
-                    }
-                }
-            }
-        }
+        let gradient = CAGradientLayer()
+        gradient.frame = dayTrackerCollectionView.superview?.bounds ?? CGRect.zero
+        gradient.colors = [UIColor.white.withAlphaComponent(0).cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.white.withAlphaComponent(0).cgColor]
+        gradient.locations = [0.0, 0.1, 0.9, 1.0]
+        gradient.startPoint = CGPoint(x: 0.0, y: 0.5)
+        gradient.endPoint = CGPoint(x: 1.0, y: 0.5)
+        dayTrackerCollectionView.superview?.layer.mask = gradient
     }
     
     func cellFormatting(){
         //Cell formatting
-        blockContents.layer.cornerRadius = 16.0
-        blockContents.clipsToBounds = true
+        statsContent.layer.cornerRadius = 16.0
+        blockImage.layer.cornerRadius = 8.0
         
-        blockShadow.layer.cornerRadius = 16.0
-        blockShadow.layer.shadowColor = UIColor.black.cgColor
-        blockShadow.layer.shadowOpacity = 0.2
-        blockShadow.layer.shadowOffset = CGSize.zero
-        blockShadow.layer.shadowRadius = 4
+        statsShadow.layer.cornerRadius = 16.0
+        statsShadow.layer.shadowColor = UIColor.black.cgColor
+        statsShadow.layer.shadowOpacity = 0.2
+        statsShadow.layer.shadowOffset = CGSize.zero
+        statsShadow.layer.shadowRadius = 4
         
-        blockOutline.layer.cornerRadius = 20.0
-        blockOutline.clipsToBounds = true
-        blockOutline.layer.borderColor = UIColor.init(hex: 0x66A058).cgColor
-        blockOutline.layer.borderWidth = 3.0
+        streakShadow.layer.cornerRadius = 16.0
+        streakShadow.layer.shadowColor = UIColor.black.cgColor
+        streakShadow.layer.shadowOpacity = 0.2
+        streakShadow.layer.shadowOffset = CGSize.zero
+        streakShadow.layer.shadowRadius = 4
+        
+        let centerCollectionView = NSNotification.Name("CenterCollectionView")
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
+    }
+    
+    @IBAction func yesButtonPressed(_ sender: UIButton) {
+        cellDelegate?.updateKasamButtonPressed(sender, kasamOrder: row)
+        statusUpdate()
+    }
+    
+    @IBAction func noButtonPressed(_ sender: UIButton) {
+        cellDelegate?.updateKasamButtonPressed(sender, kasamOrder: row)
+        statusUpdate()
+    }
+    
+    @objc func centerCollectionView() {
+        if today != nil {
+            let indexPath = IndexPath(item: today! - 1, section: 0)
+            self.dayTrackerCollectionView.scrollToItem(at:indexPath, at: .centeredHorizontally, animated: true)
+        }
     }
     
     func statusUpdate(){
-        //Checkbox
+        let dayYesColor = UIColor.init(hex: 0x66A058)
+        let dayNoColor = UIColor.init(hex: 0xcd742c)
+        
         if tempBlock?.displayStatus == "Checkmark" {
-            blockContents.backgroundColor = UIColor.init(hex: 0xffffff)
-            blockOutline.isHidden = true
-            statusButton?.setIcon(icon: .fontAwesomeRegular(.dotCircle), iconSize: 30, color: UIColor.colorFour, forState: .normal)
+            streakShadow.backgroundColor = UIColor.colorFour
+            yesButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 30, color: dayYesColor, forState: .normal)
+            noButton?.setIcon(icon: .fontAwesomeRegular(.timesCircle), iconSize: 30, color: dayNoColor, forState: .normal)
         } else if tempBlock?.displayStatus == "Check" {
-            blockContents.backgroundColor = UIColor.init(hex: 0xedf7ee)
-            blockOutline.isHidden = false
-            statusButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: 30, color: UIColor.init(hex: 0x007f00), forState: .normal)
+            streakShadow.backgroundColor = dayYesColor
+            noButton?.setIcon(icon: .fontAwesomeRegular(.timesCircle), iconSize: 30, color: dayNoColor, forState: .normal)
+            yesButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: 30, color: dayYesColor, forState: .normal)
+        } else if tempBlock?.displayStatus == "Uncheck" {
+            streakShadow.backgroundColor = dayNoColor
+            yesButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 30, color: dayYesColor, forState: .normal)
+            noButton?.setIcon(icon: .fontAwesomeSolid(.timesCircle), iconSize: 30, color: dayNoColor, forState: .normal)
         } else if tempBlock?.displayStatus == "Progress" {
-            statusButton?.setIcon(icon: .fontAwesomeSolid(.cookieBite), iconSize: 30, color: UIColor.colorFour, forState: .normal)
+            yesButton?.setIcon(icon: .fontAwesomeSolid(.cookieBite), iconSize: 30, color: UIColor.colorFour, forState: .normal)
         }
     }
 }
