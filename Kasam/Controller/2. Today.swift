@@ -56,8 +56,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     //Center the day Tracker to today
-    override func viewDidLayoutSubviews() {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "CenterCollectionView"), object: self)
+    override func viewDidAppear(_ animated: Bool) {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "CenterCollectionView"), object: self)
+        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -554,7 +556,6 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as! TodayBlockCell
-        cell.reloadCollectionView()
         if noKasamTracker == 1 {
             cell.setPlaceholder()
         } else {
@@ -564,6 +565,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
             cell.delegate = self
             cell.cellDelegate = self
             cell.setBlock(block: block)
+            cell.reloadCollectionView()
         }
         return cell
     }
@@ -627,7 +629,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
             return CGSize(width: collectionViewHeight, height: collectionViewHeight)
         } else {
             //for the day tracker
-            return CGSize(width: 28, height: 28)
+            return CGSize(width: 30, height: 30)
         }
     }
     
@@ -680,6 +682,8 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         if collectionView == todayMotivationCollectionView {
             return UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
+        } else if collectionView == challengesColletionView {
+            return UIEdgeInsets(top: 0, left: 10, bottom: 10, right: 10)
         } else {
             return UIEdgeInsets(top: 0, left: 10, bottom: 10, right: 10)
         }

@@ -21,7 +21,6 @@ protocol TableCellDelegate : class {
 class TodayBlockCell: UITableViewCell {
     
     @IBOutlet weak var kasamName: UILabel!
-    @IBOutlet weak var blockImage: UIImageView!
     @IBOutlet weak var dayNumber: UILabel!
     @IBOutlet weak var currentDayStreak: UILabel!
     @IBOutlet weak var blockContents: UIView!
@@ -79,7 +78,6 @@ class TodayBlockCell: UITableViewCell {
         kasamID = block.kasamID
         kasamName.text = block.kasamName
         blockID = block.title
-        blockImage.sd_setImage(with: block.image)
         today = Int(block.dayOrder)
         dayNumber.text = "Day \(block.dayOrder)"
         if block.currentStreak != nil {currentDayStreak.text = "\(String(describing: block.currentStreak!))"}
@@ -97,7 +95,6 @@ class TodayBlockCell: UITableViewCell {
     func cellFormatting(){
         //Cell formatting
         statsContent.layer.cornerRadius = 16.0
-        blockImage.layer.cornerRadius = 8.0
         
         statsShadow.layer.cornerRadius = 16.0
         statsShadow.layer.shadowColor = UIColor.black.cgColor
@@ -118,17 +115,20 @@ class TodayBlockCell: UITableViewCell {
     @IBAction func yesButtonPressed(_ sender: UIButton) {
         cellDelegate?.updateKasamButtonPressed(sender, kasamOrder: row)
         statusUpdate()
+        centerCollectionView()
     }
     
     @IBAction func noButtonPressed(_ sender: UIButton) {
         cellDelegate?.updateKasamButtonPressed(sender, kasamOrder: row)
         statusUpdate()
+        centerCollectionView()
     }
     
     @objc func centerCollectionView() {
         if today != nil {
-            let indexPath = IndexPath(item: today! - 1, section: 0)
-            self.dayTrackerCollectionView.scrollToItem(at:indexPath, at: .centeredHorizontally, animated: true)
+            let indexPath = IndexPath(item: self.today! - 1, section: 0)
+            self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
+            self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         }
     }
     
