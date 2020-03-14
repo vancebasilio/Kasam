@@ -19,6 +19,6 @@ class DiscoverCategoryCell: UICollectionViewCell {
     func setBlock(cell: discoverKasamFormat) {
         topImage.sd_setImage(with: cell.image, placeholderImage: PlaceHolders.kasamLoadingImage)
         categoryTitle.text = cell.title
-        kasamCreator.text = cell.creator
+        kasamCreator.text = "Challenge"
     }
 }

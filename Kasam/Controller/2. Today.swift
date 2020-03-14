@@ -20,6 +20,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var todayMotivationCollectionView: UICollectionView!
     @IBOutlet weak var todayCollectionHeight: NSLayoutConstraint!
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var challengesTitle: UILabel!
     @IBOutlet weak var challengesColletionView: UICollectionView!
     @IBOutlet weak var challengesCollectionHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
@@ -35,6 +36,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
     var dayOrderGlobal = ""
     let semaphore = DispatchSemaphore(value: 1)
     var collectionViewHeight = CGFloat(0.0)
+    var hideDayTrackerDates = true
     
     var kasamFollowingRefHandle: DatabaseHandle!
     var motivationRefHandle: DatabaseHandle!
@@ -75,9 +77,12 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         
         let updateKasamStatus = NSNotification.Name("UpdateTodayBlockStatus")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.updateKasamStatus), name: updateKasamStatus, object: nil)
-        
+
         let editMotivation = NSNotification.Name("EditMotivation")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.editMotivation), name: editMotivation, object: nil)
+        
+        let resetTodayChallenges = NSNotification.Name("ResetTodayChallenges")
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.resetTodayChallenges), name: resetTodayChallenges, object: nil)
     }
     
     func printLocalNotifications(){
@@ -188,6 +193,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                     if SavedData.kasamTodayArray.count == count {
                         self.retrieveKasams()
                         self.getDayTracker()
+                        if challengeOrder == 0 {self.challengesTitle.isHidden = true} else {self.challengesTitle.isHidden = false}
                         //update the user profile page
                         NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                         DBRef.userKasamFollowing.removeObserver(withHandle: self.kasamFollowingRefHandle)
@@ -238,7 +244,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                                 }
                             }
                         }
-                    } else {
+                    } else if kasam.type == "Challenge" {
                         //It's a Challenge Kasam, so get the blockdata after the block order day is calculated
                         DBRef.coachKasams.child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: {(snapshot) in
                             let value = snapshot.value as! Dictionary<String,Any>
@@ -256,6 +262,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                 })
             }
         }
+    }
+    
+    @objc func resetTodayChallenges(){
+        self.challengesColletionView.reloadData()
     }
     
     func getDayTracker() {
@@ -381,7 +391,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         return currentStreak
     }
     
-    //When the Today Block checkmarks are pressed
+    //When the Today Block checkmark buttons are pressed
     func updateKasamButtonPressed(_ sender: UIButton, kasamOrder: Int){
         let block = kasamBlocks[kasamOrder]
         let statusDate = getCurrentDate()
@@ -399,6 +409,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
                 
             }
         }
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: ["kasamID": block.kasamID])
     }
     
@@ -422,6 +433,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         //if the status of today is changed, update the display status
         if day == Int(block.dayOrder) {block.displayStatus = status}
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: ["kasamID": block.kasamID, "date": statusDate])
     }
     
@@ -560,10 +572,11 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
             cell.setPlaceholder()
         } else {
             cell.removePlaceholder()
-            let block = kasamBlocks[indexPath.row]
             cell.row = indexPath.row
             cell.delegate = self
             cell.cellDelegate = self
+            cell.hideDayTrackerDates = hideDayTrackerDates
+            let block = kasamBlocks[indexPath.row]
             cell.setBlock(block: block)
             cell.reloadCollectionView()
         }
@@ -578,6 +591,12 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let height = UITableView.automaticDimension
         return height
+    }
+    
+    func hideDayTrackerDateButtonPressed(state: Bool, kasamOrder: Int){
+        hideDayTrackerDates = state
+        let indexPosition = IndexPath(row: kasamOrder, section: 0)
+        tableView.reloadRows(at: [indexPosition], with: .none)
     }
     
     //Skeleton View----------------------------------------------------------------------
@@ -595,9 +614,10 @@ extension TodayBlocksViewController: TodayCellDelegate {
         let statusDateTime = getCurrentDateTime()
         let statusDate = getCurrentDate()
         //Adds the status data as a subset of the Status
-        if status == "Check" { Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime"]) {(error, reference) in}
+        if status == "Check" {
+            DBRef.userHistory.child(kasamID).child(statusDate ?? "StatusDate").updateChildValues(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime"]) {(error, reference) in}
         } else {
-            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDateTime").removeValue()
+            DBRef.userHistory.child(kasamID).child(statusDate ?? "StatusDateTime").removeValue()
         }
     }
 }
@@ -629,7 +649,11 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
             return CGSize(width: collectionViewHeight, height: collectionViewHeight)
         } else {
             //for the day tracker
-            return CGSize(width: 30, height: 30)
+            if hideDayTrackerDates == true {
+                return CGSize(width: 30, height: 30)
+            } else {
+                return CGSize(width: 30, height: 50)
+            }
         }
     }
     
@@ -657,14 +681,15 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                 let day = indexPath.row + 1
                 let today = Int(self.kasamBlocks[collectionView.tag].dayOrder)
                 let future = day > today!
+                let date = dayTrackerDateFormat(date: Date(), todayDay: today!, row: indexPath.row + 1)
                 cell.cellFormatting(today: day == today, future: future)
                 if self.kasamBlocks[collectionView.tag].dayTrackerArray?[indexPath.row + 1] != nil {
                     let block = self.kasamBlocks[collectionView.tag].dayTrackerArray![indexPath.row + 1]
                     //set green and organe dots for day tracker
-                    cell.setBlock(kasamOrder: collectionView.tag, day: day, status: block?.1)
+                    cell.setBlock(kasamOrder: collectionView.tag, day: day, status: block?.1, date: date)
                 } else {
                     //grey out day tracker
-                    cell.setBlock(kasamOrder: collectionView.tag, day: day, status: nil)
+                    cell.setBlock(kasamOrder: collectionView.tag, day: day, status: nil, date: date)
                 }
             }
             return cell
@@ -685,7 +710,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         } else if collectionView == challengesColletionView {
             return UIEdgeInsets(top: 0, left: 10, bottom: 10, right: 10)
         } else {
-            return UIEdgeInsets(top: 0, left: 10, bottom: 10, right: 10)
+            return UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
         }
     }
     

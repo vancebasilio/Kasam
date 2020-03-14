@@ -161,7 +161,7 @@ import Firebase
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark
         let viewController = AddKasamController()
-        viewController.type = "Basic"
+        viewController.type = type
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 

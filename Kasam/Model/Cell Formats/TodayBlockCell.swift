@@ -16,6 +16,7 @@ protocol TodayCellDelegate {
 
 protocol TableCellDelegate : class {
     func updateKasamButtonPressed(_ sender: UIButton, kasamOrder: Int)
+    func hideDayTrackerDateButtonPressed(state: Bool, kasamOrder: Int)
 }
 
 class TodayBlockCell: UITableViewCell {
@@ -32,7 +33,8 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var blockPlaceholderAdd: UIImageView!
     @IBOutlet weak var yesButton: UIButton!
     @IBOutlet weak var noButton: UIButton!
-    @IBOutlet private weak var dayTrackerCollectionView: UICollectionView!
+    @IBOutlet weak var dayTrackerCollectionView: UICollectionView!
+    @IBOutlet weak var hideDayTrackerButton: UIButton!
     
     var cellDelegate: TableCellDelegate?
     var delegate: TodayCellDelegate?
@@ -43,6 +45,7 @@ class TodayBlockCell: UITableViewCell {
     var today: Int?
     var processedStatus: String?
     let progress = Progress(totalUnitCount: 30)
+    var hideDayTrackerDates = true
     
     func setPlaceholder() {
         cellFormatting()
@@ -73,8 +76,8 @@ class TodayBlockCell: UITableViewCell {
     
     func setBlock(block: TodayBlockFormat) {
         cellFormatting()
+        tempBlock = block               //tempBlock used to transfer info to the below func for displayStatus
         statusUpdate()
-        tempBlock = block
         kasamID = block.kasamID
         kasamName.text = block.kasamName
         blockID = block.title
@@ -82,11 +85,12 @@ class TodayBlockCell: UITableViewCell {
         dayNumber.text = "Day \(block.dayOrder)"
         if block.currentStreak != nil {currentDayStreak.text = "\(String(describing: block.currentStreak!))"}
         processedStatus = block.displayStatus
+        hideDayTrackerButton.setIcon(icon: .fontAwesomeRegular(.calendar), iconSize: 15, color: UIColor.colorFour, forState: .normal)
         
         let gradient = CAGradientLayer()
         gradient.frame = dayTrackerCollectionView.superview?.bounds ?? CGRect.zero
         gradient.colors = [UIColor.white.withAlphaComponent(0).cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.white.withAlphaComponent(0).cgColor]
-        gradient.locations = [0.0, 0.1, 0.9, 1.0]
+        gradient.locations = [0.0, 0.05, 0.95, 1.0]
         gradient.startPoint = CGPoint(x: 0.0, y: 0.5)
         gradient.endPoint = CGPoint(x: 1.0, y: 0.5)
         dayTrackerCollectionView.superview?.layer.mask = gradient
@@ -124,6 +128,16 @@ class TodayBlockCell: UITableViewCell {
         centerCollectionView()
     }
     
+    @IBAction func hideDayTrackerDateButtonPressed(_ sender: Any) {
+        if hideDayTrackerDates == true {
+            cellDelegate?.hideDayTrackerDateButtonPressed(state: false, kasamOrder: row)
+            hideDayTrackerDates = false
+        } else {
+            cellDelegate?.hideDayTrackerDateButtonPressed(state: true, kasamOrder: row)
+            hideDayTrackerDates = true
+        }
+    }
+    
     @objc func centerCollectionView() {
         if today != nil {
             let indexPath = IndexPath(item: self.today! - 1, section: 0)
@@ -135,21 +149,21 @@ class TodayBlockCell: UITableViewCell {
     func statusUpdate(){
         let dayYesColor = UIColor.init(hex: 0x66A058)
         let dayNoColor = UIColor.init(hex: 0xcd742c)
-        
+        let iconSize = CGFloat(35)
         if tempBlock?.displayStatus == "Checkmark" {
             streakShadow.backgroundColor = UIColor.colorFour
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 30, color: dayYesColor, forState: .normal)
-            noButton?.setIcon(icon: .fontAwesomeRegular(.timesCircle), iconSize: 30, color: dayNoColor, forState: .normal)
+            yesButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: iconSize, color: dayYesColor, forState: .normal)
+            noButton?.setIcon(icon: .fontAwesomeRegular(.timesCircle), iconSize: iconSize, color: dayNoColor, forState: .normal)
         } else if tempBlock?.displayStatus == "Check" {
             streakShadow.backgroundColor = dayYesColor
-            noButton?.setIcon(icon: .fontAwesomeRegular(.timesCircle), iconSize: 30, color: dayNoColor, forState: .normal)
-            yesButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: 30, color: dayYesColor, forState: .normal)
+            noButton?.setIcon(icon: .fontAwesomeRegular(.timesCircle), iconSize: iconSize, color: dayNoColor, forState: .normal)
+            yesButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: dayYesColor, forState: .normal)
         } else if tempBlock?.displayStatus == "Uncheck" {
             streakShadow.backgroundColor = dayNoColor
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 30, color: dayYesColor, forState: .normal)
-            noButton?.setIcon(icon: .fontAwesomeSolid(.timesCircle), iconSize: 30, color: dayNoColor, forState: .normal)
+            yesButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: iconSize, color: dayYesColor, forState: .normal)
+            noButton?.setIcon(icon: .fontAwesomeSolid(.timesCircle), iconSize: iconSize, color: dayNoColor, forState: .normal)
         } else if tempBlock?.displayStatus == "Progress" {
-            yesButton?.setIcon(icon: .fontAwesomeSolid(.cookieBite), iconSize: 30, color: UIColor.colorFour, forState: .normal)
+            yesButton?.setIcon(icon: .fontAwesomeSolid(.cookieBite), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
         }
     }
 }

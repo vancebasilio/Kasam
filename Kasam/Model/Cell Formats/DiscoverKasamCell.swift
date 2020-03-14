@@ -11,6 +11,7 @@ import UIKit
 class DiscoverKasamCell: UITableViewCell {
     
     @IBOutlet private weak var discoverCollectionView: UICollectionView!
+    @IBOutlet weak var DiscoverCategoryTitle: UILabel!
     @IBOutlet weak var collectionViewHeight: NSLayoutConstraint!
     
     override func awakeFromNib() {

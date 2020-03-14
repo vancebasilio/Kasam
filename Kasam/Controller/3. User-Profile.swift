@@ -53,7 +53,6 @@ class ProfileViewController: UIViewController {
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
     let animationView = AnimationView()
-    let userKasamDB = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
     var userKasamDBHandle: DatabaseHandle!
     var saveStorageRef = Storage.storage().reference()
     
@@ -63,13 +62,8 @@ class ProfileViewController: UIViewController {
     var kasamMetricTypeGlobal: String = ""
     var kasamImageGlobal: URL!
     var joinedDateGlobal: Date?
-    
-    var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var kasamHistoryRefHandle: DatabaseHandle!
-    
-    var kasamUserRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
     var kasamUserRefHandle: DatabaseHandle!
-    
     var kasamUserFollowRef: DatabaseReference! = DBRef.userKasamFollowing
     var kasamUserFollowRefHandle: DatabaseHandle!
     
@@ -203,7 +197,7 @@ class ProfileViewController: UIViewController {
             
             //Kasam Level
             self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
-            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
+                self.kasamHistoryRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
                 self.daysCompletedDict[snapshot.key] = 1
                 let total = self.daysCompletedDict.count
                 if total == 1 {
@@ -235,14 +229,17 @@ class ProfileViewController: UIViewController {
             let imageURL = URL(string:kasam.image)
             for x in 1...7 {
                 var avgMetric = 0
-                self.kasamHistoryRef.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{(snapshot) in
+                DBRef.userHistory.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{(snapshot) in
                     checkerCount += 1
                     self.metricDictionary[x] = 0                                      //to set the base as zero for each day
                     
                     //only records progress bar if the joined date is after the kasam date
                     if self.stringToDate(date: self.dayDictionary[x]!) >= kasam.joinedDate {
-                        if let value = snapshot.value as? [String: Any] {
-                            self.metricDictionary[x] = value["Metric Percent"] as? Double   //get the metric for each day for each kasam
+                        if let value = snapshot.value as? Int {
+                            self.metricDictionary[x] = Double(value)                        //Daily Kasam
+                        }
+                        else if let value = snapshot.value as? [String: Any] {
+                            self.metricDictionary[x] = value["Metric Percent"] as? Double   //Challange Kasam: Get metric for each day
                             metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
                             metricCount += 1
                         }
@@ -270,7 +267,7 @@ class ProfileViewController: UIViewController {
     
     @objc func getMyKasams(){
         myKasamsArray.removeAll()
-        userKasamDB.observeSingleEvent(of: .value, with:{(snap) in
+        DBRef.userKasams.observeSingleEvent(of: .value, with:{(snap) in
             let count = Int(snap.childrenCount)
             if count == 0 {
                 //not following any kasams
@@ -280,7 +277,7 @@ class ProfileViewController: UIViewController {
                 let cellWidth = ((self.view.frame.size.width - (15 * 4)) / 3)
                 self.editKasamsHeight.constant = cellWidth + 40
             }
-            self.userKasamDBHandle = self.userKasamDB.observe(.childAdded, with: {(snapshot) in
+            self.userKasamDBHandle = DBRef.userKasams.observe(.childAdded, with: {(snapshot) in
                 Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: {(snapshot) in
                     if let value = snapshot.value as? [String: Any] {
                         let imageURL = URL(string: value["Image"] as? String ?? "")
@@ -340,7 +337,7 @@ class ProfileViewController: UIViewController {
         if let user = Auth.auth().currentUser {
             let storageRef = Storage.storage().reference(forURL: "gs://kasam-coach.appspot.com")
             //check if user has manually set a profile image
-            self.kasamUserRef.child("ProfilePic").observeSingleEvent(of: .value, with:{(snap) in
+            DBRef.currentUser.child("ProfilePic").observeSingleEvent(of: .value, with:{(snap) in
                 if snap.exists() {
                     //get the manually set Image
                     let profilePicRef = storageRef.child("users/"+user.uid+"/manual_profile_pic.jpg")
@@ -385,10 +382,10 @@ class ProfileViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         if kasamUserRefHandle != nil {
-            self.kasamUserRef.removeObserver(withHandle: self.kasamUserRefHandle!)
+            DBRef.currentUser.removeObserver(withHandle: self.kasamUserRefHandle!)
         }
         if kasamHistoryRefHandle != nil {
-            self.kasamHistoryRef.removeObserver(withHandle: self.kasamHistoryRefHandle)
+            DBRef.userHistory.removeObserver(withHandle: self.kasamHistoryRefHandle)
         }
     }
 }
@@ -575,7 +572,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
                 profileImage.hideSkeleton()
                 saveImage(image: self.profileImage!.image!, location: "users/"+Auth.auth().currentUser!.uid+"/manual_profile_pic.jpg", completion: {uploadedProfileImageURL in
                     if uploadedProfileImageURL != nil {
-                        self.kasamUserRef.child("ProfilePic").setValue(uploadedProfileImageURL)
+                        DBRef.currentUser.child("ProfilePic").setValue(uploadedProfileImageURL)
                     }
                 })
             }
@@ -588,7 +585,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
                 profileImage.hideSkeleton()
                 saveImage(image: self.profileImage!.image!, location: "users/"+Auth.auth().currentUser!.uid+"/manual_profile_pic.jpg", completion: {uploadedProfileImageURL in
                     if uploadedProfileImageURL != nil {
-                        self.kasamUserRef.child("ProfilePic").setValue(uploadedProfileImageURL)
+                        DBRef.currentUser.child("ProfilePic").setValue(uploadedProfileImageURL)
                     }
                 })
             }

@@ -40,9 +40,12 @@ class AddKasamController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        datePicker.datePickerMode = UIDatePicker.Mode.dateAndTime
+        print(type)
         if type == "Basic" {
-            startDateTimeLabel.text = "Start Date"
-            datePicker.datePickerMode = UIDatePicker.Mode.date
+            startDateTimeLabel.text = "Start Date & Check-in Time"
+        } else {
+            startDateTimeLabel.text = "Start Date & Reminder Time"
         }
         setupKeyboardDismissRecognizer()
         datePicker.minimumDate = Date()
@@ -54,10 +57,7 @@ class AddKasamController: UIViewController {
     }
     
     func setupKeyboardDismissRecognizer(){
-        let tapRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(
-            target: self,
-            action: #selector(ViewController.dismissKeyboard))
-        
+        let tapRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(ViewController.dismissKeyboard))
         self.view.addGestureRecognizer(tapRecognizer)
     }
     

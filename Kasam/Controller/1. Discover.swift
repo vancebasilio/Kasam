@@ -20,6 +20,7 @@ class DiscoverViewController: UIViewController {
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
     let discoverCriteriaArray = ["Basic", "User"]
+    let discoveryCategoryTitle = ["Daily Kasams", "User Kasams"]
     let discoverTitlesArray = ["Popular Kasams, My Kasams"]
     var discoverKasamArray = [Int:[discoverKasamFormat]]()
     var discoverKasamDBHandle: DatabaseHandle!
@@ -168,6 +169,7 @@ extension DiscoverViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DiscoverKasamCell") as! DiscoverKasamCell
+        cell.DiscoverCategoryTitle.text = discoveryCategoryTitle[indexPath.row]
         return cell
     }
     

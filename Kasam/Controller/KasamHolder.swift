@@ -181,7 +181,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     //Retrieves Kasam Data using Kasam ID selected
     func getKasamData(){
-        Database.database().reference().child("Coach-Kasams").child(kasamID).observe(.value, with: {(snapshot) in
+        DBRef.coachKasams.child(kasamID).observe(.value, with: {(snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 self.kasamGTitle = value["Title"] as? String ?? ""
                 self.headerLabel.text! = self.kasamGTitle
@@ -219,7 +219,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     //Retrieves Blocks based on Kasam selected
     func getBlocksData() {
-        Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").observeSingleEvent(of: .value, with:{(snap) in
+        DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with:{(snap) in
             var blockNo = snap.childrenCount
             if blockNo == 0 {
                 blockNo = 1
@@ -227,7 +227,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             let ratio = 30 / (blockNo)
             var dayNumber = 1
             for _ in 1...ratio {
-                Database.database().reference().child("Coach-Kasams").child(self.kasamID).child("Blocks").observe(.childAdded, with: {(snapshot) in
+                DBRef.coachKasams.child(self.kasamID).child("Blocks").observe(.childAdded, with: {(snapshot) in
                     if let value = snapshot.value as? [String: Any] {
                         let blockID = snapshot.key
                         let blockURL = URL(string: value["Image"] as? String ?? "")
@@ -243,7 +243,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         })
     }
     
-    //REGISTER TO KASAM-------------------------------------------------------------------------------------------------
+//REGISTER TO KASAM-------------------------------------------------------------------------------------------------
     
     //Add Kasam to Following List of user
     @IBAction func addButtonPress(_ sender: Any) {
@@ -310,10 +310,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func registerUserToKasam() {
         setupNotifications()
         //STEP 1: Adds the user to the Kasam-following list
-        Database.database().reference().child("Coach-Kasams").child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
+        DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         
         //STEP 2: Adds the user to the Coach-following list
-        Database.database().reference().child("Users").child(coachIDGlobal).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
+        DBRef.userCreator.child(coachIDGlobal).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         self.addButtonText.setIcon(icon: .fontAwesomeSolid(.check), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
         countFollowers()
         registeredCheck()
@@ -334,7 +334,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func addUserPreferncestoKasam(){
-        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Day Joined": self.startDay, "Time": self.chosenTime]) {(error, reference) in
+        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Day Joined": self.startDay, "Time": self.chosenTime, "Type": kasamType]) {(error, reference) in
             if self.pastJoinDate != "" {
                 DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(self.pastJoinDate).setValue(self.pastJoinDate)
             }
@@ -350,9 +350,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func unregisterUseFromKasam() {
         //Removes the user from the Kasam following
-        Database.database().reference().child("Coach-Kasams").child(kasamID).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+        DBRef.coachKasams.child(kasamID).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         //Removes the user from the Coach following
-        Database.database().reference().child("Users").child(coachIDGlobal).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+        DBRef.userCreator.child(coachIDGlobal).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
         countFollowers()
         registeredCheck()
@@ -363,6 +363,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 print(error!)
             } else {
                 Analytics.logEvent("unfollowing_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayChallenges"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "RetrieveTodayKasams"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
             }
