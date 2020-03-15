@@ -76,7 +76,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
             Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: { (snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     let kasamURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: kasamURL!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "")
+                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: kasamURL!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
                     self.discoverArray.append(kasam)
                     self.kasamSquareCollection.reloadData()
                 }

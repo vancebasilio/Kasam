@@ -15,13 +15,15 @@ class discoverKasamFormat {
     var rating: String
     var creator: String
     var kasamID: String
+    var genre: String
     
-    init(title: String, image: URL, rating: String, creator: String, kasamID: String){
+    init(title: String, image: URL, rating: String, creator: String, kasamID: String, genre: String){
         self.image = image
         self.title = title
         self.rating = rating
         self.creator = creator
         self.kasamID = kasamID
+        self.genre = genre
     }
 }
 

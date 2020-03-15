@@ -19,11 +19,9 @@ class DiscoverViewController: UIViewController {
     @IBOutlet weak var expertHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
-    let discoverCriteriaArray = ["Basic", "User"]
-    let discoveryCategoryTitle = ["Daily Kasams", "User Kasams"]
+    let discoverCriteriaArray = ["Fitness", "Health"]
     let discoverTitlesArray = ["Popular Kasams, My Kasams"]
     var discoverKasamArray = [Int:[discoverKasamFormat]]()
-    var discoverKasamDBHandle: DatabaseHandle!
     
     var featuredKasamArray: [discoverKasamFormat] = []
     var kasamIDGlobal: String = ""
@@ -33,7 +31,7 @@ class DiscoverViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        getDiscoverKasams(criteria: "Challenge")
+        getDiscoverFeatured()
         for discoverCriteria in discoverCriteriaArray {getDiscoverKasams(criteria: discoverCriteria)}
         setupNavBar()
         self.view.showAnimatedSkeleton()
@@ -57,22 +55,8 @@ class DiscoverViewController: UIViewController {
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        DBRef.coachKasams.removeObserver(withHandle: self.discoverKasamDBHandle)
+        DBRef.coachKasams.removeAllObservers()
     }
-    
-//   override func viewDidLayoutSubviews(){
-//        let frame = self.view.safeAreaLayoutGuide.layoutFrame
-//        let expertHeightValue = expertHeight.constant + 61
-//        let popularHeightValue = popularHeight.constant + 49                //the 49 and 61 are the title heights
-//        contentView.constant =  discoverTableView.fr + 15    //15 is the additional space from the bottom
-//        let contentViewHeight = contentView.constant + 1
-//        if contentViewHeight > frame.height {
-//            contentView.constant = contentViewHeight
-//        } else if contentViewHeight <= frame.height {
-//            let diff = frame.height - contentViewHeight
-//            contentView.constant = contentViewHeight + diff + 1
-//        }
-//    }
 
     //Table Resizing----------------------------------------------------------------------
     
@@ -130,28 +114,38 @@ class DiscoverViewController: UIViewController {
         }
     }
     
-    func getDiscoverKasams(criteria: String) {
-        discoverKasamArray.removeAll()      //THIS WILL CAUSE ISSUES WHEN USER ADDS A NEW KASAM AND IT WIPES OUT EVERYTHING!!!!
-        var tempArray = [discoverKasamFormat]()
-        discoverKasamDBHandle = DBRef.coachKasams.queryOrdered(byChild: "Type").queryEqual(toValue: criteria).observe(.childAdded) {(snapshot) in
+    func getDiscoverFeatured(){
+        DBRef.coachKasams.queryOrdered(byChild: "Type").queryEqual(toValue: "Featured").observe(.childAdded) {(snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let creatorID = value["CreatorID"] as? String ?? ""
                 DBRef.userCreator.child(creatorID).child("Name").observeSingleEvent(of: .value, with: {(snap) in
                     let creatorName = snap.value as! String
                     let imageURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "")
-                    if criteria == "Challenge" {
-                        self.featuredKasamArray.append(kasam)
-                        self.categoryCollection.reloadData()
-                        self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
-                    } else {
-                        if let index = self.discoverCriteriaArray.index(of: criteria) {
-                            if (criteria == "User" && creatorID == Auth.auth().currentUser?.uid) || criteria != "User" {
-                                tempArray.append(kasam)
-                                self.discoverKasamArray[index] = tempArray
-                                self.updateContentTableHeight()
-                                self.discoverTableView.reloadData()
-                            }
+                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
+                    self.featuredKasamArray.append(kasam)
+                    self.categoryCollection.reloadData()
+                    self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
+                })
+            }
+        }
+    }
+    
+    func getDiscoverKasams(criteria: String) {
+        discoverKasamArray.removeAll()      //THIS WILL CAUSE ISSUES WHEN USER ADDS A NEW KASAM AND IT WIPES OUT EVERYTHING!!!!
+        var tempArray = [discoverKasamFormat]()
+        DBRef.coachKasams.queryOrdered(byChild: "Genre").queryEqual(toValue: criteria).observe(.childAdded) {(snapshot) in
+            if let value = snapshot.value as? [String: Any] {
+                let creatorID = value["CreatorID"] as? String ?? ""
+                DBRef.userCreator.child(creatorID).child("Name").observeSingleEvent(of: .value, with: {(snap) in
+                    let creatorName = snap.value as! String
+                    let imageURL = URL(string: value["Image"] as? String ?? "")
+                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
+                    if let index = self.discoverCriteriaArray.index(of: criteria) {
+                        if (criteria == "User" && creatorID == Auth.auth().currentUser?.uid) || criteria != "User" {
+                            tempArray.append(kasam)
+                            self.discoverKasamArray[index] = tempArray
+                            self.updateContentTableHeight()
+                            self.discoverTableView.reloadData()
                         }
                     }
                 })
@@ -169,7 +163,7 @@ extension DiscoverViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DiscoverKasamCell") as! DiscoverKasamCell
-        cell.DiscoverCategoryTitle.text = discoveryCategoryTitle[indexPath.row]
+        cell.DiscoverCategoryTitle.text = discoverCriteriaArray[indexPath.row]
         return cell
     }
     

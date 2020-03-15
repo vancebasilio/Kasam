@@ -13,6 +13,9 @@ class DiscoverCategoryCell: UICollectionViewCell {
     
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var kasamCreator: UILabel!
+    @IBOutlet weak var kasamGenre: UIButton!
+    
+    @IBOutlet weak var kasamGenreWidth: NSLayoutConstraint!
     @IBOutlet weak var categoryTitle: UILabel!
     @IBOutlet weak var topImage: UIImageView!
     
@@ -20,5 +23,11 @@ class DiscoverCategoryCell: UICollectionViewCell {
         topImage.sd_setImage(with: cell.image, placeholderImage: PlaceHolders.kasamLoadingImage)
         categoryTitle.text = cell.title
         kasamCreator.text = "Challenge"
+        
+        kasamGenre.setTitle(cell.genre, for: .normal)
+        kasamGenre.sizeToFit()
+        kasamGenre.backgroundColor = UIColor.colorFour
+        kasamGenreWidth.constant = kasamGenre.frame.size.width + 20
+        kasamGenre.layer.cornerRadius = kasamGenre.frame.height / 3
     }
 }

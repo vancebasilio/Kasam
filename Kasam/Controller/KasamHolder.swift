@@ -68,6 +68,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     let animationView = AnimationView()
     var kasamType = ""
     var benefitsArray = [""]
+    var singleBlock = true
     
     //Review Only Variables
     var reviewOnly = false
@@ -91,7 +92,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func setupLoad(){
         previewButton.layer.cornerRadius = 15
-        previewButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.play), iconColor: UIColor.white, postfixText: "  Preview", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 15)
+        previewButton.setTitle("Preview", for: .normal)
         followingIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.userFriends), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
@@ -187,7 +188,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.headerLabel.text! = self.kasamGTitle
                 self.kasamTitle.text! = self.kasamGTitle
                 self.kasamDescription.text! = value["Description"] as? String ?? ""
-                self.coachName.setTitle(value["CreatorName"] as? String ?? "", for: .normal)        //in the future, get this name from the userdatabase, so it's the most uptodate name
+                self.coachName.setTitle(value["CreatorName"] as? String ?? "", for: .normal)  //in the future, get this from the userdatabase, so it's the most uptodate name
                 self.coachIDGlobal = value["CreatorID"] as! String
                 self.kasamGenre.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = value["Level"] as? String ?? ""
@@ -204,7 +205,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 }
                 
                 //Set icons
-                self.setKasamTypeIcon(kasamType: self.kasamGenre.text!, button: self.TypeIcon)
+                self.TypeIcon = self.TypeIcon.setKasamTypeIcon(kasamType: self.kasamGenre.text!, button: self.TypeIcon, location: "kasamHolder")
                 self.setKasamLevelIcon(kasamLevel: self.kasamLevel.text!, button: self.levelIcon)
         
                 let headerURL = URL(string: value["Image"] as? String ?? "")
@@ -220,26 +221,20 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     //Retrieves Blocks based on Kasam selected
     func getBlocksData() {
         DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with:{(snap) in
-            var blockNo = snap.childrenCount
-            if blockNo == 0 {
-                blockNo = 1
-            }
-            let ratio = 30 / (blockNo)
+            if snap.childrenCount > 1 {self.singleBlock = false}
             var dayNumber = 1
-            for _ in 1...ratio {
-                DBRef.coachKasams.child(self.kasamID).child("Blocks").observe(.childAdded, with: {(snapshot) in
-                    if let value = snapshot.value as? [String: Any] {
-                        let blockID = snapshot.key
-                        let blockURL = URL(string: value["Image"] as? String ?? "")
-                        let block = BlockFormat(blockID: blockID, title: value["Title"] as? String ?? "", order: String(dayNumber), duration: value["Duration"] as? String ?? "", imageURL: blockURL ?? URL(string:PlaceHolders.kasamLoadingImageURL), image: nil)
-                        dayNumber += 1
-                        self.kasamBlocks.append(block)
-                        self.tableView.reloadData()
-                        self.tableView.beginUpdates()
-                        self.tableView.endUpdates()
-                    }
-                })
-            }
+            DBRef.coachKasams.child(self.kasamID).child("Blocks").observe(.childAdded, with: {(snapshot) in
+                if let value = snapshot.value as? [String: Any] {
+                    let blockID = snapshot.key
+                    let blockURL = URL(string: value["Image"] as? String ?? "")
+                    let block = BlockFormat(blockID: blockID, title: value["Title"] as? String ?? "", order: String(dayNumber), duration: value["Duration"] as? String ?? "", imageURL: blockURL ?? URL(string:PlaceHolders.kasamLoadingImageURL), image: nil)
+                    dayNumber += 1
+                    self.kasamBlocks.append(block)
+                    self.tableView.reloadData()
+                    self.tableView.beginUpdates()
+                    self.tableView.endUpdates()
+                }
+            })
         })
     }
     
@@ -700,11 +695,17 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "KasamBlock") as! BlocksCell
+        cell.selectionStyle = UITableViewCell.SelectionStyle.none
         if kasamType == "Basic" {
-            cell.setBenefits(benefits: benefitsArray[indexPath.row])
+            cell.setBasicKasamBenefits(benefits: benefitsArray[indexPath.row])
         } else {
             let block = kasamBlocks[indexPath.row]
-            cell.setBlock(block: block)
+            if singleBlock == true {
+                cell.benefitsArray = benefitsArray
+                cell.setBlock(block: block, single: true)
+            } else {
+                cell.setBlock(block: block, single: false)
+            }
         }
         return cell
     }
@@ -721,7 +722,9 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if kasamType == "Basic" {
-            return 30
+            return 30       //for the space between bullet points for Benefits for basic Kasams
+        } else if singleBlock == true {
+            return 180      //for one block, set twice the height
         } else {
             return 90
         }

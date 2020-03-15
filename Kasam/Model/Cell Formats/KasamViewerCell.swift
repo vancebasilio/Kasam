@@ -256,6 +256,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     //REST-----------------------------------------------------------------------------------
     
     func setupRest(activity: KasamActivityCellFormat) {
+        restView.isHidden = false
         topView.isHidden = true
         bottomView.isHidden = true
         restTitle.text = activity.activityTitle

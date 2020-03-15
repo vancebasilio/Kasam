@@ -350,16 +350,7 @@ extension UIViewController {
             UIView.transition(from: fromView, to: toView, duration: 0.3, options: [.transitionCrossDissolve], completion: nil)
         }
     }
-    
-    func setKasamTypeIcon (kasamType: String, button: UIButton){
-        let iconColor = UIColor.darkGray
-        switch kasamType {
-            case "Fitness": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
-            case "Personal": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.spa), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
-            default: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
-        }
-    }
-    
+
     func setKasamLevelIcon (kasamLevel: String, button: UIButton){
         let iconColor = UIColor.darkGray
         switch kasamLevel {
@@ -368,6 +359,37 @@ extension UIViewController {
             case "Expert": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.chessRook), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 18)
             default: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 18)
         }
+    }
+}
+
+extension UIImageView {
+    
+    func tintAlpha(imageView: UIImageView, white: Double, alpha: Double) {
+        let tintView = UIView()
+        tintView.backgroundColor = UIColor(white: CGFloat(white), alpha: CGFloat(alpha))
+        tintView.frame = CGRect(x: 0, y: 0, width: imageView.frame.width, height: 180)
+        imageView.addSubview(tintView)
+    }
+}
+
+extension UIButton {
+    func setKasamTypeIcon (kasamType: String, button: UIButton, location: String) -> UIButton{
+        var iconColor = UIColor.darkGray
+        var background = UIColor.clear
+        switch location {
+            case "discover":    iconColor = UIColor.white
+                                background = UIColor.colorFour
+                                button.layer.cornerRadius = button.frame.width / 2
+            default:            iconColor = UIColor.darkGray
+        }
+        
+        switch kasamType {
+            case "Fitness": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: 15)
+            case "Personal": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.spa), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: 15)
+            case "Health": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.heart), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: 15)
+            default: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: 15)
+        }
+        return button
     }
 }
 
