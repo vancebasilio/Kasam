@@ -47,7 +47,7 @@ class DiscoverViewController: UIViewController {
     }
     
     //Puts the nav bars back
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         if let navBar = self.navigationController?.navigationBar {
             navBar.backgroundColor = UIColor.white.withAlphaComponent(100)
             navBar.isTranslucent = false

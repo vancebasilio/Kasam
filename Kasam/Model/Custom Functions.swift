@@ -362,16 +362,6 @@ extension UIViewController {
     }
 }
 
-extension UIImageView {
-    
-    func tintAlpha(imageView: UIImageView, white: Double, alpha: Double) {
-        let tintView = UIView()
-        tintView.backgroundColor = UIColor(white: CGFloat(white), alpha: CGFloat(alpha))
-        tintView.frame = CGRect(x: 0, y: 0, width: imageView.frame.width, height: 180)
-        imageView.addSubview(tintView)
-    }
-}
-
 extension UIButton {
     func setKasamTypeIcon (kasamType: String, button: UIButton, location: String) -> UIButton{
         var iconColor = UIColor.darkGray

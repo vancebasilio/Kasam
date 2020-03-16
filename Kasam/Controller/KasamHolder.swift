@@ -196,7 +196,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.benefitsArray = benefitsString.components(separatedBy: ";")
                 
                 if value["Type"] as? String ?? "" == "Basic" {
-                    self.tableView.separatorStyle = .none
                     self.tableView.allowsSelection = false
                     self.kasamType = "Basic"
                     self.tableView.reloadData()
@@ -687,7 +686,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
 extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if kasamType == "Basic" {
-            return benefitsArray.count
+            return 1
         } else {
             return kasamBlocks.count
         }
@@ -697,7 +696,8 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "KasamBlock") as! BlocksCell
         cell.selectionStyle = UITableViewCell.SelectionStyle.none
         if kasamType == "Basic" {
-            cell.setBasicKasamBenefits(benefits: benefitsArray[indexPath.row])
+            cell.benefitsArray = benefitsArray
+            cell.setBasicKasamBenefits()
         } else {
             let block = kasamBlocks[indexPath.row]
             if singleBlock == true {
@@ -721,9 +721,7 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if kasamType == "Basic" {
-            return 30       //for the space between bullet points for Benefits for basic Kasams
-        } else if singleBlock == true {
+       if singleBlock == true {
             return 180      //for one block, set twice the height
         } else {
             return 90

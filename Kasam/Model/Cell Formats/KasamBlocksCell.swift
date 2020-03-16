@@ -12,10 +12,10 @@ import SDWebImage
 class BlocksCell: UITableViewCell {
     
     @IBOutlet weak var blockTitle: UILabel!
+    @IBOutlet weak var imageHolder: UIView!
     @IBOutlet weak var blockImage: UIImageView!
     @IBOutlet weak var dayNo: UILabel!
     @IBOutlet weak var blockDuration: UILabel!
-    @IBOutlet weak var benefitsLabel: UILabel!
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var challengeBenefitsLabel: UILabel!
     @IBOutlet weak var challengeBenefitsLabelTopConstraint: NSLayoutConstraint!
@@ -28,12 +28,10 @@ class BlocksCell: UITableViewCell {
         } else {
             blockImage.sd_setImage(with: block.imageURL, placeholderImage: PlaceHolders.kasamLoadingImage)
         }
-        blockImage.layer.cornerRadius = 10
-        blockImage.clipsToBounds = true
+        imageHolder.layer.cornerRadius = 10
         playButton.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: 25, color: UIColor.white, backgroundColor: UIColor.clear, forState: .normal)
         blockTitle.text = block.title
         if single == true {
-            blockImage.tintAlpha(imageView: blockImage, white: 0, alpha: 0.3)
             if benefitsArray.count < 6 {
                 dayNo.text = block.title
                 dayNo.textColor = UIColor.black
@@ -50,6 +48,18 @@ class BlocksCell: UITableViewCell {
         blockDuration.text = block.duration
     }
     
+    func setBasicKasamBenefits() {
+        imageHolder.isHidden = true
+        dayNo.text = "Benefits:"
+        dayNo.textColor = UIColor.black
+        dayNo.font = dayNo.font.withSize(16)
+        challengeBenefitsLabel.font = challengeBenefitsLabel.font.withSize(15)
+        blockTitle.isHidden = true
+        blockImage.isHidden = true
+        blockDuration.isHidden = true
+        setChallengeBenefits()
+    }
+    
     func setChallengeBenefits(){
         challengeBenefitsLabel.isHidden = false
         let bulletList = NSMutableAttributedString()
@@ -63,14 +73,5 @@ class BlocksCell: UITableViewCell {
         }
         challengeBenefitsLabel.attributedText = bulletList
         challengeBenefitsLabel.numberOfLines = benefitsArray.count
-    }
-    
-    func setBasicKasamBenefits(benefits: String) {
-        benefitsLabel.isHidden = false
-        blockTitle.isHidden = true
-        blockImage.isHidden = true
-        dayNo.isHidden = true
-        blockDuration.isHidden = true
-        benefitsLabel.text = "\u{2022} \(benefits)"
     }
 }
