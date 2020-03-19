@@ -1714,7 +1714,7 @@
             <objects>
                 <viewController storyboardIdentifier="Discover" id="1ds-W5-IlG" userLabel="Discover" customClass="DiscoverViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="uyQ-Kr-07J">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="807"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="796"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5dE-Zw-BsL">
@@ -2642,6 +2642,7 @@
                                             <outlet property="blockImage" destination="7qR-6E-CjW" id="DHu-yj-fbr"/>
                                             <outlet property="blockTitle" destination="D15-hq-AEX" id="vg8-VO-cyl"/>
                                             <outlet property="challengeBenefitsLabel" destination="TdR-6z-UVF" id="JeL-Lh-xZy"/>
+                                            <outlet property="challengeBenefitsLabelTopConstraint" destination="itH-EG-LR4" id="EAV-ob-Bhz"/>
                                             <outlet property="dayNo" destination="O9q-KO-cuI" id="87I-r0-mG2"/>
                                             <outlet property="imageHolder" destination="eUT-9o-4if" id="vaf-95-iej"/>
                                             <outlet property="playButton" destination="ul9-8f-0Lh" id="9jP-w6-wj7"/>
@@ -3111,8 +3112,8 @@
                                                                                                                             </button>
                                                                                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Feb 15" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tym-Hq-Lex">
                                                                                                                                 <rect key="frame" x="0.0" y="33" width="30" height="10"/>
-                                                                                                                                <fontDescription key="fontDescription" type="system" pointSize="8"/>
-                                                                                                                                <color key="textColor" red="0.52521038146188415" green="0.43930178215796895" blue="0.15375917430301306" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                                                                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="8"/>
+                                                                                                                                <nil key="textColor"/>
                                                                                                                                 <nil key="highlightedColor"/>
                                                                                                                             </label>
                                                                                                                         </subviews>
@@ -3179,40 +3180,35 @@
                                                                                 <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SSN-nD-RHR" userLabel="Status">
                                                                                     <rect key="frame" x="5" y="5" width="36.5" height="125"/>
                                                                                     <subviews>
-                                                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="VDE-Vd-7nJ">
-                                                                                            <rect key="frame" x="0.0" y="10" width="36.5" height="100"/>
-                                                                                            <subviews>
-                                                                                                <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fwi-yg-cgx" userLabel="Yes Button">
-                                                                                                    <rect key="frame" x="0.0" y="0.0" width="36.5" height="50"/>
-                                                                                                    <userDefinedRuntimeAttributes>
-                                                                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                                                    </userDefinedRuntimeAttributes>
-                                                                                                    <connections>
-                                                                                                        <action selector="yesButtonPressed:" destination="zle-RG-RD7" eventType="touchUpInside" id="6WE-q0-JBM"/>
-                                                                                                    </connections>
-                                                                                                </button>
-                                                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1D3-1a-UZ5" userLabel="No Button">
-                                                                                                    <rect key="frame" x="0.0" y="50" width="36.5" height="50"/>
-                                                                                                    <userDefinedRuntimeAttributes>
-                                                                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                                                    </userDefinedRuntimeAttributes>
-                                                                                                    <connections>
-                                                                                                        <action selector="noButtonPressed:" destination="zle-RG-RD7" eventType="touchUpInside" id="xOX-6k-GY4"/>
-                                                                                                    </connections>
-                                                                                                </button>
-                                                                                            </subviews>
+                                                                                        <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fwi-yg-cgx" userLabel="Yes Button">
+                                                                                            <rect key="frame" x="0.0" y="44.5" width="36.5" height="36"/>
+                                                                                            <color key="backgroundColor" red="0.40000000000000002" green="0.62745098039215685" blue="0.34509803921568627" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                                                             <constraints>
-                                                                                                <constraint firstItem="fwi-yg-cgx" firstAttribute="width" secondItem="1D3-1a-UZ5" secondAttribute="width" id="O7U-WY-R0c"/>
-                                                                                                <constraint firstItem="1D3-1a-UZ5" firstAttribute="height" secondItem="fwi-yg-cgx" secondAttribute="height" id="zIj-Lr-F0I"/>
+                                                                                                <constraint firstAttribute="width" secondItem="fwi-yg-cgx" secondAttribute="height" multiplier="1:1" id="CuV-2D-yzY"/>
                                                                                             </constraints>
-                                                                                        </stackView>
+                                                                                            <userDefinedRuntimeAttributes>
+                                                                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
+                                                                                            </userDefinedRuntimeAttributes>
+                                                                                            <connections>
+                                                                                                <action selector="yesButtonPressed:" destination="zle-RG-RD7" eventType="touchUpInside" id="6WE-q0-JBM"/>
+                                                                                            </connections>
+                                                                                        </button>
+                                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="%" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="7" translatesAutoresizingMaskIntoConstraints="NO" id="LmR-Qb-FeW">
+                                                                                            <rect key="frame" x="0.0" y="80.5" width="36.5" height="17"/>
+                                                                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                                                            <nil key="textColor"/>
+                                                                                            <nil key="highlightedColor"/>
+                                                                                        </label>
                                                                                     </subviews>
                                                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <constraints>
-                                                                                        <constraint firstItem="VDE-Vd-7nJ" firstAttribute="top" secondItem="SSN-nD-RHR" secondAttribute="top" constant="10" id="1UZ-eY-W7A"/>
-                                                                                        <constraint firstItem="VDE-Vd-7nJ" firstAttribute="leading" secondItem="SSN-nD-RHR" secondAttribute="leading" id="3PZ-x3-iTf"/>
-                                                                                        <constraint firstAttribute="bottom" secondItem="VDE-Vd-7nJ" secondAttribute="bottom" constant="15" id="LTp-OZ-jxz"/>
-                                                                                        <constraint firstAttribute="trailing" secondItem="VDE-Vd-7nJ" secondAttribute="trailing" id="OcC-PT-mWo"/>
+                                                                                        <constraint firstItem="LmR-Qb-FeW" firstAttribute="top" secondItem="fwi-yg-cgx" secondAttribute="bottom" id="Io6-9n-Wbs"/>
+                                                                                        <constraint firstItem="fwi-yg-cgx" firstAttribute="centerY" secondItem="SSN-nD-RHR" secondAttribute="centerY" id="K5t-oG-KPC"/>
+                                                                                        <constraint firstAttribute="trailing" secondItem="LmR-Qb-FeW" secondAttribute="trailing" id="L2W-ma-T41"/>
+                                                                                        <constraint firstAttribute="trailing" secondItem="fwi-yg-cgx" secondAttribute="trailing" id="Y5Q-8O-Zwh"/>
+                                                                                        <constraint firstItem="LmR-Qb-FeW" firstAttribute="leading" secondItem="SSN-nD-RHR" secondAttribute="leading" id="Yrw-ZK-ima"/>
+                                                                                        <constraint firstItem="fwi-yg-cgx" firstAttribute="leading" secondItem="SSN-nD-RHR" secondAttribute="leading" id="hmm-6w-BCh"/>
+                                                                                        <constraint firstItem="fwi-yg-cgx" firstAttribute="centerX" secondItem="SSN-nD-RHR" secondAttribute="centerX" id="zL1-LJ-6FL"/>
                                                                                     </constraints>
                                                                                     <userDefinedRuntimeAttributes>
                                                                                         <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
@@ -3264,7 +3260,7 @@
                                                             <outlet property="dayTrackerCollectionView" destination="fbU-F2-hAU" id="Fae-nx-YFv"/>
                                                             <outlet property="hideDayTrackerButton" destination="XYP-UZ-Cep" id="kvw-zF-F5d"/>
                                                             <outlet property="kasamName" destination="Q9G-Jb-fFv" id="gJA-16-Dua"/>
-                                                            <outlet property="noButton" destination="1D3-1a-UZ5" id="gYY-qT-6Qq"/>
+                                                            <outlet property="percentComplete" destination="LmR-Qb-FeW" id="cg6-fJ-HSt"/>
                                                             <outlet property="statsContent" destination="Mbm-Gs-MU2" id="epq-aW-1gh"/>
                                                             <outlet property="statsShadow" destination="7Bj-bg-Vt6" id="kvc-NQ-mlo"/>
                                                             <outlet property="streakShadow" destination="UHn-5V-Uwx" id="R94-Qy-PyD"/>
@@ -3281,13 +3277,13 @@
                                                 </connections>
                                             </tableView>
                                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Challenges" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zJa-Lz-D9h" userLabel="Challenges Label">
-                                                <rect key="frame" x="15" y="445" width="132" height="30"/>
+                                                <rect key="frame" x="15" y="435" width="132" height="30"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
                                                 <color key="textColor" red="0.1764705882" green="0.1843137255" blue="0.2470588235" alpha="1" colorSpace="calibratedRGB"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" alwaysBounceHorizontal="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="t3h-01-fv7" userLabel="Challenge Collection">
-                                                <rect key="frame" x="0.0" y="485" width="375" height="200"/>
+                                                <rect key="frame" x="0.0" y="475" width="375" height="200"/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="200" id="zbC-it-CaY"/>
@@ -3446,7 +3442,7 @@
                                             <constraint firstItem="t3h-01-fv7" firstAttribute="top" secondItem="zJa-Lz-D9h" secondAttribute="bottom" constant="10" id="IhV-41-akg"/>
                                             <constraint firstAttribute="trailing" secondItem="t3h-01-fv7" secondAttribute="trailing" id="PsU-rn-Fy4"/>
                                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="q7G-63-q7J" secondAttribute="trailing" constant="15" id="RJe-am-zOf"/>
-                                            <constraint firstItem="zJa-Lz-D9h" firstAttribute="top" secondItem="MmB-d7-voK" secondAttribute="bottom" constant="20" id="act-rd-71G"/>
+                                            <constraint firstItem="zJa-Lz-D9h" firstAttribute="top" secondItem="MmB-d7-voK" secondAttribute="bottom" constant="10" id="act-rd-71G"/>
                                             <constraint firstAttribute="height" constant="800" id="bco-9g-jyE"/>
                                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="zJa-Lz-D9h" secondAttribute="trailing" constant="15" id="lTD-XX-3RP"/>
                                             <constraint firstItem="t3h-01-fv7" firstAttribute="leading" secondItem="s0t-aS-08i" secondAttribute="leading" id="ryN-rf-945"/>
@@ -3510,11 +3506,11 @@
             <objects>
                 <viewController id="ejW-bE-e0v" userLabel="Kasam Viewer" customClass="KasamActivityViewer" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="9HA-Q5-L0t">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="VWi-QP-tmS">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="hBB-mK-Yrw">
                                     <size key="itemSize" width="375" height="665"/>
@@ -3524,7 +3520,7 @@
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="KasamViewerCell" id="TKu-Q0-8wu" customClass="KasamViewerCell" customModule="Kasam" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="-9" width="375" height="665"/>
+                                        <rect key="frame" x="0.0" y="1" width="375" height="665"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="665"/>
@@ -4911,7 +4907,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="375" height="170"/>
                                                                             <subviews>
                                                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xST-dz-BoM" customClass="SkyFloatingLabelTextField" customModule="SkyFloatingLabelTextField">
-                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="54"/>
+                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="68"/>
                                                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
                                                                                     <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
                                                                                     <userDefinedRuntimeAttributes>
@@ -4950,7 +4946,7 @@
                                                                                     </userDefinedRuntimeAttributes>
                                                                                 </textField>
                                                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Af2-Gf-WJf">
-                                                                                    <rect key="frame" x="50" y="59" width="275" height="37.5"/>
+                                                                                    <rect key="frame" x="50" y="73" width="275" height="37.5"/>
                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
@@ -6538,7 +6534,7 @@ AAAAAAAAAGcAAAAAAAAAAAAAAAAAAM+GA
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="1EJ-Rg-BDQ"/>
-        <segue reference="wnm-Aa-p59"/>
+        <segue reference="Viy-yT-bOU"/>
         <segue reference="bfR-GK-E9V"/>
         <segue reference="HXx-lS-OGQ"/>
     </inferredMetricsTieBreakers>

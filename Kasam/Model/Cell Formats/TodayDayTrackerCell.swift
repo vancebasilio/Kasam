@@ -9,7 +9,7 @@
 import UIKit
 
 protocol DayTrackerCellDelegate : class {
-    func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int)
+    func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, type: String)
 }
 
 class TodayDayTrackerCell: UICollectionViewCell {
@@ -21,6 +21,7 @@ class TodayDayTrackerCell: UICollectionViewCell {
     var dayTrackerDelegate: DayTrackerCellDelegate?
     var dayInternal = 0
     var kasamOrderInternal = 0
+    var typeInternal = "Basic"
     
     func cellFormatting(today: Bool?, future: Bool){
         cellButton.layer.cornerRadius = cellButton.frame.width / 2
@@ -43,10 +44,12 @@ class TodayDayTrackerCell: UICollectionViewCell {
         }
     }
     
-    func setBlock(kasamOrder: Int, day: Int, status: Bool?, date: String){
+    func setBlock(kasamOrder: Int, day: Int, status: Bool?, date: String, type: String){
         cellButton.setTitle("\(day)", for: .normal)
         dayTrackerDate.text = date
+        dayTrackerDate.textColor = UIColor.colorFive
         dayInternal = day
+        typeInternal = type
         kasamOrderInternal = kasamOrder
         if status == true {
             cellButton.backgroundColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7)        //green color
@@ -58,7 +61,7 @@ class TodayDayTrackerCell: UICollectionViewCell {
     }
     
     @IBAction func dayPressed(_ sender: UIButton) {
-        dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, day: dayInternal)
+        dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, day: dayInternal, type: typeInternal)
     }
 }
 

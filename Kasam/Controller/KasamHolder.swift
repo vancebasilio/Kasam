@@ -50,7 +50,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var chosenTime = ""
     var chosenTimeHour = 0
     var chosenTimeMin = 0
-    var chosenRepeat = ""
+    var chosenRepeat = 1
     var startDate = ""
     var previewLink = ""
     var kasamBlocks: [BlockFormat] = []
@@ -62,7 +62,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var coachIDGlobal = ""
     var coachNameGlobal = ""
     var blockURLGlobal = ""
-    var startDay = ""
     var blockIDGlobal = ""
     var pastJoinDate = ""
     let animationView = AnimationView()
@@ -246,10 +245,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             observer = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "saveTime"), object: nil, queue: OperationQueue.main) {(notification) in
                 let timeVC = notification.object as! AddKasamController
                 self.chosenTime = timeVC.formattedTime
-                self.chosenTimeHour = timeVC.hour
+                self.chosenTimeHour = timeVC.hourAMPM
                 self.chosenTimeMin = timeVC.min
                 self.startDate = timeVC.formattedDate
-                self.startDay = Date().dayOfWeek()!
+                self.chosenRepeat = timeVC.duration
                 self.registerUserToKasam()
                 NotificationCenter.default.removeObserver(self.observer as Any)
             }
@@ -328,7 +327,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func addUserPreferncestoKasam(){
-        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Day Joined": self.startDay, "Time": self.chosenTime, "Type": kasamType]) {(error, reference) in
+        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Type": kasamType]) {(error, reference) in
             if self.pastJoinDate != "" {
                 DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(self.pastJoinDate).setValue(self.pastJoinDate)
             }

@@ -17,6 +17,7 @@ protocol TodayCellDelegate {
 protocol TableCellDelegate : class {
     func updateKasamButtonPressed(_ sender: UIButton, kasamOrder: Int)
     func hideDayTrackerDateButtonPressed(state: Bool, kasamOrder: Int)
+    func openKasamBlock(_ sender: UIButton, kasamOrder: Int)
 }
 
 class TodayBlockCell: UITableViewCell {
@@ -32,7 +33,7 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var blockPlaceholderBG: UIView!
     @IBOutlet weak var blockPlaceholderAdd: UIImageView!
     @IBOutlet weak var yesButton: UIButton!
-    @IBOutlet weak var noButton: UIButton!
+    @IBOutlet weak var percentComplete: UILabel!
     @IBOutlet weak var dayTrackerCollectionView: UICollectionView!
     @IBOutlet weak var hideDayTrackerButton: UIButton!
     
@@ -40,12 +41,20 @@ class TodayBlockCell: UITableViewCell {
     var delegate: TodayCellDelegate?
     var row = 0
     var kasamID: String?
+    var kasamType = "Basic"
     var blockID: String?
     var tempBlock: TodayBlockFormat?
     var today: Int?
     var processedStatus: String?
     let progress = Progress(totalUnitCount: 30)
     var hideDayTrackerDates = true
+    
+    func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
+        dayTrackerCollectionView.delegate = dataSourceDelegate
+        dayTrackerCollectionView.dataSource = dataSourceDelegate
+        dayTrackerCollectionView.tag = row
+        dayTrackerCollectionView.reloadData()
+    }
     
     func setPlaceholder() {
         cellFormatting()
@@ -67,14 +76,8 @@ class TodayBlockCell: UITableViewCell {
         blockPlaceholderView.isHidden = true
     }
     
-    func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
-        dayTrackerCollectionView.delegate = dataSourceDelegate
-        dayTrackerCollectionView.dataSource = dataSourceDelegate
-        dayTrackerCollectionView.tag = row
-        dayTrackerCollectionView.reloadData()
-    }
-    
     func setBlock(block: TodayBlockFormat) {
+        print("hello \(block.kasamName)")
         cellFormatting()
         tempBlock = block               //tempBlock used to transfer info to the below func for displayStatus
         statusUpdate()
@@ -86,14 +89,17 @@ class TodayBlockCell: UITableViewCell {
         if block.currentStreak != nil {currentDayStreak.text = "\(String(describing: block.currentStreak!))"}
         processedStatus = block.displayStatus
         hideDayTrackerButton.setIcon(icon: .fontAwesomeRegular(.calendar), iconSize: 15, color: UIColor.colorFour, forState: .normal)
-        
-        let gradient = CAGradientLayer()
-        gradient.frame = dayTrackerCollectionView.superview?.bounds ?? CGRect.zero
-        gradient.colors = [UIColor.white.withAlphaComponent(0).cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.white.withAlphaComponent(0).cgColor]
-        gradient.locations = [0.0, 0.05, 0.95, 1.0]
-        gradient.startPoint = CGPoint(x: 0.0, y: 0.5)
-        gradient.endPoint = CGPoint(x: 1.0, y: 0.5)
-        dayTrackerCollectionView.superview?.layer.mask = gradient
+        kasamType = block.kasamType
+        if kasamType == "Challenge" {
+            if block.percentComplete == nil {
+                percentComplete.text = "0%"
+            } else {
+                let percent = Int(block.percentComplete! * 100)
+                percentComplete.text = "\(percent)%"
+            }
+        } else if kasamType == "Basic" {
+            percentComplete.isHidden = true
+        }
     }
     
     func cellFormatting(){
@@ -112,14 +118,26 @@ class TodayBlockCell: UITableViewCell {
         streakShadow.layer.shadowOffset = CGSize.zero
         streakShadow.layer.shadowRadius = 4
         
+        let gradient = CAGradientLayer()
+        gradient.frame = dayTrackerCollectionView.superview?.bounds ?? CGRect.zero
+        gradient.colors = [UIColor.white.withAlphaComponent(0).cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.white.withAlphaComponent(0).cgColor]
+        gradient.locations = [0.0, 0.05, 0.95, 1.0]
+        gradient.startPoint = CGPoint(x: 0.0, y: 0.5)
+        gradient.endPoint = CGPoint(x: 1.0, y: 0.5)
+        dayTrackerCollectionView.superview?.layer.mask = gradient
+        
         let centerCollectionView = NSNotification.Name("CenterCollectionView")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
     }
     
     @IBAction func yesButtonPressed(_ sender: UIButton) {
-        cellDelegate?.updateKasamButtonPressed(sender, kasamOrder: row)
-        statusUpdate()
-        centerCollectionView()
+        if kasamType == "Basic" {
+            cellDelegate?.updateKasamButtonPressed(sender, kasamOrder: row)
+            statusUpdate()
+            centerCollectionView()
+        } else {
+            cellDelegate?.openKasamBlock(sender, kasamOrder: row)
+        }
     }
     
     @IBAction func noButtonPressed(_ sender: UIButton) {
@@ -150,20 +168,24 @@ class TodayBlockCell: UITableViewCell {
         let dayYesColor = UIColor.init(hex: 0x66A058)
         let dayNoColor = UIColor.init(hex: 0xcd742c)
         let iconSize = CGFloat(35)
-        if tempBlock?.displayStatus == "Checkmark" {
+        if tempBlock?.displayStatus == "Checkmark" && kasamType == "Basic" {
             streakShadow.backgroundColor = UIColor.colorFour
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: iconSize, color: dayYesColor, forState: .normal)
-            noButton?.setIcon(icon: .fontAwesomeRegular(.timesCircle), iconSize: iconSize, color: dayNoColor, forState: .normal)
+            yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
+        } else if tempBlock?.displayStatus == "Checkmark" && kasamType == "Challenge" {
+            streakShadow.backgroundColor = UIColor.colorFour
+            percentComplete.textColor = UIColor.colorFive
+            yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
         } else if tempBlock?.displayStatus == "Check" {
             streakShadow.backgroundColor = dayYesColor
-            noButton?.setIcon(icon: .fontAwesomeRegular(.timesCircle), iconSize: iconSize, color: dayNoColor, forState: .normal)
+            percentComplete.textColor = dayYesColor
             yesButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: dayYesColor, forState: .normal)
         } else if tempBlock?.displayStatus == "Uncheck" {
             streakShadow.backgroundColor = dayNoColor
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: iconSize, color: dayYesColor, forState: .normal)
-            noButton?.setIcon(icon: .fontAwesomeSolid(.timesCircle), iconSize: iconSize, color: dayNoColor, forState: .normal)
+            yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: dayYesColor, forState: .normal)
         } else if tempBlock?.displayStatus == "Progress" {
-            yesButton?.setIcon(icon: .fontAwesomeSolid(.cookieBite), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
+            streakShadow.backgroundColor = dayYesColor
+            percentComplete.textColor = UIColor.colorFive
+            yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
         }
     }
 }

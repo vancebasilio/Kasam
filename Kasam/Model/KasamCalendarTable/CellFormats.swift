@@ -88,12 +88,13 @@ class TodayBlockFormat {
     var dayOrder: String
     var duration: String?
     var kasamName: String
-    var statusType: String
+    var kasamType: String
     var displayStatus: String
     var dayTrackerArray: [Int:(Int,Bool)]?
     var currentStreak: Int?
+    var percentComplete: Double?
     
-    init(kasamOrder: Int, kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String?, image: URL, statusType: String, displayStatus: String, dayTrackerArray: [Int:(Int,Bool)]?, currentStreak: Int?){
+    init(kasamOrder: Int, kasamID: String, blockID: String, kasamName: String, title: String, dayOrder: String, duration: String?, image: URL, kasamType: String, displayStatus: String, dayTrackerArray: [Int:(Int,Bool)]?, currentStreak: Int?, percentComplete: Double?){
         self.kasamOrder = kasamOrder
         self.kasamID = kasamID
         self.blockID = blockID
@@ -102,10 +103,11 @@ class TodayBlockFormat {
         self.image = image
         self.title = title
         self.duration = duration
-        self.statusType = statusType
+        self.kasamType = kasamType
         self.displayStatus = displayStatus
         self.dayTrackerArray = dayTrackerArray
         self.currentStreak = currentStreak
+        self.percentComplete = percentComplete
     }
 }
 
@@ -267,6 +269,7 @@ class KasamSavedFormat {
     var joinedDate: Date
     var endDate: Date
     var startTime: String
+    var repeatDuration: Int
     var kasamOrder: Int
     var image: String
     var metricType: String
@@ -274,12 +277,13 @@ class KasamSavedFormat {
     var pastKasamJoinDates: [String]
     var type: String
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, endDate: Date, startTime: String, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String], type: String){
+    init(kasamID: String, kasamName: String, joinedDate: Date, endDate: Date, startTime: String, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String], type: String){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
         self.endDate = endDate
         self.startTime = startTime
+        self.repeatDuration = repeatDuration
         self.kasamOrder = kasamOrder
         self.image = image ?? ""
         self.metricType = metricType ?? ""

@@ -205,6 +205,15 @@ extension UIViewController {
         let finalDate = formatter.string(from: date)
         return finalDate
     }
+
+    func dateShortFormat(date: Date) -> String {
+        let date = date
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateFormat = "MMMM dd"
+        let finalDate = formatter.string(from: date)
+        return finalDate
+    }
     
     func convertLongDateToShort(date: String) -> String {
         var dateOutput = ""
