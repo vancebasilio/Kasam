@@ -319,9 +319,7 @@ extension NewKasamController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? MetricTypeCell else {
-            return
-        }
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MetricTypeCell else {return}
         //unselect the other metrics when one is selected
         cell.metricTypeBG.backgroundColor = UIColor.init(hex: 0xEDD28A)
         cell.metricBGOutline.isHidden = true

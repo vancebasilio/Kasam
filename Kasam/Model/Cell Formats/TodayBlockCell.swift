@@ -10,14 +10,9 @@ import UIKit
 import SDWebImage
 import SwiftIcons
 
-protocol TodayCellDelegate {
-    func clickedButton(kasamID: String, blockID: String, status: String)
-}
-
 protocol TableCellDelegate : class {
     func updateKasamButtonPressed(_ sender: UIButton, kasamOrder: Int)
-    func hideDayTrackerDateButtonPressed(state: Bool, kasamOrder: Int)
-    func openKasamBlock(_ sender: UIButton, kasamOrder: Int)
+    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?)
 }
 
 class TodayBlockCell: UITableViewCell {
@@ -36,16 +31,15 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var percentComplete: UILabel!
     @IBOutlet weak var dayTrackerCollectionView: UICollectionView!
     @IBOutlet weak var hideDayTrackerButton: UIButton!
+    @IBOutlet weak var hideDayTrackerView: UIView!
+    @IBOutlet weak var collectionTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var collectionBottomConstraint: NSLayoutConstraint!
     
     var cellDelegate: TableCellDelegate?
-    var delegate: TodayCellDelegate?
     var row = 0
-    var kasamID: String?
     var kasamType = "Basic"
-    var blockID: String?
     var tempBlock: TodayBlockFormat?
     var today: Int?
-    var processedStatus: String?
     let progress = Progress(totalUnitCount: 30)
     var hideDayTrackerDates = true
     
@@ -57,7 +51,6 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func setPlaceholder() {
-        cellFormatting()
         blockPlaceholderView.isHidden = false
         blockContents.isHidden = true
         statsShadow.backgroundColor = UIColor(patternImage: PlaceHolders.kasamHeaderPlaceholderImage!)
@@ -67,10 +60,6 @@ class TodayBlockCell: UITableViewCell {
         blockPlaceholderBG.clipsToBounds = true
     }
     
-    func reloadCollectionView(){
-        dayTrackerCollectionView.reloadData()
-    }
-    
     func removePlaceholder(){
         blockContents.isHidden = false
         blockPlaceholderView.isHidden = true
@@ -78,31 +67,16 @@ class TodayBlockCell: UITableViewCell {
     
     func setBlock(block: TodayBlockFormat) {
         print("hello \(block.kasamName)")
-        cellFormatting()
         tempBlock = block               //tempBlock used to transfer info to the below func for displayStatus
         statusUpdate()
-        kasamID = block.kasamID
         kasamName.text = block.kasamName
-        blockID = block.title
         today = Int(block.dayOrder)
         dayNumber.text = "Day \(block.dayOrder)"
-        if block.currentStreak != nil {currentDayStreak.text = "\(String(describing: block.currentStreak!))"}
-        processedStatus = block.displayStatus
-        hideDayTrackerButton.setIcon(icon: .fontAwesomeRegular(.calendar), iconSize: 15, color: UIColor.colorFour, forState: .normal)
-        kasamType = block.kasamType
-        if kasamType == "Challenge" {
-            if block.percentComplete == nil {
-                percentComplete.text = "0%"
-            } else {
-                let percent = Int(block.percentComplete! * 100)
-                percentComplete.text = "\(percent)%"
-            }
-        } else if kasamType == "Basic" {
-            percentComplete.isHidden = true
-        }
+        kasamType = tempBlock?.kasamType ?? "Basic"
+        if kasamType == "Basic" {percentComplete.isHidden = true}
     }
     
-    func cellFormatting(){
+    func cellFormatting(){          //called in the Today Controller on "WillDisplay"
         //Cell formatting
         statsContent.layer.cornerRadius = 16.0
         
@@ -117,6 +91,8 @@ class TodayBlockCell: UITableViewCell {
         streakShadow.layer.shadowOpacity = 0.2
         streakShadow.layer.shadowOffset = CGSize.zero
         streakShadow.layer.shadowRadius = 4
+        
+        hideDayTrackerButton.setIcon(icon: .fontAwesomeRegular(.calendar), iconSize: 15, color: UIColor.colorFour, forState: .normal)
         
         let gradient = CAGradientLayer()
         gradient.frame = dayTrackerCollectionView.superview?.bounds ?? CGRect.zero
@@ -133,25 +109,23 @@ class TodayBlockCell: UITableViewCell {
     @IBAction func yesButtonPressed(_ sender: UIButton) {
         if kasamType == "Basic" {
             cellDelegate?.updateKasamButtonPressed(sender, kasamOrder: row)
-            statusUpdate()
-            centerCollectionView()
         } else {
-            cellDelegate?.openKasamBlock(sender, kasamOrder: row)
+            cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil)
         }
-    }
-    
-    @IBAction func noButtonPressed(_ sender: UIButton) {
-        cellDelegate?.updateKasamButtonPressed(sender, kasamOrder: row)
         statusUpdate()
         centerCollectionView()
     }
     
     @IBAction func hideDayTrackerDateButtonPressed(_ sender: Any) {
         if hideDayTrackerDates == true {
-            cellDelegate?.hideDayTrackerDateButtonPressed(state: false, kasamOrder: row)
+            hideDayTrackerView.isHidden = true
+            collectionTopConstraint.constant = 0
+            collectionBottomConstraint.constant = 0
             hideDayTrackerDates = false
         } else {
-            cellDelegate?.hideDayTrackerDateButtonPressed(state: true, kasamOrder: row)
+            hideDayTrackerView.isHidden = false
+            collectionTopConstraint.constant = 5
+            collectionBottomConstraint.constant = -5
             hideDayTrackerDates = true
         }
     }
@@ -165,6 +139,19 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func statusUpdate(){
+        //Update the Streak
+        if tempBlock?.currentStreak != nil {currentDayStreak.text = "\(String(describing: tempBlock!.currentStreak!))"}
+        
+        //Update percentage complete for Challenge Kasams
+        if kasamType == "Challenge" {
+            if tempBlock?.percentComplete == nil {
+                percentComplete.text = "0%"
+            } else {
+                let percent = Int(tempBlock!.percentComplete! * 100)
+                percentComplete.text = "\(percent)%"
+            }
+        }
+        
         let dayYesColor = UIColor.init(hex: 0x66A058)
         let dayNoColor = UIColor.init(hex: 0xcd742c)
         let iconSize = CGFloat(35)

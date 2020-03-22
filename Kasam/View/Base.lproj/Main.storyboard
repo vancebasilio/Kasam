@@ -2968,7 +2968,7 @@
                                                                                                                             </constraints>
                                                                                                                         </stackView>
                                                                                                                     </subviews>
-                                                                                                                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                                                                    <color key="backgroundColor" red="0.74901960784313726" green="0.58823529411764708" blue="0.32549019607843138" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                                                                                     <constraints>
                                                                                                                         <constraint firstAttribute="width" secondItem="UHn-5V-Uwx" secondAttribute="height" multiplier="1:1" id="6qN-Kj-aCW"/>
                                                                                                                         <constraint firstItem="sgs-fn-pTG" firstAttribute="top" secondItem="UHn-5V-Uwx" secondAttribute="top" constant="10" id="DGm-XL-hpg"/>
@@ -3071,7 +3071,7 @@
                                                                                                     <rect key="frame" x="0.0" y="75" width="298.5" height="50"/>
                                                                                                     <subviews>
                                                                                                         <collectionView clipsSubviews="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" prefetchingEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fbU-F2-hAU">
-                                                                                                            <rect key="frame" x="5" y="0.0" width="288.5" height="50"/>
+                                                                                                            <rect key="frame" x="5" y="5" width="288.5" height="50"/>
                                                                                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                                             <constraints>
                                                                                                                 <constraint firstAttribute="height" constant="50" id="NAS-rV-Qzo"/>
@@ -3139,14 +3139,24 @@
                                                                                                                 </collectionViewCell>
                                                                                                             </cells>
                                                                                                         </collectionView>
+                                                                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="H7G-C2-nOB">
+                                                                                                            <rect key="frame" x="0.0" y="40" width="298.5" height="10"/>
+                                                                                                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                                                                                            <constraints>
+                                                                                                                <constraint firstAttribute="height" constant="10" id="h0n-3F-Enp"/>
+                                                                                                            </constraints>
+                                                                                                        </view>
                                                                                                     </subviews>
                                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                                     <constraints>
                                                                                                         <constraint firstAttribute="trailing" secondItem="fbU-F2-hAU" secondAttribute="trailing" constant="5" id="5UA-Vi-dT3"/>
+                                                                                                        <constraint firstAttribute="bottom" secondItem="H7G-C2-nOB" secondAttribute="bottom" id="AZo-XE-QU2"/>
                                                                                                         <constraint firstItem="fbU-F2-hAU" firstAttribute="leading" secondItem="PMM-N6-tG4" secondAttribute="leading" constant="5" id="FOg-Mk-xl5"/>
-                                                                                                        <constraint firstItem="fbU-F2-hAU" firstAttribute="top" secondItem="PMM-N6-tG4" secondAttribute="top" id="LjF-1D-7Ut"/>
-                                                                                                        <constraint firstAttribute="bottom" secondItem="fbU-F2-hAU" secondAttribute="bottom" id="XqR-jn-xVa"/>
+                                                                                                        <constraint firstItem="fbU-F2-hAU" firstAttribute="top" secondItem="PMM-N6-tG4" secondAttribute="top" constant="5" id="LjF-1D-7Ut"/>
+                                                                                                        <constraint firstAttribute="bottom" secondItem="fbU-F2-hAU" secondAttribute="bottom" constant="-5" id="XqR-jn-xVa"/>
+                                                                                                        <constraint firstItem="H7G-C2-nOB" firstAttribute="leading" secondItem="PMM-N6-tG4" secondAttribute="leading" id="bEY-lZ-Ggv"/>
                                                                                                         <constraint firstAttribute="height" constant="50" id="hgZ-ok-k5f"/>
+                                                                                                        <constraint firstAttribute="trailing" secondItem="H7G-C2-nOB" secondAttribute="trailing" id="ob4-em-dOp"/>
                                                                                                     </constraints>
                                                                                                 </view>
                                                                                             </subviews>
@@ -3255,10 +3265,13 @@
                                                             <outlet property="blockPlaceholderAdd" destination="mB2-kc-pRv" id="qi5-IH-w53"/>
                                                             <outlet property="blockPlaceholderBG" destination="SEU-Zs-c46" id="dBt-Zs-mqd"/>
                                                             <outlet property="blockPlaceholderView" destination="wZS-7M-O2K" id="kVU-zF-qNm"/>
+                                                            <outlet property="collectionBottomConstraint" destination="XqR-jn-xVa" id="GGj-Hy-RoE"/>
+                                                            <outlet property="collectionTopConstraint" destination="LjF-1D-7Ut" id="z2S-N8-Bku"/>
                                                             <outlet property="currentDayStreak" destination="ary-FV-ddT" id="2PH-OU-Ynh"/>
                                                             <outlet property="dayNumber" destination="AE7-fB-Wce" id="Xm0-hl-Max"/>
                                                             <outlet property="dayTrackerCollectionView" destination="fbU-F2-hAU" id="Fae-nx-YFv"/>
                                                             <outlet property="hideDayTrackerButton" destination="XYP-UZ-Cep" id="kvw-zF-F5d"/>
+                                                            <outlet property="hideDayTrackerView" destination="H7G-C2-nOB" id="wlp-xL-Ka0"/>
                                                             <outlet property="kasamName" destination="Q9G-Jb-fFv" id="gJA-16-Dua"/>
                                                             <outlet property="percentComplete" destination="LmR-Qb-FeW" id="cg6-fJ-HSt"/>
                                                             <outlet property="statsContent" destination="Mbm-Gs-MU2" id="epq-aW-1gh"/>
@@ -4907,7 +4920,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="375" height="170"/>
                                                                             <subviews>
                                                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xST-dz-BoM" customClass="SkyFloatingLabelTextField" customModule="SkyFloatingLabelTextField">
-                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="68"/>
+                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="54"/>
                                                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
                                                                                     <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
                                                                                     <userDefinedRuntimeAttributes>
@@ -4946,7 +4959,7 @@
                                                                                     </userDefinedRuntimeAttributes>
                                                                                 </textField>
                                                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Af2-Gf-WJf">
-                                                                                    <rect key="frame" x="50" y="73" width="275" height="37.5"/>
+                                                                                    <rect key="frame" x="50" y="59" width="275" height="37.5"/>
                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>

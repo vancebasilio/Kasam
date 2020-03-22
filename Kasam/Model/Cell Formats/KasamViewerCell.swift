@@ -14,6 +14,7 @@ import HGCircularSlider
 
 protocol KasamViewerCellDelegate {
     func dismissViewController()
+    func updateControllers()
     func sendCompletedMatrix(key: Int, value: Double, text: String)
     func nextItem()
 }
@@ -268,9 +269,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBAction func doneButton(_ sender: UIButton) {
         if currentOrder == totalOrder {
             if viewOnlyCheck == false {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
+                delegate?.updateControllers()
             }
             delegate?.dismissViewController()
         } else {

@@ -18,8 +18,12 @@ class KasamActivityViewer: UIViewController {
     
     var activityBlocks: [KasamActivityCellFormat] = []
     var kasamID = ""
+    
+    //determines which block and past history loads
     var blockID = ""
     var dayOrder = ""
+    var dayToLoad = ""
+    
     var activityRef: DatabaseReference!
     var activityRefHandle: DatabaseHandle!
     var historyRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
@@ -34,15 +38,12 @@ class KasamActivityViewer: UIViewController {
     var viewingOnlyCheck = false
     var activityCurrentValue = 0
     var reviewOnly = false
+    var statusDate = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
         getBlockActivities{self.setupMetricMatrix()}
-        if reviewOnly == false {
-            kasamIDTransfer["kasamID"] = kasamID                    //for the Kasam Activity Viewer Cell
-        } else {
-            viewingOnlyCheck = true
-        }
+        if reviewOnly == true {viewingOnlyCheck = true}
         setupButtons()
         self.hideKeyboardWhenTappedAround()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -51,12 +52,16 @@ class KasamActivityViewer: UIViewController {
     
     @IBAction func closeButton(_ sender: UIButton) {
         if viewingOnlyCheck == false {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
+            updateControllers()
         }
         dismiss(animated: true)
+    }
+    
+    func updateControllers(){
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: ["kasamID":kasamID, "date":statusDate])
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
     }
     
     func setupButtons() {
@@ -68,22 +73,23 @@ class KasamActivityViewer: UIViewController {
         activityBlocks.removeAll()
         var count = 0
         if reviewOnly == false {
-            self.activityRef = Database.database().reference().child("Coach-Kasams").child(kasamID).child("Blocks").child(blockID).child("Activity")
+            self.activityRef = DBRef.coachKasams.child(kasamID).child("Blocks").child(blockID).child("Activity")
             self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     //check if user has past progress from today and download metric
-                    let currentDate = self.getCurrentDate()
+                    print(Int(self.dayOrder)!, Int(self.dayToLoad)!)
+                    let diff = Int(self.dayOrder)! - Int(self.dayToLoad)!
+                    self.statusDate = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: -diff, to: Date())!)
                     var currentMetric = "0"
                     var currentText = ""
                     count += 1
                 
                     //load in past history
-                    self.historyRef.child(self.kasamID).child(currentDate ?? "").child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                    self.historyRef.child(self.kasamID).child(self.statusDate).child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
                         if snap.exists(){
                             currentMetric = snap.value as! String               //gets the metric for the activity
                         }
-                    
-                        self.historyRef.child(self.kasamID).child(currentDate ?? "").child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                        self.historyRef.child(self.kasamID).child(self.statusDate).child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
                             if snap.exists() {
                                 currentText = snap.value as! String         //gets the text for the activity
                             }
@@ -211,7 +217,6 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         transferTextFieldMatrix[String(key)] = text
         activityBlocks[key - 1].currentMetric = String(value)
         let statusDateTime = getCurrentDateTime()
-        let statusDate = getCurrentDate()
         var transferAvg = 1.0
         var sum = 0.0
         
@@ -224,11 +229,11 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         }
 
         if transferAvg > 0.0 {
-            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg.rounded(toPlaces: 2), "Day Order" : dayOrder, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
+            DBRef.userHistory.child(kasamID).child(statusDate).setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg.rounded(toPlaces: 2), "Day Order" : dayToLoad, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
         } else {
-            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History").child(kasamID).child(statusDate ?? "StatusDate").setValue(nil)
+            DBRef.userHistory.child(kasamID).child(statusDate).setValue(nil)
             //removes the dayTracker for today if kasam is set to zero
-            SavedData.dayTrackerDict[kasamID]?.removeValue(forKey: Int(dayOrder) ?? 1)
+            SavedData.dayTrackerDict[kasamID]?.removeValue(forKey: Int(dayToLoad) ?? 1)
         }
     }
 }
