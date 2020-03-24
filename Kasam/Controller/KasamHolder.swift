@@ -12,11 +12,18 @@ import SwiftEntryKit
 import Lottie
 import youtube_ios_player_helper
 import AVFoundation
-
 class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     @IBOutlet weak var tableView: UITableView! {didSet {tableView.estimatedRowHeight = 100}}
     @IBOutlet var headerView : UIView!
+    @IBOutlet weak var headerImageView: UIImageView!
+    @IBOutlet weak var kasamBadgeHolder: UIView!
+    @IBOutlet weak var topKasamBadge: UIButton!
+    @IBOutlet weak var topKasamBadgeHolder: UIView!
+    @IBOutlet weak var bottomKasamBadge: UIButton!
+    @IBOutlet weak var badgeInfo: UILabel!
+    @IBOutlet weak var TopKasamBadgeBottomConstraint: NSLayoutConstraint!
+    
     @IBOutlet var profileView : UIView!
     @IBOutlet weak var profileViewRadius: UIView!
     @IBOutlet weak var addButton: UIButton!
@@ -35,7 +42,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var kasamLevel: UILabel!
     @IBOutlet weak var followersNo: UILabel!
     
-    @IBOutlet var headerLabel : UILabel!
+    @IBOutlet var headerLabel: UILabel!
     @IBOutlet weak var constraintHeightHeaerImages: NSLayoutConstraint!
     @IBOutlet weak var createKasamButton: UIButton!
     @IBOutlet weak var deleteKasamButton: UIButton!
@@ -44,8 +51,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var previewButton: UIButton!
     @IBOutlet weak var playerView: YTPlayerView!
     
-    var headerBlurImageView:UIImageView!
-    var headerImageView:UIImageView!
+    var headerBlurImageView: UIImageView!
     var observer: NSObjectProtocol?
     var chosenTime = ""
     var chosenTimeHour = 0
@@ -57,6 +63,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var followerCountGlobal = 0
     var kasamID: String = ""            //transfered in values from previous vc
     var kasamGTitle: String = ""        //transfered in values from previous vc
+    var kasamCompletedRadio = 0.0
+    
     var kasamTracker: [Tracker] = [Tracker]()
     var registerCheck = 0
     var coachIDGlobal = ""
@@ -163,11 +171,32 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         headerView.layoutIfNeeded()
         tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)
         
-        //Header - Image
-        self.headerImageView = UIImageView(frame: self.headerView.bounds)
-        self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-        self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
-        
+        //Header Badge (if Kasam is being followed)
+        if SavedData.kasamDict[kasamID] != nil {
+            self.kasamBadgeHolder.isHidden = false
+            let badgeSize = self.bottomKasamBadge.frame.size.height * 2
+            self.topKasamBadge.setIcon(icon: .fontAwesomeSolid(.trophy), iconSize: badgeSize, color: UIColor.init(hex: 0xD6D6D6), backgroundColor: .clear, forState: .normal)
+            self.bottomKasamBadge.setIcon(icon: .fontAwesomeSolid(.trophy), iconSize: badgeSize , color: UIColor.colorFive.lighter, backgroundColor: .clear, forState: .normal)
+            
+            //Header Badge Glow
+            self.bottomKasamBadge.layer.cornerRadius = 16.0
+            self.bottomKasamBadge.layer.shadowColor = UIColor.black.cgColor
+            self.bottomKasamBadge.layer.shadowOpacity = 0.4
+            self.bottomKasamBadge.layer.shadowOffset = CGSize.zero
+            self.bottomKasamBadge.layer.shadowRadius = 4
+            
+            if SavedData.kasamDict[kasamID]?.currentDay != nil && SavedData.kasamDict[kasamID]?.repeatDuration != nil {
+                self.headerImageView.alpha = 0.7
+                self.kasamBadgeHolder.alpha = 0.92
+                let ratio = (Double(SavedData.kasamDict[kasamID]!.currentDay) / Double(SavedData.kasamDict[kasamID]!.repeatDuration))
+                self.TopKasamBadgeBottomConstraint.constant = (badgeSize * CGFloat(ratio)) + 10
+                
+                //Badge Info
+                self.badgeInfo.backgroundColor = UIColor.colorFive.lighter
+                self.badgeInfo.layer.cornerRadius = 8.0
+                self.badgeInfo.text = "  \(Int(ratio * 100))% complete  "
+            }
+        }
         headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerLabel: headerLabel)
     }
     

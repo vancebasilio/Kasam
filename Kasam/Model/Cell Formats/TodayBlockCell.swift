@@ -13,11 +13,11 @@ import SwiftIcons
 protocol TableCellDelegate : class {
     func updateKasamButtonPressed(_ sender: UIButton, kasamOrder: Int)
     func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?)
+    func goToKasamHolder(_ sender: UIButton, kasamOrder: Int)
 }
 
 class TodayBlockCell: UITableViewCell {
-    
-    @IBOutlet weak var kasamName: UILabel!
+    @IBOutlet weak var kasamName: UIButton!
     @IBOutlet weak var dayNumber: UILabel!
     @IBOutlet weak var currentDayStreak: UILabel!
     @IBOutlet weak var blockContents: UIView!
@@ -67,11 +67,11 @@ class TodayBlockCell: UITableViewCell {
     
     func setBlock(block: TodayBlockFormat) {
         print("hello \(block.kasamName)")
-        tempBlock = block               //tempBlock used to transfer info to the below func for displayStatus
+        tempBlock = block                               //tempBlock used to transfer info to the below func for displayStatus
         statusUpdate()
-        kasamName.text = block.kasamName
+        kasamName.setTitle(block.kasamName, for: .normal)
         today = Int(block.dayOrder)
-        dayNumber.text = "Day \(block.dayOrder)"
+        dayNumber.text = "Day \(block.dayOrder) of \(block.repeatDuration)"
         kasamType = tempBlock?.kasamType ?? "Basic"
         if kasamType == "Basic" {percentComplete.isHidden = true}
     }
@@ -128,6 +128,10 @@ class TodayBlockCell: UITableViewCell {
             collectionBottomConstraint.constant = -5
             hideDayTrackerDates = true
         }
+    }
+    
+    @IBAction func kasamNamePressed(_ sender: UIButton) {
+        cellDelegate?.goToKasamHolder(sender, kasamOrder: row)
     }
     
     @objc func centerCollectionView() {
