@@ -33,6 +33,10 @@ struct DBRef {
     static let userKasams = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
 }
 
+struct Assets {
+    static var levelsArray = [""]
+}
+
 struct NewKasam {
     static var editKasamCheck = false
     static var kasamID = ""

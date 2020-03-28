@@ -141,7 +141,7 @@ import Firebase
     }
 
     //ADD KASAM---------------------------------------------------------------------------------------------
-    func addKasamPopup(type:String) {
+    func addKasamPopup(type:String, repeatDuration: Int?, startDay: String?, reminderTime: String?, currentDay: Int?) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -162,6 +162,10 @@ import Firebase
         attributes.statusBar = .dark
         let viewController = AddKasamController()
         viewController.type = type
+        viewController.currentDay = currentDay
+        viewController.repeatDuration = repeatDuration ?? 1
+        viewController.formattedDate = startDay ?? ""
+        viewController.formattedTime = reminderTime ?? ""
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 

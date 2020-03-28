@@ -100,6 +100,9 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         } else {
             doneButton.setTitle("Next", for: .normal)
         }
+        if viewOnlyCheck == true {
+            self.resetButton.isHidden = true
+        }
     }
     
     //COUNTDOWN-----------------------------------------------------------------------------------
@@ -279,31 +282,33 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     @IBAction func timerDoneButton(_ sender: Any) {
         delegate?.dismissViewController()
-        if timerOrCountdown == "Checkmark" {
-            delegate?.sendCompletedMatrix(key: currentOrder, value: 100.0, text: textField.text ?? "")
-        } else {
-            delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime), text: textField.text ?? "")
+        if viewOnlyCheck == false {
+            if timerOrCountdown == "Checkmark" {
+                delegate?.sendCompletedMatrix(key: currentOrder, value: 100.0, text: textField.text ?? "")
+            } else {
+                delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime), text: textField.text ?? "")
+            }
+            delegate?.updateControllers()
         }
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
     }
     
     @IBAction func resetButtonPress(_ sender: Any) {
-        if timerOrCountdown == "Checkmark" {
-            delegate?.sendCompletedMatrix(key: currentOrder, value: 0.0, text: textField.text ?? "")
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
-            delegate?.dismissViewController()
-            
-        } else {
-            maskButton.isEnabled = true
-            timeLabel.font = timeLabel.font.withSize(50)
-            timerStartStop.text = "tap to start "
-            countdownTimer.setCountDown(time: maxTime)
-            countdownTimer.stop()
-            countdownTimerDidStart = false
+        if viewOnlyCheck == false {
+            if timerOrCountdown == "Checkmark" {
+                delegate?.sendCompletedMatrix(key: currentOrder, value: 0.0, text: textField.text ?? "")
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
+                delegate?.dismissViewController()
+                
+            } else {
+                maskButton.isEnabled = true
+                timeLabel.font = timeLabel.font.withSize(50)
+                timerStartStop.text = "tap to start "
+                countdownTimer.setCountDown(time: maxTime)
+                countdownTimer.stop()
+                countdownTimerDidStart = false
+            }
         }
     }
 }

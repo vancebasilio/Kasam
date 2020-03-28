@@ -21,8 +21,8 @@ class KasamActivityViewer: UIViewController {
     
     //determines which block and past history loads
     var blockID = ""
-    var dayOrder = ""
-    var dayToLoad = ""
+    var dayOrder = 0
+    var dayToLoad: Int?
     
     var activityRef: DatabaseReference!
     var activityRefHandle: DatabaseHandle!
@@ -77,8 +77,8 @@ class KasamActivityViewer: UIViewController {
             self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     //check if user has past progress from today and download metric
-                    print(Int(self.dayOrder)!, Int(self.dayToLoad)!)
-                    let diff = Int(self.dayOrder)! - Int(self.dayToLoad)!
+                    if self.dayToLoad == nil {self.dayToLoad = self.dayOrder}      //in case DayToLoad isn't loaded
+                    let diff = self.dayOrder - self.dayToLoad!
                     self.statusDate = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: -diff, to: Date())!)
                     var currentMetric = "0"
                     var currentText = ""
@@ -233,7 +233,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         } else {
             DBRef.userHistory.child(kasamID).child(statusDate).setValue(nil)
             //removes the dayTracker for today if kasam is set to zero
-            SavedData.dayTrackerDict[kasamID]?.removeValue(forKey: Int(dayToLoad) ?? 1)
+            SavedData.dayTrackerDict[kasamID]?.removeValue(forKey: dayToLoad!)
         }
     }
 }

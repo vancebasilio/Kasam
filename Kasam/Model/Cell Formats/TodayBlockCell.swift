@@ -21,6 +21,7 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var dayNumber: UILabel!
     @IBOutlet weak var currentDayStreak: UILabel!
     @IBOutlet weak var blockContents: UIView!
+    @IBOutlet weak var kasamImage: UIImageView!
     @IBOutlet weak var statsContent: UIView!
     @IBOutlet weak var statsShadow: UIView!
     @IBOutlet weak var streakShadow: UIView!
@@ -73,6 +74,7 @@ class TodayBlockCell: UITableViewCell {
         today = Int(block.dayOrder)
         dayNumber.text = "Day \(block.dayOrder) of \(block.repeatDuration)"
         kasamType = tempBlock?.kasamType ?? "Basic"
+        kasamImage.sd_setImage(with: block.image)
         if kasamType == "Basic" {percentComplete.isHidden = true}
     }
     
@@ -85,6 +87,12 @@ class TodayBlockCell: UITableViewCell {
         statsShadow.layer.shadowOpacity = 0.2
         statsShadow.layer.shadowOffset = CGSize.zero
         statsShadow.layer.shadowRadius = 4
+        
+        kasamImage.layer.cornerRadius = 16.0
+        kasamImage.layer.shadowColor = UIColor.black.cgColor
+        kasamImage.layer.shadowOpacity = 0.2
+        kasamImage.layer.shadowOffset = CGSize.zero
+        kasamImage.layer.shadowRadius = 4
         
         streakShadow.layer.cornerRadius = 16.0
         streakShadow.layer.shadowColor = UIColor.black.cgColor

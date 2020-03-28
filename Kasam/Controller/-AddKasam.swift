@@ -14,23 +14,26 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var slidingHandle: UIView!
     @IBOutlet weak var startDateTimeLabel: UILabel!
+    @IBOutlet weak var startDayView: UIStackView!
     @IBOutlet weak var repeatPicker: UIPickerView!
     @IBOutlet weak var startDayPicker: UIPickerView!
     @IBOutlet weak var startTimePicker: UIPickerView!
     
+    //transferred to Firebase
+    var formattedDate = ""      //loaded in value
+    var formattedTime = ""      //loaded in value
+    var repeatDuration = 1      //loaded in value
+    var currentDay: Int?          //loaded in value
+    
+    //Converter variables
     var timeMinArray = ["00", "30"]
     var timeUnitArray = ["AM", "PM"]
-    
     var type = ""
     var timeUnit = "AM"
-    
-    //transferred to Firebase
-    var formattedDate = ""
-    var formattedTime = ""
-    var hourAMPM = 20
+    var hourAMPM = 20           //converted hour to AM/PM format
     var hour =  5
     var min = 30
-    var duration = 1
+    var baseDate: Date?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,31 +46,52 @@ class AddKasamController: UIViewController {
     }
     
     func setupTimePicker(){
-        formattedDate = dateFormat(date: Date())
-        var tempMin = (Double(Calendar.current.component(.minute, from: Date())) / 60.0).rounded(toPlaces: 0)
-        var tempHour = Calendar.current.component(.hour, from: Date())
-        
-        //Set the minute
-        if tempMin == 0 {
-            tempMin = 1
+        if formattedDate != "" {
+            //load in chosen kasam preferences
+            startDateTimeLabel.text = "Edit Preferences"
+            if repeatDuration > 1 {
+                repeatPicker.selectRow(repeatDuration - 1 - (currentDay ?? 0), inComponent: 0, animated: false)
+            }
+            
+            timeUnit = formattedTime.components(separatedBy: " ").last ?? "AM"
+            let setAMPM = timeUnitArray.index(of: timeUnit) ?? 0
+            startTimePicker.selectRow(setAMPM, inComponent: 3, animated: false)
+            
+            let setHourMin = formattedTime.components(separatedBy: " ").first
+            hour = Int(setHourMin?.components(separatedBy: ":").first ?? "10") ?? 10
+            min = Int(setHourMin?.components(separatedBy: ":").last ?? "30") ?? 0
+            startTimePicker.selectRow(hour - 1, inComponent: 0, animated: false)
+            startTimePicker.selectRow(timeMinArray.index(of:String(format:"%02d", min)) ?? 0, inComponent: 2, animated: false)
+            baseDate = stringToDate(date: formattedDate)
         } else {
-            tempMin = 0
-            tempHour += 1
-        }
-        min = Int(tempMin) * 30
-        startTimePicker.selectRow(Int(tempMin), inComponent: 2, animated: true)
+            //set deafult date and time
+            cancelButton.isHidden = true
+            formattedDate = dateFormat(date: Date())
+            var tempMin = (Double(Calendar.current.component(.minute, from: Date())) / 60.0).rounded(toPlaces: 0)
+            var tempHour = Calendar.current.component(.hour, from: Date())
+            
+            //Set the minute
+            if tempMin == 0 {
+                tempMin = 1
+            } else {
+                tempMin = 0
+                tempHour += 1
+            }
+            min = Int(tempMin) * 30
+            startTimePicker.selectRow(Int(tempMin), inComponent: 2, animated: true)
 
-        //Set the hour
-        if tempHour > 12 {
-            timeUnit = timeUnitArray[1]
-            hour = tempHour - 12
-            startTimePicker.selectRow(hour - 1, inComponent: 0, animated: true)
-            startTimePicker.selectRow(1, inComponent: 3, animated: true)
-        } else {
-            timeUnit = timeUnitArray[0]
-            hour = tempHour
-            startTimePicker.selectRow(hour - 1, inComponent: 0, animated: true)
-            startTimePicker.selectRow(0, inComponent: 3, animated: true)
+            //Set the hour
+            if tempHour > 12 {
+                timeUnit = timeUnitArray[1]
+                hour = tempHour - 12
+                startTimePicker.selectRow(hour - 1, inComponent: 0, animated: true)
+                startTimePicker.selectRow(1, inComponent: 3, animated: true)
+            } else {
+                timeUnit = timeUnitArray[0]
+                hour = tempHour
+                startTimePicker.selectRow(hour - 1, inComponent: 0, animated: true)
+                startTimePicker.selectRow(0, inComponent: 3, animated: true)
+            }
         }
         formattedTime = String(format:"%d:%02d \(timeUnit)", hour, min)
     }
@@ -87,12 +111,12 @@ class AddKasamController: UIViewController {
         } else {
             hourAMPM = hour
         }
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "saveTime"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveTime"), object: self)
         SwiftEntryKit.dismiss()
     }
     
     @IBAction func cancelButtonPressed(_ sender: Any) {
-        SwiftEntryKit.dismiss()
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "UnfollowKasam"), object: self)
     }
 }
 
@@ -108,9 +132,19 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         pickerView.subviews.forEach({$0.isHidden = $0.frame.height < 1.0})
         if pickerView == repeatPicker {
-            return 100
+            if currentDay != nil && repeatDuration > 1 {
+                //editing preferences on existing Kasam
+                return 100 - currentDay!
+            } else {
+                //new Kasam
+                return 100
+            }
         } else if pickerView == startDayPicker{
-            return 30
+            if currentDay != nil {
+                return currentDay!
+            } else {
+                return 30
+            }
         } else {
             if component == 0 {
                 return 12
@@ -130,13 +164,26 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
         label.font = UIFont.systemFont(ofSize: 23, weight: .regular)
         label.textAlignment = .center
         if pickerView == repeatPicker {
-            if row == 0 {label.text = "Once"}
-            else {label.text =  String("\(row + 1) days")}
+            if currentDay != nil && repeatDuration > 1 {
+                //editing existing Kasam preferences
+                label.text =  String("\(row + currentDay! + 1) days")
+            } else {
+                //loading new Kasam
+                if row == 0 {
+                    label.text = "Complete Once"
+                } else {
+                    label.text =  String("\(row + 1) days")
+                }
+            }
         } else if pickerView == startDayPicker {
-            if row == 0 {label.text = "Today"}
-            else if row == 1 {label.text = "Tomorrow"}
-            else {
-                let day = dateShortFormat(date: Calendar.current.date(byAdding: .day, value: row, to: Date())!)
+            if baseDate == nil {
+                if row == 0 {label.text = "Today"}
+                else if row == 1 {label.text = "Tomorrow"}
+                else {let day = dateShortFormat(date: Calendar.current.date(byAdding: .day, value: row, to: baseDate ?? Date())!)
+                label.text = day
+                }
+            } else {
+                let day = dateShortFormat(date: Calendar.current.date(byAdding: .day, value: row, to: baseDate ?? Date())!)
                 label.text = day
             }
         } else if pickerView == startTimePicker {
@@ -159,9 +206,13 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == repeatPicker {
-            duration = row + 1
+            if currentDay != nil && repeatDuration > 1 {
+                repeatDuration = row + 1 + currentDay!
+            } else {
+                repeatDuration = row + 1
+            }
         } else if pickerView == startDayPicker {
-            formattedDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: row, to: Date())!)
+            formattedDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: row, to: baseDate ?? Date())!)
         } else if pickerView == startTimePicker {
             if component == 0 {
                 hour = row + 1

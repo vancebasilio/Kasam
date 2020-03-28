@@ -85,7 +85,7 @@ class TodayBlockFormat {
     var blockID: String
     var image: URL
     var blockTitle: String
-    var dayOrder: String
+    var dayOrder: Int
     var duration: String?
     var repeatDuration: Int
     var kasamName: String
@@ -96,7 +96,7 @@ class TodayBlockFormat {
     var percentComplete: Double?
     var kasamLevel: String
     
-    init(kasamOrder: Int, kasamID: String, blockID: String, kasamName: String, blockTitle: String, dayOrder: String, duration: String?, repeatDuration: Int, image: URL, kasamType: String, displayStatus: String, dayTrackerArray: [Int:(Int,Bool)]?, currentStreak: Int?, percentComplete: Double?, kasamLevel: String){
+    init(kasamOrder: Int, kasamID: String, blockID: String, kasamName: String, blockTitle: String, dayOrder: Int, duration: String?, repeatDuration: Int, image: URL, kasamType: String, displayStatus: String, dayTrackerArray: [Int:(Int,Bool)]?, currentStreak: Int?, percentComplete: Double?, kasamLevel: String){
         self.kasamOrder = kasamOrder
         self.kasamID = kasamID
         self.blockID = blockID

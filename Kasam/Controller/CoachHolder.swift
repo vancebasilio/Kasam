@@ -50,7 +50,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     
     func countFollowers(){
         var count = 0
-        Database.database().reference().child("Users").child(coachID).child("Followers").observe(.childAdded) { (snapshot) in
+        DBRef.userCreator.child(coachID).child("Followers").observe(.childAdded) {(snapshot) in
             count += 1
             self.followersNo.text = String(count)
         }
@@ -72,8 +72,8 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     
     //Retrieves Kasams based on coach selected
     func getKasamsData() {
-        Database.database().reference().child("Users").child(coachID).child("Kasams").observe(.childAdded, with: { (snapshot) in
-            Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: { (snapshot) in
+        Database.database().reference().child("Users").child(coachID).child("Kasams").observe(.childAdded, with: {(snapshot) in
+            Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: {(snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     let kasamURL = URL(string: value["Image"] as? String ?? "")
                     let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: kasamURL!, rating: value["Rating"] as! String, creator: value["CreatorName"] as? String ?? "", kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")

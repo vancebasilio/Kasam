@@ -236,7 +236,9 @@ class ProfileViewController: UIViewController {
                     //only records progress bar if the joined date is after the kasam date
                     if self.stringToDate(date: self.dayDictionary[x]!) >= kasam.joinedDate {
                         if let value = snapshot.value as? Int {
-                            self.metricDictionary[x] = Double(value)                        //Daily Kasam
+                            self.metricDictionary[x] = Double(value)                        //Basic Kasam
+                            metricMatrix += 1
+                            metricCount += 1
                         }
                         else if let value = snapshot.value as? [String: Any] {
                             self.metricDictionary[x] = value["Metric Percent"] as? Double   //Challange Kasam: Get metric for each day
@@ -244,15 +246,12 @@ class ProfileViewController: UIViewController {
                             metricCount += 1
                         }
                     }
-                    if checkerCount == 7 {
-                        if metricCount != 0 {
-                            if kasam.metricType == "Checkmark" {
-                                //divide 100% checkmark completion by number of days in the week past
-                                let daysPast = (Date().dayNumberOfWeek() ?? 8) - 1
-                                avgMetric = (metricMatrix / daysPast)
-                            } else {
-                                avgMetric = (metricMatrix / metricCount)
-                            }
+                    if checkerCount == 7 && metricCount != 0 {
+                        if kasam.metricType == "Checkmark" {
+                            let daysPast = (Date().dayNumberOfWeek() ?? 8) - 1   //divide 100% checkmark days by no of days in the week completed
+                            avgMetric = Int((Double(metricMatrix) / Double(daysPast)) * 100)          //for Basic Kasams
+                        } else {
+                            avgMetric = (metricMatrix / metricCount)             //for Complex Kasams
                         }
                         self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
                         

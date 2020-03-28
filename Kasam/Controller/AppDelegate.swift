@@ -24,12 +24,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         UITabBar.appearance().tintColor = UIColor.colorFour
+        
     }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // first launch
+        // this method is called only on first launch when app was closed / killed
         ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         IQKeyboardManager.shared.enable = true
+        Database.database().reference().child("Assets").child("Levels").observeSingleEvent(of: .value, with:{(snap) in
+            let levelsString = snap.value as? String
+            Assets.levelsArray = levelsString?.components(separatedBy: ";") ?? ["Easy","Medium","Hard"]
+        })
         return true
     }
     
