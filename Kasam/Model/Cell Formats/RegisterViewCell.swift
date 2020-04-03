@@ -40,7 +40,7 @@ class RegisterViewCell: UICollectionViewCell {
                 self.delegate?.showError(error!)
             } else {
                 let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
-                let userDictionary = ["Name": self.usernameTextfield.text!, "Bio": "", "ProfileImage": "", "Score": "0", "History" : "", "UserID": Auth.auth().currentUser?.uid, "Following": "", "Type": "User"]
+                let userDictionary = ["Name": self.usernameTextfield.text!, "Bio": "", "ProfileImage": "", "Score": "0", "History" : "", "UserID": Auth.auth().currentUser?.uid, "Type": "User"]
                 
                 newUser.setValue(userDictionary) {(error, reference) in
                     if error != nil {

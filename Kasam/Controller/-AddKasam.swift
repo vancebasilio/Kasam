@@ -49,10 +49,11 @@ class AddKasamController: UIViewController {
         if formattedDate != "" {
             //load in chosen kasam preferences
             startDateTimeLabel.text = "Edit Preferences"
-            if repeatDuration > 1 {
-                repeatPicker.selectRow(repeatDuration - 1 - (currentDay ?? 0), inComponent: 0, animated: false)
+            if repeatDuration > 1 && (currentDay ?? 0 < repeatDuration) {
+                repeatPicker.selectRow(repeatDuration - (currentDay ?? 0), inComponent: 0, animated: false)
+            } else {
+                repeatDuration = currentDay!
             }
-            
             timeUnit = formattedTime.components(separatedBy: " ").last ?? "AM"
             let setAMPM = timeUnitArray.index(of: timeUnit) ?? 0
             startTimePicker.selectRow(setAMPM, inComponent: 3, animated: false)
@@ -166,7 +167,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
         if pickerView == repeatPicker {
             if currentDay != nil && repeatDuration > 1 {
                 //editing existing Kasam preferences
-                label.text =  String("\(row + currentDay! + 1) days")
+                label.text =  String("\(row + currentDay!) days")
             } else {
                 //loading new Kasam
                 if row == 0 {
@@ -207,7 +208,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == repeatPicker {
             if currentDay != nil && repeatDuration > 1 {
-                repeatDuration = row + 1 + currentDay!
+                repeatDuration = row + currentDay!
             } else {
                 repeatDuration = row + 1
             }

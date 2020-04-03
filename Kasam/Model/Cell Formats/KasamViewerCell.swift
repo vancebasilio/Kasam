@@ -192,10 +192,10 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     //PICKER-----------------------------------------------------------------------------------
     
-    func setupPicker(){
-        pickerView.selectRow(16, inComponent: 0, animated: false)
+    func setupPicker(pastProgress: Double){
         pickerView.delegate = self
         pickerView.dataSource = self
+        pickerView.selectRow(Int(pastProgress) / 10, inComponent: 0, animated: false)
         doneButton.layer.cornerRadius = 20.0
         circularSlider.isHidden = true
         timerButtonStackView.isHidden = true
@@ -272,6 +272,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBAction func doneButton(_ sender: UIButton) {
         if currentOrder == totalOrder {
             if viewOnlyCheck == false {
+                //user recording progress, so save it
                 delegate?.updateControllers()
             }
             delegate?.dismissViewController()

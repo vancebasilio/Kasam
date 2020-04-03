@@ -91,12 +91,12 @@ class TodayBlockFormat {
     var kasamName: String
     var kasamType: String
     var displayStatus: String
-    var dayTrackerArray: [Int:(Int,Bool)]?
+    var dayTrackerArray: [Int:(Int,Double)]?
     var currentStreak: Int?
     var percentComplete: Double?
     var kasamLevel: String
     
-    init(kasamOrder: Int, kasamID: String, blockID: String, kasamName: String, blockTitle: String, dayOrder: Int, duration: String?, repeatDuration: Int, image: URL, kasamType: String, displayStatus: String, dayTrackerArray: [Int:(Int,Bool)]?, currentStreak: Int?, percentComplete: Double?, kasamLevel: String){
+    init(kasamOrder: Int, kasamID: String, blockID: String, kasamName: String, blockTitle: String, dayOrder: Int, duration: String?, repeatDuration: Int, image: URL, kasamType: String, displayStatus: String, dayTrackerArray: [Int:(Int,Double)]?, currentStreak: Int?, percentComplete: Double?, kasamLevel: String){
         self.kasamOrder = kasamOrder
         self.kasamID = kasamID
         self.blockID = blockID
@@ -281,8 +281,9 @@ class KasamSavedFormat {
     var currentStatus: String
     var pastKasamJoinDates: [String]
     var type: String
+    var badgeStreak: Int?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, endDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String], type: String){
+    init(kasamID: String, kasamName: String, joinedDate: Date, endDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String], type: String, badgeStreak: Int?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
@@ -296,6 +297,7 @@ class KasamSavedFormat {
         self.currentStatus = currentStatus
         self.pastKasamJoinDates = pastKasamJoinDates
         self.type = type
+        self.badgeStreak = badgeStreak
     }
 }
 

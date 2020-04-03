@@ -105,7 +105,6 @@ class StatisticsViewController: UIViewController {
     
     func getChartAndTableStats(kasamDay: Int){
         var metricTotal = 0
-        var metricType = ""
         var progressDayCount = 0
         var noProgressDayCount = 0
         //kasamDay is the current day of the Kasam that the user is on
@@ -114,35 +113,40 @@ class StatisticsViewController: UIViewController {
             self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(dayDate).observe(.value, with:{(snapshot) in
                 if snapshot.exists() {
                     progressDayCount += 1
+                    var indieMetricType = ""
+                    var indieMetric = 0.0
+                    var textField = ""
                     if let value = snapshot.value as? [String: Any] {
-                        let metric = Int(value["Total Metric"] as? Double ?? 0.0)
-                        metricType = self.kasamMetricType
-                        var indieMetric = Double(metric)
-                        var indieMetricType = metricType
+                        //Kasam is Reps or Timer
+                        indieMetricType = self.kasamMetricType
+                        indieMetric = value["Total Metric"] as? Double ?? 0.0
                         let text = value["Text Breakdown"] as? [Any]
-                        let textField = text?[1]
-                        let dayOrder = Int(value["Day Order"] as? String ?? "0")
-                        self.metricArray[dayOrder!] = metric
+                        textField = text?[1] as! String
+                        self.metricArray[day] = Int(indieMetric)
                         var timeAndMetric = (0.0,"")
                         if self.kasamMetricType == "Time" {
-                            timeAndMetric = self.convertTimeAndMetric(time: Double(metric), metric: metricType)
+                            timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: indieMetricType)
                             indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
                             indieMetricType = timeAndMetric.1
-                        } else if self.kasamMetricType == "Checkmark" {
-                            indieMetricType = "%"
                         }
-                        metricTotal += metric
-                        let block = kasamFollowingFormat(day: dayOrder!, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(indieMetric.removeZerosFromEnd()) \(indieMetricType)", text: textField as? String ?? "")
-                        self.kasamBlocks.append(block)
+                    } else if let value = snapshot.value as? Int{
+                        //Kasam is only Checkmark
+                        indieMetricType = "%"
+                        indieMetric = Double(value * 100)
+                        self.metricArray[day] = Int(indieMetric)
                     }
+                    metricTotal += Int(indieMetric)
+                    let block = kasamFollowingFormat(day: day, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(indieMetric.removeZerosFromEnd()) \(indieMetricType)", text: textField)
+                    self.kasamBlocks.append(block)
                     self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
-                    if metricType == "Reps" {
-                         self.avgMetric.text = "\(metricTotal) Total \(metricType)"
-                    } else if metricType == "Time" {
+                    
+                    if indieMetricType == "Reps" {
+                         self.avgMetric.text = "\(metricTotal) Total \(indieMetricType)"
+                    } else if indieMetricType == "Time" {
                         let avgMetric = (metricTotal) / progressDayCount
-                        let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: metricType)
+                        let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: indieMetricType)
                         self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
-                    } else if metricType == "Checkmark" {
+                    } else if indieMetricType == "%" {
                         let avgMetric = (metricTotal) / (kasamDay)
                         self.avgMetric.text = "Avg. \(avgMetric) %"
                     }

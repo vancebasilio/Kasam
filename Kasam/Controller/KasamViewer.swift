@@ -157,9 +157,9 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         cell.kasamIDTransfer["kasamID"] = kasamID
         cell.setKasamViewer(activity: activity)
         if activity.type == "Reps" {
-            cell.setupPicker()
-            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
-            cell.pickerView.selectRow(Int(pastProgress) / 10, inComponent: 0, animated: false)
+            var pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
+            if viewingOnlyCheck == true {pastProgress = Double(activityBlocks[indexPath.row].totalMetric) ?? 0.0}
+            cell.setupPicker(pastProgress: pastProgress)
         } else if activity.type == "Countdown" {
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.setupCountdown(maxtime: activity.totalMetric, pastProgress: pastProgress)
@@ -229,7 +229,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         }
 
         if transferAvg > 0.0 {
-            DBRef.userHistory.child(kasamID).child(statusDate).setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg.rounded(toPlaces: 2), "Day Order" : dayToLoad, "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
+            DBRef.userHistory.child(kasamID).child(statusDate).setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
         } else {
             DBRef.userHistory.child(kasamID).child(statusDate).setValue(nil)
             //removes the dayTracker for today if kasam is set to zero

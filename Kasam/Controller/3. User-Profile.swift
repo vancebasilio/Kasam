@@ -20,8 +20,8 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var userFirstName: UILabel!
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var profileImageClickArea: UIView!
-    @IBOutlet weak var calendarNo: UILabel!
-    @IBOutlet weak var followingNo: UILabel!
+    @IBOutlet weak var kasamFollowingNo: UILabel!
+    @IBOutlet weak var badgeNo: UILabel!
     @IBOutlet weak var topView: UIView!
     @IBOutlet weak var levelLine: UIView!
     @IBOutlet weak var levelLineProgress: NSLayoutConstraint!
@@ -64,7 +64,6 @@ class ProfileViewController: UIViewController {
     var joinedDateGlobal: Date?
     var kasamHistoryRefHandle: DatabaseHandle!
     var kasamUserRefHandle: DatabaseHandle!
-    var kasamUserFollowRef: DatabaseReference! = DBRef.userKasamFollowing
     var kasamUserFollowRefHandle: DatabaseHandle!
     
     var tableViewHeight = CGFloat(0)
@@ -248,8 +247,11 @@ class ProfileViewController: UIViewController {
                     }
                     if checkerCount == 7 && metricCount != 0 {
                         if kasam.metricType == "Checkmark" {
-                            let daysPast = (Date().dayNumberOfWeek() ?? 8) - 1   //divide 100% checkmark days by no of days in the week completed
-                            avgMetric = Int((Double(metricMatrix) / Double(daysPast)) * 100)          //for Basic Kasams
+                            let daysPast = (Date().dayNumberOfWeek() ?? 7)   //divide 100% checkmark days by no of days in the week completed
+                            if daysPast != 0 {
+                                avgMetric = Int((Double(metricMatrix) / Double(daysPast)) * 100)          //for Basic Kasams
+                            }
+                            
                         } else {
                             avgMetric = (metricMatrix / metricCount)             //for Complex Kasams
                         }
@@ -322,13 +324,11 @@ class ProfileViewController: UIViewController {
     @objc func profileUpdate() {
         var kasamcount = 0
         var followingcount: [String: String] = [:]
-        calendarNo.text = String(kasamcount)
-        followingNo.text = String(followingcount.count)
-            self.kasamUserFollowRefHandle = self.kasamUserFollowRef.observe(.childAdded) {(snapshot) in
+        kasamFollowingNo.text = String(kasamcount)
+            self.kasamUserFollowRefHandle = DBRef.userKasamFollowing.observe(.childAdded) {(snapshot) in
                 kasamcount += 1
-                followingcount = [snapshot.key: "1"]
-                self.calendarNo.text = String(kasamcount)
-                self.followingNo.text = String(followingcount.count)
+                followingcount = [snapshot.key: "1"]            //this shows no of coaches the user is following
+                self.kasamFollowingNo.text = String(kasamcount)
         }
     }
     

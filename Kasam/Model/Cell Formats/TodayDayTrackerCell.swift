@@ -23,7 +23,7 @@ class TodayDayTrackerCell: UICollectionViewCell {
     var kasamOrderInternal = 0
     var typeInternal = "Basic"
     
-    func setBlock(kasamOrder: Int, day: Int, status: Bool?, date: String, type: String, today: Bool?, future: Bool){
+    func setBlock(kasamOrder: Int, day: Int, status: Double, date: String, type: String, today: Bool?, future: Bool){
         cellButton.layer.cornerRadius = cellButton.frame.width / 2
         cellButton.setTitle("\(day)", for: .normal)
         dayTrackerDate.text = date
@@ -48,11 +48,11 @@ class TodayDayTrackerCell: UICollectionViewCell {
         if future == true {
             cellButton.setTitleColor(UIColor.lightGray, for: .normal)       //greys out buttonBG that are in the future
             cellButton.backgroundColor = UIColor.init(hex: 0xEFEFF4)        //greys out buttonText that are in the future
-        } else if future != true && status != true && today != true {
+        } else if future != true && status == 0.0 && today != true {
             //Incomplete Kasams
             cellButton.backgroundColor = UIColor.darkGray
             cellButton.setTitleColor(UIColor.white, for: .normal)
-        } else if future != true && status == true {
+        } else if future != true && status > 0.0 {
             //Complete Kasams
             cellButton.backgroundColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7)        //green color
             cellButtonOutline.layer.borderColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7).cgColor

@@ -410,7 +410,12 @@ extension Date {
     }
     
     func dayNumberOfWeek() -> Int? {
-        return Calendar.current.dateComponents([.weekday], from: self).weekday
+        let dayNo = Calendar.current.dateComponents([.weekday], from: self).weekday
+        if  dayNo != 1 {
+            return dayNo ?? 2 - 1
+        } else {
+            return (dayNo ?? 1) + 6
+        }
     }
 }
 
@@ -509,11 +514,25 @@ extension UINavigationItem {
         let finalImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        //Remove the standard tints
-        UINavigationBar.appearance().backIndicatorImage = finalImage
-        UINavigationBar.appearance().backIndicatorTransitionMaskImage = finalImage
-        UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: .normal)
-        UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: UIControl.State.highlighted)
+        if #available(iOS 13.0, *) {
+            let app = UINavigationBarAppearance()
+            app.configureWithOpaqueBackground()
+            app.setBackIndicatorImage(finalImage, transitionMaskImage: finalImage)
+            
+            let buttonAppearance = UIBarButtonItemAppearance(style: .plain)
+            buttonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+            app.buttonAppearance = buttonAppearance
+            
+            UINavigationBar.appearance().standardAppearance = app
+            UINavigationBar.appearance().scrollEdgeAppearance = app
+            UINavigationBar.appearance().compactAppearance = app
+        } else {
+            //Remove the standard tints
+            UINavigationBar.appearance().backIndicatorImage = finalImage
+            UINavigationBar.appearance().backIndicatorTransitionMaskImage = finalImage
+            UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: .normal)
+            UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: UIControl.State.highlighted)
+        }
         
         //Set the navigation bar title to gold and text color to white        
         let navigationFont = UIFont.systemFont(ofSize: 20, weight: .semibold)

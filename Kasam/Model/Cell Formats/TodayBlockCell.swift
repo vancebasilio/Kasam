@@ -72,7 +72,11 @@ class TodayBlockCell: UITableViewCell {
         statusUpdate()
         kasamName.setTitle(block.kasamName, for: .normal)
         today = Int(block.dayOrder)
-        dayNumber.text = "Day \(block.dayOrder) of \(block.repeatDuration)"
+        if block.dayOrder > block.repeatDuration {
+            dayNumber.text = "\(block.repeatDuration) day goal completed"
+        } else {
+            dayNumber.text = "Day \(block.dayOrder) of \(block.repeatDuration)"
+        }
         kasamType = tempBlock?.kasamType ?? "Basic"
         kasamImage.sd_setImage(with: block.image)
         if kasamType == "Basic" {percentComplete.isHidden = true}
@@ -115,10 +119,14 @@ class TodayBlockCell: UITableViewCell {
     }
     
     @IBAction func yesButtonPressed(_ sender: UIButton) {
-        if kasamType == "Basic" {
-            cellDelegate?.updateKasamButtonPressed(sender, kasamOrder: row)
+        if tempBlock!.dayOrder > tempBlock!.repeatDuration {
+            cellDelegate?.goToKasamHolder(sender, kasamOrder: row)
         } else {
-            cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil)
+            if kasamType == "Basic" {
+                cellDelegate?.updateKasamButtonPressed(sender, kasamOrder: row)
+            } else {
+                cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil)
+            }
         }
         statusUpdate()
         centerCollectionView()
@@ -144,47 +152,61 @@ class TodayBlockCell: UITableViewCell {
     
     @objc func centerCollectionView() {
         if today != nil {
-            let indexPath = IndexPath(item: self.today! - 1, section: 0)
-            self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
-            self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            if tempBlock!.dayOrder < tempBlock!.repeatDuration {
+                let indexPath = IndexPath(item: self.today! - 1, section: 0)
+                self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
+                self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            } else {
+                //if the currentDay is more than the repeatDuration
+                let indexPath = IndexPath(item: tempBlock!.repeatDuration - 1, section: 0)
+                self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
+                self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            }
         }
     }
     
     func statusUpdate(){
         //Update the Streak
         if tempBlock?.currentStreak != nil {currentDayStreak.text = "\(String(describing: tempBlock!.currentStreak!))"}
-        
-        //Update percentage complete for Challenge Kasams
-        if kasamType == "Challenge" {
-            if tempBlock?.percentComplete == nil {
-                percentComplete.text = "0%"
-            } else {
-                let percent = Int(tempBlock!.percentComplete! * 100)
-                percentComplete.text = "\(percent)%"
-            }
-        }
-        
         let dayYesColor = UIColor.init(hex: 0x66A058)
         let dayNoColor = UIColor.init(hex: 0xcd742c)
         let iconSize = CGFloat(35)
-        if tempBlock?.displayStatus == "Checkmark" && kasamType == "Basic" {
+        
+        if tempBlock!.dayOrder > tempBlock!.repeatDuration {
             streakShadow.backgroundColor = UIColor.colorFour
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
-        } else if tempBlock?.displayStatus == "Checkmark" && kasamType == "Challenge" {
-            streakShadow.backgroundColor = UIColor.colorFour
-            percentComplete.textColor = UIColor.colorFive
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
-        } else if tempBlock?.displayStatus == "Check" {
-            streakShadow.backgroundColor = dayYesColor
-            percentComplete.textColor = dayYesColor
-            yesButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: dayYesColor, forState: .normal)
-        } else if tempBlock?.displayStatus == "Uncheck" {
-            streakShadow.backgroundColor = dayNoColor
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: dayYesColor, forState: .normal)
-        } else if tempBlock?.displayStatus == "Progress" {
-            streakShadow.backgroundColor = dayYesColor
-            percentComplete.textColor = UIColor.colorFive
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
+            yesButton?.setIcon(icon: .fontAwesomeRegular(.arrowAltCircleRight), iconSize: iconSize, color: UIColor.darkGray, forState: .normal)
+            percentComplete.textColor = .darkGray
+            percentComplete.numberOfLines = 2
+            percentComplete.text = "Update\nGoal"
+        } else {
+            //Update percentage complete for Challenge Kasams
+            if kasamType == "Challenge" {
+                if tempBlock?.percentComplete == nil {
+                    percentComplete.text = "0%"
+                } else {
+                    let percent = Int(tempBlock!.percentComplete! * 100)
+                    percentComplete.text = "\(percent)%"
+                }
+            }
+            if tempBlock?.displayStatus == "Checkmark" && kasamType == "Basic" {
+                streakShadow.backgroundColor = UIColor.colorFour
+                yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
+            } else if tempBlock?.displayStatus == "Checkmark" && kasamType == "Challenge" {
+                streakShadow.backgroundColor = UIColor.colorFour
+                percentComplete.textColor = UIColor.colorFive
+                yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
+            } else if tempBlock?.displayStatus == "Check" {
+                streakShadow.backgroundColor = dayYesColor
+                percentComplete.textColor = dayYesColor
+                yesButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: dayYesColor, forState: .normal)
+            } else if tempBlock?.displayStatus == "Uncheck" {
+                streakShadow.backgroundColor = dayNoColor
+                yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: dayYesColor, forState: .normal)
+            } else if tempBlock?.displayStatus == "Progress" {
+                streakShadow.backgroundColor = dayYesColor
+                percentComplete.textColor = UIColor.colorFive
+                yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
+            }
         }
     }
 }

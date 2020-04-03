@@ -48,7 +48,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="uCW-IF-dnj" userLabel="Vertical View">
-                            <rect key="frame" x="40" y="60" width="334" height="200"/>
+                            <rect key="frame" x="40" y="65" width="334" height="200"/>
                             <subviews>
                                 <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yJd-LL-whv" userLabel="Intensity">
                                     <rect key="frame" x="0.0" y="0.0" width="334" height="66.5"/>
@@ -187,7 +187,7 @@
                             </constraints>
                         </stackView>
                         <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="0FN-tA-R4b" userLabel="Buttons">
-                            <rect key="frame" x="27" y="290" width="360" height="40"/>
+                            <rect key="frame" x="27" y="295" width="360" height="40"/>
                             <subviews>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yYI-gH-vwg">
                                     <rect key="frame" x="0.0" y="0.0" width="170" height="40"/>
@@ -245,9 +245,9 @@
                         <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="0FN-tA-R4b" secondAttribute="trailing" constant="20" id="kYg-4E-w97"/>
                         <constraint firstItem="a64-8D-jWN" firstAttribute="leading" secondItem="Asv-AG-Loh" secondAttribute="leading" constant="10" id="mZ0-Hf-JQW"/>
                         <constraint firstItem="a64-8D-jWN" firstAttribute="top" secondItem="Asv-AG-Loh" secondAttribute="top" constant="20" id="oPG-bO-cHg"/>
-                        <constraint firstAttribute="bottom" secondItem="0FN-tA-R4b" secondAttribute="bottom" constant="20" id="tkJ-t4-Bta"/>
+                        <constraint firstAttribute="bottom" secondItem="0FN-tA-R4b" secondAttribute="bottom" constant="15" id="tkJ-t4-Bta"/>
                         <constraint firstItem="EXQ-6a-70W" firstAttribute="top" secondItem="Asv-AG-Loh" secondAttribute="top" constant="20" id="uwO-I5-vjw"/>
-                        <constraint firstItem="uCW-IF-dnj" firstAttribute="top" secondItem="a64-8D-jWN" secondAttribute="bottom" id="znB-xD-bvy"/>
+                        <constraint firstItem="uCW-IF-dnj" firstAttribute="top" secondItem="a64-8D-jWN" secondAttribute="bottom" constant="5" id="znB-xD-bvy"/>
                         <constraint firstItem="0FN-tA-R4b" firstAttribute="top" secondItem="uCW-IF-dnj" secondAttribute="bottom" constant="30" id="zxX-bv-drT"/>
                     </constraints>
                 </view>
