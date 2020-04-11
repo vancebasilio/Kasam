@@ -20,7 +20,7 @@ class CompletedKasamCell: UITableViewCell {
         kasamImage.clipsToBounds = true
         kasamName.text = block.kasamTitle
         let joinedDate = dateConverter(date: block.joinedDate)
-        let endDate = dateConverter(date: block.endDate)
+        let endDate = dateConverter(date: block.endDate ?? block.joinedDate)
         joinedDates.text = "\(joinedDate) - \(endDate)"
     }
     

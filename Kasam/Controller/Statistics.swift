@@ -87,19 +87,28 @@ class StatisticsViewController: UIViewController {
     
     @objc func getKasamStats(){
         self.kasamBlocks.removeAll()
-        var kasamDay = ((Calendar.current.dateComponents([.day], from: joinedDate!, to: Date()).day!) + 1)
-        if kasamDay > 30 {
-            self.dayNoValue.text = "30 Days"            //completed Kasams
+        
+        //STEP 1 - KASAM LABEL
+        let kasamDay = SavedData.kasamDict[kasamID]?.currentDay ?? 0
+        var repeatDuration = SavedData.kasamDict[kasamID]?.repeatDuration ?? 10
+        if let pastRepeatDuration = SavedData.kasamDict[kasamID]?.pastKasamJoinDates?[dateFormat(date: joinedDate!)] {
+            //PAST COMPLETED KASAM LOADED
+            repeatDuration = pastRepeatDuration
+            self.dayNoValue.text = "\(repeatDuration) Days"         //completed Kasams
         } else {
-            self.dayNoValue.text = "Day \(kasamDay)"    //in-progress Kasams
+            //ACTIVE KASAM LOADED
+            self.dayNoValue.text = "Day \(kasamDay)"
         }
-        if kasamDay > 30 && SavedData.dayTrackerDict[kasamID] == nil {      //for completed kasams with no progress made
+        
+        //STEP 2 - CHART
+        if kasamDay > repeatDuration && SavedData.dayTrackerDict[kasamID] == nil {
+            //for completed kasams with no progress made
             getCompletedKasamDayTracker()
         } else if kasamDay < 0 {
             return
-        } else {                                                            //for in-progress kasams and completed kasams with progress
-            if kasamDay > 30 {kasamDay = 30}
-            getChartAndTableStats(kasamDay: kasamDay)
+        } else {
+            //for in-progress kasams and completed kasams with progress
+            getChartAndTableStats(kasamDay: repeatDuration)
         }
     }
     
@@ -148,7 +157,7 @@ class StatisticsViewController: UIViewController {
                         self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
                     } else if indieMetricType == "%" {
                         let avgMetric = (metricTotal) / (kasamDay)
-                        self.avgMetric.text = "Avg. \(avgMetric) %"
+                        self.avgMetric.text = "\(avgMetric)% Avg."
                     }
                 } else {
                     //adds the missing zero days to the chart where the user hasn't logged any progress

@@ -49,8 +49,8 @@ class AddKasamController: UIViewController {
         if formattedDate != "" {
             //load in chosen kasam preferences
             startDateTimeLabel.text = "Edit Preferences"
-            if repeatDuration > 1 && (currentDay ?? 0 < repeatDuration) {
-                repeatPicker.selectRow(repeatDuration - (currentDay ?? 0), inComponent: 0, animated: false)
+            if repeatDuration > 1 && (currentDay ?? 1 < repeatDuration) {
+                repeatPicker.selectRow(repeatDuration - (currentDay ?? 1), inComponent: 0, animated: false)
             } else {
                 repeatDuration = currentDay!
             }
@@ -133,7 +133,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         pickerView.subviews.forEach({$0.isHidden = $0.frame.height < 1.0})
         if pickerView == repeatPicker {
-            if currentDay != nil && repeatDuration > 1 {
+            if currentDay != nil && currentDay != 0 && repeatDuration > 1 {
                 //editing preferences on existing Kasam
                 return 100 - currentDay!
             } else {
@@ -141,7 +141,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
                 return 100
             }
         } else if pickerView == startDayPicker{
-            if currentDay != nil {
+            if currentDay != nil && currentDay != 0 {
                 return currentDay!
             } else {
                 return 30
@@ -165,7 +165,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
         label.font = UIFont.systemFont(ofSize: 23, weight: .regular)
         label.textAlignment = .center
         if pickerView == repeatPicker {
-            if currentDay != nil && repeatDuration > 1 {
+            if currentDay != nil && currentDay != 0 && repeatDuration > 1 {
                 //editing existing Kasam preferences
                 label.text =  String("\(row + currentDay!) days")
             } else {

@@ -163,54 +163,53 @@ class ProfileViewController: UIViewController {
         for kasam in SavedData.kasamArray {
             Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
                 if snap.exists() {
-                let snapshot = snap.value as! Dictionary<String,Any>
-                let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
-                kasam.image = snapshot["Image"]! as! String
-                kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
-                let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: kasam.endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
-                if kasam.currentStatus == "completed" {
-                    //if the kasam has been completed, and not rejoined
-                    self.completedStats.append(userStats)
-                    self.completedKasamsTable.reloadData()
-                } else {
+                    let snapshot = snap.value as! Dictionary<String,Any>
+                    let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
+                    kasam.image = snapshot["Image"]! as! String
+                    kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
+                    let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
+                    let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
+                    
+                    //PAST PROGRESS
+                    if kasam.pastKasamJoinDates?.count != 0 && kasam.pastKasamJoinDates != nil {
+                        for pastJoinDate in kasam.pastKasamJoinDates! {
+                            let pastDateJoined = self.stringToDate(date: pastJoinDate.key)
+                            let pastEndDate = Calendar.current.date(byAdding: .day, value: pastJoinDate.value, to: pastDateJoined)!
+                            let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: pastDateJoined, endDate: pastEndDate, metricType: kasam.metricType, order: kasam.kasamOrder)
+                            print("hello2 \(self.completedStats.count)")
+                            self.completedStats.append(userStats)
+                            self.completedKasamsTable.reloadData()
+                        }
+                    }
+                    
+                    //ACTIVE KASAMS
                     self.detailedStats.append(userStats)
                     self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
                     self.detailedStatsCollectionView.reloadData()
                     self.weekStatsCollectionView.reloadData()
-                }
-                  
-                //get past joined dates (if kasam was completed and rejoined)
-                if kasam.pastKasamJoinDates.count != 0 {
-                    for pastJoinDate in kasam.pastKasamJoinDates {
-                        let pastDateJoined = self.stringToDate(date: pastJoinDate)
-                        let pastEndDate = Calendar.current.date(byAdding: .day, value: 30, to: pastDateJoined)!
-                        let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: pastDateJoined, endDate: pastEndDate, metricType: kasam.metricType, order: kasam.kasamOrder)
-                        self.completedStats.append(userStats)
-                        self.completedKasamsTable.reloadData()
+                    
+                    //GET WEEKLY STATS FOR ACTIVE KASAMS
+                    if self.detailedStats.count == SavedData.kasamArray.count {
+                        self.getWeeklyStats()
                     }
-                }
                 
-                if self.detailedStats.count == SavedData.kasamArray.count {
-                    self.getWeeklyStats()
-                }
-            
-            //Kasam Level
-            self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
-                self.kasamHistoryRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
-                self.daysCompletedDict[snapshot.key] = 1
-                let total = self.daysCompletedDict.count
-                if total == 1 {
-                     self.totalDays.text = "\(String(total)) Kasam Day"
-                } else {
-                    self.totalDays.text = "\(String(total)) Kasam Days"
-                }
-                if total <= 30 {
-                    self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
-                } else if total > 30 && total <= 90 {
-                    self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.laugh), postfixText: " Hard", size: 15)
-                    self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 90.0)
-                }
-            })
+                //Kasam Level
+                self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
+                    self.kasamHistoryRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
+                    self.daysCompletedDict[snapshot.key] = 1
+                    let total = self.daysCompletedDict.count
+                    if total == 1 {
+                         self.totalDays.text = "\(String(total)) Kasam Day"
+                    } else {
+                        self.totalDays.text = "\(String(total)) Kasam Days"
+                    }
+                    if total <= 30 {
+                        self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
+                    } else if total > 30 && total <= 90 {
+                        self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.laugh), postfixText: " Hard", size: 15)
+                        self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 90.0)
+                    }
+                })
             }
         }
         }

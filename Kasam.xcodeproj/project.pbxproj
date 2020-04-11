@@ -23,6 +23,7 @@
 		BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BC1FAF302269FAFA006A9245 /* Main.storyboard */; };
 		BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BC1FAF332269FAFA006A9245 /* Assets.xcassets */; };
 		BC1FAF372269FAFA006A9245 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BC1FAF352269FAFA006A9245 /* LaunchScreen.storyboard */; };
+		BC228CB224401C3D00BA665C /* crownMedal.json in Resources */ = {isa = PBXBuildFile; fileRef = BC228CB124401C3D00BA665C /* crownMedal.json */; };
 		BC2B4C8123A70437005F2255 /* rocket-fast.json in Resources */ = {isa = PBXBuildFile; fileRef = BC2B4C7F23A70436005F2255 /* rocket-fast.json */; };
 		BC2B4C8223A70437005F2255 /* checkmark.json in Resources */ = {isa = PBXBuildFile; fileRef = BC2B4C8023A70436005F2255 /* checkmark.json */; };
 		BC339E8E2376EB6D00E1D038 /* CustomSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */; };
@@ -43,6 +44,7 @@
 		BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C3C79234D60E800C68238 /* PopupForm.swift */; };
 		BC5C499C228122BB00EC0EA8 /* KasamSquareCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */; };
 		BC651491238DAD4600510971 /* ErrorMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC651490238DAD4600510971 /* ErrorMessages.swift */; };
+		BC679ECB2439290800441F6E /* badge.json in Resources */ = {isa = PBXBuildFile; fileRef = BC679ECA2439290800441F6E /* badge.json */; };
 		BC68BC5F22838A8800240CE9 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC68BC5E22838A8800240CE9 /* ImageService.swift */; };
 		BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6E97842321DF7800698EB9 /* KasamViewer.swift */; };
 		BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BC7042BF239861A100649D01 /* GoogleService-Info.plist */; };
@@ -59,6 +61,7 @@
 		BC9EC1D92390DD0400637C94 /* CompletedKasamCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */; };
 		BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06122A9D22E008C5A7D /* AppContainer.swift */; };
 		BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06322A9D2AB008C5A7D /* AppManager.swift */; };
+		BCAB3910243A125000A62F60 /* medal.json in Resources */ = {isa = PBXBuildFile; fileRef = BCAB390F243A125000A62F60 /* medal.json */; };
 		BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */ = {isa = PBXBuildFile; fileRef = BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */; };
 		BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */; };
 		BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */; };
@@ -101,6 +104,7 @@
 		BC1FAF332269FAFA006A9245 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BC1FAF362269FAFA006A9245 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BC1FAF382269FAFA006A9245 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BC228CB124401C3D00BA665C /* crownMedal.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = crownMedal.json; sourceTree = "<group>"; };
 		BC2B4C7F23A70436005F2255 /* rocket-fast.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "rocket-fast.json"; path = "Supporting Files/Lottie Animations/rocket-fast.json"; sourceTree = SOURCE_ROOT; };
 		BC2B4C8023A70436005F2255 /* checkmark.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = checkmark.json; path = "Supporting Files/Lottie Animations/checkmark.json"; sourceTree = SOURCE_ROOT; };
 		BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedControl.swift; sourceTree = "<group>"; };
@@ -121,6 +125,7 @@
 		BC5C3C79234D60E800C68238 /* PopupForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupForm.swift; sourceTree = "<group>"; };
 		BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamSquareCell.swift; sourceTree = "<group>"; };
 		BC651490238DAD4600510971 /* ErrorMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorMessages.swift; sourceTree = "<group>"; };
+		BC679ECA2439290800441F6E /* badge.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = badge.json; sourceTree = "<group>"; };
 		BC68BC5E22838A8800240CE9 /* ImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		BC6E97842321DF7800698EB9 /* KasamViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewer.swift; sourceTree = "<group>"; };
 		BC7042BF239861A100649D01 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -137,6 +142,7 @@
 		BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedKasamCell.swift; sourceTree = "<group>"; };
 		BCA9A06122A9D22E008C5A7D /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		BCA9A06322A9D2AB008C5A7D /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
+		BCAB390F243A125000A62F60 /* medal.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = medal.json; path = ../../../../../../../Desktop/medal.json; sourceTree = "<group>"; };
 		BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fireworks-loading.json"; path = "Supporting Files/Lottie Animations/fireworks-loading.json"; sourceTree = SOURCE_ROOT; };
 		BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KasamTrackerCell.swift; sourceTree = "<group>"; };
 		BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
@@ -193,6 +199,9 @@
 		BC1C678023D5558300E44DEE /* Lottie Animations */ = {
 			isa = PBXGroup;
 			children = (
+				BC679ECA2439290800441F6E /* badge.json */,
+				BC228CB124401C3D00BA665C /* crownMedal.json */,
+				BCAB390F243A125000A62F60 /* medal.json */,
 				BC16A20323292ABD00FDF70C /* loading.json */,
 				BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */,
 				BC2B4C8023A70436005F2255 /* checkmark.json */,
@@ -425,6 +434,7 @@
 				BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */,
 				BC1FAF372269FAFA006A9245 /* LaunchScreen.storyboard in Resources */,
 				BC1092A723A0553400575EDB /* AddKasamController.xib in Resources */,
+				BCAB3910243A125000A62F60 /* medal.json in Resources */,
 				BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */,
 				BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */,
 				BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */,
@@ -434,6 +444,8 @@
 				BCD824D323D7C0B40051C499 /* success.json in Resources */,
 				BC01664722D5790B0073186D /* UIImageViewAligned in Resources */,
 				BC2B4C8223A70437005F2255 /* checkmark.json in Resources */,
+				BC228CB224401C3D00BA665C /* crownMedal.json in Resources */,
+				BC679ECB2439290800441F6E /* badge.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

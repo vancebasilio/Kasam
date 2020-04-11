@@ -137,7 +137,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         kasamBadgeMask.frame = self.kasamBadgeColorMask.frame
-        self.badgeCompletionTopConstraint.constant = self.kasamBadgeHolder.frame.size.height * 0.3
+        self.badgeCompletionTopConstraint.constant = self.kasamBadgeHolder.frame.size.height * 0.25
         gradientLayer.frame = self.kasamBadgeColorMask.bounds
         let fillColor = UIColor.colorFive.lighter.cgColor
         let bgColor = UIColor.lightGray.lighter.cgColor
@@ -146,13 +146,18 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func setupKasamBadge(){
         //Header Badge (if Kasam is being followed and is a repeat Kasam)
-        if SavedData.kasamDict[kasamID]?.repeatDuration ?? 1 > 1 {
+        if SavedData.kasamDict[kasamID]?.repeatDuration ?? 1 > 1 && SavedData.kasamDict[kasamID]?.currentStatus == "active" {
             self.kasamBadgeHolder.isHidden = false
             kasamBadgeMask.setIcon(icon: .fontAwesomeSolid(.trophy), textColor: .black, backgroundColor: .clear, size: CGSize(width: 180, height: 180))
             self.kasamBadgeColorMask.mask = kasamBadgeMask
             self.headerImageView.alpha = 0.7
-            self.kasamBadgeHolder.alpha = 0.9
+            self.kasamBadgeHolder.alpha = 1.0
             reloadKasamBadge()
+        } else if SavedData.kasamDict[kasamID]?.currentStatus == "completed" {
+            //have some function showing badges achieved
+        } else {
+            self.kasamBadgeHolder.isHidden = true
+            self.headerImageView.alpha = 1.0
         }
     }
     
@@ -291,6 +296,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     //Add Kasam to Following List of user
     @IBAction func addButtonPress(_ sender: Any) {
+        //SETS UP THE OBSERVERS TO SAVE INFORMATION ONCE THE PREFERENCES ARE SAVED
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             self.chosenTime = timeVC.formattedTime
@@ -302,17 +308,23 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.registerUserToKasam()                          //only gets executed once user presses save
             } else {
                 self.addUserPreferncestoKasam()
+                //manually change values below so if the user opens this window again, the values are updated. Can't rely on the todaykasamreload, since it takes too long and if the user opens this window earlier, it'll show old values
                 SavedData.kasamDict[self.kasamID]?.repeatDuration = self.chosenRepeat
+                SavedData.kasamDict[self.kasamID]?.startTime = self.chosenTime
             }
             NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
+            NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
         }
         unfollowObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "UnfollowKasam"), object: nil, queue: OperationQueue.main) {(notification) in
-            showUnfollowConfirmation(title: "You sure?", description: "Your past progress will be saved.") {(success) in
+            showPopupConfirmation(title: "You sure?", description: "Your past progress will be saved.", image: UIImage.init(icon: .fontAwesomeSolid(.heartbeat), size: CGSize(width: 35, height: 35), textColor: .white), buttonText: "Unfollow") {(success) in
                 SavedData.kasamDict[self.kasamID] = nil
                 self.unregisterUseFromKasam()
             }
             NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
+            NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
         }
+        
+        //OPENS THE POPUP TO ENTER PREFERENCES
         if registerCheck == 0 {
             //adding new Kasam
             addKasamPopup(type: kasamType, repeatDuration: nil, startDay: nil, reminderTime: nil, currentDay: nil)
@@ -370,29 +382,14 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         
         //STEP 2: Adds the user to the Coach-following list
         DBRef.userCreator.child(coachIDGlobal).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
-        self.addButtonText.setIcon(icon: .fontAwesomeSolid(.cog), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
         countFollowers()
                 
         //STEP 3: Adds the user preferences to the Kasam they just followed
-        DBRef.userKasamFollowing.child(self.kasamID).observeSingleEvent(of: .value, with: {(snap) in
-            if snap.exists() {
-                //The user is continuing a completed kasam
-                if let value = snap.value as? [String: Any] {
-                    self.pastJoinDate = value["Date Joined"] as? String ?? ""
-                    self.addUserPreferncestoKasam()
-                }
-            } else {
-                //user is joining the kasam for the first time
-                self.addUserPreferncestoKasam()
-            }
-        })
+        self.addUserPreferncestoKasam()
     }
     
     func addUserPreferncestoKasam(){
-        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Type": kasamType]) {(error, reference) in
-//            if self.pastJoinDate != "" {
-//                DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(self.pastJoinDate).setValue(self.pastJoinDate)
-//            }
+        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Type": kasamType, "Status": "active"]) {(error, reference) in
             if error == nil {
 //                Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
                 if self.initialRepeat == 1 && self.chosenRepeat > 1 || self.initialRepeat == nil  {
@@ -408,17 +405,17 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func unregisterUseFromKasam() {
-        self.initialRepeat = nil            //in order reset all today kasams in addUserPreferncestoKasam() function
+        self.registerCheck = 0
+        self.initialRepeat = nil            //set to nil so that all kasams will be reloaded when user re-follows kasam (look at if function in above function)
+        
         //Removes the user from the Kasam following
         DBRef.coachKasams.child(kasamID).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+        
         //Removes the user from the Coach following
         DBRef.userCreator.child(coachIDGlobal).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
-        self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
-        countFollowers()
-        registeredCheck()
         
         //Removes the kasam from the user's following list
-        DBRef.userKasamFollowing.child(kasamID).setValue(nil) {(error, reference) in
+        DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("inactive") {(error, reference) in
             if error != nil {
                 print(error!)
             } else {
@@ -426,6 +423,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayChallenges"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetAllTodayKasams"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
+                self.registeredCheck()
+                self.setupKasamBadge()
             }
         }
     }
@@ -444,23 +443,20 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func registeredCheck(){
         self.addButton.setImage(UIImage(named:"kasam-add"), for: .normal)
-        DBRef.userKasamFollowing.child(self.kasamID).observeSingleEvent(of: .value, with: {(snapshot) in
-            if snapshot.exists() {
-                DBRef.userKasamFollowing.child(self.kasamID).observe(.childAdded) {(snapshot) in
-                    if let value = snapshot.value as? [String: Any] {
-                        if let kasamScore = value["Score"] as? String {
-                            //OPTION 1 - Kasam completed in the past
-                            
-                        }
-                    } else {
-                        //OPTION 2 - user registered to kasam
-                        self.registerCheck = 1
-                        self.initialRepeat = SavedData.kasamDict[self.kasamID]?.repeatDuration
-                        self.addButtonText.setIcon(icon: .fontAwesomeSolid(.cog), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
-                    }
-                }
-            } else {
-                //OPTION 3 - User not registered to kasam
+        
+        DBRef.userKasamFollowing.child(kasamID).child("Status").observeSingleEvent(of: .value, with:{(snap) in
+            let kasamStatus = snap.value as? String
+            if kasamStatus == "completed" || kasamStatus == "inactive" {
+                //OPTION 1 - User compeleted kasam in past, and may now want to rejoin
+                self.registerCheck = 0
+                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.redo), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
+            } else if kasamStatus == "active" {
+                //OPTION 2 - User registered to kasam (GEAR ICON)
+                self.registerCheck = 1
+                self.initialRepeat = SavedData.kasamDict[self.kasamID]?.repeatDuration
+                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.cog), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
+            } else if kasamStatus == nil {
+                //OPTION 3 - User not registered to kasam (PLUS ICON)
                 self.registerCheck = 0
                 self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
             }
