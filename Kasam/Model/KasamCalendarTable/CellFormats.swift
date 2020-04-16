@@ -283,8 +283,9 @@ class KasamSavedFormat {
     var pastKasamJoinDates: [String:Int]?
     var type: String
     var badgeStreak: Int?
+    var badgeThresholds: [String]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String:Int]?, type: String, badgeStreak: Int?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String:Int]?, type: String, badgeStreak: Int?, badgeThresholds: [String]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
@@ -298,6 +299,7 @@ class KasamSavedFormat {
         self.pastKasamJoinDates = pastKasamJoinDates
         self.type = type
         self.badgeStreak = badgeStreak
+        self.badgeThresholds = badgeThresholds
     }
 }
 

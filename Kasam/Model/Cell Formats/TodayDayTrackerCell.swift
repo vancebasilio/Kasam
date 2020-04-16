@@ -52,9 +52,14 @@ class TodayDayTrackerCell: UICollectionViewCell {
             //Incomplete Kasams
             cellButton.backgroundColor = UIColor.darkGray
             cellButton.setTitleColor(UIColor.white, for: .normal)
-        } else if future != true && status > 0.0 {
-            //Complete Kasams
-            cellButton.backgroundColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7)        //green color
+        } else if future != true && status > 0.0 && status < 1.0 {
+            //Partially complete Kasams
+            cellButton.backgroundColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7)                //light green color
+            cellButtonOutline.layer.borderColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7).cgColor
+            cellButton.setTitleColor(UIColor.black, for: .normal)
+        } else if future != true && status == 1.0 {
+            //Fully complete Kasams
+            cellButton.backgroundColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7)                //green color
             cellButtonOutline.layer.borderColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7).cgColor
             cellButton.setTitleColor(UIColor.black, for: .normal)
         }

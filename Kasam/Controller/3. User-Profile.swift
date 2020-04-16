@@ -176,7 +176,6 @@ class ProfileViewController: UIViewController {
                             let pastDateJoined = self.stringToDate(date: pastJoinDate.key)
                             let pastEndDate = Calendar.current.date(byAdding: .day, value: pastJoinDate.value, to: pastDateJoined)!
                             let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: pastDateJoined, endDate: pastEndDate, metricType: kasam.metricType, order: kasam.kasamOrder)
-                            print("hello2 \(self.completedStats.count)")
                             self.completedStats.append(userStats)
                             self.completedKasamsTable.reloadData()
                         }

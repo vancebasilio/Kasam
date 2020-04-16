@@ -78,7 +78,8 @@ class KasamActivityViewer: UIViewController {
                 if let value = snapshot.value as? [String: Any] {
                     //check if user has past progress from today and download metric
                     if self.dayToLoad == nil {self.dayToLoad = self.dayOrder}      //in case DayToLoad isn't loaded
-                    let diff = self.dayOrder - self.dayToLoad!
+                    var diff = self.dayOrder - self.dayToLoad!
+                    if SavedData.kasamDict[self.kasamID]?.repeatDuration == 1 {diff = 0}
                     self.statusDate = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: -diff, to: Date())!)
                     var currentMetric = "0"
                     var currentText = ""
@@ -227,7 +228,13 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         if self.summedTotalMetric > 0 {
             transferAvg = sum / Double(self.summedTotalMetric)
         }
-
+        if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
+            DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
+                if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = (snap.value as? String)?.components(separatedBy: ";")} else {
+                    SavedData.kasamDict[self.kasamID]?.badgeThresholds = ["10","30","90"]
+                }
+            }
+        }
         if transferAvg > 0.0 {
             DBRef.userHistory.child(kasamID).child(statusDate).setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
         } else {

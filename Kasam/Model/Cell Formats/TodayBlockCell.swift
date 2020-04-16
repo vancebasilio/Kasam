@@ -178,13 +178,23 @@ class TodayBlockCell: UITableViewCell {
         }
     }
     
+    func nearestElement(value : Int, array : [String]) -> Int {
+        var n = 0
+        while Int(array[n]) ?? 1 < value {n+=1}
+        return Int(array[n]) ?? 1
+    }
+    
     func statusUpdate(){
-        let dayYesColor = UIColor.init(hex: 0x66A058)
-        let dayNoColor = UIColor.init(hex: 0xcd742c)
         let iconSize = CGFloat(35)
         
-        if tempBlock!.dayOrder >= tempBlock!.repeatDuration {
-            //Completed Kasams
+        //Sets badge status in Firebase based on if threshold is reached
+        if SavedData.kasamDict[tempBlock!.kasamID]?.badgeThresholds != nil {
+            let thresholdToHit = nearestElement(value: SavedData.kasamDict[tempBlock!.kasamID]!.badgeStreak!, array: SavedData.kasamDict[tempBlock!.kasamID]!.badgeThresholds!)
+            if SavedData.kasamDict[tempBlock!.kasamID]?.badgeStreak == thresholdToHit {
+                DBRef.userKasamFollowing.child(tempBlock!.kasamID).child("Badges").child(getCurrentDate()!).setValue(thresholdToHit)
+            }
+        }
+        if tempBlock!.dayOrder >= tempBlock!.repeatDuration {                                   //Completed Kasams
             streakShadow.backgroundColor = UIColor.orange.darker
             if tempBlock?.totalDaysCompleted != nil {
                 currentDayStreak.text = String(describing: tempBlock!.totalDaysCompleted!)      //Streak Info
@@ -224,14 +234,14 @@ class TodayBlockCell: UITableViewCell {
                 percentComplete.textColor = UIColor.colorFive
                 yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
             } else if tempBlock?.displayStatus == "Check" {
-                streakShadow.backgroundColor = dayYesColor
-                percentComplete.textColor = dayYesColor
-                yesButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: dayYesColor, forState: .normal)
+                streakShadow.backgroundColor = .dayYesColor
+                percentComplete.textColor = .dayYesColor
+                yesButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
             } else if tempBlock?.displayStatus == "Uncheck" {
-                streakShadow.backgroundColor = dayNoColor
-                yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: dayYesColor, forState: .normal)
+                streakShadow.backgroundColor = .dayNoColor
+                yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
             } else if tempBlock?.displayStatus == "Progress" {
-                streakShadow.backgroundColor = dayYesColor
+                streakShadow.backgroundColor = .dayYesColor
                 percentComplete.textColor = UIColor.colorFive
                 yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
             }

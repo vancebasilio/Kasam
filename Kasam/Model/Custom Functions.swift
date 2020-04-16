@@ -33,6 +33,12 @@ extension UIViewController {
         view.addGestureRecognizer(tap)
     }
     
+    func nearestElement(value : Int, array : [String]) -> Int {
+        var n = 0
+        while Int(array[n]) ?? 1 < value {n+=1}
+        return Int(array[n]) ?? 1
+    }
+    
     func setStatusBarColor(color: UIColor) {
         if #available(iOS 13.0, *) {
             let app = UIApplication.shared
@@ -361,12 +367,12 @@ extension UIViewController {
     }
 
     func setKasamLevelIcon (kasamLevel: String, button: UIButton){
-        let iconColor = UIColor.darkGray
+        let iconSize = CGFloat(20)
         switch kasamLevel {
-            case Assets.levelsArray[0]: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.chessPawn), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 18)
-            case Assets.levelsArray[1]: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.chessKnight), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 18)
-            case Assets.levelsArray[2]: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.chessRook), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 18)
-            default: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.clear, forState: .normal, iconSize: 18)
+            case Assets.levelsArray[0]: button.setIcon(icon: .fontAwesomeSolid(.chessPawn), iconSize: iconSize, color: .white, backgroundColor: .darkGray, forState: .normal)
+            case Assets.levelsArray[1]: button.setIcon(icon: .fontAwesomeSolid(.chessKnight), iconSize: iconSize, color: .white, backgroundColor: .darkGray, forState: .normal)
+            case Assets.levelsArray[2]: button.setIcon(icon: .fontAwesomeSolid(.chessRook), iconSize: iconSize, color: .white, backgroundColor: .darkGray, forState: .normal)
+            default: button.setIcon(icon: .fontAwesomeSolid(.chessPawn), iconSize: iconSize, color: .white, backgroundColor: .darkGray, forState: .normal)
         }
     }
 }
@@ -675,5 +681,16 @@ extension AuthErrorCode {
         default:
             return "Unknown error occurred"
         }
+    }
+}
+
+extension UITableViewCell {
+    func getCurrentDate() -> String? {
+        let currentDateTime = Date()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateFormat = "yyyy-MM-dd"                                     
+        let finalDate = formatter.string(from: currentDateTime)
+        return finalDate
     }
 }

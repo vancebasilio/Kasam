@@ -51,8 +51,6 @@ class AddKasamController: UIViewController {
             startDateTimeLabel.text = "Edit Preferences"
             if repeatDuration > 1 && (currentDay ?? 1 < repeatDuration) {
                 repeatPicker.selectRow(repeatDuration - (currentDay ?? 1), inComponent: 0, animated: false)
-            } else {
-                repeatDuration = currentDay!
             }
             timeUnit = formattedTime.components(separatedBy: " ").last ?? "AM"
             let setAMPM = timeUnitArray.index(of: timeUnit) ?? 0

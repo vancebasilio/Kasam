@@ -301,7 +301,6 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
                 delegate?.dismissViewController()
-                
             } else {
                 maskButton.isEnabled = true
                 timeLabel.font = timeLabel.font.withSize(50)
