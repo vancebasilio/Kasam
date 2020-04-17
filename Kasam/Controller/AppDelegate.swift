@@ -37,6 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let levelsString = snap.value as? String
             Assets.levelsArray = levelsString?.components(separatedBy: ";") ?? ["Easy","Medium","Hard"]
         })
+        Animations.assignAnimations()
         return true
     }
     

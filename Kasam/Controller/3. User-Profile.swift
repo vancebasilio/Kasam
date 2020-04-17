@@ -21,7 +21,9 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var profileImageClickArea: UIView!
     @IBOutlet weak var kasamFollowingNo: UILabel!
+    @IBOutlet weak var kasamFollowingLabel: UILabel!
     @IBOutlet weak var badgeNo: UILabel!
+    @IBOutlet weak var badgeLabel: UILabel!
     @IBOutlet weak var topView: UIView!
     @IBOutlet weak var levelLine: UIView!
     @IBOutlet weak var levelLineProgress: NSLayoutConstraint!
@@ -320,14 +322,23 @@ class ProfileViewController: UIViewController {
     }
     
     @objc func profileUpdate() {
+        //PART 1 - KASAM FOLLOWING COUNT
         var kasamcount = 0
-        var followingcount: [String: String] = [:]
+//        var followingcount: [String: String] = [:]
         kasamFollowingNo.text = String(kasamcount)
             self.kasamUserFollowRefHandle = DBRef.userKasamFollowing.observe(.childAdded) {(snapshot) in
                 kasamcount += 1
-                followingcount = [snapshot.key: "1"]            //this shows no of coaches the user is following
+//                followingcount = [snapshot.key: "1"]                    //this shows no of coaches the user is following
                 self.kasamFollowingNo.text = String(kasamcount)
         }
+        if kasamcount == 1 {kasamFollowingLabel.text = "kasams"}
+        //PART 2 - BADGE COUNT
+        var badgeCount = 0
+        for kasam in SavedData.kasamDict {
+            badgeCount += kasam.value.badgeList?.count ?? 0
+        }
+        badgeNo.text = String(describing: badgeCount)
+        if badgeCount == 1 {badgeLabel.text = "badge"}
     }
     
     func profilePicture() {

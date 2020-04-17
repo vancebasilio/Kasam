@@ -172,6 +172,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 //Get Kasams from user following + their preference for each kasam
                 if let value = snapshot.value as? [String: Any] {
                     let currentDateJoined = self.stringToDate(date: value["Date Joined"] as? String ?? "")
+                    let badgeList = value["Badges"] as? [String: Int]
                     let currentStatus = value["Status"] as? String ?? "active"
                     let pastKasamDates = value["Past Join Dates"] as? [String:Int]
                     let repeatDuration = value["Repeat"] as? Int ?? 1
@@ -181,7 +182,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                     } else if repeatDuration == 1 {
                         order = challengeOrder
                     }
-                    let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: currentDateJoined, startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: nil, metricType: nil, currentStatus: currentStatus, pastKasamJoinDates: pastKasamDates, type: value["Type"] as? String ?? "", badgeStreak: nil, badgeThresholds: nil)
+                    let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: currentDateJoined, startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: nil, metricType: nil, currentStatus: currentStatus, pastKasamJoinDates: pastKasamDates, type: value["Type"] as? String ?? "", badgeStreak: nil, badgeThresholds: nil, badgeList: badgeList)
                     if currentStatus == "active" {
                         if repeatDuration > 1 {
                             kasamOrder += 1

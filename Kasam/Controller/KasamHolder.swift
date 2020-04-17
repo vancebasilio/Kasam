@@ -82,7 +82,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var benefitsArray = [""]
     var singleBlock = true
     var ratio = 0.0
-    let kasamBadgeMask = AnimationView()
+    let headerBadgeMask1 = AnimationView()
+    let headerBadgeMask2 = AnimationView()
+    let headerBadgeMask3 = AnimationView()
     let gradientLayer = CAGradientLayer()
     
     //Review Only Variables
@@ -138,8 +140,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        kasamBadgeMask.frame = self.kasamBadgeColorMask.frame
-        self.badgeCompletionTopConstraint.constant = self.kasamBadgeHolder.frame.size.height * 0.35
+        headerBadgeMask1.frame = self.kasamBadgeColorMask.frame
+        headerBadgeMask2.frame = self.kasamBadgeColorMask.frame
+        headerBadgeMask3.frame = self.kasamBadgeColorMask.frame
+        self.badgeCompletionTopConstraint.constant = self.kasamBadgeHolder.frame.size.height * 0.40
         gradientLayer.frame = self.kasamBadgeColorMask.bounds
         let fillColor = UIColor.colorFive.lighter.cgColor
         let bgColor = UIColor.lightGray.lighter.cgColor
@@ -147,35 +151,65 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func setupKasamBadge(){
-        //Bottom Badge Bar
-        badge1.animation = Animation.named("crownMedal")
-        badge2.animation = Animation.named("goldCup")
-        badge3.animation = Animation.named("crownSmooth")
-        let keypath = AnimationKeypath(keypath: "**.Color")
-        let colorProvider = ColorValueProvider(UIColor.lightGray.lighter.lottieColorValue)
-        badge1.setValueProvider(colorProvider, keypath: keypath)
-        badge2.setValueProvider(colorProvider, keypath: keypath)
-        badge3.setValueProvider(colorProvider, keypath: keypath)
-        
+        DispatchQueue.global(qos: .background).sync {
+            self.badge1.animation = Animations.crownMedal
+            self.badge2.animation = Animations.goldCup
+            self.badge3.animation = Animations.crownSmooth
+            self.headerBadgeMask1.animation = Animations.crownMedal
+            self.headerBadgeMask2.animation = Animations.goldCup
+            self.headerBadgeMask3.animation = Animations.crownSmooth
+            DispatchQueue.main.async {
+                self.reloadKasamBadge()
+            }
+        }
         //Header Badge (if Kasam is being followed and is a repeat Kasam)
         if SavedData.kasamDict[kasamID]?.repeatDuration ?? 1 > 1 && SavedData.kasamDict[kasamID]?.currentStatus == "active" {
-            self.kasamBadgeHolder.isHidden = false
-            kasamBadgeMask.animation = Animation.named("crownMedal")
-            kasamBadgeMask.play()
-            self.kasamBadgeColorMask.mask = kasamBadgeMask
-            self.headerImageView.alpha = 0.7
-            self.kasamBadgeHolder.alpha = 1.0
-            reloadKasamBadge()
+            
         } else if SavedData.kasamDict[kasamID]?.currentStatus == "completed" {
             //have some function showing badges achieved
         } else {
+            //Not following or previously completed Kasam, so don't show any header badge
             self.kasamBadgeHolder.isHidden = true
             self.headerImageView.alpha = 1.0
         }
+        self.kasamBadgeHolder.isHidden = false
+        self.headerImageView.alpha = 0.7
+        self.kasamBadgeHolder.alpha = 1.0
     }
     
-    func reloadKasamBadge(){
+    func reloadKasamBadge(){        //only for active kasams
         if SavedData.kasamDict[kasamID]?.currentDay != nil && SavedData.kasamDict[kasamID]?.repeatDuration != nil {
+            //Bottom Badge Bar
+            let keypath = AnimationKeypath(keypath: "**.Color")
+            let colorProvider = ColorValueProvider(UIColor.lightGray.lighter.lottieColorValue)
+            if SavedData.kasamDict[kasamID]?.badgeList != nil {
+                //greys out the badges
+                let maxBadge = SavedData.kasamDict[kasamID]!.badgeList!.values.max()
+                if maxBadge! < Int(badgeThresholds[2])! {
+                    badge3.setValueProvider(colorProvider, keypath: keypath)
+                    self.kasamBadgeColorMask.mask = headerBadgeMask3
+                    headerBadgeMask3.play()
+                    badge1.play(); badge2.play()
+                } else if maxBadge! < Int(badgeThresholds[1])! {
+                    badge2.setValueProvider(colorProvider, keypath: keypath)
+                    self.kasamBadgeColorMask.mask = headerBadgeMask2
+                    headerBadgeMask2.play()
+                    badge1.play()
+                } else if maxBadge! < Int(badgeThresholds[0])! {
+                    badge1.setValueProvider(colorProvider, keypath: keypath)
+                    self.kasamBadgeColorMask.mask = headerBadgeMask1
+                    headerBadgeMask1.play()
+                }
+            } else {
+                badge1.setValueProvider(colorProvider, keypath: keypath)
+                badge2.setValueProvider(colorProvider, keypath: keypath)
+                badge3.setValueProvider(colorProvider, keypath: keypath)
+                self.kasamBadgeColorMask.mask = headerBadgeMask1
+                headerBadgeMask1.play()
+            }
+            self.kasamBadgeColorMask.isHidden = false
+            
+            //Header Badge
             let currentProgress = SavedData.kasamDict[kasamID]!.badgeStreak ?? 0
             let maxBadge = nearestElement(value: currentProgress, array: badgeThresholds)
             ratio = (Double(currentProgress) / Double(maxBadge))
@@ -258,16 +292,16 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.headerLabel.text! = self.kasamGTitle
                 self.kasamTitle.text! = self.kasamGTitle
                 self.kasamDescription.text! = value["Description"] as? String ?? ""
-                if value["Badges"] != nil {
-                    self.badgeThresholds = (value["Badges"] as? String ?? "").components(separatedBy: ";")
-                    self.reloadKasamBadge()                                                   //ensures kasms badge thresholds are loaded
-                }
                 self.coachName.setTitle(value["CreatorName"] as? String ?? "", for: .normal)  //in the future, get this from the userdatabase, so it's the most uptodate name
                 self.coachIDGlobal = value["CreatorID"] as! String
                 self.kasamGenre.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = Assets.levelsArray[value["Level"] as? Int ?? 1]
                 self.benefitsArray = (value["Benefits"] as? String ?? "").components(separatedBy: ";")
-                
+                if value["Badges"] != nil {
+                    self.badgeThresholds = (value["Badges"] as? String ?? "").components(separatedBy: ";")
+                    self.reloadKasamBadge()
+                }
+                    
                 if value["Type"] as? String ?? "" == "Basic" {
                     self.tableView.allowsSelection = false
                     self.kasamType = "Basic"

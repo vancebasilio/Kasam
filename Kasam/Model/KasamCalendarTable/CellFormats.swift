@@ -117,6 +117,42 @@ class TodayBlockFormat {
     }
 }
 
+class KasamSavedFormat {
+    var kasamID: String
+    var kasamName: String
+    var joinedDate: Date
+    var startTime: String
+    var currentDay: Int
+    var repeatDuration: Int
+    var kasamOrder: Int
+    var image: String
+    var metricType: String
+    var currentStatus: String
+    var pastKasamJoinDates: [String:Int]?
+    var type: String
+    var badgeStreak: Int?
+    var badgeThresholds: [String]?
+    var badgeList: [String:Int]?
+    
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String:Int]?, type: String, badgeStreak: Int?, badgeThresholds: [String]?, badgeList: [String:Int]?){
+        self.kasamID = kasamID
+        self.kasamName = kasamName
+        self.joinedDate = joinedDate
+        self.startTime = startTime
+        self.currentDay = currentDay
+        self.repeatDuration = repeatDuration
+        self.kasamOrder = kasamOrder
+        self.image = image ?? ""
+        self.metricType = metricType ?? ""
+        self.currentStatus = currentStatus
+        self.pastKasamJoinDates = pastKasamJoinDates
+        self.type = type
+        self.badgeStreak = badgeStreak
+        self.badgeThresholds = badgeThresholds
+        self.badgeList = badgeList
+    }
+}
+
 class NewKasamLoadFormat{
     var blockTitle: String
     var duration: Int
@@ -267,40 +303,6 @@ class KasamFormat {
     var kasamImage: String = ""
     var kasamID: String = ""
     
-}
-
-class KasamSavedFormat {
-    var kasamID: String
-    var kasamName: String
-    var joinedDate: Date
-    var startTime: String
-    var currentDay: Int
-    var repeatDuration: Int
-    var kasamOrder: Int
-    var image: String
-    var metricType: String
-    var currentStatus: String
-    var pastKasamJoinDates: [String:Int]?
-    var type: String
-    var badgeStreak: Int?
-    var badgeThresholds: [String]?
-    
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String:Int]?, type: String, badgeStreak: Int?, badgeThresholds: [String]?){
-        self.kasamID = kasamID
-        self.kasamName = kasamName
-        self.joinedDate = joinedDate
-        self.startTime = startTime
-        self.currentDay = currentDay
-        self.repeatDuration = repeatDuration
-        self.kasamOrder = kasamOrder
-        self.image = image ?? ""
-        self.metricType = metricType ?? ""
-        self.currentStatus = currentStatus
-        self.pastKasamJoinDates = pastKasamJoinDates
-        self.type = type
-        self.badgeStreak = badgeStreak
-        self.badgeThresholds = badgeThresholds
-    }
 }
 
 class UserStatsFormat {
