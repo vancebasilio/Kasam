@@ -163,7 +163,7 @@ class ProfileViewController: UIViewController {
         completedStats.removeAll()
         //loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamArray {
-            Database.database().reference().child("Coach-Kasams").child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
+            DBRef.coachKasams.child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
                 if snap.exists() {
                     let snapshot = snap.value as! Dictionary<String,Any>
                     let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData

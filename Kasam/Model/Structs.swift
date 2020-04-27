@@ -39,15 +39,7 @@ struct Assets {
 }
 
 struct Animations {
-    static var crownMedal = Animation.named("crownMedal")
-    static var goldCup = Animation.named("goldCup")
-    static var crownSmooth = Animation.named("crownSmooth")
-    
-    static func assignAnimations(){
-        self.crownMedal = Animation.named("crownMedal")
-        self.goldCup = Animation.named("goldCup")
-        self.crownSmooth = Animation.named("crownSmooth")
-    }
+    static let kasamBadges = [Animation.named("crownMedal"), Animation.named("goldCup"), Animation.named("crownSmooth")]
 }
 
 struct NewKasam {

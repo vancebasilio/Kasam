@@ -15,12 +15,47 @@ import Lottie
 class ProgessView: UIProgressView {
     override func layoutSubviews() {
         super.layoutSubviews()
-        
         let maskLayerPath = UIBezierPath(roundedRect: bounds, cornerRadius: 4.0)
         let maskLayer = CAShapeLayer()
         maskLayer.frame = self.bounds
         maskLayer.path = maskLayerPath.cgPath
         layer.mask = maskLayer
+    }
+}
+
+extension UITableViewCell {
+    
+    func nearestElement(value : Int, array : [String]) -> (value: Int, level: Int) {
+        var n = 0
+        while Int(array[n]) ?? 1 < value {n+=1}
+        return (Int(array[n]) ?? 1, n)
+    }
+    
+    func dateFormat(date: Date) -> String {
+        let date = date
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateFormat = "yyyy-MM-dd"                                     //***keep this value the same as above
+        let finalDate = formatter.string(from: date)
+        return finalDate
+    }
+}
+
+extension UICollectionViewCell {
+    
+    func nearestElement(value : Int, array : [String]) -> (value: Int, level: Int) {
+        var n = 0
+        while Int(array[n]) ?? 1 < value {n+=1}
+        return (Int(array[n]) ?? 1, n)
+    }
+    
+    func dateFormat(date: Date) -> String {
+        let date = date
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateFormat = "yyyy-MM-dd"                                     //***keep this value the same as above
+        let finalDate = formatter.string(from: date)
+        return finalDate
     }
 }
 
@@ -33,10 +68,10 @@ extension UIViewController {
         view.addGestureRecognizer(tap)
     }
     
-    func nearestElement(value : Int, array : [String]) -> Int {
+    func nearestElement(value : Int, array : [String]) -> (value: Int, level: Int) {
         var n = 0
         while Int(array[n]) ?? 1 < value {n+=1}
-        return Int(array[n]) ?? 1
+        return (Int(array[n]) ?? 1, n)
     }
     
     func setStatusBarColor(color: UIColor) {
@@ -273,7 +308,7 @@ extension UIViewController {
         var avatarTransform = CATransform3DIdentity
         var headerTransform = CATransform3DIdentity
         
-        //controls the image white overlay, when it shows and when it disappears
+        //Controls the image white overlay, when it shows and when it disappears
         let alignToNameLabel = -offset + mainTitle.frame.origin.y + headerView.frame.height + offsetHeaderStop
         headerBlurImageView?.alpha = min (1.0, (offset + 220 - alignToNameLabel)/(offsetLabelHeader + 50))
 
@@ -355,6 +390,21 @@ extension UIViewController {
         headerView.insertSubview(headerBlurImageView!, belowSubview: headerLabel)
         
         return headerBlurImageView
+    }
+    
+    func finishKasamPress (kasamID: String) {
+        let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
+        showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
+            
+            //STEP 2 - ADD DATE TO PAST JOIN DATE
+            let kasamJoinDate = self.dateFormat(date: SavedData.kasamDict[kasamID]?.joinedDate ?? Date())
+            DBRef.userKasamFollowing.child(kasamID).child("Past Join Dates").child(kasamJoinDate).setValue(SavedData.kasamDict[kasamID]?.repeatDuration)
+            //STEP 3 - MARK KASAM AS COMPLETED
+            DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("completed")
+            
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasams"), object: self)
+        })
     }
     
     //programatically switching tabBars
@@ -692,5 +742,16 @@ extension UITableViewCell {
         formatter.dateFormat = "yyyy-MM-dd"                                     
         let finalDate = formatter.string(from: currentDateTime)
         return finalDate
+    }
+}
+
+class PassThroughView: UIView {
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        for subview in subviews {
+            if !subview.isHidden && subview.isUserInteractionEnabled && subview.point(inside: convert(point, to: subview), with: event) {
+                return true
+            }
+        }
+        return false
     }
 }
