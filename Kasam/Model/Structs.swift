@@ -12,14 +12,14 @@ import Firebase
 import Lottie
 
 struct SavedData {
+    static var kasamBlocks: [TodayBlockFormat] = []
+    static var challengeBlocks: [TodayBlockFormat] = []
     static var kasamTodayArray: [KasamSavedFormat] = []                 //kasamTodayArray includes only active kasams that the user is following
-    static var kasamArray: [KasamSavedFormat] = []                      //kasamArray includes all kasams that the user is following
     
     static var kasamDict: [String:KasamSavedFormat] = [:]               //kasamDict is used to update kasams when progress is made
     static var dayTrackerDict: [String: [Int:String]] = [:]
 
     static func addKasam(kasam: KasamSavedFormat) {
-        self.kasamArray.append(kasam)
         self.kasamDict[kasam.kasamID] = kasam
     }
 }

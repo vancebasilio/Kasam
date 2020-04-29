@@ -162,7 +162,7 @@ class ProfileViewController: UIViewController {
         detailedStats.removeAll()
         completedStats.removeAll()
         //loops through all kasams that user is following and get kasamID
-        for kasam in SavedData.kasamArray {
+        for kasam in SavedData.kasamDict.values {
             DBRef.coachKasams.child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
                 if snap.exists() {
                     let snapshot = snap.value as! Dictionary<String,Any>
@@ -190,7 +190,7 @@ class ProfileViewController: UIViewController {
                     self.weekStatsCollectionView.reloadData()
                     
                     //GET WEEKLY STATS FOR ACTIVE KASAMS
-                    if self.detailedStats.count == SavedData.kasamArray.count {
+                    if self.detailedStats.count == SavedData.kasamDict.count {
                         self.getWeeklyStats()
                     }
                 
