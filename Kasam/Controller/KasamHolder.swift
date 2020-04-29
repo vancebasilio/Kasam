@@ -190,11 +190,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func headerBadge(){
         if SavedData.kasamDict[kasamID]?.repeatDuration ?? 1 >= 1 && SavedData.kasamDict[kasamID]?.currentStatus == "active" {
             self.headerImageView.alpha = 0.7
+            var daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress ?? 0)
+            let maxAchieved = nearestElement(value: Int(daysCompleted), array: badgeThresholds)
             if SavedData.kasamDict[kasamID]!.currentDay >= SavedData.kasamDict[kasamID]!.repeatDuration {
                 //OPTION 1 - Kasam completed, but not closed out or extended
-                let daysCompleted = SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress
-                let maxAchieved = nearestElement(value: daysCompleted ?? 0, array: badgeThresholds)
-                ratio = (Double(daysCompleted ?? 0) / Double(maxAchieved.value))
+                if SavedData.kasamDict[kasamID]?.repeatDuration == 1 {daysCompleted = Double(SavedData.kasamDict[kasamID]?.percentComplete ?? 0)}
+                ratio = (daysCompleted / Double(maxAchieved.value))
                 self.badgeInfo.text = "  \(maxAchieved.value) day badge  "
                 self.badgeCompletion.text = "\(Int(ratio * 100))%"
                 headerBadgeIcon.animation = Animations.kasamBadges[maxAchieved.level]
@@ -205,10 +206,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 finishHolder.isHidden = false
                 extendHolder.isHidden = false
             } else {
-                //OPTIONAL 2 - Kasam ongoing currently
-                let currentProgress = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
-                let maxAchieved = nearestElement(value: currentProgress, array: badgeThresholds)
-                ratio = (Double(currentProgress) / Double(maxAchieved.value))
+                //OPTION 2 - Kasam ongoing currently
+                ratio = (daysCompleted / Double(maxAchieved.value))
                 self.badgeInfo.text = "  \(maxAchieved.value) day badge  "
                 self.badgeCompletion.text = "\(Int(ratio * 100))%"
                 headerBadgeIcon.animation = Animations.kasamBadges[maxAchieved.level]
@@ -218,6 +217,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         } else {
             //Not following or previously completed Kasam, so don't show any header badge
             self.headerBadgeMask.isHidden = true
+            finishHolder.isHidden = true
+            extendHolder.isHidden = true
             self.badgeInfo.isHidden = true
             self.badgeCompletion.isHidden = true
             self.headerImageView.alpha = 1.0
@@ -229,17 +230,20 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         if SavedData.kasamDict[kasamID]?.badgeList != nil {
             //highlights badges completed
             let maxBadge = SavedData.kasamDict[kasamID]!.badgeList!.values.max()
-            if maxBadge! < Int(badgeThresholds[2])! {
+            if maxBadge! == Int(badgeThresholds[2])! {
+                //3 badges achieved
+                badge1.backgroundBehavior = .pauseAndRestore; badge2.backgroundBehavior = .pauseAndRestore; badge3.backgroundBehavior = .pauseAndRestore
+                badge1.play(); badge2.play(); badge3.play()
+            } else if maxBadge! < Int(badgeThresholds[2])! && maxBadge! >= Int(badgeThresholds[1])! {
+                //2 badges achieved
                 badge3.setValueProvider(colorProvider, keypath: keypath)
-                badge1.backgroundBehavior = .pauseAndRestore
-                badge2.backgroundBehavior = .pauseAndRestore
+                badge1.backgroundBehavior = .pauseAndRestore; badge2.backgroundBehavior = .pauseAndRestore
                 badge1.play(); badge2.play()
             } else if maxBadge! < Int(badgeThresholds[1])! {
-                badge2.setValueProvider(colorProvider, keypath: keypath)
+                //1 badge achieved
+                badge2.setValueProvider(colorProvider, keypath: keypath); badge3.setValueProvider(colorProvider, keypath: keypath)
                 badge1.backgroundBehavior = .pauseAndRestore
                 badge1.play()
-            } else if maxBadge! < Int(badgeThresholds[0])! {
-                badge1.setValueProvider(colorProvider, keypath: keypath)
             }
         } else {
             //no badges achieved
@@ -251,7 +255,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func finishButtonPressed(_ sender: Any) {
-        finishKasamPress(kasamID: kasamID)
+        finishKasamPress(kasamID: kasamID, completion: {(success) -> Void in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.getKasamBadgeInfo()
+                self.registeredCheck()
+            }
+        })
     }
     
     @IBAction func extendButtonPressed(_ sender: Any) {
@@ -334,10 +343,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamGenre.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = Assets.levelsArray[value["Level"] as? Int ?? 1]
                 self.benefitsArray = (value["Benefits"] as? String ?? "").components(separatedBy: ";")
-                if value["Badges"] != nil {
-                    self.badgeThresholds = (value["Badges"] as? String ?? "").components(separatedBy: ";")
-                }
-                    
+                if value["Badges"] != nil {self.badgeThresholds = (value["Badges"] as? String ?? "").components(separatedBy: ";")}
                 if value["Type"] as? String ?? "" == "Basic" {
                     self.tableView.allowsSelection = false
                     self.kasamType = "Basic"
@@ -488,7 +494,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             if error == nil {
 //                Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
                 if self.initialRepeat == 1 && self.chosenRepeat > 1 || self.initialRepeat == nil  {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasams"), object: self)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
                 } else {
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
                     if reset == true {
@@ -543,7 +549,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func registeredCheck(){
         self.addButton.setImage(UIImage(named:"kasam-add"), for: .normal)
-        
         DBRef.userKasamFollowing.child(kasamID).child("Status").observeSingleEvent(of: .value, with:{(snap) in
             let kasamStatus = snap.value as? String
             if kasamStatus == "completed" || kasamStatus == "inactive" {

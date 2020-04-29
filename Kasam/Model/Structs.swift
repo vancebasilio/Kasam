@@ -38,6 +38,17 @@ struct Assets {
     static var levelsArray = [""]
 }
 
+struct Dates {
+    static func getCurrentDate() -> String {
+        let currentDateTime = Date()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateFormat = "yyyy-MM-dd"                                     //***keep this value the same as below
+        let finalDate = formatter.string(from: currentDateTime)
+        return finalDate
+    }
+}
+
 struct Animations {
     static let kasamBadges = [Animation.named("crownMedal"), Animation.named("goldCup"), Animation.named("crownSmooth")]
 }

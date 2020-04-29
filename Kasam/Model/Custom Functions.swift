@@ -204,7 +204,7 @@ extension UIViewController {
         return blend(from: start, to: end, percent: perc * 2.0)
     }
     
-    func getCurrentDateTime() -> String? {
+    func getCurrentDateTime() -> String {
         let currentDateTime = Date()
         let formatter = DateFormatter()
         formatter.timeStyle = .long
@@ -213,20 +213,11 @@ extension UIViewController {
         return finalDate
     }
     
-    func getCurrentTime() -> String? {
+    func getCurrentTime() -> String {
         let currentDateTime = Date()
         let formatter = DateFormatter()
         formatter.timeStyle = .long
         formatter.dateStyle = .none
-        let finalDate = formatter.string(from: currentDateTime)
-        return finalDate
-    }
-    
-    func getCurrentDate() -> String? {
-        let currentDateTime = Date()
-        let formatter = DateFormatter()
-        formatter.timeStyle = .none
-        formatter.dateFormat = "yyyy-MM-dd"                                     //***keep this value the same as below
         let finalDate = formatter.string(from: currentDateTime)
         return finalDate
     }
@@ -392,18 +383,17 @@ extension UIViewController {
         return headerBlurImageView
     }
     
-    func finishKasamPress (kasamID: String) {
+    func finishKasamPress (kasamID: String, completion: @escaping (Bool) -> ()) {
         let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
         showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
-            
             //STEP 2 - ADD DATE TO PAST JOIN DATE
             let kasamJoinDate = self.dateFormat(date: SavedData.kasamDict[kasamID]?.joinedDate ?? Date())
             DBRef.userKasamFollowing.child(kasamID).child("Past Join Dates").child(kasamJoinDate).setValue(SavedData.kasamDict[kasamID]?.repeatDuration)
             //STEP 3 - MARK KASAM AS COMPLETED
             DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("completed")
-            
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasams"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
+            completion(success)
         })
     }
     

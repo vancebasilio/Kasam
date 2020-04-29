@@ -38,7 +38,7 @@ class TodayChallengesCell: UICollectionViewCell {
         kasamID = challenge.kasamID
         kasamImage.sd_setImage(with: challenge.image)
         kasamImage.alpha = 0.7
-        kasamTitle.setTitle(challenge.kasamName, for: .normal)
+        kasamTitle.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
         kasamDuration.text = challenge.duration
         kasamDuration.textColor = UIColor.colorFive
         kasamType = challenge.kasamType
@@ -74,29 +74,29 @@ class TodayChallengesCell: UICollectionViewCell {
         let iconSize = CGFloat(35)
         statusButtonHeight.constant = iconSize
         if kasamType == "Challenge" {
-            if tempBlock?.percentComplete == nil {
+            if SavedData.kasamDict[kasamID]?.percentComplete == nil {
                 percentComplete.setTitle("0%", for: .normal)
             } else {
-                let percent = Int(tempBlock!.percentComplete! * 100)
+                let percent = Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100)
                 percentComplete.setTitle("\(percent)%", for: .normal)
             }
         }
-        if tempBlock?.displayStatus == "Checkmark" && kasamType == "Basic" {
+        if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && kasamType == "Basic" {
             statusIcon?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
-        } else if tempBlock?.displayStatus == "Checkmark" && kasamType == "Challenge" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && kasamType == "Challenge" {
             percentComplete.backgroundColor = UIColor.colorFour
             statusIcon?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
-        } else if tempBlock?.displayStatus == "Check" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {
             shadow.layer.shadowColor = UIColor.dayYesColor.cgColor
             shadow.layer.shadowOpacity = 0.6
             percentComplete.backgroundColor = .dayYesColor
             statusIcon.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: .dayYesColor, backgroundColor: .white, forState: .normal)
             statusIcon.layer.cornerRadius = statusIcon.frame.height
-        } else if tempBlock?.displayStatus == "Uncheck" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Uncheck" {
             shadow.layer.shadowColor = UIColor.black.cgColor
             shadow.layer.shadowOpacity = 0.2
             statusIcon?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
-        } else if tempBlock?.displayStatus == "Progress" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Progress" {
             shadow.layer.shadowColor = UIColor.black.cgColor
             shadow.layer.shadowOpacity = 0.2
             percentComplete.backgroundColor = UIColor.colorFour
@@ -120,12 +120,11 @@ class TodayChallengesCell: UICollectionViewCell {
     func blockBadge(){
         if SavedData.kasamDict[kasamID]?.badgeThresholds != nil {
             let thresholdToHit = self.nearestElement(value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreak, array: SavedData.kasamDict[kasamID]!.badgeThresholds!)
-            let longestStreakDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date())
-            if Int(tempBlock!.percentComplete!) == thresholdToHit.value {
+            if Int(SavedData.kasamDict[kasamID]?.percentComplete ?? 0) == thresholdToHit.value {
                 //Will only set the badge if the threshold is reached
-                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(longestStreakDate).setValue(thresholdToHit.value)
+                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(thresholdToHit.value)
             } else {
-                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(longestStreakDate).setValue(nil)
+                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(nil)
             }
             DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in
                 SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String: Int]

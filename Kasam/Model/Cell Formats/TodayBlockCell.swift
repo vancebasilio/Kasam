@@ -76,20 +76,20 @@ class TodayBlockCell: UITableViewCell {
     
     func setBlock(block: TodayBlockFormat) {
         if setupCheck == 0 {
-            print("hello set block \(block.kasamName)")
+            print("hello set block \(SavedData.kasamDict[block.kasamID]?.kasamName)")
             cellFormatting()
             kasamID = block.kasamID
             tempBlock = block                               //tempBlock used to transfer info to the below func for displayStatus
-            kasamName.setTitle(block.kasamName, for: .normal)
+            kasamName.setTitle(SavedData.kasamDict[block.kasamID]?.kasamName, for: .normal)
             today = Int(block.dayOrder)
-            if block.dayOrder > block.repeatDuration {
+            if block.dayOrder > SavedData.kasamDict[block.kasamID]?.repeatDuration ?? 0 {
                 dayNumber.text = "Complete!"
             } else {
-                dayNumber.text = "Day \(block.dayOrder) of \(block.repeatDuration)"
+                dayNumber.text = "Day \(block.dayOrder) of \(SavedData.kasamDict[block.kasamID]!.repeatDuration)"
             }
             kasamType = block.kasamType
             kasamImage.sd_setImage(with: block.image)
-            if kasamType == "Basic" && block.dayOrder < block.repeatDuration{
+            if kasamType == "Basic" && block.dayOrder < SavedData.kasamDict[block.kasamID]?.repeatDuration ?? 0{
                 percentComplete.isHidden = true
             }
             setupCheck = 1
@@ -141,7 +141,7 @@ class TodayBlockCell: UITableViewCell {
     }
     
     @IBAction func yesButtonPressed(_ sender: UIButton) {
-        if tempBlock!.dayOrder > tempBlock!.repeatDuration {
+        if tempBlock!.dayOrder > SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
             //Extend Button after kasam is completed
             cellDelegate?.goToKasamHolder(sender, kasamOrder: row)
         } else {
@@ -174,13 +174,13 @@ class TodayBlockCell: UITableViewCell {
     
     @objc func centerCollectionView() {
         if today != nil {
-            if tempBlock!.dayOrder < tempBlock!.repeatDuration {
+            if tempBlock!.dayOrder < SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
                 let indexPath = IndexPath(item: self.today! - 1, section: 0)
                 self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
                 self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
             } else {
                 //if the currentDay is more than the repeatDuration
-                let indexPath = IndexPath(item: tempBlock!.repeatDuration - 1, section: 0)
+                let indexPath = IndexPath(item: SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration - 1, section: 0)
                 self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
                 self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
             }
@@ -188,9 +188,9 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func statusUpdate(){
-        print("hello status update \(String(describing: tempBlock?.kasamName))")
+        print("hello status update \(String(describing: SavedData.kasamDict[tempBlock!.kasamID]?.kasamName))")
         //STEP 1 - SET THE BLOCK STATUS
-        if tempBlock!.dayOrder >= tempBlock!.repeatDuration {
+        if tempBlock!.dayOrder >= SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
             //OPTION 1 - COMPLETE KASAMS
             streakShadow.backgroundColor = UIColor.orange.darker
             if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {
@@ -200,7 +200,7 @@ class TodayBlockCell: UITableViewCell {
             statsShadow.layer.shadowColor = UIColor.orange.darker.cgColor
             statsShadow.layer.shadowOpacity = 0.8
             
-            if tempBlock!.dayOrder > tempBlock!.repeatDuration {
+            if tempBlock!.dayOrder > SavedData.kasamDict[tempBlock!.kasamID]!.repeatDuration {
                 //Completed kasam
                 yesButton.setIcon(icon: .fontAwesomeRegular(.arrowAltCircleRight), iconSize: iconSize, color: UIColor.darkGray, forState: .normal)
             } else {
@@ -254,24 +254,24 @@ class TodayBlockCell: UITableViewCell {
     func checkMarkAndPercentageUpdate(){
         if kasamType == "Challenge" {
             percentComplete.isHidden = false
-            if tempBlock?.percentComplete == nil {percentComplete.text = "0%"}
-            else {percentComplete.text = "\(Int(tempBlock!.percentComplete! * 100))%"}
+            if SavedData.kasamDict[kasamID]?.percentComplete == nil {percentComplete.text = "0%"}
+            else {percentComplete.text = "\(Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100))%"}
         }
-        if tempBlock?.displayStatus == "Checkmark" && kasamType == "Basic" {
+        if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && kasamType == "Basic" {
             streakShadow.backgroundColor = UIColor.colorFour
             yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
-        } else if tempBlock?.displayStatus == "Checkmark" && kasamType == "Challenge" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && kasamType == "Challenge" {
             streakShadow.backgroundColor = UIColor.colorFour
             percentComplete.textColor = UIColor.colorFive
             yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
-        } else if tempBlock?.displayStatus == "Check" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {
             streakShadow.backgroundColor = .dayYesColor
             percentComplete.textColor = .dayYesColor
             yesButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
-        } else if tempBlock?.displayStatus == "Uncheck" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Uncheck" {
             streakShadow.backgroundColor = .dayNoColor
             yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
-        } else if tempBlock?.displayStatus == "Progress" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Progress" {
             streakShadow.backgroundColor = .dayYesColor
             percentComplete.textColor = UIColor.colorFive
             yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
