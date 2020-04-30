@@ -14,9 +14,9 @@ import Lottie
 struct SavedData {
     static var kasamBlocks: [TodayBlockFormat] = []
     static var challengeBlocks: [TodayBlockFormat] = []
-    static var kasamTodayArray: [KasamSavedFormat] = []                 //kasamTodayArray includes only active kasams that the user is following
+    static var todayKasamList: [String] = []                        //A list of all the kasams the user is actively following by KasamID
     
-    static var kasamDict: [String:KasamSavedFormat] = [:]               //kasamDict is used to update kasams when progress is made
+    static var kasamDict: [String:KasamSavedFormat] = [:]           //KasamDict is used to update kasams when progress is made
     static var dayTrackerDict: [String: [Int:String]] = [:]
 
     static func addKasam(kasam: KasamSavedFormat) {

@@ -30,16 +30,11 @@ class StatisticsViewController: UIViewController {
     
     var dataEntries: [ChartDataEntry] = []
     var kasamID = ""                    //transfered in value
-    var kasamName = ""                  //transfered in value
-    var kasamMetricType = ""            //transfered in value
     var kasamImage: URL!                //transfered in value
     var metricArray: [Int:Int] = [:]
-    var joinedDate: Date?               //transfered in value
     var kasamBlocks: [kasamFollowingFormat] = []
     var kasamFollowingRefHandle: DatabaseHandle!
-    var kasamHistoryRef: DatabaseReference! = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var kasamHistoryRefHandle: DatabaseHandle!
-    let dayTrackerRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var dayTrackerRefHandle: DatabaseHandle!
     var dayTrackerArray = [Int]()
     var dayTrackerDateArray = [Int:String]()
@@ -68,7 +63,7 @@ class StatisticsViewController: UIViewController {
         kasamImageView.clipsToBounds = true
         imageWhiteBack.backgroundColor = UIColor.init(hex: 0xFFD062).withAlphaComponent(0.5)
         imageWhiteBack.layer.cornerRadius = imageWhiteBack.frame.width / 2
-        kasamNameLabel.text = kasamName
+        kasamNameLabel.text = SavedData.kasamDict[kasamID]?.kasamName
         self.avgMetricIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chartBar), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, iconSize: 20)
         self.dayNoIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.calendarCheck), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, iconSize: 20)
         backButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chevronLeft), iconColor: UIColor.darkGray, postfixText: " Profile", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
@@ -87,11 +82,11 @@ class StatisticsViewController: UIViewController {
     
     @objc func getKasamStats(){
         self.kasamBlocks.removeAll()
-        
+        print("hell8 get kasam stats")
         //STEP 1 - KASAM LABEL
         let kasamDay = SavedData.kasamDict[kasamID]?.currentDay ?? 0
         var repeatDuration = SavedData.kasamDict[kasamID]?.repeatDuration ?? 10
-        if let pastRepeatDuration = SavedData.kasamDict[kasamID]?.pastKasamJoinDates?[dateFormat(date: joinedDate!)] {
+        if let pastRepeatDuration = SavedData.kasamDict[kasamID]?.pastKasamJoinDates?[dateFormat(date: SavedData.kasamDict[self.kasamID]!.joinedDate)] {
             //PAST COMPLETED KASAM LOADED
             repeatDuration = pastRepeatDuration
             self.dayNoValue.text = "\(repeatDuration) Days"         //completed Kasams
@@ -101,8 +96,8 @@ class StatisticsViewController: UIViewController {
         }
         
         //STEP 2 - CHART
-        if kasamDay > repeatDuration && SavedData.dayTrackerDict[kasamID] == nil {
-            //for completed kasams with no progress made
+        if kasamDay > repeatDuration {
+            //for completed kasams
             getCompletedKasamDayTracker()
         } else if kasamDay < 0 {
             return
@@ -118,8 +113,8 @@ class StatisticsViewController: UIViewController {
         var noProgressDayCount = 0
         //kasamDay is the current day of the Kasam that the user is on
         for day in 1...kasamDay {
-            let dayDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: day - 1, to: joinedDate!)!)
-            self.kasamHistoryRefHandle = self.kasamHistoryRef.child(kasamID).child(dayDate).observe(.value, with:{(snapshot) in
+            let dayDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: day - 1, to: SavedData.kasamDict[self.kasamID]!.joinedDate)!)
+            self.kasamHistoryRefHandle = DBRef.userHistory.child(kasamID).child(dayDate).observe(.value, with:{(snapshot) in
                 if snapshot.exists() {
                     progressDayCount += 1
                     var indieMetricType = ""
@@ -127,13 +122,13 @@ class StatisticsViewController: UIViewController {
                     var textField = ""
                     if let value = snapshot.value as? [String: Any] {
                         //Kasam is Reps or Timer
-                        indieMetricType = self.kasamMetricType
+                        indieMetricType = SavedData.kasamDict[self.kasamID]!.metricType
                         indieMetric = value["Total Metric"] as? Double ?? 0.0
                         let text = value["Text Breakdown"] as? [Any]
                         textField = text?[1] as! String
                         self.metricArray[day] = Int(indieMetric)
                         var timeAndMetric = (0.0,"")
-                        if self.kasamMetricType == "Time" {
+                        if SavedData.kasamDict[self.kasamID]!.metricType == "Time" {
                             timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: indieMetricType)
                             indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
                             indieMetricType = timeAndMetric.1
@@ -167,7 +162,7 @@ class StatisticsViewController: UIViewController {
                     if self.metricArray[kasamDay] == nil {self.metricArray[kasamDay] = 0}
                     self.historyTableView.reloadData()
                     self.setChart(values: self.metricArray)
-                    self.kasamHistoryRef.child(self.kasamID).child(dayDate).removeAllObservers()
+                    DBRef.userHistory.child(self.kasamID).child(dayDate).removeAllObservers()
                     self.metricArray.removeAll()
                 }
             })
@@ -175,16 +170,16 @@ class StatisticsViewController: UIViewController {
     }
 
     func getCompletedKasamDayTracker() {
-        let dayTrackerKasamRef = self.dayTrackerRef.child(kasamID)
         var dayCount = 0
         //Checks if there's kasam history
-        self.dayTrackerRef.child(kasamID).observeSingleEvent(of: .value, with: {(snap) in
+        DBRef.userHistory.child(kasamID).observeSingleEvent(of: .value, with: {(snap) in
+            print("hell8 get completed daytracker")
             dayCount = Int(snap.childrenCount)
             //Gets the DayTracker info - only goes into this loop if the user has kasam history
-            self.dayTrackerRefHandle = dayTrackerKasamRef.observe(.childAdded, with: {(snap) in
+            self.dayTrackerRefHandle = DBRef.userHistory.child(self.kasamID).observe(.childAdded, with: {(snap) in
                 let kasamDate = self.stringToDate(date: snap.key)
-                if kasamDate >= self.joinedDate! {
-                    let order = (Calendar.current.dateComponents([.day], from: self.joinedDate!, to: kasamDate)).day! + 1
+                if kasamDate >= SavedData.kasamDict[self.kasamID]!.joinedDate {
+                    let order = (Calendar.current.dateComponents([.day], from: SavedData.kasamDict[self.kasamID]!.joinedDate, to: kasamDate)).day! + 1
                     self.dayTrackerDateArray[order] = snap.key      //to save the kasam date and order
                     self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
                 } else {
@@ -192,7 +187,7 @@ class StatisticsViewController: UIViewController {
                 }
                 if self.dayTrackerArray.count == dayCount && dayCount > 0 {
                     SavedData.dayTrackerDict[self.kasamID] = self.dayTrackerDateArray
-                    dayTrackerKasamRef.removeAllObservers()
+                    DBRef.userHistory.child(self.kasamID).removeAllObservers()
                     self.getChartAndTableStats(kasamDay: 30)
                 }
             })

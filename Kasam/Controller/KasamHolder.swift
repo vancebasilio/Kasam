@@ -92,6 +92,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var ratio = 0.0
     var headerBadgeIcon = AnimationView()
     let gradientLayer = CAGradientLayer()
+    var setupCheck = false
     
     let keypath = AnimationKeypath(keypath: "**.Color")
     let colorProvider = ColorValueProvider(UIColor.lightGray.lighter.lottieColorValue)
@@ -166,23 +167,26 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //STEP 1 - BADGES ACHIEVED
         badgesAchieved()
         
-        if SavedData.kasamDict[kasamID]?.currentDay != nil && SavedData.kasamDict[kasamID]?.repeatDuration != nil {
+        if SavedData.kasamDict[kasamID]?.currentDay != nil && SavedData.kasamDict[kasamID]?.repeatDuration != nil  {
             //STEP 2 - Header Badge & Info (if Kasam is being followed and is a repeat Kasam)
             headerBadge()
             
             //STEP 3 - PREP TO SHOW
-            DispatchQueue.main.async {                      //Only unhide the badge when everything is done loading
-                self.headerBadgeIcon.frame = self.headerBadgeMask.bounds
-                self.headerBadgeMask.backgroundColor = UIColor.colorFive.lighter
-                self.gradientLayer.frame = self.headerBadgeMask.bounds
-                let fillColor = UIColor.colorFive.lighter.cgColor
-                let bgColor = UIColor.lightGray.lighter.cgColor
-                self.gradientLayer.colors = [bgColor, bgColor, fillColor, fillColor]
-                self.headerBadgeMask.layer.addSublayer(self.gradientLayer)
-                self.headerBadgeMask.mask = self.headerBadgeIcon
-                self.kasamBadgeHolder.isHidden = false
-                self.headerBadgeIcon.backgroundBehavior = .pauseAndRestore
-                self.headerBadgeIcon.play()
+            if SavedData.kasamDict[kasamID]?.currentStatus == "active" && self.setupCheck == false {
+                DispatchQueue.main.async {                      //Only unhide the badge when everything is done loading
+                    self.headerBadgeIcon.frame = self.headerBadgeMask.bounds
+                    self.headerBadgeMask.backgroundColor = UIColor.colorFive.lighter
+                    self.gradientLayer.frame = self.headerBadgeMask.bounds
+                    let fillColor = UIColor.colorFive.lighter.cgColor
+                    let bgColor = UIColor.lightGray.lighter.cgColor
+                    self.gradientLayer.colors = [bgColor, bgColor, fillColor, fillColor]
+                    self.headerBadgeMask.layer.addSublayer(self.gradientLayer)
+                    self.headerBadgeMask.mask = self.headerBadgeIcon
+                    self.kasamBadgeHolder.isHidden = false
+                    self.headerBadgeIcon.backgroundBehavior = .pauseAndRestore
+                    self.headerBadgeIcon.play()
+                    self.setupCheck = true
+                }
             }
         }
     }
@@ -213,14 +217,16 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 headerBadgeIcon.animation = Animations.kasamBadges[maxAchieved.level]
                 finishHolder.isHidden = true
                 extendHolder.isHidden = true
+                if setupCheck == true {
+                    self.kasamBadgeHolder.isHidden = false
+                    self.headerBadgeIcon.play()
+                }
             }
         } else {
             //Not following or previously completed Kasam, so don't show any header badge
-            self.headerBadgeMask.isHidden = true
+            self.kasamBadgeHolder.isHidden = true
             finishHolder.isHidden = true
             extendHolder.isHidden = true
-            self.badgeInfo.isHidden = true
-            self.badgeCompletion.isHidden = true
             self.headerImageView.alpha = 1.0
         }
         gradientLayer.locations = [NSNumber(value: 0.0), NSNumber(value: 1 - ratio - 0.07), NSNumber(value: 1 - ratio - 0.07), NSNumber(value: 1.0)]
@@ -503,8 +509,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 }
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    self.getKasamBadgeInfo()
                     self.registeredCheck()
+                    self.getKasamBadgeInfo()
                 }
             }
         }
@@ -527,10 +533,13 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             } else {
                 Analytics.logEvent("unfollowing_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayChallenges"), object: self)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasams"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
-                self.registeredCheck()
-                self.setupKasamBadge()
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    self.registeredCheck()
+                    self.getKasamBadgeInfo()
+                }
             }
         }
     }

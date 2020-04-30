@@ -54,7 +54,12 @@ class WeeklyStatsCell: UICollectionViewCell {
             constraintArray[i]?.constant = pushValue
         }
         DispatchQueue.main.async {
-            self.daysLeft.text = String(30 - cell.daysLeft) //async loading this as it takes a long time to gather
+            let daysLeft = SavedData.kasamDict[cell.kasamID]!.repeatDuration - cell.daysLeft
+            if daysLeft < 0 {
+                self.daysLeft.text = "∞"
+            } else {
+                self.daysLeft.text = String(daysLeft) //async loading this as it takes a long time to gather
+            }
         }
         if cell.metricType == "Time" && cell.avgMetric <= 60 {
             averageMetric.text = String(cell.avgMetric)
