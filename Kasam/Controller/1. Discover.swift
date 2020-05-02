@@ -115,17 +115,13 @@ class DiscoverViewController: UIViewController {
     }
     
     func getDiscoverFeatured(){
-        DBRef.coachKasams.queryOrdered(byChild: "Type").queryEqual(toValue: "Featured").observe(.childAdded) {(snapshot) in
-            if let value = snapshot.value as? [String: Any] {
-                let creatorID = value["CreatorID"] as? String ?? ""
-                DBRef.userCreator.child(creatorID).child("Name").observeSingleEvent(of: .value, with: {(snap) in
-                    let creatorName = snap.value as! String
-                    let imageURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: creatorName, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
-                    self.featuredKasamArray.append(kasam)
-                    self.categoryCollection.reloadData()
-                    self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
-                })
+        for kasam in Assets.featuredKasams {
+            DBRef.coachKasams.child(kasam).observe(.value) {(snapshot) in
+                let value = snapshot.value as? Dictionary<String,Any>
+                let kasam = discoverKasamFormat(title: value?["Title"] as? String ?? "", image: URL(string: value?["Image"] as? String ?? "") ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value?["Rating"] as? String ?? "5", creator: value?["CreatorName"] as? String ?? "", kasamID: value?["KasamID"] as? String ?? "", genre: value?["Genre"] as? String ?? "Fitness")
+                self.featuredKasamArray.append(kasam)
+                self.categoryCollection.reloadData()
+                self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
             }
         }
     }

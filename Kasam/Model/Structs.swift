@@ -36,6 +36,7 @@ struct DBRef {
 
 struct Assets {
     static var levelsArray = [""]
+    static var featuredKasams = [""]
 }
 
 struct Dates {

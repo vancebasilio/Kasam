@@ -108,6 +108,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         super.viewDidLoad()
         setupTwitterParallax()
         setupButtons()
+        notificationCenter()
         self.playerView.delegate = self
         if reviewOnly == false {
             getKasamData()
@@ -115,6 +116,16 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             countFollowers()
             registeredCheck()
         }
+    }
+    
+    func notificationCenter(){
+        let refreshBadge = NSNotification.Name("RefreshKasamHolderBadge")
+        NotificationCenter.default.addObserver(self, selector: #selector(KasamHolder.refreshBadge), name: refreshBadge, object: nil)
+    }
+    
+    @objc func refreshBadge(){
+        self.getKasamBadgeInfo()
+        self.registeredCheck()
     }
     
     func setupButtons(){
@@ -164,6 +175,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func getKasamBadgeInfo(){        //Only for active kasams
+        print("hell4 refreshing badge")
         //STEP 1 - BADGES ACHIEVED
         badgesAchieved()
         
@@ -211,6 +223,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 extendHolder.isHidden = false
             } else {
                 //OPTION 2 - Kasam ongoing currently
+                if SavedData.kasamDict[kasamID]?.sequence == "Streak" {
+                    daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.currentStreakCompleteProgress ?? 0)
+                }
+                print("hell4 \(daysCompleted)")
                 ratio = (daysCompleted / Double(maxAchieved.value))
                 self.badgeInfo.text = "  \(maxAchieved.value) day badge  "
                 self.badgeCompletion.text = "\(Int(ratio * 100))%"
@@ -262,10 +278,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     @IBAction func finishButtonPressed(_ sender: Any) {
         finishKasamPress(kasamID: kasamID, completion: {(success) -> Void in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.getKasamBadgeInfo()
-                self.registeredCheck()
-            }
         })
     }
     
@@ -403,8 +415,17 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func addButtonPress(reset: Bool){
+        //OPENS THE POPUP TO ENTER PREFERENCES
+        if registerCheck == 0 || reset == true {
+            //adding new Kasam
+            addKasamPopup(kasamID: kasamID, new: true)
+        } else {
+            //existing Kasam prefernces being updated
+            addKasamPopup(kasamID: kasamID, new: false)
+        }
+        
         //SETS UP THE OBSERVERS TO SAVE INFORMATION ONCE THE PREFERENCES ARE SAVED
-        saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime"), object: nil, queue: OperationQueue.main) {(notification) in
+        saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             self.chosenTime = timeVC.formattedTime
             self.chosenTimeHour = timeVC.hourAMPM
@@ -422,7 +443,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
             NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
         }
-        unfollowObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "UnfollowKasam"), object: nil, queue: OperationQueue.main) {(notification) in
+        unfollowObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "UnfollowKasam\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             showPopupConfirmation(title: "You sure?", description: "Your past progress will be saved.", image: UIImage.init(icon: .fontAwesomeSolid(.heartbeat), size: CGSize(width: 35, height: 35), textColor: .white), buttonText: "Unfollow") {(success) in
                 SavedData.kasamDict[self.kasamID] = nil
                 self.unregisterUseFromKasam()
@@ -430,15 +451,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
             NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
         }
-        
-        //OPENS THE POPUP TO ENTER PREFERENCES
-        if registerCheck == 0 || reset == true {
-            //adding new Kasam
-            addKasamPopup(type: kasamType, repeatDuration: nil, startDay: nil, reminderTime: nil, currentDay: nil)
-        } else {
-            //existing Kasam prefernces being updated
-            addKasamPopup(type: kasamType, repeatDuration: SavedData.kasamDict[self.kasamID]?.repeatDuration, startDay: dateFormat(date: SavedData.kasamDict[self.kasamID]?.joinedDate ?? Date()), reminderTime: SavedData.kasamDict[self.kasamID]?.startTime, currentDay: SavedData.kasamDict[self.kasamID]?.currentDay)
-        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
+        NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
+        NotificationCenter.default.removeObserver(self.refreshBadge as Any)
     }
     
     func setupNotifications(){
@@ -508,10 +526,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     }
                 }
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    self.registeredCheck()
-                    self.getKasamBadgeInfo()
-                }
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+//                    self.registeredCheck()
+//                    self.getKasamBadgeInfo()
+//                }
             }
         }
     }
@@ -536,10 +554,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    self.registeredCheck()
-                    self.getKasamBadgeInfo()
-                }
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+//                    self.registeredCheck()
+//                    self.getKasamBadgeInfo()
+//                }
             }
         }
     }
@@ -749,7 +767,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         print("3. registering kasam")
         kasamImageGlobal = imageUrl
         let kasamDB = DBRef.userCreator.child((Auth.auth().currentUser?.uid)!).child("Kasams").child(kasamID.key!)
-        let kasamDictionary = ["Title": NewKasam.kasamName, "Genre": "Personal", "Description": NewKasam.kasamDescription, "Timing": "6:00pm - 7:00pm", "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Type": "User", "Rating": "5", "Blocks": "blocks", "Level":"Beginner", "Metric": NewKasam.chosenMetric]
+        let kasamDictionary = ["Title": NewKasam.kasamName, "Genre": "Personal", "Description": NewKasam.kasamDescription, "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Type": "User", "Rating": "5", "Blocks": "blocks", "Level":"Beginner", "Metric": NewKasam.chosenMetric]
     
         if NewKasam.kasamID != "" {
             //updating existing kasam

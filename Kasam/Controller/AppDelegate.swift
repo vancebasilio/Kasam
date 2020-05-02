@@ -37,6 +37,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let levelsString = snap.value as? String
             Assets.levelsArray = levelsString?.components(separatedBy: ";") ?? ["Easy","Medium","Hard"]
         })
+        Database.database().reference().child("Assets").child("Featured").observeSingleEvent(of: .value, with:{(snap) in
+            let featuredString = snap.value as? String
+            Assets.featuredKasams = featuredString?.components(separatedBy: ";") ?? ["-LqRRHDQuwf2tJmoNoaa"]
+        })
         return true
     }
     

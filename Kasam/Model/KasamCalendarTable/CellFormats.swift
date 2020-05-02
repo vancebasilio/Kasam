@@ -87,9 +87,8 @@ class TodayBlockFormat {
     var blockTitle: String
     var dayOrder: Int
     var duration: String?
-    var kasamType: String
     
-    init(kasamOrder: Int, kasamID: String, blockID: String, blockTitle: String, dayOrder: Int, duration: String?, image: URL, kasamType: String){
+    init(kasamOrder: Int, kasamID: String, blockID: String, blockTitle: String, dayOrder: Int, duration: String?, image: URL){
         self.kasamOrder = kasamOrder
         self.kasamID = kasamID
         self.blockID = blockID
@@ -97,7 +96,6 @@ class TodayBlockFormat {
         self.image = image
         self.blockTitle = blockTitle
         self.duration = duration
-        self.kasamType = kasamType
     }
 }
 
@@ -115,6 +113,7 @@ class KasamSavedFormat {
     var currentStatus: String
     var pastKasamJoinDates: [String:Int]?
     var type: String
+    var sequence: String
     var streakInfo: streakInfo
     var displayStatus: String
     var percentComplete: Double
@@ -122,7 +121,7 @@ class KasamSavedFormat {
     var badgeList: [String:Int]?
     var dayTrackerArray: [Int:(Int,Double)]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String:Int]?, type: String, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeThresholds: [String]?, badgeList: [String:Int]?, dayTrackerArray: [Int:(Int,Double)]?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, currentStatus: String, pastKasamJoinDates: [String:Int]?, type: String, sequence: String, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeThresholds: [String]?, badgeList: [String:Int]?, dayTrackerArray: [Int:(Int,Double)]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
@@ -135,6 +134,7 @@ class KasamSavedFormat {
         self.currentStatus = currentStatus
         self.pastKasamJoinDates = pastKasamJoinDates
         self.type = type
+        self.sequence = sequence
         self.streakInfo = streakInfo
         self.displayStatus = displayStatus
         self.percentComplete = percentComplete
@@ -285,14 +285,6 @@ class TrackerTableView: UITableView {
         let height = min(contentSize.height, maxHeight)
         return CGSize(width: contentSize.width, height: height)
     }
-    
-}
-
-class KasamFormat {
-    var kasamTitle : String = ""
-    var kasamTiming: String = ""
-    var kasamImage: String = ""
-    var kasamID: String = ""
     
 }
 

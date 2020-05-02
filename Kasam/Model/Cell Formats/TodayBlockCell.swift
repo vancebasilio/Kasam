@@ -12,7 +12,7 @@ import SwiftIcons
 import Lottie
 
 protocol TableCellDelegate : class {
-    func updateKasamDayButtonPressed(_ sender: UIButton, kasamOrder: Int, day: Int)
+    func updateKasamDayButtonPressed(kasamOrder: Int, day: Int, challenge: Bool)
     func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?)
     func goToKasamHolder(_ sender: UIButton, kasamOrder: Int)
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
@@ -43,7 +43,6 @@ class TodayBlockCell: UITableViewCell {
     
     var cellDelegate: TableCellDelegate?
     var row = 0
-    var kasamType = "Basic"
     var tempBlock: TodayBlockFormat?
     var today: Int?
     let progress = Progress(totalUnitCount: 30)
@@ -80,17 +79,19 @@ class TodayBlockCell: UITableViewCell {
             cellFormatting()
             kasamID = block.kasamID
             tempBlock = block                               //tempBlock used to transfer info to the below func for displayStatus
-            kasamName.setTitle(SavedData.kasamDict[block.kasamID]?.kasamName, for: .normal)
+            kasamName.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
             today = Int(block.dayOrder)
-            if block.dayOrder > SavedData.kasamDict[block.kasamID]?.repeatDuration ?? 0 {
+            if block.dayOrder > SavedData.kasamDict[kasamID]?.repeatDuration ?? 0 {
                 dayNumber.text = "Complete!"
             } else {
-                dayNumber.text = "Day \(block.dayOrder) of \(SavedData.kasamDict[block.kasamID]!.repeatDuration)"
+                dayNumber.text = "Day \(block.dayOrder) of \(SavedData.kasamDict[kasamID]!.repeatDuration)"
             }
-            kasamType = block.kasamType
             kasamImage.sd_setImage(with: block.image)
-            if kasamType == "Basic" && block.dayOrder < SavedData.kasamDict[block.kasamID]?.repeatDuration ?? 0{
+            if SavedData.kasamDict[kasamID]!.type == "Basic" && block.dayOrder < SavedData.kasamDict[kasamID]?.repeatDuration ?? 0{
                 percentComplete.isHidden = true
+            }
+            DBRef.coachKasams.child(kasamID).child("Sequence").observeSingleEvent(of: .value) {(snap) in
+                if snap.exists() {SavedData.kasamDict[self.kasamID]?.sequence = (snap.value as? String)!}
             }
             setupCheck = 1
         }
@@ -145,8 +146,8 @@ class TodayBlockCell: UITableViewCell {
             //Extend Button after kasam is completed
             cellDelegate?.goToKasamHolder(sender, kasamOrder: row)
         } else {
-            if kasamType == "Basic" {
-                cellDelegate?.updateKasamDayButtonPressed(sender, kasamOrder: row, day: tempBlock?.dayOrder ?? 1)
+            if SavedData.kasamDict[tempBlock!.kasamID]!.type == "Basic" {
+                cellDelegate?.updateKasamDayButtonPressed(kasamOrder: row, day: tempBlock?.dayOrder ?? 1, challenge: false)
             } else {
                 cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil)
             }
@@ -194,8 +195,7 @@ class TodayBlockCell: UITableViewCell {
             //OPTION 1 - COMPLETE KASAMS
             streakShadow.backgroundColor = UIColor.orange.darker
             if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {
-                currentDayStreak.text = "\(SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress)"  //Streak for completed kasams
-                streakPostText.text = "days completed"
+                currentDayStreak.text = String(describing: SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress)
             }
             statsShadow.layer.shadowColor = UIColor.orange.darker.cgColor
             statsShadow.layer.shadowOpacity = 0.8
@@ -204,16 +204,19 @@ class TodayBlockCell: UITableViewCell {
                 //Completed kasam
                 yesButton.setIcon(icon: .fontAwesomeRegular(.arrowAltCircleRight), iconSize: iconSize, color: UIColor.darkGray, forState: .normal)
             } else {
-                checkMarkAndPercentageUpdate()
+                checkmarkAndPercentageUpdate()
             }
         } else {
             //OPTION 2 - ACTIVE KASAMS
-            currentDayStreak.text = String(describing: SavedData.kasamDict[kasamID]!.streakInfo.currentStreak)
+            currentDayStreak.text = String(describing: SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress)
             statsShadow.layer.shadowColor = UIColor.black.cgColor
             statsShadow.layer.shadowOpacity = 0.2
             
             //Update Percentage complete and Checkmark
-            checkMarkAndPercentageUpdate()
+            checkmarkAndPercentageUpdate()
+        }
+        if SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress == 1 {
+            streakPostText.text = "day completed"
         }
         //STEP 2 - SET THE BADGE
         DispatchQueue.global(qos: .background).sync {
@@ -251,16 +254,16 @@ class TodayBlockCell: UITableViewCell {
         }
     }
     
-    func checkMarkAndPercentageUpdate(){
-        if kasamType == "Challenge" {
+    func checkmarkAndPercentageUpdate(){
+        if SavedData.kasamDict[tempBlock!.kasamID]!.type == "Challenge" {
             percentComplete.isHidden = false
             if SavedData.kasamDict[kasamID]?.percentComplete == nil {percentComplete.text = "0%"}
             else {percentComplete.text = "\(Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100))%"}
         }
-        if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && kasamType == "Basic" {
+        if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[tempBlock!.kasamID]!.type == "Basic" {
             streakShadow.backgroundColor = UIColor.colorFour
             yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
-        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && kasamType == "Challenge" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[tempBlock!.kasamID]!.type == "Challenge" {
             streakShadow.backgroundColor = UIColor.colorFour
             percentComplete.textColor = UIColor.colorFive
             yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)

@@ -20,7 +20,9 @@ class StatisticsViewController: UIViewController {
     @IBOutlet weak var kasamNameLabel: UILabel!
     @IBOutlet weak var kasamImageView: UIImageView!
     @IBOutlet weak var imageWhiteBack: UIView!
+    @IBOutlet weak var topViewHeight: NSLayoutConstraint!
     @IBOutlet weak var bottomViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var contentViewHeight: NSLayoutConstraint!
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var dayNoIcon: UILabel!
@@ -54,7 +56,13 @@ class StatisticsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         updateViewConstraints()
         bottomViewHeight.constant = tableViewHeight.constant + 50 + mChart.frame.height + 4.0
-        contentViewHeight.constant = bottomViewHeight.constant + 205
+        contentViewHeight.constant = bottomViewHeight.constant + topViewHeight.constant
+        //elongates the entire scrollview, based on the tableview height
+        let frame = self.view.safeAreaLayoutGuide.layoutFrame
+        if contentViewHeight.constant <= frame.height {
+            let diff = frame.height - contentViewHeight.constant - navView.frame.height
+            contentViewHeight.constant += (diff + 1)
+        }
     }
     
     func setupView(){
@@ -79,6 +87,8 @@ class StatisticsViewController: UIViewController {
         let colorLocations: [CGFloat] = [0.7, 0.0]
         return CGGradient.init(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: gradientColors, locations: colorLocations)!
     }
+    
+    
     
     @objc func getKasamStats(){
         self.kasamBlocks.removeAll()
@@ -151,7 +161,7 @@ class StatisticsViewController: UIViewController {
                         let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: indieMetricType)
                         self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
                     } else if indieMetricType == "%" {
-                        let avgMetric = (metricTotal) / (kasamDay)
+                        let avgMetric = (metricTotal) / (SavedData.kasamDict[self.kasamID]!.currentDay)
                         self.avgMetric.text = "\(avgMetric)% Avg."
                     }
                 } else {

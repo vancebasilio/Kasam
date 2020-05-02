@@ -29,20 +29,22 @@ class TodayChallengesCell: UICollectionViewCell {
     
     var cellDelegate: CollectionCellDelegate?
     var row = 0
-    var kasamType = ""
     var tempBlock: TodayBlockFormat?
     var kasamID = ""
+    var setupCheck = 0
     
     func setBlock(challenge: TodayBlockFormat) {
-        tempBlock = challenge
-        kasamID = challenge.kasamID
-        kasamImage.sd_setImage(with: challenge.image)
-        kasamImage.alpha = 0.7
-        kasamTitle.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
-        kasamDuration.text = challenge.duration
-        kasamDuration.textColor = UIColor.colorFive
-        kasamType = challenge.kasamType
-        statusUpdate()
+        if setupCheck == 0 {
+            cellFormatting()
+            tempBlock = challenge
+            kasamID = challenge.kasamID
+            kasamImage.sd_setImage(with: challenge.image)
+            kasamImage.alpha = 0.7
+            kasamTitle.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
+            kasamDuration.text = challenge.duration
+            kasamDuration.textColor = UIColor.colorFive
+            setupCheck = 1
+        }
     }
     
     @IBAction func kasamTitleSelected(_ sender: UIButton) {
@@ -64,7 +66,7 @@ class TodayChallengesCell: UICollectionViewCell {
         shadow.layer.shadowOffset = CGSize.zero
         shadow.layer.shadowRadius = 4
         
-        percentComplete.backgroundColor = UIColor.black
+        percentComplete.backgroundColor = UIColor.colorFour
         percentComplete.layer.cornerRadius = 8.0
         percentComplete.contentEdgeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
     }
@@ -73,17 +75,16 @@ class TodayChallengesCell: UICollectionViewCell {
         //Update percentage complete for Challenge Kasams
         let iconSize = CGFloat(35)
         statusButtonHeight.constant = iconSize
-        if kasamType == "Challenge" {
-            if SavedData.kasamDict[kasamID]?.percentComplete == nil {
-                percentComplete.setTitle("0%", for: .normal)
-            } else {
-                let percent = Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100)
-                percentComplete.setTitle("\(percent)%", for: .normal)
-            }
-        }
-        if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && kasamType == "Basic" {
+        
+        //Set percent value
+        if SavedData.kasamDict[kasamID]?.percentComplete == nil {percentComplete.setTitle("0%", for: .normal)}
+        else {percentComplete.setTitle("\(Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100))%", for: .normal)}
+        
+        if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[tempBlock!.kasamID]!.type == "Basic" {
+            shadow.layer.shadowColor = UIColor.black.cgColor
+            shadow.layer.shadowOpacity = 0.2
             statusIcon?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
-        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && kasamType == "Challenge" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[tempBlock!.kasamID]!.type == "Challenge" {
             percentComplete.backgroundColor = UIColor.colorFour
             statusIcon?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
         } else if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {

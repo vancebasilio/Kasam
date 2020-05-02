@@ -197,7 +197,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 if repeatDuration > 1 {order = kasamOrder}
                 else if repeatDuration == 1 {order = challengeOrder}
             }
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: self.stringToDate(date: value["Date Joined"] as? String ?? ""), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: nil, metricType: nil, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], type: value["Type"] as? String ?? "", streakInfo: (0,0,0,0,0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: nil, badgeList: value["Badges"] as? [String: Int], dayTrackerArray: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: self.stringToDate(date: value["Date Joined"] as? String ?? ""), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: nil, metricType: nil, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], type: value["Type"] as? String ?? "", sequence: "days", streakInfo: (0,0,0,0,0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: nil, badgeList: value["Badges"] as? [String: Int], dayTrackerArray: nil)
             if currentStatus == "active" {
                 if repeatDuration > 1 {kasamOrder += 1}
                 else if repeatDuration == 1 {challengeOrder += 1}
@@ -207,11 +207,14 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             }
             SavedData.addKasam(kasam: preference)                   //adds all kasams that the user is following
             if SavedData.todayKasamList.count == count {
-                self.retrieveKasams(kasamID: kasamID)
-                if challengeOrder == 0 {self.challengesTitle.isHidden = true} else {self.challengesTitle.isHidden = false}
+                self.retrieveKasams(kasamID: nil)
+                if challengeOrder == 0 {self.challengesTitle.isHidden = true}
+                else {self.challengesTitle.isHidden = false}
                 //update the user profile page
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                 DBRef.userKasamFollowing.removeObserver(withHandle: self.kasamFollowingRefHandle)
+            } else if kasamID != nil {
+                self.retrieveKasams(kasamID: kasamID)
             }
         }
     }
@@ -220,13 +223,12 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     @objc func retrieveKasams(kasamID: String?) {
         print("step 3 hell6 inside get kasams")
         var todayKasamCount = 0
-        if (kasamOrder + challengeOrder) == 0 {                   //user is following Kasams that aren't active yet
+        if SavedData.todayKasamList.count == 0 {                   //user is following Kasams that aren't active yet
             self.noKasamTracker = 1
             self.tableView.reloadData()
             self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
         }
         var kasamArray = SavedData.todayKasamList
-        print("hell7 \(SavedData.todayKasamList.count)")
         if let index = SavedData.todayKasamList.index(where: {($0 == kasamID)}) {
             //updating existing kasam on the today page
             kasamArray = [SavedData.todayKasamList[index]]
@@ -258,38 +260,28 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                     } else {
                         blockOrder = String((blockCount / dayOrder) + 1)
                     }
-                    if kasam.repeatDuration > 1 {
-                        //Get block info for the Today Repeated Kasams
-                        if kasam.type == "Basic" {
-                            DBRef.coachKasams.child(kasam.kasamID).observe(.value) {(snapshot) in
-                                todayKasamCount += 1
-                                let value = snapshot.value as! Dictionary<String,Any>
-                                self.saveKasamBlocks(value: value, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: true, specificKasam: kasamID)
-                            }
-                        } else if kasam.type == "Challenge" {
-                            DBRef.coachKasams.child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: {(snapshot) in
-                                todayKasamCount += 1
-                                let value = snapshot.value as! Dictionary<String,Any>
-                                self.saveKasamBlocks(value: value, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: true, specificKasam: kasamID)
-                            })
+                    //Get block info for the Today Repeated Kasams
+                    if kasam.type == "Basic" {
+                        DBRef.coachKasams.child(kasam.kasamID).observe(.value) {(snapshot) in
+                            todayKasamCount += 1
+                            let value = snapshot.value as! Dictionary<String,Any>
+                            self.saveKasamBlocks(value: value, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID)
                         }
-                    } else if kasam.repeatDuration == 1 {
-                        //One-time Kasam
+                    } else if kasam.type == "Challenge" {
                         DBRef.coachKasams.child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: {(snapshot) in
                             todayKasamCount += 1
                             let value = snapshot.value as! Dictionary<String,Any>
-                            self.saveKasamBlocks(value: value, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: false, specificKasam: kasamID)
+                            self.saveKasamBlocks(value: value, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID)
                         })
                     }
                 })
             }
-            
         }
     }
     
     //STEP 4
     func saveKasamBlocks(value: Dictionary<String,Any>, todayKasamCount: Int, dayOrder: Int, kasam: KasamSavedFormat, repeatMultiple: Bool, specificKasam: String?){
-        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, kasamType: kasam.type)
+        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
         if repeatMultiple == true {
             SavedData.kasamBlocks.append(block)
             SavedData.kasamBlocks = SavedData.kasamBlocks.sorted(by: {$0.kasamOrder < $1.kasamOrder})
@@ -380,13 +372,17 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                                 self.dayTrackerDateArray.removeAll()
                                 DBRef.userHistory.child(kasam.kasamID).removeAllObservers()
                                 count += 1
-                                
+                                NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
                                 if kasamID == nil {
                                     //updating all the kasams on the today page
                                     if let cell = self.tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
                                         cell.statusUpdate()
                                         cell.updateDayTrackerCollection()
                                         self.tableView.reloadData()
+                                        
+                                    }
+                                    if let cell = self.challengesColletionView.cellForItem(at: IndexPath(item: kasamOrder, section: 0)) as? TodayChallengesCell {
+                                        cell.statusUpdate()
                                         self.challengesColletionView.reloadData()
                                     }
                                 } else {
@@ -399,6 +395,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                                         self.updateContentTableHeight()
                                     } else if let cell = self.challengesColletionView.cellForItem(at: IndexPath(item: kasamOrder, section: 0)) as? TodayChallengesCell {
                                         cell.setBlock(challenge: SavedData.challengeBlocks[kasamOrder])
+                                        cell.statusUpdate()
                                         self.updateContentTableHeight()
                                     }
                                 }
@@ -409,7 +406,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                         //no history recorded in Firebase
                         if kasamOrder < SavedData.kasamBlocks.count {
                             count += 1
-                            SavedData.kasamDict[(kasamID)!]?.displayStatus = "Checkmark"
+                            SavedData.kasamDict[kasamID!]?.displayStatus = "Checkmark"
                             SavedData.kasamDict[kasamID!]?.dayTrackerArray = [0: (0,0.0)]
                             self.dayTrackerDateArray.removeAll()
                             if count == SavedData.todayKasamList.count {
@@ -488,29 +485,42 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     //---------------------------------------------------------------------------------------------------------
     
     //FOR BASIC KASAM UPDATE
-    func updateKasamDayButtonPressed(_ sender: UIButton, kasamOrder: Int, day: Int){
-        let block = SavedData.kasamBlocks[kasamOrder]
-        if SavedData.kasamDict[block.kasamID]?.badgeThresholds == nil {
-            DBRef.coachKasams.child(block.kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                if snap.exists() {SavedData.kasamDict[block.kasamID]?.badgeThresholds = (snap.value as? String)?.components(separatedBy: ";")} else {
-                    SavedData.kasamDict[block.kasamID]?.badgeThresholds = ["10","30","90"]
-                }
+    func updateKasamDayButtonPressed(kasamOrder: Int, day: Int, challenge:Bool){
+        let block: TodayBlockFormat?
+        if challenge == true {block = SavedData.challengeBlocks[kasamOrder]}
+        else {block = SavedData.kasamBlocks[kasamOrder]}
+        
+        //STEP 2 - GET THE BADGE THRESHOLDS
+        if SavedData.kasamDict[block!.kasamID]?.badgeThresholds == nil {
+            DBRef.coachKasams.child(block!.kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
+                if snap.exists() {SavedData.kasamDict[block!.kasamID]?.badgeThresholds = (snap.value as? String)?.components(separatedBy: ";")}
+                else {SavedData.kasamDict[block!.kasamID]?.badgeThresholds = ["10","30","90"]}
             }
         }
+        
+        //STEP 3 - STATUS UPDATE
         var status = "Checkmark"
-        let statusDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: day - block.dayOrder, to: Date())!)
-        if SavedData.kasamDict[block.kasamID]?.dayTrackerArray?[day] != nil {
-            if SavedData.kasamDict[block.kasamID]?.dayTrackerArray?[day]?.1 == 1.0 {
-                DBRef.userHistory.child(block.kasamID).child(statusDate).setValue(nil)
+        let statusDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: day - block!.dayOrder, to: Date())!)
+        if challenge == true {
+            if SavedData.kasamDict[block!.kasamID]?.percentComplete == 1.0 {
+                DBRef.userHistory.child(block!.kasamID).child(statusDate).setValue(nil)
+            } else {
+                DBRef.userHistory.child(block!.kasamID).child(statusDate).setValue(1); status = "Check"
             }
         } else {
-            DBRef.userHistory.child(block.kasamID).child(statusDate).setValue(1)
-            status = "Check"
+            if SavedData.kasamDict[block!.kasamID]?.dayTrackerArray?[day] != nil {
+                if SavedData.kasamDict[block!.kasamID]?.dayTrackerArray?[day]?.1 == 1.0 {
+                    DBRef.userHistory.child(block!.kasamID).child(statusDate).setValue(nil)
+                }
+            } else {
+                DBRef.userHistory.child(block!.kasamID).child(statusDate).setValue(1); status = "Check"
+            }
         }
-        //if the status of today is changed, update the display status
-        if day == Int(block.dayOrder) {SavedData.kasamDict[block.kasamID]?.displayStatus = status}
+        //If the status of today is changed, update the display status
+        if day == Int(block!.dayOrder) {SavedData.kasamDict[block!.kasamID]?.displayStatus = status}
+        
         NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)        //Detailed Stats Update
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: ["kasamID": block.kasamID, "date": statusDate])        //Execute below function
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: ["kasamID": block!.kasamID, "date": statusDate])        //Execute below function
     }
     
     //FOR CHALLENGE KASAM UPDATE
@@ -519,8 +529,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             let kasamOrder = (SavedData.kasamDict[kasamID]!.kasamOrder)
             var statusDate = Dates.getCurrentDate()
             if notification.userInfo?["date"] != nil {statusDate = notification.userInfo?["date"] as! String}
-            let updateDayTrackerRef = DBRef.userHistory.child(kasamID).child(statusDate)
-            updateDayTrackerRef.observe(.value, with: {(snapshot) in
+            DBRef.userHistory.child(kasamID).child(statusDate).observe(.value, with: {(snapshot) in
                 if SavedData.kasamDict[kasamID]!.repeatDuration > 1 {
                     //FOR UPDATING REPEATED KASAM
                     let kasamDate = self.stringToDate(date: snapshot.key)
@@ -554,16 +563,16 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                         cell.dayTrackerCollectionView.reloadData()
                         self.tableView.endUpdates()
                     }
-                    updateDayTrackerRef.removeAllObservers()
                 } else {
                     //FOR UPDATING CHALLENGE KASAMS
                     let statusPercent = self.statusPercentCalc(snapshot: snapshot)
                     SavedData.kasamDict[(kasamID)]?.percentComplete = statusPercent.0
                     SavedData.kasamDict[(kasamID)]?.displayStatus = statusPercent.1
                     if let cell = self.challengesColletionView.cellForItem(at: IndexPath(item: kasamOrder, section: 0)) as? TodayChallengesCell {
-                        cell.statusUpdate()
+                        self.challengesColletionView.performBatchUpdates({cell.statusUpdate()}, completion: nil)
                     }
                 }
+                DBRef.userHistory.child(kasamID).child(statusDate).removeAllObservers()
             })
         }
     }
@@ -751,6 +760,11 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard let collectionViewCell = cell as? TodayChallengesCell else { return }
+        collectionViewCell.setBlock(challenge: SavedData.challengeBlocks[indexPath.row])
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == todayMotivationCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TodayMotivationCell", for: indexPath) as! TodayMotivationCell
@@ -764,11 +778,8 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
             return cell
         } else if collectionView == challengesColletionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TodayChallengesCell", for: indexPath) as! TodayChallengesCell
-            let block = SavedData.challengeBlocks[indexPath.row]
             cell.cellDelegate = self
             cell.row = indexPath.row
-            cell.cellFormatting()
-            cell.setBlock(challenge: block)
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayTrackerCell", for: indexPath) as! TodayDayTrackerCell
@@ -782,10 +793,10 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                 if SavedData.kasamDict[kasamBlock.kasamID]?.dayTrackerArray?[indexPath.row + 1] != nil {
                     let block = SavedData.kasamDict[kasamBlock.kasamID]?.dayTrackerArray![indexPath.row + 1]
                     //set green and black dots for day tracker
-                    cell.setBlock(kasamOrder: collectionView.tag, day: day, status: block?.1 ?? 0.0, date: date, type: kasamBlock.kasamType, today: day == today, future: future)
+                    cell.setBlock(kasamOrder: collectionView.tag, day: day, status: block?.1 ?? 0.0, date: date, type: SavedData.kasamDict[kasamBlock.kasamID]!.type, today: day == today, future: future)
                 } else {
                     //grey out day tracker
-                    cell.setBlock(kasamOrder: collectionView.tag, day: day, status: 0.0, date: date, type: kasamBlock.kasamType, today: day == today, future: future)
+                    cell.setBlock(kasamOrder: collectionView.tag, day: day, status: 0.0, date: date, type: SavedData.kasamDict[kasamBlock.kasamID]!.type, today: day == today, future: future)
                 }
             }
             return cell
@@ -814,19 +825,23 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                 self.getMotivations()
             }
         } else if collectionView == challengesColletionView {
-            loadingAnimation(animationView: animationView, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
-            UIApplication.shared.beginIgnoringInteractionEvents()
-            kasamIDforViewer = SavedData.challengeBlocks[indexPath.row].kasamID
-            blockIDGlobal = SavedData.challengeBlocks[indexPath.row].blockID
-            dayOrderGlobal = SavedData.challengeBlocks[indexPath.row].dayOrder
-            performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
+            if SavedData.kasamDict[SavedData.challengeBlocks[indexPath.row].kasamID]?.type == "Challenge" {
+                loadingAnimation(animationView: animationView, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
+                UIApplication.shared.beginIgnoringInteractionEvents()
+                kasamIDforViewer = SavedData.challengeBlocks[indexPath.row].kasamID
+                blockIDGlobal = SavedData.challengeBlocks[indexPath.row].blockID
+                dayOrderGlobal = SavedData.challengeBlocks[indexPath.row].dayOrder
+                performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
+            } else {
+                updateKasamDayButtonPressed(kasamOrder: SavedData.challengeBlocks[indexPath.row].kasamOrder, day: SavedData.kasamDict[SavedData.challengeBlocks[indexPath.row].kasamID]!.currentDay, challenge: true)
+            }
         }
     }
     
     func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, type: String) {
         if day <= SavedData.kasamBlocks[kasamOrder].dayOrder {
             if type == "Basic" {
-                updateKasamDayButtonPressed(sender, kasamOrder: kasamOrder, day: day)
+                updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: day, challenge: false)
             } else {
                 openKasamBlock(sender, kasamOrder: kasamOrder, day: day)
             }

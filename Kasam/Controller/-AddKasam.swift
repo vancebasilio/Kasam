@@ -20,15 +20,16 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var startTimePicker: UIPickerView!
     
     //transferred to Firebase
+    var kasamID = ""
     var formattedDate = ""      //loaded in value
     var formattedTime = ""      //loaded in value
     var repeatDuration = 1      //loaded in value
     var currentDay: Int?          //loaded in value
+    var new: Bool?
     
     //Converter variables
     var timeMinArray = ["00", "30"]
     var timeUnitArray = ["AM", "PM"]
-    var type = ""
     var timeUnit = "AM"
     var hourAMPM = 20           //converted hour to AM/PM format
     var hour =  5
@@ -46,7 +47,13 @@ class AddKasamController: UIViewController {
     }
     
     func setupTimePicker(){
-        if formattedDate != "" {
+        if new == false {
+            //OPTION 1 - EDITING EXISTING KASAM
+            formattedDate = dateFormat(date:SavedData.kasamDict[kasamID]?.joinedDate ?? Date())
+            formattedTime = SavedData.kasamDict[kasamID]!.startTime
+            repeatDuration = SavedData.kasamDict[kasamID]!.repeatDuration
+            currentDay = SavedData.kasamDict[kasamID]?.currentDay
+            
             //load in chosen kasam preferences
             startDateTimeLabel.text = "Edit Preferences"
             if repeatDuration > 1 && (currentDay ?? 1 < repeatDuration) {
@@ -63,7 +70,7 @@ class AddKasamController: UIViewController {
             startTimePicker.selectRow(timeMinArray.index(of:String(format:"%02d", min)) ?? 0, inComponent: 2, animated: false)
             baseDate = stringToDate(date: formattedDate)
         } else {
-            //set deafult date and time
+             //OPTION 2 - ADDING NEW KASAM, SET DEFAULT DATE AND TIME
             cancelButton.isHidden = true
             formattedDate = dateFormat(date: Date())
             var tempMin = (Double(Calendar.current.component(.minute, from: Date())) / 60.0).rounded(toPlaces: 0)
@@ -110,12 +117,12 @@ class AddKasamController: UIViewController {
         } else {
             hourAMPM = hour
         }
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveTime"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: self)
         SwiftEntryKit.dismiss()
     }
     
     @IBAction func cancelButtonPressed(_ sender: Any) {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "UnfollowKasam"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "UnfollowKasam\(kasamID)"), object: self)
     }
 }
 
