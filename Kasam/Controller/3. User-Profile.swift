@@ -61,6 +61,7 @@ class ProfileViewController: UIViewController {
     //Kasam Following
     var kasamIDGlobal: String = ""
     var kasamImageGlobal: URL!
+    var kasamStatsTransfer: UserStatsFormat?
     var kasamHistoryRefHandle: DatabaseHandle!
     var kasamUserRefHandle: DatabaseHandle!
     var kasamUserFollowRefHandle: DatabaseHandle!
@@ -174,7 +175,7 @@ class ProfileViewController: UIViewController {
                     if kasam.pastKasamJoinDates?.count != 0 && kasam.pastKasamJoinDates != nil {
                         for pastJoinDate in kasam.pastKasamJoinDates! {
                             let pastDateJoined = self.stringToDate(date: pastJoinDate.key)
-                            let pastEndDate = Calendar.current.date(byAdding: .day, value: pastJoinDate.value, to: pastDateJoined)!
+                            let pastEndDate = Calendar.current.date(byAdding: .day, value: pastJoinDate.value - 1, to: pastDateJoined)!
                             let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: pastDateJoined, endDate: pastEndDate, metricType: kasam.metricType, order: kasam.kasamOrder)
                             self.completedStats.append(userStats)
                             self.completedKasamsTable.reloadData()
@@ -373,8 +374,7 @@ class ProfileViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToStats" {
             let segueTransferHolder = segue.destination as! StatisticsViewController
-            segueTransferHolder.kasamID = kasamIDGlobal
-            segueTransferHolder.kasamImage = kasamImageGlobal
+            segueTransferHolder.kasamStatsTransfer = kasamStatsTransfer
         } else if segue.identifier == "goToEditKasam" {
             NewKasam.editKasamCheck = true
             NewKasam.kasamID = kasamIDGlobal
@@ -469,12 +469,10 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
                 self.tabBarController?.selectedIndex = 0
             } else if detailedStats.count != 0 && weeklyStats.count == 0 {  //user following kasams that aren't active yet
-                kasamIDGlobal = detailedStats[indexPath.row].kasamID
-                kasamImageGlobal = detailedStats[indexPath.row].imageURL
+                kasamStatsTransfer = detailedStats[indexPath.row]
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             } else {
-                kasamIDGlobal = weeklyStats[indexPath.row].kasamID
-                kasamImageGlobal = weeklyStats[indexPath.row].imageURL
+                kasamStatsTransfer = detailedStats[indexPath.row]
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
         } else if collectionView == editKasamsCollectionView {
@@ -487,8 +485,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
                self.tabBarController?.selectedIndex = 0
             } else {
-                kasamIDGlobal = detailedStats[indexPath.row].kasamID
-                kasamImageGlobal = detailedStats[indexPath.row].imageURL
+                kasamStatsTransfer = detailedStats[indexPath.row]
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
         }
@@ -515,8 +512,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        kasamIDGlobal = completedStats[indexPath.row].kasamID
-        kasamImageGlobal = completedStats[indexPath.row].imageURL
+        kasamStatsTransfer = completedStats[indexPath.row]
         self.performSegue(withIdentifier: "goToStats", sender: indexPath)
     }
 }

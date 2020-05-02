@@ -1718,7 +1718,7 @@
             <objects>
                 <viewController storyboardIdentifier="Discover" id="1ds-W5-IlG" userLabel="Discover" customClass="DiscoverViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="uyQ-Kr-07J">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="807"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="796"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5dE-Zw-BsL">
@@ -3194,14 +3194,14 @@
                                                                                                                     </userDefinedRuntimeAttributes>
                                                                                                                 </label>
                                                                                                                 <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Obx-ji-wIj" customClass="AnimationView" customModule="Lottie">
-                                                                                                                    <rect key="frame" x="218.5" y="50" width="0.0" height="0.0"/>
+                                                                                                                    <rect key="frame" x="218.5" y="45" width="0.0" height="0.0"/>
                                                                                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                                                     <constraints>
                                                                                                                         <constraint firstAttribute="width" secondItem="Obx-ji-wIj" secondAttribute="height" multiplier="1:1" id="aM6-yI-ZW8"/>
                                                                                                                     </constraints>
                                                                                                                 </view>
                                                                                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XYP-UZ-Cep">
-                                                                                                                    <rect key="frame" x="178.5" y="15" width="30" height="30"/>
+                                                                                                                    <rect key="frame" x="183.5" y="15" width="25" height="25"/>
                                                                                                                     <color key="backgroundColor" red="0.89411764709999997" green="0.74117647060000003" blue="0.51764705879999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                                                                                     <constraints>
                                                                                                                         <constraint firstAttribute="width" secondItem="XYP-UZ-Cep" secondAttribute="height" multiplier="1:1" id="UMi-DE-xac"/>
@@ -3666,15 +3666,15 @@
                                                                                             </connections>
                                                                                         </button>
                                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Kasam Title" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kH3-ta-xu3">
-                                                                                            <rect key="frame" x="5" y="38" width="153" height="16"/>
+                                                                                            <rect key="frame" x="5" y="35" width="153" height="16"/>
                                                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                                                                                             <color key="textColor" white="0.5" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                             <nil key="highlightedColor"/>
                                                                                         </label>
                                                                                         <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FC9-qa-4yQ">
-                                                                                            <rect key="frame" x="60" y="59" width="43" height="28"/>
+                                                                                            <rect key="frame" x="66.5" y="56" width="30" height="28"/>
                                                                                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
-                                                                                            <state key="normal" title="Button">
+                                                                                            <state key="normal">
                                                                                                 <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                             </state>
                                                                                         </button>
@@ -3688,7 +3688,7 @@
                                                                                         <constraint firstItem="FC9-qa-4yQ" firstAttribute="centerX" secondItem="pCN-cw-EiY" secondAttribute="centerX" id="VZS-6r-zIB"/>
                                                                                         <constraint firstAttribute="trailing" secondItem="kH3-ta-xu3" secondAttribute="trailing" constant="5" id="k9m-Eb-jkR"/>
                                                                                         <constraint firstAttribute="trailing" secondItem="K7G-Jv-sea" secondAttribute="trailing" constant="5" id="mBV-NP-Zb6"/>
-                                                                                        <constraint firstItem="kH3-ta-xu3" firstAttribute="top" secondItem="K7G-Jv-sea" secondAttribute="bottom" id="mba-Ud-y6t"/>
+                                                                                        <constraint firstItem="kH3-ta-xu3" firstAttribute="top" secondItem="K7G-Jv-sea" secondAttribute="bottom" constant="-3" id="mba-Ud-y6t"/>
                                                                                         <constraint firstItem="FC9-qa-4yQ" firstAttribute="top" secondItem="kH3-ta-xu3" secondAttribute="bottom" constant="5" id="tXA-LB-fX2"/>
                                                                                         <constraint firstItem="K7G-Jv-sea" firstAttribute="top" secondItem="pCN-cw-EiY" secondAttribute="top" constant="5" id="uFN-pr-RUz"/>
                                                                                     </constraints>

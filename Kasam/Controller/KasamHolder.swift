@@ -175,7 +175,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func getKasamBadgeInfo(){        //Only for active kasams
-        print("hell4 refreshing badge")
         //STEP 1 - BADGES ACHIEVED
         badgesAchieved()
         
@@ -226,7 +225,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 if SavedData.kasamDict[kasamID]?.sequence == "Streak" {
                     daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.currentStreakCompleteProgress ?? 0)
                 }
-                print("hell4 \(daysCompleted)")
                 ratio = (daysCompleted / Double(maxAchieved.value))
                 self.badgeInfo.text = "  \(maxAchieved.value) day badge  "
                 self.badgeCompletion.text = "\(Int(ratio * 100))%"

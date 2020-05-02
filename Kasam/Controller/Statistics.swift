@@ -31,8 +31,7 @@ class StatisticsViewController: UIViewController {
     @IBOutlet weak var avgMetric: UILabel!
     
     var dataEntries: [ChartDataEntry] = []
-    var kasamID = ""                    //transfered in value
-    var kasamImage: URL!                //transfered in value
+    var kasamStatsTransfer: UserStatsFormat?            //transfered in value
     var metricArray: [Int:Int] = [:]
     var kasamBlocks: [kasamFollowingFormat] = []
     var kasamFollowingRefHandle: DatabaseHandle!
@@ -66,12 +65,12 @@ class StatisticsViewController: UIViewController {
     }
     
     func setupView(){
-        kasamImageView.sd_setImage(with: kasamImage, placeholderImage: PlaceHolders.kasamLoadingImage)
+        kasamImageView.sd_setImage(with: kasamStatsTransfer?.imageURL, placeholderImage: PlaceHolders.kasamLoadingImage)
         kasamImageView.layer.cornerRadius = kasamImageView.frame.width / 2
         kasamImageView.clipsToBounds = true
         imageWhiteBack.backgroundColor = UIColor.init(hex: 0xFFD062).withAlphaComponent(0.5)
         imageWhiteBack.layer.cornerRadius = imageWhiteBack.frame.width / 2
-        kasamNameLabel.text = SavedData.kasamDict[kasamID]?.kasamName
+        kasamNameLabel.text = SavedData.kasamDict[kasamStatsTransfer!.kasamID]?.kasamName
         self.avgMetricIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chartBar), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, iconSize: 20)
         self.dayNoIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.calendarCheck), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, iconSize: 20)
         backButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chevronLeft), iconColor: UIColor.darkGray, postfixText: " Profile", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
@@ -92,28 +91,18 @@ class StatisticsViewController: UIViewController {
     
     @objc func getKasamStats(){
         self.kasamBlocks.removeAll()
-        print("hell8 get kasam stats")
-        //STEP 1 - KASAM LABEL
-        let kasamDay = SavedData.kasamDict[kasamID]?.currentDay ?? 0
-        var repeatDuration = SavedData.kasamDict[kasamID]?.repeatDuration ?? 10
-        if let pastRepeatDuration = SavedData.kasamDict[kasamID]?.pastKasamJoinDates?[dateFormat(date: SavedData.kasamDict[self.kasamID]!.joinedDate)] {
-            //PAST COMPLETED KASAM LOADED
-            repeatDuration = pastRepeatDuration
-            self.dayNoValue.text = "\(repeatDuration) Days"         //completed Kasams
-        } else {
-            //ACTIVE KASAM LOADED
-            self.dayNoValue.text = "Day \(kasamDay)"
-        }
-        
-        //STEP 2 - CHART
-        if kasamDay > repeatDuration {
-            //for completed kasams
-            getCompletedKasamDayTracker()
-        } else if kasamDay < 0 {
-            return
-        } else {
-            //for in-progress kasams and completed kasams with progress
+        var repeatDuration = 10
+        if kasamStatsTransfer!.endDate! > Date() {
+            //Current Kasam
+            repeatDuration = SavedData.kasamDict[kasamStatsTransfer!.kasamID]?.repeatDuration ?? 0
+            self.dayNoValue.text = "Day \(SavedData.kasamDict[kasamStatsTransfer!.kasamID]?.currentDay ?? 0)"
             getChartAndTableStats(kasamDay: repeatDuration)
+        } else {
+            //Completed Kasam or Challenge Kasams
+            repeatDuration = ((Calendar.current.dateComponents([.day], from: kasamStatsTransfer!.joinedDate, to: kasamStatsTransfer!.endDate!)).day ?? 0) + 1
+            self.dayNoValue.text = "\(repeatDuration) Days"
+            if repeatDuration > 0 {getChartAndTableStats(kasamDay: repeatDuration)}
+//            getCompletedKasamDayTracker()
         }
     }
     
@@ -123,8 +112,8 @@ class StatisticsViewController: UIViewController {
         var noProgressDayCount = 0
         //kasamDay is the current day of the Kasam that the user is on
         for day in 1...kasamDay {
-            let dayDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: day - 1, to: SavedData.kasamDict[self.kasamID]!.joinedDate)!)
-            self.kasamHistoryRefHandle = DBRef.userHistory.child(kasamID).child(dayDate).observe(.value, with:{(snapshot) in
+            let dayDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: day - 1, to: kasamStatsTransfer!.joinedDate)!)
+            self.kasamHistoryRefHandle = DBRef.userHistory.child(kasamStatsTransfer!.kasamID).child(dayDate).observe(.value, with:{(snapshot) in
                 if snapshot.exists() {
                     progressDayCount += 1
                     var indieMetricType = ""
@@ -132,13 +121,13 @@ class StatisticsViewController: UIViewController {
                     var textField = ""
                     if let value = snapshot.value as? [String: Any] {
                         //Kasam is Reps or Timer
-                        indieMetricType = SavedData.kasamDict[self.kasamID]!.metricType
+                        indieMetricType = SavedData.kasamDict[self.kasamStatsTransfer!.kasamID]!.metricType
                         indieMetric = value["Total Metric"] as? Double ?? 0.0
                         let text = value["Text Breakdown"] as? [Any]
                         textField = text?[1] as! String
                         self.metricArray[day] = Int(indieMetric)
                         var timeAndMetric = (0.0,"")
-                        if SavedData.kasamDict[self.kasamID]!.metricType == "Time" {
+                        if SavedData.kasamDict[self.kasamStatsTransfer!.kasamID]!.metricType == "Time" {
                             timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: indieMetricType)
                             indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
                             indieMetricType = timeAndMetric.1
@@ -161,7 +150,12 @@ class StatisticsViewController: UIViewController {
                         let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(avgMetric), metric: indieMetricType)
                         self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) Avg. \(avgTimeAndMetric.1)"
                     } else if indieMetricType == "%" {
-                        let avgMetric = (metricTotal) / (SavedData.kasamDict[self.kasamID]!.currentDay)
+                        var avgMetric = 0
+                        if self.kasamStatsTransfer!.endDate! > Date() {
+                            avgMetric = (metricTotal) / (SavedData.kasamDict[self.kasamStatsTransfer!.kasamID]!.currentDay)
+                        } else {
+                            avgMetric = (metricTotal) / (kasamDay)
+                        }
                         self.avgMetric.text = "\(avgMetric)% Avg."
                     }
                 } else {
@@ -172,7 +166,7 @@ class StatisticsViewController: UIViewController {
                     if self.metricArray[kasamDay] == nil {self.metricArray[kasamDay] = 0}
                     self.historyTableView.reloadData()
                     self.setChart(values: self.metricArray)
-                    DBRef.userHistory.child(self.kasamID).child(dayDate).removeAllObservers()
+                    DBRef.userHistory.child(self.kasamStatsTransfer!.kasamID).child(dayDate).removeAllObservers()
                     self.metricArray.removeAll()
                 }
             })
@@ -180,24 +174,25 @@ class StatisticsViewController: UIViewController {
     }
 
     func getCompletedKasamDayTracker() {
+        print("hell7")
         var dayCount = 0
         //Checks if there's kasam history
-        DBRef.userHistory.child(kasamID).observeSingleEvent(of: .value, with: {(snap) in
+        DBRef.userHistory.child(kasamStatsTransfer!.kasamID).observeSingleEvent(of: .value, with: {(snap) in
             print("hell8 get completed daytracker")
             dayCount = Int(snap.childrenCount)
             //Gets the DayTracker info - only goes into this loop if the user has kasam history
-            self.dayTrackerRefHandle = DBRef.userHistory.child(self.kasamID).observe(.childAdded, with: {(snap) in
+            self.dayTrackerRefHandle = DBRef.userHistory.child(self.kasamStatsTransfer!.kasamID).observe(.childAdded, with: {(snap) in
                 let kasamDate = self.stringToDate(date: snap.key)
-                if kasamDate >= SavedData.kasamDict[self.kasamID]!.joinedDate {
-                    let order = (Calendar.current.dateComponents([.day], from: SavedData.kasamDict[self.kasamID]!.joinedDate, to: kasamDate)).day! + 1
+                if kasamDate >= SavedData.kasamDict[self.kasamStatsTransfer!.kasamID]!.joinedDate {
+                    let order = (Calendar.current.dateComponents([.day], from: SavedData.kasamDict[self.kasamStatsTransfer!.kasamID]!.joinedDate, to: kasamDate)).day! + 1
                     self.dayTrackerDateArray[order] = snap.key      //to save the kasam date and order
                     self.dayTrackerArray.append(order)              //gets the order to display what day it is for each kasam
                 } else {
                     dayCount -= 1
                 }
                 if self.dayTrackerArray.count == dayCount && dayCount > 0 {
-                    SavedData.dayTrackerDict[self.kasamID] = self.dayTrackerDateArray
-                    DBRef.userHistory.child(self.kasamID).removeAllObservers()
+                    SavedData.dayTrackerDict[self.kasamStatsTransfer!.kasamID] = self.dayTrackerDateArray
+                    DBRef.userHistory.child(self.kasamStatsTransfer!.kasamID).removeAllObservers()
                     self.getChartAndTableStats(kasamDay: 30)
                 }
             })

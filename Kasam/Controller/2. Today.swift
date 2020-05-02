@@ -394,8 +394,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                                         cell.dayTrackerCollectionView.reloadData()
                                         self.updateContentTableHeight()
                                     } else if let cell = self.challengesColletionView.cellForItem(at: IndexPath(item: kasamOrder, section: 0)) as? TodayChallengesCell {
-                                        cell.setBlock(challenge: SavedData.challengeBlocks[kasamOrder])
-                                        cell.statusUpdate()
+                                        self.challengesColletionView.performBatchUpdates({
+                                            cell.setupCheck = 0
+                                            cell.setBlock(challenge: SavedData.challengeBlocks[kasamOrder])
+                                            cell.statusUpdate()}, completion: nil)
                                         self.updateContentTableHeight()
                                     }
                                 }
