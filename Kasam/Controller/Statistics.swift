@@ -100,6 +100,7 @@ class StatisticsViewController: UIViewController {
         } else {
             //Completed Kasam or Challenge Kasams
             repeatDuration = ((Calendar.current.dateComponents([.day], from: kasamStatsTransfer!.joinedDate, to: kasamStatsTransfer!.endDate!)).day ?? 0) + 1
+            print("hell2 \(kasamStatsTransfer!.joinedDate, kasamStatsTransfer!.endDate!)")
             self.dayNoValue.text = "\(repeatDuration) Days"
             if repeatDuration > 0 {getChartAndTableStats(kasamDay: repeatDuration)}
 //            getCompletedKasamDayTracker()

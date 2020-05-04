@@ -75,6 +75,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var followerCountGlobal = 0
     var kasamID: String = ""            //transfered in values from previous vc
     var kasamGTitle: String = ""        //transfered in values from previous vc
+    var timelineDuration: Int?          //only for timeline Kasams
     var kasamCompletedRadio = 0.0
     
     var kasamTracker: [Tracker] = [Tracker]()
@@ -86,7 +87,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var blockIDGlobal = ""
     var pastJoinDate = ""
     let animationView = AnimationView()
-    var kasamType = ""
+    var kasamMetric = ""
     var benefitsArray = [""]
     var singleBlock = true
     var ratio = 0.0
@@ -207,6 +208,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             self.headerImageView.alpha = 0.7
             var daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress ?? 0)
             let maxAchieved = nearestElement(value: Int(daysCompleted), array: badgeThresholds)
+            finishIcon.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 35, color: UIColor.colorFive.lighter, forState: .normal)
+            extendIcon.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 30, color: UIColor.colorFive.lighter, forState: .normal)
+            finishLabel.textColor = UIColor.colorFive.lighter
+            extendLabel.textColor = UIColor.colorFive.lighter
             if SavedData.kasamDict[kasamID]!.currentDay >= SavedData.kasamDict[kasamID]!.repeatDuration {
                 //OPTION 1 - Kasam completed, but not closed out or extended
                 if SavedData.kasamDict[kasamID]?.repeatDuration == 1 {daysCompleted = Double(SavedData.kasamDict[kasamID]?.percentComplete ?? 0)}
@@ -214,12 +219,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.badgeInfo.text = "  \(maxAchieved.value) day badge  "
                 self.badgeCompletion.text = "\(Int(ratio * 100))%"
                 headerBadgeIcon.animation = Animations.kasamBadges[maxAchieved.level]
-                finishIcon.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 35, color: UIColor.colorFive.lighter, forState: .normal)
-                extendIcon.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 30, color: UIColor.colorFive.lighter, forState: .normal)
-                finishLabel.textColor = UIColor.colorFive.lighter
-                extendLabel.textColor = UIColor.colorFive.lighter
-                finishHolder.isHidden = false
-                extendHolder.isHidden = false
             } else {
                 //OPTION 2 - Kasam ongoing currently
                 if SavedData.kasamDict[kasamID]?.sequence == "Streak" {
@@ -229,8 +228,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.badgeInfo.text = "  \(maxAchieved.value) day badge  "
                 self.badgeCompletion.text = "\(Int(ratio * 100))%"
                 headerBadgeIcon.animation = Animations.kasamBadges[maxAchieved.level]
-                finishHolder.isHidden = true
-                extendHolder.isHidden = true
                 if setupCheck == true {
                     self.kasamBadgeHolder.isHidden = false
                     self.headerBadgeIcon.play()
@@ -359,14 +356,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamGenre.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = Assets.levelsArray[value["Level"] as? Int ?? 1]
                 self.benefitsArray = (value["Benefits"] as? String ?? "").components(separatedBy: ";")
+                self.kasamMetric = value["Metric"] as? String ?? "Checkmark"
+                if self.kasamMetric == "Checkmark" {self.tableView.allowsSelection = false; self.tableView.reloadData()}
                 if value["Badges"] != nil {self.badgeThresholds = (value["Badges"] as? String ?? "").components(separatedBy: ";")}
-                if value["Type"] as? String ?? "" == "Basic" {
-                    self.tableView.allowsSelection = false
-                    self.kasamType = "Basic"
-                    self.tableView.reloadData()
-                } else {
-                    self.kasamType = "Challenge"
-                }
+                if let duration = value["Duration"] as? Int {self.timelineDuration = duration}
                 
                 //Set icons
                 self.TypeIcon = self.TypeIcon.setKasamTypeIcon(kasamType: self.kasamGenre.text!, button: self.TypeIcon, location: "kasamHolder")
@@ -374,9 +367,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         
                 let headerURL = URL(string: value["Image"] as? String ?? "")
                 self.previewLink = value["Preview"] as? String ?? ""
-                if self.previewLink != "" {
-                    self.previewButton.isHidden = false
-                }
+                if self.previewLink != "" {self.previewButton.isHidden = false}
                 self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: PlaceHolders.kasamLoadingImage)
                 DispatchQueue.main.asyncAfter(deadline: .now()) {
                     self.setupKasamBadge()
@@ -415,11 +406,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func addButtonPress(reset: Bool){
         //OPENS THE POPUP TO ENTER PREFERENCES
         if registerCheck == 0 || reset == true {
-            //adding new Kasam
-            addKasamPopup(kasamID: kasamID, new: true)
+            //Adding new Kasam
+            addKasamPopup(kasamID: kasamID, new: true, timelineDuration: timelineDuration)
         } else {
-            //existing Kasam prefernces being updated
-            addKasamPopup(kasamID: kasamID, new: false)
+            //Existing Kasam prefernces being updated
+            addKasamPopup(kasamID: kasamID, new: false, timelineDuration: timelineDuration)
         }
         
         //SETS UP THE OBSERVERS TO SAVE INFORMATION ONCE THE PREFERENCES ARE SAVED
@@ -492,9 +483,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         let request = UNNotificationRequest(identifier: uniqueID, content: content, trigger: trigger)
         let center = UNUserNotificationCenter.current()
         center.add(request) {(error : Error?) in        // Add the notification request
-            if let theError = error {
-                print(theError.localizedDescription)
-            }
         }
     }
     
@@ -512,7 +500,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func addUserPreferncestoKasam(reset: Bool){
-        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Type": kasamType, "Status": "active"]) {(error, reference) in
+        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Status": "active", "Duration": timelineDuration as Any]) {(error, reference) in
             if error == nil {
 //                Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
                 if self.initialRepeat == 1 && self.chosenRepeat > 1 || self.initialRepeat == nil  {
@@ -524,10 +512,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     }
                 }
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//                    self.registeredCheck()
-//                    self.getKasamBadgeInfo()
-//                }
             }
         }
     }
@@ -552,10 +536,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//                    self.registeredCheck()
-//                    self.getKasamBadgeInfo()
-//                }
             }
         }
     }
@@ -889,7 +869,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
 
 extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if kasamType == "Basic" {
+        if kasamMetric == "Checkmark" {
             return 1
         } else {
             return kasamBlocks.count
@@ -899,7 +879,7 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "KasamBlock") as! BlocksCell
         cell.selectionStyle = UITableViewCell.SelectionStyle.none
-        if kasamType == "Basic" {
+        if kasamMetric == "Checkmark" {
             cell.benefitsArray = benefitsArray
             cell.setBasicKasamBenefits()
         } else {
@@ -915,7 +895,7 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if kasamType == "Basic" {
+        if kasamMetric == "Checkmark" {
             //do nothing
         } else {
             blockIDGlobal = kasamBlocks[indexPath.row].blockID

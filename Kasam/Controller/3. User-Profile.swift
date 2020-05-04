@@ -505,9 +505,8 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let block = completedStats[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "CompletedKasamCell") as! CompletedKasamCell
-        cell.setBlock(block: block)
+        cell.setBlock(block: completedStats[indexPath.row])
         return cell
     }
     

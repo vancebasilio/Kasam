@@ -104,7 +104,7 @@ import Firebase
     }
 
     //ADD KASAM---------------------------------------------------------------------------------------------
-    func addKasamPopup(kasamID: String, new: Bool) {
+func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -126,6 +126,7 @@ import Firebase
         let viewController = AddKasamController()
         viewController.kasamID = kasamID
         viewController.new = new
+        viewController.timelineDuration = timelineDuration
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 

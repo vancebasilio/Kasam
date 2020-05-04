@@ -21,10 +21,11 @@ class AddKasamController: UIViewController {
     
     //transferred to Firebase
     var kasamID = ""
-    var formattedDate = ""      //loaded in value
-    var formattedTime = ""      //loaded in value
-    var repeatDuration = 1      //loaded in value
-    var currentDay: Int?          //loaded in value
+    var timelineDuration: Int?
+    var formattedDate = ""      //loaded out value
+    var formattedTime = ""      //loaded out value
+    var repeatDuration = 1      //loaded out value
+    var currentDay: Int?        //loaded out value
     var new: Bool?
     
     //Converter variables
@@ -54,7 +55,7 @@ class AddKasamController: UIViewController {
             repeatDuration = SavedData.kasamDict[kasamID]!.repeatDuration
             currentDay = SavedData.kasamDict[kasamID]?.currentDay
             
-            //load in chosen kasam preferences
+            //Load in chosen Kasam preferences
             startDateTimeLabel.text = "Edit Preferences"
             if repeatDuration > 1 && (currentDay ?? 1 < repeatDuration) {
                 repeatPicker.selectRow(repeatDuration - (currentDay ?? 1), inComponent: 0, animated: false)
@@ -138,12 +139,12 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         pickerView.subviews.forEach({$0.isHidden = $0.frame.height < 1.0})
         if pickerView == repeatPicker {
-            if currentDay != nil && currentDay != 0 && repeatDuration > 1 {
-                //editing preferences on existing Kasam
-                return 100 - currentDay!
-            } else {
-                //new Kasam
-                return 100
+            if timelineDuration != nil {return 2}
+            else {
+                //Editing preferences on existing Kasam
+                if currentDay != nil && currentDay != 0 && repeatDuration > 1 {return 100 - currentDay!}
+                //New Kasam
+                else {return 100}
             }
         } else if pickerView == startDayPicker{
             if currentDay != nil && currentDay != 0 {
@@ -170,15 +171,17 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
         label.font = UIFont.systemFont(ofSize: 23, weight: .regular)
         label.textAlignment = .center
         if pickerView == repeatPicker {
-            if currentDay != nil && currentDay != 0 && repeatDuration > 1 {
-                //editing existing Kasam preferences
-                label.text =  String("\(row + currentDay!) days")
-            } else {
-                //loading new Kasam
-                if row == 0 {
-                    label.text = "Complete Once"
-                } else {
-                    label.text =  String("\(row + 1) days")
+            if timelineDuration != nil {
+                if row == 0 {label.text = "Complete Once"}
+                else {label.text =  String("\(timelineDuration!) days")}
+            }
+            else {
+                //Editing existing Kasam preferences
+                if currentDay != nil && currentDay != 0 && repeatDuration > 1 {label.text =  String("\(row + currentDay!) days")}
+                //Loading new Kasam
+                else {
+                    if row == 0 {label.text = "Complete Once"}
+                    else {label.text =  String("\(row + 1) days")}
                 }
             }
         } else if pickerView == startDayPicker {
@@ -212,10 +215,14 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == repeatPicker {
-            if currentDay != nil && repeatDuration > 1 {
-                repeatDuration = row + currentDay!
+            if timelineDuration != nil {
+                if row == 0 {repeatDuration = 1}
+                else {repeatDuration = timelineDuration!}
             } else {
-                repeatDuration = row + 1
+                //Editing existing Kasam preferences
+                if currentDay != nil && repeatDuration > 1 {repeatDuration = row + currentDay!}
+                //Loading new Kasam
+                else {repeatDuration = row + 1}
             }
         } else if pickerView == startDayPicker {
             formattedDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: row, to: baseDate ?? Date())!)

@@ -38,6 +38,7 @@ class BlocksCell: UITableViewCell {
                 dayNo.font = dayNo.font.withSize(15)
             } else {
                 dayNo.isHidden = true
+                
                 challengeBenefitsLabelTopConstraint.constant = -17
             }
             blockTitle.isHidden = true
@@ -49,6 +50,7 @@ class BlocksCell: UITableViewCell {
     }
     
     func setBasicKasamBenefits() {
+        print("hell90")
         imageHolder.isHidden = true
         dayNo.text = "Benefits:"
         dayNo.textColor = UIColor.black

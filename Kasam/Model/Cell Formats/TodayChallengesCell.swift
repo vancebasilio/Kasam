@@ -42,7 +42,7 @@ class TodayChallengesCell: UICollectionViewCell {
             kasamImage.alpha = 0.7
             kasamTitle.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
             kasamDuration.textColor = UIColor.colorFive
-            if SavedData.kasamDict[tempBlock!.kasamID]!.type == "Basic" {kasamDuration.text = "All day"}
+            if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {kasamDuration.text = "All day"}
             else {kasamDuration.text = challenge.duration}
             setupCheck = 1
         }
@@ -81,12 +81,12 @@ class TodayChallengesCell: UICollectionViewCell {
         if SavedData.kasamDict[kasamID]?.percentComplete == nil {percentComplete.setTitle("0%", for: .normal)}
         else {percentComplete.setTitle("\(Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100))%", for: .normal)}
         
-        if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[tempBlock!.kasamID]!.type == "Basic" {
+        if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
             percentComplete.backgroundColor = UIColor.colorFour
             shadow.layer.shadowColor = UIColor.black.cgColor
             shadow.layer.shadowOpacity = 0.2
             statusIcon?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
-        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[tempBlock!.kasamID]!.type == "Challenge" {
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[tempBlock!.kasamID]!.metricType != "Checkmark" {
             percentComplete.backgroundColor = UIColor.colorFour
             statusIcon?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
         } else if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {
@@ -95,11 +95,6 @@ class TodayChallengesCell: UICollectionViewCell {
             percentComplete.backgroundColor = .dayYesColor
             statusIcon.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: .dayYesColor, backgroundColor: .white, forState: .normal)
             statusIcon.layer.cornerRadius = statusIcon.frame.height
-        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Uncheck" {
-            percentComplete.backgroundColor = UIColor.colorFour
-            shadow.layer.shadowColor = UIColor.black.cgColor
-            shadow.layer.shadowOpacity = 0.2
-            statusIcon?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
         } else if SavedData.kasamDict[kasamID]?.displayStatus == "Progress" {
             shadow.layer.shadowColor = UIColor.black.cgColor
             shadow.layer.shadowOpacity = 0.2
