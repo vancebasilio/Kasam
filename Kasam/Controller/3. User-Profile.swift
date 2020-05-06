@@ -237,13 +237,12 @@ class ProfileViewController: UIViewController {
                         if let value = snapshot.value as? Int {
                             self.metricDictionary[x] = Double(value)                        //Basic Kasam
                             metricMatrix += 1
-                            metricCount += 1
                         }
                         else if let value = snapshot.value as? [String: Any] {
-                            self.metricDictionary[x] = value["Metric Percent"] as? Double   //Challange Kasam: Get metric for each day
+                            self.metricDictionary[x] = value["Metric Percent"] as? Double       //Challange Kasam: Get metric for each day
                             metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
-                            metricCount += 1
                         }
+                        metricCount += 1
                     }
                     if checkerCount == 7 && metricCount != 0 {
                         if kasam.metricType == "Checkmark" {

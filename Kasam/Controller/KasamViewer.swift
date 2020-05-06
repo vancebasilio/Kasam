@@ -236,7 +236,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
             }
         }
         if transferAvg > 0.0 {
-            DBRef.userHistory.child(kasamID).child(statusDate).setValue(["Block Completed": blockID, "Time": statusDateTime ?? "StatusTime", "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
+            DBRef.userHistory.child(kasamID).child(statusDate).setValue(["Block Completed": blockID, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
         } else {
             DBRef.userHistory.child(kasamID).child(statusDate).setValue(nil)
             //removes the dayTracker for today if kasam is set to zero

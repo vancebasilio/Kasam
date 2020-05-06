@@ -245,6 +245,11 @@ class TodayBlockCell: UITableViewCell {
                 completionBadge.play()
                 DispatchQueue.main.async {self.completionBadge.isHidden = false}
             } else {
+                if tempBlock!.dayOrder >= SavedData.kasamDict[tempBlock!.kasamID]!.repeatDuration {
+                    completionBadge.animation = Animation.named("flagmountainBG")
+                    completionBadge.play()
+                    DispatchQueue.main.async {self.completionBadge.isHidden = false}
+                }
                 DBRef.userKasamFollowing.child(kasamID).child("Badges").child(longestStreakDate).setValue(nil)
                 self.completionBadge.isHidden = true
             }
