@@ -21,7 +21,8 @@ struct SavedData {
 
     static func addKasam(kasam: KasamSavedFormat) {self.kasamDict[kasam.kasamID] = kasam}
     
-    static var badgesAchieved: [(kasamName: String, completedDate: String, badgeLevel: Int)] = []
+    static var badgesAchieved: [String: [(completedDate: String, badgeThreshold: Int, badgeLevel: Int)]] = [:]
+    static var badgesCount = 0
 }
 
 struct DBRef {

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="BadgesAchieved" customModule="Kasam" customModuleProvider="target">
+            <connections>
+                <outlet property="tableView" destination="a9F-D5-jui" id="QFc-I2-3aT"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hQR-gn-Owe">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                    <subviews>
+                        <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="55" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="a9F-D5-jui">
+                            <rect key="frame" x="0.0" y="20" width="375" height="627"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <connections>
+                                <outlet property="dataSource" destination="-1" id="JQP-wS-iYA"/>
+                                <outlet property="delegate" destination="-1" id="zXU-N7-Rkb"/>
+                            </connections>
+                        </tableView>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="a9F-D5-jui" secondAttribute="trailing" id="B5K-SP-mHL"/>
+                        <constraint firstItem="a9F-D5-jui" firstAttribute="leading" secondItem="hQR-gn-Owe" secondAttribute="leading" id="QfF-dE-KDT"/>
+                        <constraint firstAttribute="bottom" secondItem="a9F-D5-jui" secondAttribute="bottom" constant="20" id="YAr-0Y-61Q"/>
+                        <constraint firstItem="a9F-D5-jui" firstAttribute="top" secondItem="hQR-gn-Owe" secondAttribute="top" constant="20" id="mhy-CP-vcY"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="hQR-gn-Owe" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="eiV-Ir-uk7"/>
+                <constraint firstItem="hQR-gn-Owe" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="jDz-aF-ysi"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="hQR-gn-Owe" secondAttribute="bottom" id="lTy-7t-GhN"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="hQR-gn-Owe" secondAttribute="trailing" id="oMX-PK-nEM"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
+            <point key="canvasLocation" x="138.40000000000001" y="152.47376311844079"/>
+        </view>
+    </objects>
+</document>

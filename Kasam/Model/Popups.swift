@@ -109,7 +109,7 @@ import Firebase
         attributes.displayMode = .light
         attributes.displayDuration = .infinity
         attributes.hapticFeedbackType = .none
-        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
+        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.5)))
         attributes.entryBackground = .color(color: .white)
         attributes.screenInteraction = .dismiss
         attributes.entryInteraction = .absorbTouches
@@ -118,7 +118,7 @@ import Firebase
         attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
         attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
         attributes.roundCorners = .all(radius: 20)
-        let height = CGFloat(SavedData.badgesAchieved.count * 40)
+        let height = CGFloat(SavedData.badgesCount * 40)
         attributes.positionConstraints.size = .init(width: .ratio(value: 0.9), height: .constant(value: height))
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark

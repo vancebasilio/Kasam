@@ -26,8 +26,6 @@ class UserOptionsController: UIViewController {
     }
 }
 
-// MARK: UITableViewDelegate, UITableViewDataSource
-
 extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 2

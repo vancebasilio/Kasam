@@ -340,9 +340,15 @@ class ProfileViewController: UIViewController {
             if kasam.value.badgeList != nil {
                 for badge in kasam.value.badgeList! {
                     if let level = (kasam.value.badgeThresholds ?? ["10","30","90"]).index(of: String(badge.value)) {
-                        SavedData.badgesAchieved.append((kasam.value.kasamName, badge.key, level))
+                        if SavedData.badgesAchieved[kasam.value.kasamName] == nil {
+                            SavedData.badgesAchieved[kasam.value.kasamName] = [((badge.key, badge.value, level))]
+                        } else {
+                            SavedData.badgesAchieved[kasam.value.kasamName]!.append((badge.key, badge.value, level))
+                        }
                     }
                 }
+                badgeCount = (SavedData.badgesAchieved.values.map { $0.count }).reduce(0, { $0 + $1 })
+                SavedData.badgesCount = badgeCount + SavedData.badgesAchieved.count
             }
         }
         badgeNo.text = String(describing: badgeCount)
