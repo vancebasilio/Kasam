@@ -58,7 +58,11 @@ class KasamActivityViewer: UIViewController {
     }
     
     func updateControllers(){
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: ["kasamID":kasamID, "date":statusDate])
+        if SavedData.kasamDict[kasamID]?.timelineDuration != nil {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
+        } else {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: ["kasamID":kasamID, "date":statusDate])
+        }
         NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)

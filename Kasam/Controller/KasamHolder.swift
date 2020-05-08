@@ -761,12 +761,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         } else {
             //creating new kasam
             kasamID.setValue(kasamDictionary) {(error, reference) in
-                if error != nil {
-                    print(error!)
-                } else {
-                //kasam successfully created
-                kasamDB.setValue(NewKasam.kasamName)
-                self.saveBlocks(kasamID: kasamID)
+                if error == nil {
+                    //kasam successfully created
+                    kasamDB.setValue(NewKasam.kasamName)
+                    self.saveBlocks(kasamID: kasamID)
                 }
             }
         }

@@ -19,9 +19,9 @@ struct SavedData {
     static var kasamDict: [String:KasamSavedFormat] = [:]           //KasamDict is used to update kasams when progress is made
     static var dayTrackerDict: [String: [Int:String]] = [:]
 
-    static func addKasam(kasam: KasamSavedFormat) {
-        self.kasamDict[kasam.kasamID] = kasam
-    }
+    static func addKasam(kasam: KasamSavedFormat) {self.kasamDict[kasam.kasamID] = kasam}
+    
+    static var badgesAchieved: [(kasamName: String, completedDate: String, badgeLevel: Int)] = []
 }
 
 struct DBRef {

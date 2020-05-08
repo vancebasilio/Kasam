@@ -103,6 +103,31 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
+    func showBadgesAchieved(viewHeight: CGFloat) {
+        var attributes: EKAttributes
+        attributes = .centerFloat
+        attributes.displayMode = .light
+        attributes.displayDuration = .infinity
+        attributes.hapticFeedbackType = .none
+        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
+        attributes.entryBackground = .color(color: .white)
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
+        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
+        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
+        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
+        attributes.roundCorners = .all(radius: 20)
+        let height = CGFloat(SavedData.badgesAchieved.count * 40)
+        attributes.positionConstraints.size = .init(width: .ratio(value: 0.9), height: .constant(value: height))
+        attributes.positionConstraints.safeArea = .overridden
+        attributes.statusBar = .dark
+        
+        let viewController = BadgesAchieved()
+        SwiftEntryKit.display(entry: viewController, using: attributes)
+    }
+
+
     //ADD KASAM---------------------------------------------------------------------------------------------
 func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?) {
         var attributes: EKAttributes

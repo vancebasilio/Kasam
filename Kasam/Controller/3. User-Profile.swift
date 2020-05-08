@@ -37,6 +37,7 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
+    @IBOutlet weak var badgesView: UIStackView!
     @IBOutlet weak var sideMenuButton: UIButton!
     
     @IBOutlet weak var completedKasamsTable: SelfSizedTableView!
@@ -159,9 +160,10 @@ class ProfileViewController: UIViewController {
     @objc func getDetailedStats() {
         detailedStats.removeAll()
         completedStats.removeAll()
+        weeklyStats.removeAll()
+        metricDictionary.removeAll()
         //loops through all kasams that user is following and get kasamID
-        for kasamID in SavedData.todayKasamList {
-            let kasam = SavedData.kasamDict[kasamID]!
+        for kasam in SavedData.kasamDict.values {
             DBRef.coachKasams.child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
                 if snap.exists() {
                     let snapshot = snap.value as! Dictionary<String,Any>
@@ -171,7 +173,7 @@ class ProfileViewController: UIViewController {
                     let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
                     let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
                     
-                    //PAST PROGRESS
+                    //COMPLETED KASAMS
                     if kasam.pastKasamJoinDates?.count != 0 && kasam.pastKasamJoinDates != nil {
                         for pastJoinDate in kasam.pastKasamJoinDates! {
                             let pastDateJoined = self.stringToDate(date: pastJoinDate.key)
@@ -183,16 +185,16 @@ class ProfileViewController: UIViewController {
                     }
                     
                     //ACTIVE KASAMS
-                    self.detailedStats.append(userStats)
-                    self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
-                    self.detailedStatsCollectionView.reloadData()
-                    self.weekStatsCollectionView.reloadData()
-                    
-                    //GET WEEKLY STATS FOR ACTIVE KASAMS
-                    if self.detailedStats.count == SavedData.todayKasamList.count {
-                        self.getWeeklyStats()
+                    if kasam.currentStatus == "active" {
+                        self.detailedStats.append(userStats)
+                        self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
+                        self.detailedStatsCollectionView.reloadData()
+                        self.weekStatsCollectionView.reloadData()
+                        
+                        //GET WEEKLY STATS FOR ACTIVE KASAMS
+                        self.getWeeklyStats(kasamID: kasam.kasamID)
                     }
-                
+                        
                 //Kasam Level
                 self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
                     self.kasamHistoryRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
@@ -216,52 +218,46 @@ class ProfileViewController: UIViewController {
     }
     
     //STEP 2
-    func getWeeklyStats() {
-        weeklyStats.removeAll()
-        metricDictionary.removeAll()
-        for kasamID in SavedData.todayKasamList {
-            let kasam = SavedData.kasamDict[kasamID]!
-            let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
-            var metricCount = 0
-            var metricMatrix = 0
-            var checkerCount = 0
-            let imageURL = URL(string:kasam.image)
-            for x in 1...7 {
-                var avgMetric = 0
-                DBRef.userHistory.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{(snapshot) in
-                    checkerCount += 1
-                    self.metricDictionary[x] = 0                                      //to set the base as zero for each day
+    func getWeeklyStats(kasamID: String) {
+        let kasam = SavedData.kasamDict[kasamID]!
+        let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
+        var metricCount = 0
+        var metricMatrix = 0
+        var checkerCount = 0
+        let imageURL = URL(string:kasam.image)
+        for x in 1...7 {
+            var avgMetric = 0
+            DBRef.userHistory.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{(snapshot) in
+                checkerCount += 1
+                self.metricDictionary[x] = 0                                      //to set the base as zero for each day
+                //OPTION 1 - Basic Kasam
+                if let value = snapshot.value as? Int {
+                    self.metricDictionary[x] = Double(value)
+                    metricMatrix += 1
+                }
+                //OPTION 2 - CHALLENGE KASAM
+                else if let value = snapshot.value as? [String: Any] {
+                    self.metricDictionary[x] = value["Metric Percent"] as? Double
+                    metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
+                }
+                metricCount += 1
+                
+                if checkerCount == 7 && metricCount != 0 {
+                    if kasam.metricType == "Checkmark" {
+                        let daysPast = (Date().dayNumberOfWeek() ?? 7)   //divide 100% checkmark days by no of days in the week completed
+                        if daysPast != 0 {
+                            avgMetric = Int((Double(metricMatrix) / Double(daysPast)) * 100)          //for Basic Kasams
+                        }
+                    } else {
+                        avgMetric = (metricMatrix / metricCount)             //for Complex Kasams
+                    }
+                    self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
                     
-                    //only records progress bar if the joined date is after the kasam date
-                    if self.stringToDate(date: self.dayDictionary[x]!) >= kasam.joinedDate {
-                        if let value = snapshot.value as? Int {
-                            self.metricDictionary[x] = Double(value)                        //Basic Kasam
-                            metricMatrix += 1
-                        }
-                        else if let value = snapshot.value as? [String: Any] {
-                            self.metricDictionary[x] = value["Metric Percent"] as? Double       //Challange Kasam: Get metric for each day
-                            metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
-                        }
-                        metricCount += 1
-                    }
-                    if checkerCount == 7 && metricCount != 0 {
-                        if kasam.metricType == "Checkmark" {
-                            let daysPast = (Date().dayNumberOfWeek() ?? 7)   //divide 100% checkmark days by no of days in the week completed
-                            if daysPast != 0 {
-                                avgMetric = Int((Double(metricMatrix) / Double(daysPast)) * 100)          //for Basic Kasams
-                            }
-                            
-                        } else {
-                            avgMetric = (metricMatrix / metricCount)             //for Complex Kasams
-                        }
-                        self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
-                        
-                        //orders the array as kasams with no history will always show up first, even though they were loaded later
-                        self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
-                        self.weekStatsCollectionView.reloadData()
-                    }
-                })
-            }
+                    //orders the array as kasams with no history will always show up first, even though they were loaded later
+                    self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
+                    self.weekStatsCollectionView.reloadData()
+                }
+            })
         }
     }
     
@@ -318,6 +314,12 @@ class ProfileViewController: UIViewController {
         if let truncUserFirst = Auth.auth().currentUser?.displayName?.split(separator: " ").first.map(String.init), let truncUserLast = Auth.auth().currentUser?.displayName?.split(separator: " ").last.map(String.init) {
             userFirstName.text = truncUserFirst + " " + truncUserLast
         }
+        let tap = UITapGestureRecognizer(target: self, action: #selector(badgesAchievedPopup))
+        badgesView.addGestureRecognizer(tap)
+    }
+    
+    @objc func badgesAchievedPopup() {
+        showBadgesAchieved(viewHeight: view.frame.height)
     }
     
     @objc func profileUpdate() {
@@ -335,6 +337,13 @@ class ProfileViewController: UIViewController {
         var badgeCount = 0
         for kasam in SavedData.kasamDict {
             badgeCount += kasam.value.badgeList?.count ?? 0
+            if kasam.value.badgeList != nil {
+                for badge in kasam.value.badgeList! {
+                    if let level = (kasam.value.badgeThresholds ?? ["10","30","90"]).index(of: String(badge.value)) {
+                        SavedData.badgesAchieved.append((kasam.value.kasamName, badge.key, level))
+                    }
+                }
+            }
         }
         badgeNo.text = String(describing: badgeCount)
         if badgeCount == 1 {badgeLabel.text = "badge"}

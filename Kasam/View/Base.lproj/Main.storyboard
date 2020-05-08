@@ -1679,6 +1679,7 @@
                     <connections>
                         <outlet property="badgeLabel" destination="Yo1-7L-iZm" id="0Wc-Ix-v6T"/>
                         <outlet property="badgeNo" destination="4LW-hM-0Eq" id="XfD-0H-AIm"/>
+                        <outlet property="badgesView" destination="zHt-A1-zNJ" id="7Ig-SW-WAC"/>
                         <outlet property="collectionViewHeight" destination="Apy-Lh-vsl" id="Nwq-jd-9wt"/>
                         <outlet property="completedKasamTableHeight" destination="YkL-b3-O57" id="t7d-lQ-6Rh"/>
                         <outlet property="completedKasamsTable" destination="3Yd-IB-SaK" id="tkZ-AS-RQj"/>
@@ -1718,7 +1719,7 @@
             <objects>
                 <viewController storyboardIdentifier="Discover" id="1ds-W5-IlG" userLabel="Discover" customClass="DiscoverViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="uyQ-Kr-07J">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="807"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="796"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5dE-Zw-BsL">
@@ -3194,7 +3195,7 @@
                                                                                                                     </userDefinedRuntimeAttributes>
                                                                                                                 </label>
                                                                                                                 <view hidden="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Obx-ji-wIj" customClass="AnimationView" customModule="Lottie">
-                                                                                                                    <rect key="frame" x="198.5" y="50" width="20" height="20"/>
+                                                                                                                    <rect key="frame" x="218.5" y="45" width="0.0" height="0.0"/>
                                                                                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                                                     <constraints>
                                                                                                                         <constraint firstAttribute="width" secondItem="Obx-ji-wIj" secondAttribute="height" multiplier="1:1" id="aM6-yI-ZW8"/>
@@ -3829,7 +3830,7 @@
             <objects>
                 <viewController id="ejW-bE-e0v" userLabel="Kasam Viewer" customClass="KasamActivityViewer" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="9HA-Q5-L0t">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="VWi-QP-tmS">
@@ -5937,7 +5938,7 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="mxq-HQ-QCj"/>
-        <segue reference="Viy-yT-bOU"/>
+        <segue reference="wnm-Aa-p59"/>
         <segue reference="bfR-GK-E9V"/>
         <segue reference="b1h-nV-uzD"/>
     </inferredMetricsTieBreakers>

@@ -229,6 +229,22 @@ extension UIViewController {
         return kasamDate
     }
     
+    func convertLongDateToShortYear(date: String) -> String {
+        var dateOutput = ""
+        let dateFormatterGet = DateFormatter()
+        dateFormatterGet.dateFormat = "yyyy-MM-dd"                              //***keep this value the same as above
+        
+        let dateFormatterPrint = DateFormatter()
+        dateFormatterPrint.dateFormat = "MMM d, yyyy"
+        
+        if let date = dateFormatterGet.date(from: date) {
+            dateOutput = dateFormatterPrint.string(from: date)
+        } else {
+            print("There was an error converting the date")
+        }
+        return dateOutput
+    }
+    
     func dateFormat(date: Date) -> String {
         let date = date
         let formatter = DateFormatter()
