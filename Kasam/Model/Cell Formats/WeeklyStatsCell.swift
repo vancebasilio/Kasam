@@ -63,14 +63,14 @@ class WeeklyStatsCell: UICollectionViewCell {
         }
         if cell.metricType == "Time" && cell.avgMetric <= 60 {
             averageMetric.text = String(cell.avgMetric)
-            averageMetricLabel.text = "Avg. secs"
+            averageMetricLabel.text = "Total secs"
         } else if cell.metricType == "Time" && cell.avgMetric > 60 {
             let time: Double = (Double(cell.avgMetric) / 60.0).rounded(toPlaces: 2)
             averageMetric.text = String(time)
-            averageMetricLabel.text = "Avg. mins"
+            averageMetricLabel.text = "Total mins"
         } else if cell.metricType == "Reps" {
             averageMetric.text = String(cell.avgMetric)
-            averageMetricLabel.text = "Avg. \(cell.metricType)"
+            averageMetricLabel.text = "Total \(cell.metricType)"
         } else if cell.metricType == "Checkmark" {
             averageMetric.text = String(cell.avgMetric)
             averageMetricLabel.text = "Avg. %"

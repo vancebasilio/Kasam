@@ -154,8 +154,14 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             
             deleteKasamButton.layer.cornerRadius = 20.0
             deleteKasamButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.trashAlt), iconColor: UIColor.white, postfixText: "  Delete Kasam", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.init(hex: 0xDB482D), forState: .normal, iconSize: 15)
+            }
+            let tap = UITapGestureRecognizer(target: self, action: #selector(badgesAchievedPopup))
+            kasamDeetsStackView.addGestureRecognizer(tap)
         }
-    }
+        
+        @objc func badgesAchievedPopup() {
+            showBadgesAchieved(kasamID: kasamID)
+        }
     
     //KASAM BADGE------------------------------------------------------------------------------------
     
@@ -838,7 +844,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             self.navigationController?.navigationBar.isTranslucent = true
             self.navigationController?.navigationBar.backgroundColor = UIColor.clear            //set navigation bar color to clear
         } else {
-            
             self.navigationItem.backBarButtonItem?.title = ""
             //Viewing Kasam Holder from Discovery or Today Page
             if #available(iOS 13.0, *) {
@@ -850,8 +855,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        if #available(iOS 13.0, *) {
-            self.navigationController?.navigationBar.standardAppearance.configureWithOpaqueBackground()
+        if reviewOnly != true {
+            if #available(iOS 13.0, *) {
+                self.navigationController?.navigationBar.standardAppearance.configureWithOpaqueBackground()
+            }
         }
     }
     

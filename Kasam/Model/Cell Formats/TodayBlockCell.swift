@@ -119,7 +119,6 @@ class TodayBlockCell: UITableViewCell {
         streakShadow.layer.shadowOpacity = 0.2
         streakShadow.layer.shadowOffset = CGSize.zero
         streakShadow.layer.shadowRadius = 4
-        print("hell3 cellformatting")
         
         hideDayTrackerButton.setIcon(icon: .fontAwesomeRegular(.calendar), iconSize: 15, color: UIColor.colorFour, forState: .normal)
         

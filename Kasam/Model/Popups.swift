@@ -94,7 +94,7 @@ import Firebase
         attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
         attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
         attributes.roundCorners = .all(radius: 20)
-        attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: viewHeight * (1.3)))
+        attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: viewHeight * (1.5)))
         attributes.positionConstraints.verticalOffset = -viewHeight
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark
@@ -103,13 +103,13 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-    func showBadgesAchieved(viewHeight: CGFloat) {
+    func showBadgesAchieved(kasamID: String?) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light
         attributes.displayDuration = .infinity
         attributes.hapticFeedbackType = .none
-        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.5)))
+        attributes.screenBackground = .color(color: EKColor(UIColor.black).with(alpha: 0.4))
         attributes.entryBackground = .color(color: .white)
         attributes.screenInteraction = .dismiss
         attributes.entryInteraction = .absorbTouches
@@ -118,12 +118,22 @@ import Firebase
         attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
         attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
         attributes.roundCorners = .all(radius: 20)
-        let height = CGFloat(SavedData.badgesCount * 40)
+        var height = CGFloat(35)        //Badges Title height
+        if kasamID == nil {
+            height += CGFloat(SavedData.badgeSubCatCount * 40)
+        } else {
+            if SavedData.kasamDict[kasamID!] != nil {
+                height += CGFloat((SavedData.badgesAchieved[SavedData.kasamDict[kasamID!]!.kasamName]?.count ?? 0) + 2) * 40
+            } else {
+                height += CGFloat(80)
+            }
+        }
         attributes.positionConstraints.size = .init(width: .ratio(value: 0.9), height: .constant(value: height))
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark
         
         let viewController = BadgesAchieved()
+        viewController.kasamID = kasamID
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 

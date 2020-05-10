@@ -23,6 +23,7 @@ struct SavedData {
     
     static var badgesAchieved: [String: [(completedDate: String, badgeThreshold: Int, badgeLevel: Int)]] = [:]
     static var badgesCount = 0
+    static var badgeSubCatCount = 0
 }
 
 struct DBRef {

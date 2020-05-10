@@ -12,7 +12,7 @@ import FirebaseStorage
 import SwiftEntryKit
 import SkyFloatingLabelTextField
 
-class NewKasamController: UIViewController, UIScrollViewDelegate {
+class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDelegate {
     
     //Twitter Parallax
     @IBOutlet weak var tableView: UITableView!  {didSet {tableView.estimatedRowHeight = 100}}
@@ -25,7 +25,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var constrainHeightHeaderImages: NSLayoutConstraint!
     @IBOutlet weak var headerClickViewHeight: NSLayoutConstraint!
     @IBOutlet weak var newKasamTitle: SkyFloatingLabelTextField!
-    @IBOutlet weak var newKasamDescription: SkyFloatingLabelTextField!
+    @IBOutlet weak var newKasamDescription: UITextView!
     @IBOutlet weak var addAnImageLabel: UILabel!
     @IBOutlet weak var createActivitiesCircle: UIButton!
     @IBOutlet weak var headerClickView: UIView!
@@ -41,6 +41,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
     var kasamBlocksDatabase = Database.database().reference().child("Coach-Kasams")
     var kasamBlocksDatabaseHandle: DatabaseHandle!
     var blockDuration = [Int:String]()
+    var singleKasam = false
     
     //No of Blocks Picker Variables
     var numberOfBlocks = 1
@@ -63,22 +64,39 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
         setupLoad()
         setupTwitterParallax()
         setupImageHolders()
+        newKasamDescription.delegate = self
     }
     
     func setupLoad(){
         //setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
+        if singleKasam == true {
+            createActivitiesLabel.text = "Save Kasam"
+            
+        }
         if NewKasam.editKasamCheck == true {
             loadKasam()
             headerLabel.text = "Edit Kasam"
             addAnImageLabel.text = "Change Image"
-            createActivitiesLabel.text = "Edit Activities"
+            if singleKasam == false {
+                createActivitiesLabel.text = "Edit Activities"
+            }
         }
         createActivitiesCircle.layer.cornerRadius = createActivitiesCircle.frame.height / 2
         createActivitiesCircle.clipsToBounds = true
-        createActivitiesCircle.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.arrowRight), iconColor: UIColor.white, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 25)
+        if singleKasam == false {
+            createActivitiesCircle.setIcon(icon: .fontAwesomeSolid(.arrowRight), iconSize: 25, color: UIColor.white, backgroundColor: UIColor.black, forState: .normal)
+        } else {
+            createActivitiesCircle.setIcon(icon: .fontAwesomeSolid(.featherAlt), iconSize: 27, color: UIColor.white, backgroundColor: UIColor.black, forState: .normal)
+        }
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
+        newKasamDescription.textContainer.maximumNumberOfLines = 3
+        newKasamDescription.textContainer.lineBreakMode = .byClipping
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 10
+        let attributes = [NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray]
+        newKasamDescription.attributedText = NSAttributedString(string: "Description", attributes:attributes)
     }
     
     @IBAction func createActivitiesButtonPressed(_ sender: Any) {
@@ -94,6 +112,20 @@ class NewKasamController: UIViewController, UIScrollViewDelegate {
             NewKasam.kasamName = newKasamTitle.text ?? "Kasam Title"
             NewKasam.kasamDescription = newKasamDescription.text ?? "Kasam Description"
             NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
+        }
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.text == "Description" {
+            textView.text = nil
+            textView.textColor = UIColor.darkGray
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "Description"
+            textView.textColor = UIColor.lightGray
         }
     }
     

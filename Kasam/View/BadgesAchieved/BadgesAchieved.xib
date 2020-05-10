@@ -22,8 +22,15 @@
                 <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hQR-gn-Owe">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                     <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Badges" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="AIr-zf-WhQ" userLabel="Today Label">
+                            <rect key="frame" x="18" y="20" width="89" height="30"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
+                            <color key="textColor" red="0.1764705882" green="0.1843137255" blue="0.2470588235" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
                         <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="55" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="a9F-D5-jui">
-                            <rect key="frame" x="0.0" y="20" width="375" height="627"/>
+                            <rect key="frame" x="0.0" y="55" width="375" height="592"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <outlet property="dataSource" destination="-1" id="JQP-wS-iYA"/>
@@ -35,8 +42,8 @@
                     <constraints>
                         <constraint firstAttribute="trailing" secondItem="a9F-D5-jui" secondAttribute="trailing" id="B5K-SP-mHL"/>
                         <constraint firstItem="a9F-D5-jui" firstAttribute="leading" secondItem="hQR-gn-Owe" secondAttribute="leading" id="QfF-dE-KDT"/>
+                        <constraint firstItem="a9F-D5-jui" firstAttribute="top" secondItem="AIr-zf-WhQ" secondAttribute="bottom" constant="5" id="VKm-9S-pu8"/>
                         <constraint firstAttribute="bottom" secondItem="a9F-D5-jui" secondAttribute="bottom" constant="20" id="YAr-0Y-61Q"/>
-                        <constraint firstItem="a9F-D5-jui" firstAttribute="top" secondItem="hQR-gn-Owe" secondAttribute="top" constant="20" id="mhy-CP-vcY"/>
                     </constraints>
                 </view>
             </subviews>

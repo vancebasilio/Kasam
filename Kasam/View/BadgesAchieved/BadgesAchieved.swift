@@ -18,10 +18,18 @@ class BadgesAchieved: UIViewController {
     init() {super.init(nibName: type(of: self).className, bundle: nil)}
     required init?(coder aDecoder: NSCoder) {fatalError("init(coder:) has not been implemented")}
     
+    var kasamID: String?
     var badgeNameArray = Array(SavedData.badgesAchieved.keys)
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if kasamID != nil {
+            if SavedData.kasamDict[kasamID!] != nil {
+                badgeNameArray = [SavedData.kasamDict[kasamID!]!.kasamName]
+            } else {
+                badgeNameArray = [""]
+            }
+        }
         let nib = UINib(nibName: "BadgesAchievedCellTableViewCell", bundle: nil)
         tableView.register(nib, forCellReuseIdentifier: "BadgesAchievedCell")
         DispatchQueue.main.async {
@@ -33,12 +41,14 @@ class BadgesAchieved: UIViewController {
         var kasamCount = 0
         for kasamName in badgeNameArray {
             var badgeCount = 0
-            for badge in SavedData.badgesAchieved[kasamName]! {
-                if let cell = self.tableView.cellForRow(at: IndexPath(item: badgeCount, section: kasamCount)) as? BadgesAchievedCell {
-                    cell.badgeImage.animation = Animations.kasamBadges[badge.badgeLevel]
-                    cell.badgeImage.play()
+            if SavedData.badgesAchieved[kasamName] != nil {
+                for badge in SavedData.badgesAchieved[kasamName]! {
+                    if let cell = self.tableView.cellForRow(at: IndexPath(item: badgeCount, section: kasamCount)) as? BadgesAchievedCell {
+                        cell.badgeImage.animation = Animations.kasamBadges[badge.badgeLevel]
+                        cell.badgeImage.play()
+                    }
+                    badgeCount += 1
                 }
-                badgeCount += 1
             }
             kasamCount += 1
         }
@@ -46,8 +56,9 @@ class BadgesAchieved: UIViewController {
 }
 
 extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
+    
     func numberOfSections(in tableView: UITableView) -> Int {
-        return SavedData.badgesAchieved.count
+        return badgeNameArray.count
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -58,7 +69,20 @@ extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
         newlabel.textAlignment = .left
         newlabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         newlabel.adjustsFontSizeToFitWidth = true
-        newlabel.text = badgeNameArray[section]
+        if kasamID != nil {
+            if SavedData.kasamDict[kasamID!] != nil {
+                if SavedData.badgesAchieved[SavedData.kasamDict[kasamID!]!.kasamName]?.count != nil {
+                    newlabel.text = badgeNameArray[section]
+                } else {
+                    newlabel.text = "No badges achieved"
+                }
+            } else {
+                newlabel.text = "No badges achieved"
+            }
+        } else {
+            newlabel.text = badgeNameArray[section]
+        }
+        
 
         headerView.addSubview(newlabel)
         newlabel.translatesAutoresizingMaskIntoConstraints = false
@@ -93,8 +117,6 @@ extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
                 cell.kasamName.text = "\(badge!.badgeThreshold) days"
             }
             cell.badgeDate.text = convertLongDateToShortYear(date: badge!.completedDate)
-        } else {
-            cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.signOutAlt), postfixText: "  Log Out", size: 20)
         }
         cell.textLabel?.textAlignment = .left
         return cell

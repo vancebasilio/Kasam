@@ -28,16 +28,17 @@ class UserOptionsController: UIViewController {
 
 extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
+        return 3
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GenericCell")!
         cell.selectionStyle = .none
-        if indexPath.row == 0 {
-            cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.plus), postfixText: "  Create a Kasam", size: 20)
-        } else if indexPath.row == 1 {
-            cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.signOutAlt), postfixText: "  Log Out", size: 20)
+        switch indexPath.row {
+            case 0: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.gift), postfixText: "  Create a Simple Kasam", size: 20)
+        case 1: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.cubes), postfixText: "  Create a Complex Kasam", size: 20)
+            case 2: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.signOutAlt), postfixText: "  Log Out", size: 20)
+            default: cell.textLabel?.text = ""
         }
         cell.textLabel?.textAlignment = .left
         return cell
@@ -46,9 +47,12 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if indexPath.row == 0 {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "simple"])
             SwiftEntryKit.dismiss()
         } else if indexPath.row == 1 {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "complex"])
+            SwiftEntryKit.dismiss()
+        } else if indexPath.row == 2 {
             let popupImage = UIImage.init(icon: .fontAwesomeSolid(.doorOpen), size: CGSize(width: 30, height: 30), textColor: .white)
             showPopupConfirmation(title: "Are you sure?", description: "", image: popupImage, buttonText: "Logout") {(success) in
                 AppManager.shared.logoout()

@@ -24,7 +24,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Badge Date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hbV-Dg-mXP">
-                        <rect key="frame" x="342" y="12" width="71" height="16"/>
+                        <rect key="frame" x="332" y="12" width="71" height="16"/>
                         <fontDescription key="fontDescription" type="italicSystem" pointSize="13"/>
                         <color key="textColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
                         <nil key="highlightedColor"/>
@@ -41,7 +41,7 @@
                     <constraint firstItem="hbV-Dg-mXP" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="Iqk-lp-ADz"/>
                     <constraint firstAttribute="bottom" secondItem="7as-Zn-f7c" secondAttribute="bottom" constant="5" id="WfJ-cV-ImX"/>
                     <constraint firstItem="19D-a8-Xzq" firstAttribute="leading" secondItem="7as-Zn-f7c" secondAttribute="trailing" constant="10" id="Xhw-6M-aPT"/>
-                    <constraint firstAttribute="trailing" secondItem="hbV-Dg-mXP" secondAttribute="trailing" constant="15" id="Xtx-ML-yA0"/>
+                    <constraint firstAttribute="trailing" secondItem="hbV-Dg-mXP" secondAttribute="trailing" constant="25" id="Xtx-ML-yA0"/>
                     <constraint firstItem="7as-Zn-f7c" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="5" id="anq-9T-Wzz"/>
                     <constraint firstItem="7as-Zn-f7c" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="30" id="byR-QY-b8s"/>
                     <constraint firstItem="19D-a8-Xzq" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="h4a-bq-SBt"/>

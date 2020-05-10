@@ -58,6 +58,7 @@ class ProfileViewController: UIViewController {
     let animationView = AnimationView()
     var userKasamDBHandle: DatabaseHandle!
     var saveStorageRef = Storage.storage().reference()
+    var newKasamType = "simple"
     
     //Kasam Following
     var kasamIDGlobal: String = ""
@@ -142,8 +143,9 @@ class ProfileViewController: UIViewController {
         showUserOptions(viewHeight: view.frame.height)
     }
     
-    @objc func goToCreateKasam() {
+    @objc func goToCreateKasam(_ notification: NSNotification?) {
         NewKasam.resetKasam()
+        newKasamType = notification?.userInfo?["type"] as! String
         performSegue(withIdentifier: "goToCreateKasam", sender: nil)
     }
     
@@ -241,15 +243,14 @@ class ProfileViewController: UIViewController {
                     metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
                 }
                 metricCount += 1
-                
                 if checkerCount == 7 && metricCount != 0 {
                     if kasam.metricType == "Checkmark" {
                         let daysPast = (Date().dayNumberOfWeek() ?? 7)   //divide 100% checkmark days by no of days in the week completed
                         if daysPast != 0 {
-                            avgMetric = Int((Double(metricMatrix) / Double(daysPast)) * 100)          //for Basic Kasams
+                            avgMetric = Int((Double(metricMatrix) / Double(daysPast)) * 100)          //for Basic Kasams, show avg %
                         }
                     } else {
-                        avgMetric = (metricMatrix / metricCount)             //for Complex Kasams
+                        avgMetric = (metricMatrix)             //for Complex Kasams, show total for the weeks
                     }
                     self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
                     
@@ -319,7 +320,7 @@ class ProfileViewController: UIViewController {
     }
     
     @objc func badgesAchievedPopup() {
-        showBadgesAchieved(viewHeight: view.frame.height)
+        showBadgesAchieved(kasamID: nil)
     }
     
     @objc func profileUpdate() {
@@ -333,26 +334,8 @@ class ProfileViewController: UIViewController {
                 self.kasamFollowingNo.text = String(kasamcount)
         }
         if kasamcount == 1 {kasamFollowingLabel.text = "kasams"}
-        //PART 2 - BADGE COUNT
-        var badgeCount = 0
-        for kasam in SavedData.kasamDict {
-            badgeCount += kasam.value.badgeList?.count ?? 0
-            if kasam.value.badgeList != nil {
-                for badge in kasam.value.badgeList! {
-                    if let level = (kasam.value.badgeThresholds ?? ["10","30","90"]).index(of: String(badge.value)) {
-                        if SavedData.badgesAchieved[kasam.value.kasamName] == nil {
-                            SavedData.badgesAchieved[kasam.value.kasamName] = [((badge.key, badge.value, level))]
-                        } else {
-                            SavedData.badgesAchieved[kasam.value.kasamName]!.append((badge.key, badge.value, level))
-                        }
-                    }
-                }
-                badgeCount = (SavedData.badgesAchieved.values.map { $0.count }).reduce(0, { $0 + $1 })
-                SavedData.badgesCount = badgeCount + SavedData.badgesAchieved.count
-            }
-        }
-        badgeNo.text = String(describing: badgeCount)
-        if badgeCount == 1 {badgeLabel.text = "badge"}
+        badgeNo.text = String(describing: SavedData.badgesCount)
+        if SavedData.badgesCount == 1 {badgeLabel.text = "badge"}
     }
     
     func profilePicture() {
@@ -392,6 +375,9 @@ class ProfileViewController: UIViewController {
         } else if segue.identifier == "goToEditKasam" {
             NewKasam.editKasamCheck = true
             NewKasam.kasamID = kasamIDGlobal
+        } else if segue.identifier == "goToCreateKasam" {
+            let segueTransferHolder = segue.destination as! NewKasamPageController
+            segueTransferHolder.kasamType = newKasamType
         }
     }
     

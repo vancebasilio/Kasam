@@ -11,8 +11,11 @@ import UIKit
 class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate, UIPageViewControllerDataSource {
 
     var pageControl = UIPageControl()
+    var kasamType = ""
     lazy var orderedViewControllers: [UIViewController] = {
-        return [self.newVc(viewController: "NewKasam"), self.newVc(viewController: "NewBlock") ,self.newVc(viewController: "KasamHolder")]
+        let firstVC = self.newVc(viewController: "NewKasam") as! NewKasamController
+        firstVC.singleKasam = true
+        return [firstVC]
     }()
     
     var currentIndex:Int {
@@ -25,9 +28,24 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
         }
     }
     
+    override func viewWillAppear(_ animated: Bool){
+        self.tabBarController?.tabBar.isHidden = true
+        self.tabBarController?.tabBar.isTranslucent = true
+        //Hide Navigation Bar
+        if #available(iOS 13.0, *) {
+            self.navigationController?.navigationBar.standardAppearance.configureWithTransparentBackground()
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        self.tabBarController?.tabBar.isHidden = false
+        self.tabBarController?.tabBar.isTranslucent = false
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.tabBarController?.tabBar.isHidden = true
         self.dataSource = self
         self.delegate = self
         
@@ -36,6 +54,10 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
               scrollView.delegate = self
            }
         }
+        if kasamType == "complex" {
+            orderedViewControllers = [self.newVc(viewController: "NewKasam"), self.newVc(viewController: "NewBlock") ,self.newVc(viewController: "KasamHolder")]
+        }
+        configurePageControl()
         
         // This sets up the first view that will show up on our page control
         if let firstViewController = orderedViewControllers.first {
@@ -56,27 +78,25 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
         //back button
         let goToBack = NSNotification.Name("GoToBack")
         NotificationCenter.default.addObserver(self, selector: #selector(NewKasamPageController.back(sender:)), name: goToBack, object: nil)
-        
-        configurePageControl()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        self.tabBarController?.tabBar.isHidden = false
     }
     
     @objc func back(sender: UIBarButtonItem) {
-        if self.pageControl.currentPage == 0 {
-            _ = navigationController?.popToRootViewController(animated: true)
-        } else if self.pageControl.currentPage == 1 {
-             if let firstViewController = orderedViewControllers.first {
-                setViewControllers([firstViewController], direction: .reverse, animated: true, completion: nil)
-                self.pageControl.currentPage = self.currentIndex
+        if kasamType == "complex" {
+            if self.pageControl.currentPage == 0 {
+                navigationController?.popToRootViewController(animated: true)
+            } else if self.pageControl.currentPage == 1 {
+                 if let firstViewController = orderedViewControllers.first {
+                    setViewControllers([firstViewController], direction: .reverse, animated: true, completion: nil)
+                    self.pageControl.currentPage = self.currentIndex
+                }
+            } else if self.pageControl.currentPage == 2 {
+                if let secondViewController = orderedViewControllers[1] as? NewBlockController {
+                    setViewControllers([secondViewController], direction: .reverse, animated: true, completion: nil)
+                    self.pageControl.currentPage = self.currentIndex
+                }
             }
-        } else if self.pageControl.currentPage == 2 {
-            if let secondViewController = orderedViewControllers[1] as? NewBlockController {
-                setViewControllers([secondViewController], direction: .reverse, animated: true, completion: nil)
-                self.pageControl.currentPage = self.currentIndex
-            }
+        } else {
+            navigationController?.popToRootViewController(animated: true)
         }
     }
     
@@ -87,15 +107,21 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
     }
 
     func configurePageControl() {
-        pageControl = UIPageControl(frame: CGRect(x: 0,y: UIScreen.main.bounds.maxY - 50,width: UIScreen.main.bounds.width,height: 50))
-        self.pageControl.numberOfPages = orderedViewControllers.count
-        self.pageControl.currentPage = 0
-        self.pageControl.tintColor = UIColor.black
-        self.pageControl.pageIndicatorTintColor = UIColor.lightGray
-        self.pageControl.currentPageIndicatorTintColor = UIColor.black
-        self.pageControl.backgroundColor = UIColor.white
-        self.pageControl.isUserInteractionEnabled = false
-        self.view.addSubview(pageControl)
+        if kasamType == "complex" {
+            let pageControlCover = UIView()
+            pageControl = UIPageControl(frame: CGRect(x: 0,y: UIScreen.main.bounds.maxY - 60,width: UIScreen.main.bounds.width,height: 20))
+            pageControlCover.frame = CGRect.init(x: 0, y: UIScreen.main.bounds.maxY - 60, width: UIScreen.main.bounds.width, height: 60)
+            pageControl.numberOfPages = orderedViewControllers.count
+            pageControl.currentPage = 0
+            pageControl.tintColor = UIColor.black
+            pageControl.pageIndicatorTintColor = UIColor.lightGray
+            pageControlCover.backgroundColor = UIColor.white
+            pageControl.currentPageIndicatorTintColor = UIColor.black
+            pageControl.backgroundColor = UIColor.clear
+            pageControl.isUserInteractionEnabled = true
+            view.addSubview(pageControlCover)
+            view.addSubview(pageControl)
+        }
     }
     
     func newVc(viewController: String) -> UIViewController {
@@ -105,11 +131,7 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         let pageContentViewController = pageViewController.viewControllers![0]
         self.pageControl.currentPage = orderedViewControllers.index(of: pageContentViewController)!
-        if (!completed)
-        {
-          return
-        }
-        self.pageControl.currentPage = pageViewController.viewControllers!.first!.view.tag //Page Index
+//        self.pageControl.currentPage = pageViewController.viewControllers!.first!.view.tag //Page Index
     }
     
     //BEFORE FIRST CONTROLLER

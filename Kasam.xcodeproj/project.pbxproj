@@ -13,7 +13,7 @@
 		BC06DDA423523C7D00162A8C /* Structs.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC06DDA323523C7D00162A8C /* Structs.swift */; };
 		BC08B957229D585900F90288 /* CellFormats.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC08B956229D585900F90288 /* CellFormats.swift */; };
 		BC1092A723A0553400575EDB /* AddKasamController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC1092A623A0553400575EDB /* AddKasamController.xib */; };
-		BC1092A923A0555D00575EDB /* -AddKasam.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1092A823A0555D00575EDB /* -AddKasam.swift */; };
+		BC1092A923A0555D00575EDB /* AddKasam.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1092A823A0555D00575EDB /* AddKasam.swift */; };
 		BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */; };
 		BC12F1EE233FC17100D93227 /* Statistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1ED233FC17100D93227 /* Statistics.swift */; };
 		BC12F1F0233FF1E900D93227 /* DetailedStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */; };
@@ -101,7 +101,7 @@
 		BC06DDA323523C7D00162A8C /* Structs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Structs.swift; sourceTree = "<group>"; };
 		BC08B956229D585900F90288 /* CellFormats.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CellFormats.swift; path = Kasam/Model/KasamCalendarTable/CellFormats.swift; sourceTree = SOURCE_ROOT; };
 		BC1092A623A0553400575EDB /* AddKasamController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddKasamController.xib; sourceTree = "<group>"; };
-		BC1092A823A0555D00575EDB /* -AddKasam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-AddKasam.swift"; sourceTree = "<group>"; };
+		BC1092A823A0555D00575EDB /* AddKasam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddKasam.swift; sourceTree = "<group>"; };
 		BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamFollowingCell.swift; sourceTree = "<group>"; };
 		BC12F1ED233FC17100D93227 /* Statistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Statistics.swift; sourceTree = "<group>"; };
 		BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedStatsCell.swift; sourceTree = "<group>"; };
@@ -313,6 +313,24 @@
 			path = "Cell Formats";
 			sourceTree = "<group>";
 		};
+		BCC07F4D2466F357000E2D81 /* UserOptions */ = {
+			isa = PBXGroup;
+			children = (
+				BCE4B4B823666E0500C75480 /* UserOptionsController.xib */,
+				BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */,
+			);
+			path = UserOptions;
+			sourceTree = "<group>";
+		};
+		BCC07F4E24670A11000E2D81 /* AddKasam */ = {
+			isa = PBXGroup;
+			children = (
+				BC1092A623A0553400575EDB /* AddKasamController.xib */,
+				BC1092A823A0555D00575EDB /* AddKasam.swift */,
+			);
+			path = AddKasam;
+			sourceTree = "<group>";
+		};
 		BCC799FD226BD4F700B72D65 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -342,10 +360,9 @@
 			children = (
 				BC1FAF302269FAFA006A9245 /* Main.storyboard */,
 				BC1FAF352269FAFA006A9245 /* LaunchScreen.storyboard */,
-				BCE4B4B823666E0500C75480 /* UserOptionsController.xib */,
-				BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */,
+				BCC07F4D2466F357000E2D81 /* UserOptions */,
 				BCF8A2FF246436140030C323 /* BadgesAchieved */,
-				BC1092A623A0553400575EDB /* AddKasamController.xib */,
+				BCC07F4E24670A11000E2D81 /* AddKasam */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -361,7 +378,6 @@
 				BC554BD7226E079100D707CC /* 3. User-Profile.swift */,
 				BC12F1ED233FC17100D93227 /* Statistics.swift */,
 				BCE50BDC22D0497B000F2534 /* KasamHolder.swift */,
-				BC1092A823A0555D00575EDB /* -AddKasam.swift */,
 				BC6E97842321DF7800698EB9 /* KasamViewer.swift */,
 				BC85E72B23B11EC500330F60 /* NewKasamPage.swift */,
 				BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */,
@@ -683,7 +699,7 @@
 				BC5C499C228122BB00EC0EA8 /* KasamSquareCell.swift in Sources */,
 				BCE50BDD22D0497B000F2534 /* KasamHolder.swift in Sources */,
 				BC520BBB227413E100553C6B /* Transitions.swift in Sources */,
-				BC1092A923A0555D00575EDB /* -AddKasam.swift in Sources */,
+				BC1092A923A0555D00575EDB /* AddKasam.swift in Sources */,
 				BC08B957229D585900F90288 /* CellFormats.swift in Sources */,
 				BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */,
 				BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */,

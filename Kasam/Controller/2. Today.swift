@@ -215,6 +215,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 //update the user profile page
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                 DBRef.userKasamFollowing.removeObserver(withHandle: self.kasamFollowingRefHandle)
+                DispatchQueue.main.async {self.badgeThresholds()}
             } else if kasamID != nil {
                 self.retrieveKasams(kasamID: kasamID)
             }
@@ -512,14 +513,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         if challenge == true {block = SavedData.challengeBlocks[kasamOrder]}
         else {block = SavedData.kasamBlocks[kasamOrder]}
         
-        //STEP 1 - GET THE BADGE THRESHOLDS
-        if SavedData.kasamDict[block!.kasamID]?.badgeThresholds == nil {
-            DBRef.coachKasams.child(block!.kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                if snap.exists() {SavedData.kasamDict[block!.kasamID]?.badgeThresholds = (snap.value as? String)?.components(separatedBy: ";")}
-                else {SavedData.kasamDict[block!.kasamID]?.badgeThresholds = ["10","30","90"]}
-            }
-        }
-        
         //STEP 2 - STATUS UPDATE
         var status = "Checkmark"
         let statusDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: day - block!.dayOrder, to: Date())!)
@@ -633,6 +626,45 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
+    }
+    //PART 1
+    func badgeThresholds(){
+        SavedData.badgesCount = 0
+        for kasam in SavedData.kasamDict {
+            //STEP 1 - GET THE BADGE THRESHOLDS
+            if SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds == nil {
+                DBRef.coachKasams.child(kasam.value.kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
+                    if snap.exists() {
+                        SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds = (snap.value as? String)?.components(separatedBy: ";")
+                    }
+                    else {
+                        SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds = ["10","30","90"]
+                    }
+                    self.badgesAchieved(kasam:kasam)
+                }
+            } else {
+                self.badgesAchieved(kasam: kasam)
+            }
+        }
+    }
+    
+    //PART 2
+    func badgesAchieved(kasam: Dictionary<String, KasamSavedFormat>.Element) {
+        //STEP 2 - GET THE BADGES
+        SavedData.badgesCount += kasam.value.badgeList?.count ?? 0
+        if kasam.value.badgeList != nil {
+            for badge in kasam.value.badgeList! {
+                if let level = (kasam.value.badgeThresholds ?? ["10","30","90"]).index(of: String(badge.value)) {
+                    if SavedData.badgesAchieved[kasam.value.kasamName] == nil {
+                        SavedData.badgesAchieved[kasam.value.kasamName] = [((badge.key, badge.value, level))]
+                    } else {
+                        SavedData.badgesAchieved[kasam.value.kasamName]!.append((badge.key, badge.value, level))
+                    }
+                }
+            }
+            SavedData.badgesCount = (SavedData.badgesAchieved.values.map { $0.count }).reduce(0, { $0 + $1 })
+            SavedData.badgeSubCatCount = SavedData.badgesCount + SavedData.badgesAchieved.count
+        }
     }
     
 //MOTIVATIONS----------------------------------------------------------------------------------------
