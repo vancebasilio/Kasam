@@ -10,6 +10,7 @@ import UIKit
 import Foundation
 import Firebase
 import Lottie
+import SwiftEntryKit
 
 struct SavedData {
     static var kasamBlocks: [TodayBlockFormat] = []
@@ -50,6 +51,10 @@ struct Dates {
         let finalDate = formatter.string(from: currentDateTime)
         return finalDate
     }
+}
+
+struct Icons {
+    static let categoryIcons: [String] = ["Fitness", "Personal", "Health", "Spiritual", "Writing"]
 }
 
 struct Animations {

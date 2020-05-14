@@ -20,20 +20,30 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     @IBOutlet weak var profileView: UIView!
     @IBOutlet weak var profileViewRadius: UIView!
     @IBOutlet weak var headerLabel: UILabel!
+    @IBOutlet weak var trackingProgressLabel: UILabel!
     @IBOutlet weak var metricTypeCollection: UICollectionView!
     @IBOutlet weak var metricTypeCollectionHeight: NSLayoutConstraint!
     @IBOutlet weak var constrainHeightHeaderImages: NSLayoutConstraint!
     @IBOutlet weak var headerClickViewHeight: NSLayoutConstraint!
     @IBOutlet weak var newKasamTitle: SkyFloatingLabelTextField!
+    @IBOutlet weak var newkasamDescriptionLine: SkyFloatingLabelTextField!
     @IBOutlet weak var newKasamDescription: UITextView!
+    @IBOutlet weak var newKasamDescriptionCount: UILabel!
+    @IBOutlet weak var benefitsTextView: UITextView!
+    @IBOutlet weak var benefitsLine: SkyFloatingLabelTextField!
     @IBOutlet weak var addAnImageLabel: UILabel!
     @IBOutlet weak var createActivitiesCircle: UIButton!
     @IBOutlet weak var headerClickView: UIView!
     @IBOutlet weak var createActivitiesLabel: UILabel!
+    @IBOutlet weak var newCategoryIcon: UIButton!
+    @IBOutlet weak var newCategoryView: UIView!
+    @IBOutlet weak var newCategoryChosenLabel: UILabel!
     
     var imagePicker: UIImagePickerController!
     var headerBlurImageView: UIImageView!
     var headerImageView: UIImageView!
+    var saveCategoryObserver: NSObjectProtocol?
+    var category = ""
     
     //edit Kasam
     var kasamDatabase = Database.database().reference().child("Coach-Kasams")
@@ -65,14 +75,21 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         setupTwitterParallax()
         setupImageHolders()
         newKasamDescription.delegate = self
+        benefitsTextView.delegate = self
     }
     
     func setupLoad(){
         //setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
+        newCategoryIcon = newCategoryIcon.setKasamTypeIcon(kasamType: "fitness", button: newCategoryIcon, location: "options")
         if singleKasam == true {
+            trackingProgressLabel.text = "Benefits:"
             createActivitiesLabel.text = "Save Kasam"
-            
+            self.metricTypeCollection.isUserInteractionEnabled = false
+            DispatchQueue.main.async {
+                self.metricTypeCollection.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: [.centeredHorizontally])
+                self.collectionView(self.metricTypeCollection, didSelectItemAt : IndexPath(item: 1, section: 0))
+            }
         }
         if NewKasam.editKasamCheck == true {
             loadKasam()
@@ -95,8 +112,23 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         newKasamDescription.textContainer.lineBreakMode = .byClipping
         let style = NSMutableParagraphStyle()
         style.lineSpacing = 10
-        let attributes = [NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray]
-        newKasamDescription.attributedText = NSAttributedString(string: "Description", attributes:attributes)
+        newKasamDescription.attributedText = NSAttributedString(string: "Description", attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        benefitsTextView.attributedText = NSAttributedString(string: "1. E.g. Improved Endurance", attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(categoryOptions))
+        newCategoryView.addGestureRecognizer(tap)
+    }
+    
+    @objc func categoryOptions(){
+        showCategoryOptions(viewHeight: view.frame.height)
+        saveCategoryObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveCategory"), object: nil, queue: OperationQueue.main) {(notification) in
+            let categoryVC = notification.object as! UserOptionsController
+            self.category = categoryVC.categoryChosen
+            self.newCategoryChosenLabel.text = self.category
+            self.newCategoryChosenLabel.textColor = .darkGray
+            self.newCategoryIcon = self.newCategoryIcon.setKasamTypeIcon(kasamType: self.category, button: self.newCategoryIcon, location: "options")
+            NotificationCenter.default.removeObserver(self.saveCategoryObserver as Any)
+        }
     }
     
     @IBAction func createActivitiesButtonPressed(_ sender: Any) {
@@ -115,17 +147,50 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         }
     }
     
+    //Prevents more than xx characters and return button
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if textView == newKasamDescription {
+            let numberOfChars = (textView.text as NSString).replacingCharacters(in: range, with: text).count
+            newKasamDescriptionCount.text = "\(numberOfChars)/120"
+            guard text.rangeOfCharacter(from: CharacterSet.newlines) == nil else {return false}     //prevents return key
+            return numberOfChars < 120
+        } else {
+            let newText = (textView.text as NSString).replacingCharacters(in: range, with: text)
+            var textWidth = textView.frame.inset(by: textView.textContainerInset).width
+            textWidth -= 2.0 * textView.textContainer.lineFragmentPadding
+            let boundingRect = sizeOfString(string: newText, constrainedToWidth: Double(textWidth), font: textView.font!)
+            let numberOfLines = boundingRect.height / textView.font!.lineHeight
+            return numberOfLines <= 5
+        }
+    }
+    
+    func sizeOfString (string: String, constrainedToWidth width: Double, font: UIFont) -> CGSize {
+        return (string as NSString).boundingRect(with: CGSize(width: width, height: Double.greatestFiniteMagnitude), options: NSStringDrawingOptions.usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil).size
+    }
+    
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.text == "Description" {
-            textView.text = nil
-            textView.textColor = UIColor.darkGray
+        if textView == newKasamDescription && newKasamDescription.text == "Description" {
+            newkasamDescriptionLine.isSelected = true
+            newKasamDescription.text = nil
+            newKasamDescription.textColor = UIColor.darkGray
+            newKasamDescriptionCount.isHidden = false
+        } else if textView == benefitsTextView && benefitsTextView.text == "1. E.g. Improved Endurance" {
+            benefitsLine.isSelected = true
+            benefitsTextView.text = nil
+            benefitsTextView.textColor = UIColor.darkGray
         }
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            textView.text = "Description"
-            textView.textColor = UIColor.lightGray
+        if textView == newKasamDescription && newKasamDescription.text.isEmpty {
+            newkasamDescriptionLine.isSelected = false
+            newKasamDescription.text = "Description"
+            newKasamDescription.textColor = UIColor.lightGray
+            newKasamDescriptionCount.isHidden = true
+        } else if textView == benefitsTextView && benefitsTextView.text.isEmpty {
+            benefitsLine.isSelected = false
+            benefitsTextView.text = "1. E.g. Improved Endurance"
+            benefitsTextView.textColor = UIColor.lightGray
         }
     }
     
@@ -328,13 +393,16 @@ extension NewKasamController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MetricTypeCell", for: indexPath) as! MetricTypeCell
         cell.setMetric(title: metricsArray[indexPath.row])
+        if singleKasam == true && (indexPath.row == 0 || indexPath.row == 2) {
+            cell.metricTypeBG.alpha = 0.5
+        }
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let cellWidth = ((view.frame.size.width - (20 * 3)) / 3)
-        metricTypeCollectionHeight.constant = cellWidth + 40
-        return CGSize(width: cellWidth, height: cellWidth + 40)
+        metricTypeCollectionHeight.constant = cellWidth + 20
+        return CGSize(width: cellWidth, height: cellWidth + 20)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

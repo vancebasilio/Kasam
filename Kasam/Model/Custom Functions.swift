@@ -434,21 +434,23 @@ extension UIViewController {
 }
 
 extension UIButton {
-    func setKasamTypeIcon (kasamType: String, button: UIButton, location: String) -> UIButton{
+    func setKasamTypeIcon (kasamType: String, button: UIButton, location: String) -> UIButton {
         var iconColor = UIColor.darkGray
+        var iconSize = CGFloat(15)
         var background = UIColor.clear
         switch location {
-            case "discover":    iconColor = UIColor.white
-                                background = UIColor.colorFour
-                                button.layer.cornerRadius = button.frame.width / 2
-            default:            iconColor = UIColor.darkGray
+            case "discover": iconColor = UIColor.white; background = UIColor.colorFour; button.layer.cornerRadius = button.frame.width / 2; iconSize = 15
+            case "options": iconColor = UIColor.white; background = UIColor.colorFour; button.layer.cornerRadius = button.frame.width / 2; iconSize = 20
+            default: iconColor = UIColor.darkGray
         }
         
         switch kasamType {
-            case "Fitness": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: 15)
-            case "Personal": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.spa), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: 15)
-            case "Health": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.heart), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: 15)
-            default: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: 15)
+            case "Fitness": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
+            case "Personal": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.seedling), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
+            case "Health": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.heart), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
+            case "Spiritual": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.spa), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
+            case "Writing": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.book), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
+            default: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
         }
         return button
     }
@@ -463,6 +465,30 @@ extension Double {
         return String(formatter.string(from: number) ?? "")
     }
 }
+
+class NumberedTextView: UITextView {
+    override func willMove(toSuperview newSuperview: UIView?) {
+        NotificationCenter.default.addObserver(self, selector: #selector(textViewDidChange), name: UITextView.textDidChangeNotification, object: nil)
+    }
+    
+    @objc func textViewDidChange(notification: Notification) {
+        var lines: [String] = []
+        for (index, line) in text.components(separatedBy: .newlines).enumerated() {
+            if !line.hasPrefix("\(index.advanced(by: 1))") &&
+                !line.trimmingCharacters(in: .whitespaces).isEmpty {
+                lines.append("\(index.advanced(by: 1)). " + line)
+            } else {
+                lines.append(line)
+            }
+        }
+        text = lines.joined(separator: "\n")
+        // this prevents two empty lines at the bottom
+        if text.hasSuffix("\n\n") {
+            text = String(text.dropLast())
+        }
+    }
+}
+
 
 extension Date {
     func dayOfWeek() -> String? {

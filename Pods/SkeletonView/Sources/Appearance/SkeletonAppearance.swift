@@ -9,6 +9,7 @@ public protocol Appearance {
     var multilineSpacing: CGFloat { get set }
     var multilineLastLineFillPercent: Int { get set }
     var multilineCornerRadius: Int { get set }
+    var renderSingleLineAsView: Bool { get set }
 }
 
 public enum SkeletonAppearance {
@@ -19,9 +20,9 @@ public enum SkeletonAppearance {
 class SkeletonViewAppearance: Appearance {
     static var shared = SkeletonViewAppearance()
 
-    var tintColor: UIColor = .clouds
+    var tintColor: UIColor = .skeletonDefault
 
-    var gradient: SkeletonGradient = SkeletonGradient(baseColor: .clouds)
+    var gradient: SkeletonGradient = SkeletonGradient(baseColor: .skeletonDefault)
 
     var multilineHeight: CGFloat = 15
 
@@ -30,5 +31,7 @@ class SkeletonViewAppearance: Appearance {
     var multilineLastLineFillPercent: Int = 70
 
     var multilineCornerRadius: Int = 0
+    
+    var renderSingleLineAsView: Bool = false
 }
 // codebeat:enable[TOO_MANY_IVARS]

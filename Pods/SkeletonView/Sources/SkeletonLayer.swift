@@ -50,7 +50,8 @@ struct SkeletonLayer {
         self.maskLayer = type.layer
         self.maskLayer.anchorPoint = .zero
         self.maskLayer.bounds = holder.maxBoundsEstimated
-        addMultilinesIfNeeded()
+        self.maskLayer.cornerRadius = CGFloat(holder.skeletonCornerRadius)
+        addTextLinesIfNeeded()
         self.maskLayer.tint(withColors: colors)
     }
     
@@ -63,7 +64,7 @@ struct SkeletonLayer {
         if let bounds = holder?.maxBoundsEstimated {
             maskLayer.bounds = bounds
         }
-        updateMultilinesIfNeeded()
+        updateLinesIfNeeded()
     }
     
     func removeLayer(transition: SkeletonTransitionStyle, completion: (() -> Void)? = nil) {
@@ -72,29 +73,47 @@ struct SkeletonLayer {
             maskLayer.removeFromSuperlayer()
             completion?()
         case .crossDissolve(let duration):
-			maskLayer.setOpacity(from: 1, to: 0, duration: duration) {
-				self.maskLayer.removeFromSuperlayer()
-				completion?()
-			}
+            maskLayer.setOpacity(from: 1, to: 0, duration: duration) {
+                self.maskLayer.removeFromSuperlayer()
+                completion?()
+            }
         }
     }
 
-    /// Returns a multiLineViewHolder only if the current holder implements the `ContainsMultilineText` protocol,
-    /// and actually displays multiple lines of text.
-    private var multiLineViewHolder: ContainsMultilineText? {
-        guard let multiLineView = holder as? ContainsMultilineText,
-            multiLineView.numLines != 1 else { return nil }
-        return multiLineView
-    }
+    /// If there is more than one line, or custom preferences have been set for a single line, draw custom layers
+    func addTextLinesIfNeeded() {
+        guard let textView = holderAsTextView else { return }
+        
+        let config = SkeletonMultilinesLayerConfig(lines: textView.numLines,
+                                                   lineHeight: textView.multilineTextFont?.lineHeight,
+                                                   type: type,
+                                                   lastLineFillPercent: textView.lastLineFillingPercent,
+                                                   multilineCornerRadius: textView.multilineCornerRadius,
+                                                   multilineSpacing: textView.multilineSpacing,
+                                                   paddingInsets: textView.paddingInsets)
 
-    func addMultilinesIfNeeded() {
-        guard let multiLineView = multiLineViewHolder else { return }
-        maskLayer.addMultilinesLayers(lines: multiLineView.numLines, type: type, lastLineFillPercent: multiLineView.lastLineFillingPercent, multilineCornerRadius: multiLineView.multilineCornerRadius)
+        maskLayer.addMultilinesLayers(for: config)
     }
-
-    func updateMultilinesIfNeeded() {
-        guard let multiLineView = multiLineViewHolder else { return }
-        maskLayer.updateMultilinesLayers(lastLineFillPercent: multiLineView.lastLineFillingPercent)
+    
+    func updateLinesIfNeeded() {
+        guard let textView = holderAsTextView else { return }
+        let config = SkeletonMultilinesLayerConfig(lines: textView.numLines,
+                                                   lineHeight: textView.multilineTextFont?.lineHeight,
+                                                   type: type,
+                                                   lastLineFillPercent: textView.lastLineFillingPercent,
+                                                   multilineCornerRadius: textView.multilineCornerRadius,
+                                                   multilineSpacing: textView.multilineSpacing,
+                                                   paddingInsets: textView.paddingInsets)
+        
+        maskLayer.updateMultilinesLayers(for: config)
+    }
+    
+    var holderAsTextView: ContainsMultilineText? {
+        guard let textView = holder as? ContainsMultilineText,
+            (textView.numLines == 0 || textView.numLines > 1 || textView.numLines == 1 && !SkeletonAppearance.default.renderSingleLineAsView) else {
+                return nil
+        }
+        return textView
     }
 }
 
@@ -103,7 +122,7 @@ extension SkeletonLayer {
         let animation = anim ?? type.layerAnimation
         contentLayer.playAnimation(animation, key: "skeletonAnimation", completion: completion)
     }
-    
+
     func stopAnimation() {
         contentLayer.stopAnimation(forKey: "skeletonAnimation")
     }

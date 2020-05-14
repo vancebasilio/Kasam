@@ -14,11 +14,17 @@ extension UIView {
 
 extension UITableView {
     override var subviewsToSkeleton: [UIView] {
-        return visibleCells
+        return visibleCells + visibleSectionHeaders + visibleSectionFooters
     }
 }
 
 extension UITableViewCell {
+    override var subviewsToSkeleton: [UIView] {
+        return contentView.subviews
+    }
+}
+
+extension UITableViewHeaderFooterView {
     override var subviewsToSkeleton: [UIView] {
         return contentView.subviews
     }

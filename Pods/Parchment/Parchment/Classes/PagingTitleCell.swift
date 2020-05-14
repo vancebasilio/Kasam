@@ -27,22 +27,35 @@ open class PagingTitleCell: PagingCell {
   }
   
   open override func setPagingItem(_ pagingItem: PagingItem, selected: Bool, options: PagingOptions) {
-    if let titleItem = pagingItem as? PagingTitleItem {
+    if let titleItem = pagingItem as? PagingIndexItem {
       viewModel = PagingTitleCellViewModel(
         title: titleItem.title,
         selected: selected,
         options: options)
     }
     configureTitleLabel()
+    configureAccessibility()
   }
   
   open func configure() {
     contentView.addSubview(titleLabel)
-  }
-  
-  open override func layoutSubviews() {
-    super.layoutSubviews()
-    titleLabel.frame = contentView.bounds
+    contentView.isAccessibilityElement = true
+    titleLabel.translatesAutoresizingMaskIntoConstraints = false
+    
+    let horizontalConstraints = NSLayoutConstraint.constraints(
+      withVisualFormat: "H:|-20-[label]-20-|",
+      options: NSLayoutConstraint.FormatOptions(),
+      metrics: nil,
+      views: ["label": titleLabel])
+    
+    let verticalContraints = NSLayoutConstraint.constraints(
+      withVisualFormat: "V:|[label]|",
+      options: NSLayoutConstraint.FormatOptions(),
+      metrics: nil,
+      views: ["label": titleLabel])
+    
+    contentView.addConstraints(horizontalConstraints)
+    contentView.addConstraints(verticalContraints)
   }
   
   open func configureTitleLabel() {
@@ -60,6 +73,12 @@ open class PagingTitleCell: PagingCell {
       backgroundColor = viewModel.backgroundColor
     }
   }
+
+  open func configureAccessibility() {
+    accessibilityIdentifier = viewModel?.title
+    contentView.accessibilityLabel = viewModel?.title
+    contentView.accessibilityTraits = viewModel?.selected ?? false ? .selected : .none
+  }
   
   open override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
     super.apply(layoutAttributes)
@@ -76,5 +95,4 @@ open class PagingTitleCell: PagingCell {
         with: attributes.progress)
     }
   }
-  
 }

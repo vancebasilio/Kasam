@@ -1,8 +1,8 @@
 ![](Assets/header2.jpg)
 
 <p align="center">
-    <a href="https://app.bitrise.io/app/6d289a17e22c8323">
-      <img src="https://app.bitrise.io/app/6d289a17e22c8323/status.svg?token=fI7gKC41XD9-aRXDScCKBw&branch=master">
+    <a href="https://github.com/Juanpe/SkeletonView/workflows/build">
+      <img src="https://github.com/Juanpe/SkeletonView/workflows/build/badge.svg">
     </a>
     <a href="https://codebeat.co/projects/github-com-juanpe-skeletonview-master"><img alt="codebeat badge" src="https://codebeat.co/badges/f854fdfd-31e5-4689-ba04-075d83653e60" /></a>
     <a href="https://github.com/Juanpe/SkeletonView">
@@ -213,6 +213,8 @@ public protocol SkeletonTableViewDataSource: UITableViewDataSource {
     func numSections(in collectionSkeletonView: UITableView) -> Int
     func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier
+    func collectionSkeletonView(_ skeletonView: UITableView, identifierForHeaderInSection section: Int) -> ReusableHeaderFooterIdentifier?
+    func collectionSkeletonView(_ skeletonView: UITableView, identifierForFooterInSection section: Int) -> ReusableHeaderFooterIdentifier?
 }
 ```
 As you can see, this protocol inherits from ```UITableViewDataSource```, so you can replace this protocol with the skeleton protocol.
@@ -228,6 +230,16 @@ func numSections(in collectionSkeletonView: UITableView) -> Int
 func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int
 // Default:
 // It calculates how many cells need to populate whole tableview
+```
+
+``` swift
+func collectionSkeletonView(_ skeletonView: UITableView, identifierForHeaderInSection section: Int) -> ReusableHeaderFooterIdentifier?
+// Default: nil
+```
+
+``` swift
+func collectionSkeletonView(_ skeletonView: UITableView, identifierForFooterInSection section: Int) -> ReusableHeaderFooterIdentifier?
+// Default: nil
 ```
 
 There is only one method you need to implement to let Skeleton know the cell identifier. This method doesn't have default implementation:
@@ -326,9 +338,9 @@ Besides, ```SkeletonView``` features 20 flat colors 🤙🏼
 
 Default values:
 - **tintColor**: UIColor
-    - *default: .clouds*
+    - *default: `.skeletonDefault` (same as `.clouds` but adaptive to dark mode)*
 - **gradient**: SkeletonGradient
-  - *default: SkeletonGradient(baseColor: .clouds)*
+  - *default: `SkeletonGradient(baseColor: .skeletonDefault)`*
 - **multilineHeight**: CGFloat
   - *default: 15*
 - **multilineSpacing**: CGFloat
@@ -337,12 +349,20 @@ Default values:
   - *default: 70*
 - **multilineCornerRadius**: Int
   - *default: 0*
+- **skeletonCornerRadius**: CGFloat (IBInspectable)  (Make your skeleton view with corner)
+  - *default: 0*
 
 To get these default values you can use `SkeletonAppearance.default`. Using this property you can set the values as well:
 ```Swift
 SkeletonAppearance.default.multilineHeight = 20
 SkeletonAppearance.default.tintColor = .green
 ```
+
+You can also specifiy these line appearance properties on a per-label basis:
+- **lastLineFillPercent**: Int
+- **linesCornerRadius**: Int
+- **skeletonLineSpacing**: CGFloat
+- **skeletonPaddingInsets**: UIEdgeInsets
 
 
 ### 🤓 Custom animations
@@ -409,6 +429,8 @@ view.showSkeleton(transition: .crossDissolve(0.25))     //Show skeleton cross di
 view.hideSkeleton(transition: .crossDissolve(0.25))     //Hide skeleton cross dissolve transition with 0.25 seconds fade time
 
 ```
+
+The default value is  `crossDissolve(0.25)`
 
 **Preview**
 

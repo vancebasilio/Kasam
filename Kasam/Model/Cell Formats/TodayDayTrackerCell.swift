@@ -50,7 +50,7 @@ class TodayDayTrackerCell: UICollectionViewCell {
             cellButton.backgroundColor = UIColor.init(hex: 0xEFEFF4)        //greys out buttonText that are in the future
         } else if future != true && status == 0.0 && today != true {
             //Incomplete Kasams
-            cellButton.backgroundColor = UIColor.darkGray
+            cellButton.backgroundColor = UIColor.darkGray.lighter
             cellButton.setTitleColor(UIColor.white, for: .normal)
         } else if future != true && status > 0.0 && status < 1.0 {
             //Partially complete Kasams
