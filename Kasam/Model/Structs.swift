@@ -67,6 +67,8 @@ struct NewKasam {
     static var kasamName = ""
     static var kasamDescription = ""
     static var chosenMetric = ""
+    static var chosenGenre = "Personal"
+    static var benefits = ""
     static var loadedInKasamImage = UIImage()
     static var loadedInKasamImageURL = URL(string: "")
     static var kasamImageToSave = UIImage()
@@ -81,6 +83,8 @@ struct NewKasam {
         self.kasamName = ""
         self.kasamDescription = ""
         self.chosenMetric = ""
+        self.chosenGenre = "Personal"
+        self.benefits = ""
         self.loadedInKasamImage = UIImage()
         self.loadedInKasamImageURL = URL(string: "")
         self.kasamImageToSave = UIImage()

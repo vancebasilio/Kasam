@@ -11,6 +11,7 @@ import Firebase
 import FirebaseStorage
 import SwiftEntryKit
 import SkyFloatingLabelTextField
+import Lottie
 
 class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDelegate {
     
@@ -43,7 +44,8 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     var headerBlurImageView: UIImageView!
     var headerImageView: UIImageView!
     var saveCategoryObserver: NSObjectProtocol?
-    var category = ""
+    let animationView = AnimationView()
+    let animationOverlay = UIView()
     
     //edit Kasam
     var kasamDatabase = Database.database().reference().child("Coach-Kasams")
@@ -51,7 +53,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     var kasamBlocksDatabase = Database.database().reference().child("Coach-Kasams")
     var kasamBlocksDatabaseHandle: DatabaseHandle!
     var blockDuration = [Int:String]()
-    var singleKasam = false
+    var basicKasam = false
     
     //No of Blocks Picker Variables
     var numberOfBlocks = 1
@@ -62,7 +64,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     var tempBlockNoSelected = 1
     
     //New Kasam Picker Variables
-    var chosenGenre = ""            //removed for personal kasams, will include for professional ones
     var chosenLevel = ""            //removed for personal kasams, will include for professional ones
     
     //Metrics
@@ -81,33 +82,36 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     func setupLoad(){
         //setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
-        newCategoryIcon = newCategoryIcon.setKasamTypeIcon(kasamType: "fitness", button: newCategoryIcon, location: "options")
-        if singleKasam == true {
+        profileViewRadius.layer.cornerRadius = 16.0
+        profileViewRadius.clipsToBounds = true
+        
+        createActivitiesCircle.layer.cornerRadius = createActivitiesCircle.frame.height / 2
+        createActivitiesCircle.clipsToBounds = true
+        if basicKasam == true {
             trackingProgressLabel.text = "Benefits:"
-            createActivitiesLabel.text = "Save Kasam"
+            createActivitiesCircle.setIcon(icon: .fontAwesomeSolid(.featherAlt), iconSize: 27, color: UIColor.white, backgroundColor: UIColor.black, forState: .normal)
             self.metricTypeCollection.isUserInteractionEnabled = false
             DispatchQueue.main.async {
                 self.metricTypeCollection.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: [.centeredHorizontally])
                 self.collectionView(self.metricTypeCollection, didSelectItemAt : IndexPath(item: 1, section: 0))
             }
+        } else {
+            createActivitiesLabel.text = "Edit Activities"
+            createActivitiesCircle.setIcon(icon: .fontAwesomeSolid(.arrowRight), iconSize: 25, color: UIColor.white, backgroundColor: UIColor.black, forState: .normal)
         }
         if NewKasam.editKasamCheck == true {
             loadKasam()
             headerLabel.text = "Edit Kasam"
             addAnImageLabel.text = "Change Image"
-            if singleKasam == false {
-                createActivitiesLabel.text = "Edit Activities"
+            if basicKasam == true {
+                createActivitiesLabel.text = "Update Kasam"
             }
-        }
-        createActivitiesCircle.layer.cornerRadius = createActivitiesCircle.frame.height / 2
-        createActivitiesCircle.clipsToBounds = true
-        if singleKasam == false {
-            createActivitiesCircle.setIcon(icon: .fontAwesomeSolid(.arrowRight), iconSize: 25, color: UIColor.white, backgroundColor: UIColor.black, forState: .normal)
         } else {
-            createActivitiesCircle.setIcon(icon: .fontAwesomeSolid(.featherAlt), iconSize: 27, color: UIColor.white, backgroundColor: UIColor.black, forState: .normal)
+            if basicKasam == true {
+                createActivitiesLabel.text = "Save Kasam"
+            }
+            newCategoryIcon = newCategoryIcon.setKasamTypeIcon(kasamType: "Question", button: newCategoryIcon, location: "options")
         }
-        profileViewRadius.layer.cornerRadius = 16.0
-        profileViewRadius.clipsToBounds = true
         newKasamDescription.textContainer.maximumNumberOfLines = 3
         newKasamDescription.textContainer.lineBreakMode = .byClipping
         let style = NSMutableParagraphStyle()
@@ -120,30 +124,46 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     }
     
     @objc func categoryOptions(){
-        showCategoryOptions(viewHeight: view.frame.height)
+        showPopupOptions(type: "categoryOptions")
         saveCategoryObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveCategory"), object: nil, queue: OperationQueue.main) {(notification) in
             let categoryVC = notification.object as! UserOptionsController
-            self.category = categoryVC.categoryChosen
-            self.newCategoryChosenLabel.text = self.category
+            self.newCategoryChosenLabel.text = categoryVC.categoryChosen
             self.newCategoryChosenLabel.textColor = .darkGray
-            self.newCategoryIcon = self.newCategoryIcon.setKasamTypeIcon(kasamType: self.category, button: self.newCategoryIcon, location: "options")
+            self.newCategoryIcon = self.newCategoryIcon.setKasamTypeIcon(kasamType: self.newCategoryChosenLabel.text!, button: self.newCategoryIcon, location: "options")
             NotificationCenter.default.removeObserver(self.saveCategoryObserver as Any)
         }
     }
     
     @IBAction func createActivitiesButtonPressed(_ sender: Any) {
-        if newKasamTitle.text == "" || newKasamDescription.text == "" || NewKasam.chosenMetric == "" {
-            //there are missing fields that need to be filled
-            var missingFields: [String] = []
-            if newKasamTitle.text == "" {missingFields.append("Title")}
-            if newKasamDescription.text == "" {missingFields.append("Description")}
-            if NewKasam.chosenMetric == "" {missingFields.append("Tracking Metric")}
-            let description = "Please fill out the Kasam \(missingFields.sentence)"
-            floatCellSelected(title: "Missing Fields", description: description)
+        if basicKasam == true {
+            NewKasam.kasamName = newKasamTitle.text ?? ""
+            NewKasam.benefits = benefitsTextView.text
+            NewKasam.chosenGenre = self.newCategoryChosenLabel.text!
+            NewKasam.kasamDescription = newKasamDescription.text
+            NewKasam.chosenMetric = "Checkmark"
+            NewKasam.kasamImageToSave = self.headerImageView.image!
+            self.loadingAnimation(animationView: self.animationView, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
+            createKasam(existingKasamID: NewKasam.kasamID, basicKasam: true) {(success) in
+                if success == true {
+                    self.animationView.removeFromSuperview()
+                    self.animationOverlay.removeFromSuperview()
+                    self.dismiss(animated: true, completion: nil)
+                }
+            }
         } else {
-            NewKasam.kasamName = newKasamTitle.text ?? "Kasam Title"
-            NewKasam.kasamDescription = newKasamDescription.text ?? "Kasam Description"
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
+            if newKasamTitle.text == "" || newKasamDescription.text == "" || NewKasam.chosenMetric == "" {
+                //there are missing fields that need to be filled
+                var missingFields: [String] = []
+                if newKasamTitle.text == "" {missingFields.append("Title")}
+                if newKasamDescription.text == "" {missingFields.append("Description")}
+                if NewKasam.chosenMetric == "" {missingFields.append("Tracking Metric")}
+                let description = "Please fill out the Kasam \(missingFields.sentence)"
+                floatCellSelected(title: "Missing Fields", description: description)
+            } else {
+                NewKasam.kasamName = newKasamTitle.text ?? "Kasam Title"
+                NewKasam.kasamDescription = newKasamDescription.text ?? "Kasam Description"
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
+            }
         }
     }
     
@@ -255,14 +275,26 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     
     //Retrieves Kasam Data using Kasam ID selected
     func loadKasam(){
-        newKasamTitle.text = NewKasam.kasamName
         kasamDatabase = Database.database().reference().child("Coach-Kasams").child(NewKasam.kasamID)
         kasamDatabaseHandle = kasamDatabase.observe(.value, with: {(snapshot) in
             //STEP 1 - Load Kasam information
             if let value = snapshot.value as? [String: Any] {
                 //load kasam information
+                self.newKasamTitle.text = value["Title"] as? String ?? ""
+                self.newKasamTitle.textColor = UIColor.darkGray
+                
                 self.newKasamDescription.text! = value["Description"] as? String ?? ""
+                self.newKasamDescription.textColor = UIColor.darkGray
+                
                 self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: PlaceHolders.kasamLoadingImage)
+                
+                self.benefitsTextView.text = value["Benefits"] as? String ?? ""
+                self.benefitsTextView.textColor = UIColor.darkGray
+                
+                self.newCategoryChosenLabel.text = value["Genre"] as? String ?? ""
+                self.newCategoryChosenLabel.textColor = .darkGray
+                self.newCategoryIcon = self.newCategoryIcon.setKasamTypeIcon(kasamType: self.newCategoryChosenLabel.text!, button: self.newCategoryIcon, location: "options")
+                
                 NewKasam.loadedInKasamImage = self.headerImageView.image!
                 NewKasam.loadedInKasamImageURL = URL(string: value["Image"] as? String ?? "")
                 NewKasam.kasamDescription = self.newKasamDescription.text!
@@ -273,7 +305,9 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                     self.metricTypeCollection.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [.centeredHorizontally])
                     self.collectionView(self.metricTypeCollection, didSelectItemAt : IndexPath(item: index, section: 0))
                 }
-                self.loadBlocks(value: value)
+                if self.basicKasam == false {
+                    self.loadBlocks(value: value)
+                }
             }
         })
     }
@@ -393,7 +427,7 @@ extension NewKasamController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MetricTypeCell", for: indexPath) as! MetricTypeCell
         cell.setMetric(title: metricsArray[indexPath.row])
-        if singleKasam == true && (indexPath.row == 0 || indexPath.row == 2) {
+        if basicKasam == true && (indexPath.row == 0 || indexPath.row == 2) {
             cell.metricTypeBG.alpha = 0.5
         }
         return cell

@@ -4854,6 +4854,7 @@
                                                     </subviews>
                                                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                                     <constraints>
+                                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="LPm-4c-VlF" secondAttribute="trailing" id="5hv-Rw-GdN"/>
                                                         <constraint firstAttribute="bottom" secondItem="qkh-Y9-ZDs" secondAttribute="bottom" id="6Bl-XB-GkI"/>
                                                         <constraint firstAttribute="trailing" secondItem="8Mi-Vl-hcD" secondAttribute="trailing" id="KMk-wt-33I"/>
                                                         <constraint firstItem="qkh-Y9-ZDs" firstAttribute="top" secondItem="ARN-Te-yMJ" secondAttribute="top" id="Kbb-sT-Srd"/>
@@ -4861,8 +4862,8 @@
                                                         <constraint firstAttribute="height" constant="50" id="VTA-YZ-6Fb"/>
                                                         <constraint firstAttribute="bottom" secondItem="8Mi-Vl-hcD" secondAttribute="bottom" id="Y9Y-YX-WhU"/>
                                                         <constraint firstItem="LPm-4c-VlF" firstAttribute="centerY" secondItem="ARN-Te-yMJ" secondAttribute="centerY" id="cwr-Bj-uLr"/>
-                                                        <constraint firstItem="LPm-4c-VlF" firstAttribute="leading" secondItem="qkh-Y9-ZDs" secondAttribute="trailing" constant="15" id="dyD-hB-Hhe"/>
-                                                        <constraint firstItem="8Mi-Vl-hcD" firstAttribute="leading" secondItem="qkh-Y9-ZDs" secondAttribute="trailing" constant="10" id="hKK-iF-mHI"/>
+                                                        <constraint firstItem="LPm-4c-VlF" firstAttribute="leading" secondItem="qkh-Y9-ZDs" secondAttribute="trailing" constant="15" id="guq-qb-HpK"/>
+                                                        <constraint firstItem="8Mi-Vl-hcD" firstAttribute="leading" secondItem="qkh-Y9-ZDs" secondAttribute="trailing" constant="10" id="oTk-T9-8nE"/>
                                                     </constraints>
                                                 </view>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="J6B-Am-60j" userLabel="Description">

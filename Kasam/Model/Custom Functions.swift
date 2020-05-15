@@ -61,6 +61,161 @@ extension UICollectionViewCell {
 
 extension UIViewController {
     
+    //STEP 1 - Saves Kasam Text Data
+    func createKasam(existingKasamID: String?, basicKasam: Bool, completion: @escaping (Bool) -> ()) {
+        print("1. creating kasam")
+        //all fields filled, so can create the Kasam now
+        let semaphore = DispatchSemaphore(value: 0)
+        self.view.isUserInteractionEnabled = false
+        var kasamID = DatabaseReference()
+        if existingKasamID != nil {
+            kasamID = DBRef.coachKasams.child(existingKasamID!)
+        } else {
+            kasamID = DBRef.coachKasams.childByAutoId()             //creating a new Kasam, so assign a new KasamID
+        }
+        var imageURL = ""
+        
+        let dispatchQueue = DispatchQueue.global(qos: .background)
+        dispatchQueue.async {
+            if NewKasam.kasamImageToSave != NewKasam.loadedInKasamImage {
+                //CASE 1 - user has uploaded a new image, so save it
+                self.saveImage(image: NewKasam.kasamImageToSave, location: "kasam/\(kasamID.key!)/kasam_header", completion: {uploadedImageURL in
+                    if uploadedImageURL != nil {
+                        imageURL = uploadedImageURL!
+                        semaphore.signal()
+                        print("Case 1")
+                    }
+                })
+            } else if NewKasam.kasamImageToSave == UIImage() {
+                //CASE 2 - no image added, so use the default one
+                print("Case 2")
+                semaphore.signal()
+                imageURL = PlaceHolders.kasamHeaderPlaceholderURL
+            } else {
+                //CASE 3 - user editing a kasam and using same kasam image, so no need to save image
+                print("Case 3")
+                semaphore.signal()
+                imageURL = NewKasam.loadedInKasamImageURL!.absoluteString
+            }
+            semaphore.wait()
+            
+            //STEP 3 - Register Kasam Data in Firebase Database
+            print("3. registering kasam")
+            let kasamDB = DBRef.userCreator.child((Auth.auth().currentUser?.uid)!).child("Kasams").child(kasamID.key!)
+            let kasamDictionary = ["Title": NewKasam.kasamName,
+                                   "Benefits": NewKasam.benefits,
+                                   "Genre": NewKasam.chosenGenre,
+                                   "Description": NewKasam.kasamDescription,
+                                   "Image": imageURL,
+                                   "KasamID": kasamID.key!,
+                                   "CreatorID": Auth.auth().currentUser!.uid as String,
+                                   "CreatorName": Auth.auth().currentUser!.displayName!,
+                                   "Type": "User",
+                                   "Rating": "5",
+                                   "Blocks": "blocks",
+                                   "Sequence": "Streak",
+                                   "Level": 0,
+                                   "Metric": NewKasam.chosenMetric] as [String : Any]
+        
+            if NewKasam.kasamID != "" {
+                //updating existing kasam
+                kasamID.updateChildValues(kasamDictionary as [AnyHashable : Any]) {(error, reference) in
+                //kasam successfully created
+                kasamDB.setValue(NewKasam.kasamName)
+                if basicKasam == false {self.saveBlocks(kasamID: kasamID, imageURL: imageURL)}
+                else {completion(true)}
+                }
+            } else {
+                //creating new kasam
+                kasamID.setValue(kasamDictionary) {(error, reference) in
+                    if error == nil {
+                        //kasam successfully created
+                        kasamDB.setValue(NewKasam.kasamName)
+                        if basicKasam == false {self.saveBlocks(kasamID: kasamID, imageURL: imageURL)}
+                        else {completion(true)}
+                    }
+                }
+            }
+        }
+    }
+    
+    //STEP 2 - Save Kasam Image
+    func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
+        print("2. saving image")
+        //Saves Kasam Image in Firebase Storage
+        let imageData = image?.jpegData(compressionQuality: 0.6)
+        let metaData = StorageMetadata()
+        metaData.contentType = "image/jpg"
+    
+        if imageData != nil {
+            Storage.storage().reference().child(location).putData(imageData!, metadata: metaData) {(metaData, error) in
+                if error == nil, metaData != nil {
+                    Storage.storage().reference().child(location).downloadURL { url, error in
+                        completion(url!.absoluteString)
+                    }
+                }
+            }
+        } else {completion(nil)}
+    }
+    
+    //STEP 4 - Save block info under Kasam
+    func saveBlocks(kasamID: DatabaseReference, imageURL: String){
+        print("4. saving blocks")
+        let newBlockDB = DBRef.coachKasams.child(kasamID.key!).child("Blocks")
+        print(newBlockDB)
+        var successBlockCount = 0
+        for j in 1...NewKasam.numberOfBlocks {
+            let blockID = newBlockDB.childByAutoId()
+            let transferBlockDuration = "\(NewKasam.kasamTransferArray[j]?.duration ?? 15) \(NewKasam.kasamTransferArray[j]?.durationMetric ?? "secs")"
+            let blockActivity = NewKasam.fullActivityMatrix[j]
+            var metric = 0
+            var increment = 1
+            switch NewKasam.chosenMetric {
+                case "Reps":
+                    metric = blockActivity?[0]?.reps ?? 0          //using 0 as only one activity loaded per block
+                    increment = blockActivity?[0]?.interval ?? 1
+                case "Timer": do {
+                    let hour = (blockActivity?[0]?.hour ?? 0) * 3600
+                    let min = (blockActivity?[0]?.min ?? 0) * 60
+                    let sec = (blockActivity?[0]?.sec ?? 0)
+                    increment = 1
+                    metric = hour + min + sec
+                }
+                case "Checkmark" : do {
+                    metric = 100
+                    increment = 1
+                }
+                default: metric = 0
+            }
+            let defaultActivityImage = PlaceHolders.kasamActivityPlaceholderURL
+            saveImage(image: (blockActivity?[0]?.imageToSave), location: "kasam/\(kasamID.key!)/activity/activity\(j)") {(savedImageURL) in
+                let activity = ["Description" : blockActivity?[0]?.description ?? "",
+                                "Image" : savedImageURL ?? defaultActivityImage,
+                                "Metric" : String(metric * increment),
+                                "Interval" : String(increment),
+                                "Title" : blockActivity?[0]?.title ?? "",
+                                "Type" : NewKasam.chosenMetric] as [String : Any]
+                let activityMatrix = ["1":activity]
+                let blockDictionary = ["Activity": activityMatrix, "Duration": transferBlockDuration, "Image": imageURL, "Order": String(j), "Rating": "5", "Title": NewKasam.kasamTransferArray[j]?.blockTitle ?? "Block Title", "BlockID": blockID.key!] as [String : Any]
+                blockID.setValue(blockDictionary) {
+                    (error, reference) in
+                    if error != nil {
+                        print(error!)
+                    } else {
+                        //Kasam successfully created
+                        successBlockCount += 1
+                        //All the blocks and their images are saved, so go back to the profile view
+                        if successBlockCount == NewKasam.numberOfBlocks {
+                            NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
+                            self.view.isUserInteractionEnabled = true
+                            self.navigationController?.popToRootViewController(animated: true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     //func to hide keyboard when screen tapped
     func hideKeyboardWhenTappedAround() {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
@@ -450,6 +605,7 @@ extension UIButton {
             case "Health": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.heart), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
             case "Spiritual": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.spa), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
             case "Writing": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.book), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
+            case "Question": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.question), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
             default: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
         }
         return button

@@ -87,6 +87,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var blockIDGlobal = ""
     var pastJoinDate = ""
     let animationView = AnimationView()
+    let animationOverlay = UIView()
     var kasamMetric = ""
     var benefitsArray = [""]
     var singleBlock = true
@@ -100,9 +101,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     //Review Only Variables
     var reviewOnly = false
-    let animationOverlay = UIView()
-    var storageRef = Storage.storage().reference()
-    var kasamImageGlobal = ""
+    
     var reviewOnlyBlockNo = 1
     
     override func viewDidLoad() {
@@ -630,10 +629,22 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             if check == true {
                 if NewKasam.loadedInKasamImage == UIImage() {
                     //creating a new kasam
-                    self.createKasam(existingKasamID: nil)
+                    self.loadingAnimation(animationView: self.animationView, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
+                    self.createKasam(existingKasamID: nil, basicKasam: false) {(success) in
+                        if success == true {
+                            self.animationView.removeFromSuperview()
+                            self.animationOverlay.removeFromSuperview()
+                        }
+                    }
                 } else {
                     //updating an existing kasam
-                    self.createKasam(existingKasamID: NewKasam.kasamID)
+                    self.loadingAnimation(animationView: self.animationView, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
+                    self.createKasam(existingKasamID: NewKasam.kasamID, basicKasam: false) {(success) in
+                        if success == true {
+                            self.animationView.removeFromSuperview()
+                            self.animationOverlay.removeFromSuperview()
+                        }
+                    }
                 }
             } else {
                 let popupImage = UIImage.init(icon: .fontAwesomeSolid(.cookieBite), size: CGSize(width: 30, height: 30), textColor: .white)
@@ -696,143 +707,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             completion(true)
         } else {
             completion(false)
-        }
-    }
-    
-    //STEP 1 - Saves Kasam Text Data
-    func createKasam(existingKasamID: String?) {
-        print("1. creating kasam")
-        //all fields filled, so can create the Kasam now
-        loadingAnimation(animationView: animationView, animation: "rocket-fast", height: 200, overlayView: animationOverlay, loop: true, completion: nil)
-        self.view.isUserInteractionEnabled = false
-        var kasamID = DBRef.coachKasams.childByAutoId()
-        if existingKasamID != nil {
-            //creating a new Kasam, so assign a new KasamID
-            kasamID = DBRef.coachKasams.child(existingKasamID!)
-        }
-        if NewKasam.kasamImageToSave != NewKasam.loadedInKasamImage {
-            //CASE 1 - user has uploaded a new image, so save it
-            saveImage(image: self.headerImageView!.image!, location: "kasam/\(kasamID.key!)/kasam_header", completion: {uploadedImageURL in
-                if uploadedImageURL != nil {
-                    self.registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
-                }
-            })
-        } else if NewKasam.kasamImageToSave == UIImage() {
-            //CASE 2 - no image added, so use the default one
-            self.registerKasamData(kasamID: kasamID, imageUrl: PlaceHolders.kasamHeaderPlaceholderURL)
-        } else {
-            //CASE 3 - user editing a kasam and using same kasam image, so no need to save image
-            let uploadedImageURL = NewKasam.loadedInKasamImageURL?.absoluteString
-            registerKasamData(kasamID: kasamID, imageUrl: uploadedImageURL!)
-        }
-    }
-    
-    //STEP 2 - Save Kasam Image
-    func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
-        print("2. saving image")
-        //Saves Kasam Image in Firebase Storage
-        let imageData = image?.jpegData(compressionQuality: 0.6)
-        let metaData = StorageMetadata()
-        metaData.contentType = "image/jpg"
-    
-        if imageData != nil {
-            storageRef.child(location).putData(imageData!, metadata: metaData) {(metaData, error) in
-                if error == nil, metaData != nil {
-                    self.storageRef.child(location).downloadURL { url, error in
-                        completion(url!.absoluteString)
-                    }
-                }
-            }
-        } else {completion(nil)}
-    }
-    
-    //STEP 3 - Register Kasam Data in Firebase Database
-    func registerKasamData(kasamID: DatabaseReference, imageUrl: String) {
-        print("3. registering kasam")
-        kasamImageGlobal = imageUrl
-        let kasamDB = DBRef.userCreator.child((Auth.auth().currentUser?.uid)!).child("Kasams").child(kasamID.key!)
-        let kasamDictionary = ["Title": NewKasam.kasamName, "Genre": "Personal", "Description": NewKasam.kasamDescription, "Image": imageUrl, "KasamID": kasamID.key, "CreatorID": Auth.auth().currentUser?.uid, "CreatorName": Auth.auth().currentUser?.displayName, "Type": "User", "Rating": "5", "Blocks": "blocks", "Level":"Beginner", "Metric": NewKasam.chosenMetric]
-    
-        if NewKasam.kasamID != "" {
-            //updating existing kasam
-            kasamID.updateChildValues(kasamDictionary as [AnyHashable : Any]) {(error, reference) in
-            if error != nil {
-                    print(error!)
-                } else {
-                //kasam successfully created
-             kasamDB.setValue(NewKasam.kasamName)
-                self.saveBlocks(kasamID: kasamID)
-                }
-            }
-        } else {
-            //creating new kasam
-            kasamID.setValue(kasamDictionary) {(error, reference) in
-                if error == nil {
-                    //kasam successfully created
-                    kasamDB.setValue(NewKasam.kasamName)
-                    self.saveBlocks(kasamID: kasamID)
-                }
-            }
-        }
-    }
-    
-    //STEP 4 - Save block info under Kasam
-    func saveBlocks(kasamID: DatabaseReference){
-        print("4. saving blocks")
-        let newBlockDB = DBRef.coachKasams.child(kasamID.key!).child("Blocks")
-        print(newBlockDB)
-        var successBlockCount = 0
-        for j in 1...NewKasam.numberOfBlocks {
-            let blockID = newBlockDB.childByAutoId()
-            let transferBlockDuration = "\(NewKasam.kasamTransferArray[j]?.duration ?? 15) \(NewKasam.kasamTransferArray[j]?.durationMetric ?? "secs")"
-            let blockActivity = NewKasam.fullActivityMatrix[j]
-            var metric = 0
-            var increment = 1
-            switch NewKasam.chosenMetric {
-                case "Reps":
-                    metric = blockActivity?[0]?.reps ?? 0          //using 0 as only one activity loaded per block
-                    increment = blockActivity?[0]?.interval ?? 1
-                case "Timer": do {
-                    let hour = (blockActivity?[0]?.hour ?? 0) * 3600
-                    let min = (blockActivity?[0]?.min ?? 0) * 60
-                    let sec = (blockActivity?[0]?.sec ?? 0)
-                    increment = 1
-                    metric = hour + min + sec
-                }
-                case "Checkmark" : do {
-                    metric = 100
-                    increment = 1
-                }
-                default: metric = 0
-            }
-            let defaultActivityImage = PlaceHolders.kasamActivityPlaceholderURL
-            saveImage(image: (blockActivity?[0]?.imageToSave), location: "kasam/\(kasamID.key!)/activity/activity\(j)") {(savedImageURL) in
-                let activity = ["Description" : blockActivity?[0]?.description ?? "",
-                                "Image" : savedImageURL ?? defaultActivityImage,
-                                "Metric" : String(metric * increment),
-                                "Interval" : String(increment),
-                                "Title" : blockActivity?[0]?.title ?? "",
-                                "Type" : NewKasam.chosenMetric] as [String : Any]
-                let activityMatrix = ["1":activity]
-                let blockDictionary = ["Activity": activityMatrix, "Duration": transferBlockDuration, "Image": self.kasamImageGlobal, "Order": String(j), "Rating": "5", "Title": NewKasam.kasamTransferArray[j]?.blockTitle ?? "Block Title", "BlockID": blockID.key!] as [String : Any]
-                blockID.setValue(blockDictionary) {
-                    (error, reference) in
-                    if error != nil {
-                        print(error!)
-                    } else {
-                        //Kasam successfully created
-                        successBlockCount += 1
-                        //All the blocks and their images are saved, so go back to the profile view
-                        if successBlockCount == NewKasam.numberOfBlocks {
-                            self.animationView.removeFromSuperview()
-                            self.animationOverlay.removeFromSuperview()
-                            NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
-                            self.view.isUserInteractionEnabled = true
-                            self.navigationController?.popToRootViewController(animated: true)
-                        }
-                    }
-                }
-            }
         }
     }
     

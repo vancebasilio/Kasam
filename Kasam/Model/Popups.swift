@@ -80,7 +80,7 @@ import Firebase
 
     //USER OPTIONS---------------------------------------------------------------------------------------------
 
-    func showUserOptions(viewHeight: CGFloat) {
+    func showPopupOptions(type: String) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -95,40 +95,20 @@ import Firebase
         attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
         attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
         attributes.roundCorners = .all(radius: 20)
-        let noOfRows = 3
-        attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: CGFloat(55 * (noOfRows + 2))))
         attributes.positionConstraints.verticalOffset = 0
         attributes.positionConstraints.safeArea = .empty(fillSafeArea: true)
-    
         attributes.statusBar = .dark
         let viewController = UserOptionsController()
-        viewController.popupType = "userOptions"
-        SwiftEntryKit.display(entry: viewController, using: attributes)
-    }
-
-    func showCategoryOptions(viewHeight: CGFloat) {
-        var attributes: EKAttributes
-        attributes = .bottomFloat
-        attributes.displayMode = .light
-        attributes.displayDuration = .infinity
-        attributes.hapticFeedbackType = .none
-        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
-        attributes.entryBackground = .color(color: .white)
-        attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .absorbTouches
-        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
-        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
-        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
-        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
-        attributes.roundCorners = .all(radius: 20)
-        let noOfRows = Icons.categoryIcons.count
-        attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: CGFloat(55 * (noOfRows + 2))))
-        attributes.positionConstraints.verticalOffset = 0
-        attributes.positionConstraints.safeArea = .overridden
-        attributes.statusBar = .dark
         
-        let viewController = UserOptionsController()
-        viewController.popupType = "categoryOptions"
+        var noOfRows = 0
+        if type == "userOptions" {
+            noOfRows = 3
+            viewController.popupType = "userOptions"
+        } else if type == "categoryOptions" {
+            noOfRows = Icons.categoryIcons.count
+            viewController.popupType = "categoryOptions"
+        }
+        attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: CGFloat(55 * (noOfRows + 2))))
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 

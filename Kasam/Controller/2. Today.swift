@@ -42,8 +42,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     var kasamOrder = 0
     var count = 0
     var challengeOrder = 0
-    
-    let semaphore = DispatchSemaphore(value: 1)
     var collectionViewHeight = CGFloat(0.0)
     
     var kasamFollowingRefHandle: DatabaseHandle!

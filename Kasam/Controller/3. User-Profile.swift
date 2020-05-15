@@ -58,7 +58,7 @@ class ProfileViewController: UIViewController {
     let animationView = AnimationView()
     var userKasamDBHandle: DatabaseHandle!
     var saveStorageRef = Storage.storage().reference()
-    var newKasamType = "simple"
+    var newKasamType = "basic"
     
     //Kasam Following
     var kasamIDGlobal: String = ""
@@ -140,7 +140,7 @@ class ProfileViewController: UIViewController {
     }
     
     @IBAction func showUserOptionsButton(_ sender: Any) {
-        showUserOptions(viewHeight: view.frame.height)
+        showPopupOptions(type: "userOptions")
     }
     
     @objc func goToCreateKasam(_ notification: NSNotification?) {
@@ -577,22 +577,5 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
             }
         }
         dismiss(animated: true, completion: nil)
-    }
-    
-    func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
-        //Saves Profile Image in Firebase Storage
-        let imageData = image?.jpegData(compressionQuality: 0.5)
-        let metaData = StorageMetadata()
-        metaData.contentType = "image/jpg"
-    
-        if imageData != nil {
-            saveStorageRef.child(location).putData(imageData!, metadata: metaData) {(metaData, error) in
-                if error == nil, metaData != nil {
-                    self.saveStorageRef.child(location).downloadURL { url, error in
-                        completion(url!.absoluteString)
-                    }
-                }
-            }
-        } else {completion(nil)}
     }
 }
