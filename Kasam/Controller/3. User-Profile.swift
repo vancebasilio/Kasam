@@ -140,7 +140,7 @@ class ProfileViewController: UIViewController {
     }
     
     @IBAction func showUserOptionsButton(_ sender: Any) {
-        showPopupOptions(type: "userOptions")
+        showBottomPopup(type: "userOptions")
     }
     
     @objc func goToCreateKasam(_ notification: NSNotification?) {
@@ -320,7 +320,7 @@ class ProfileViewController: UIViewController {
     }
     
     @objc func badgesAchievedPopup() {
-        showBadgesAchieved(kasamID: nil)
+        showCenterPopup(kasamID: nil)
     }
     
     @objc func profileUpdate() {

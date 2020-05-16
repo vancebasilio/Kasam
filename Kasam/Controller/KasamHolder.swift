@@ -159,7 +159,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         }
         
         @objc func badgesAchievedPopup() {
-            showBadgesAchieved(kasamID: kasamID)
+            showCenterPopup(kasamID: kasamID)
         }
     
     //KASAM BADGE------------------------------------------------------------------------------------
@@ -657,43 +657,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func deleteKasamButtonPressed(_ sender: Any) {
-        if NewKasam.loadedInKasamImage == UIImage() {
-            //User trying to create a new Kasam, so do not save Kasam
-            self.navigationController?.popToRootViewController(animated: true)
-        } else {
-            //delete the existing Kasam
-            let popupImage = UIImage.init(icon: .fontAwesomeRegular(.trashAlt), size: CGSize(width: 30, height: 30), textColor: .white)
-            showPopupConfirmation(title: "Are you sure?", description: "You won't be able to undo this action", image: popupImage, buttonText: "Delete Kasam") {(success) in
-                
-                DBRef.coachKasams.child(NewKasam.kasamID).removeValue()                 //delete kasam
-                DBRef.userKasams.child(NewKasam.kasamID).removeValue()                  //remove kasam from creator's list
-                
-                //delete the pictures from the Kasam if it's not the placeholder image
-                if let headerImageToDelete = NewKasam.loadedInKasamImageURL {self.deleteFileFromURL(from: headerImageToDelete)}
-                for block in 1...NewKasam.fullActivityMatrix.count {
-                    if let activityImageToDelete = NewKasam.fullActivityMatrix[block]?[0]?.imageToLoad {
-                        self.deleteFileFromURL(from: activityImageToDelete)
-                    }
-                }
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "getUserKasams"), object: self)
-                self.navigationController?.popToRootViewController(animated: true)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
-            }
-        }
-    }
-    
-    func deleteFileFromURL(from photoURL: URL) {
-        if photoURL != URL(string:PlaceHolders.kasamHeaderPlaceholderURL) || photoURL != URL(string:PlaceHolders.kasamActivityPlaceholderURL) {
-            let photoStorageRef = Storage.storage().reference(forURL: photoURL.absoluteString)
-            photoStorageRef.delete(completion: {(error) in
-                if let error = error {
-                    print(error)
-                } else {
-                    // success
-                    print("deleted \(photoURL)")
-                }
-            })
-        }
+        deleteUserKasam()
     }
     
     func completeCheck(completion:@escaping (Bool) -> ()) {

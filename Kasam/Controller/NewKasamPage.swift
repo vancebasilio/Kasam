@@ -31,11 +31,12 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
     override func viewWillAppear(_ animated: Bool){
         self.tabBarController?.tabBar.isHidden = true
         self.tabBarController?.tabBar.isTranslucent = true
+        UIView.transition(with: tabBarController!.view, duration: 0.35, options: .transitionCrossDissolve, animations: nil)
         //Hide Navigation Bar
         if #available(iOS 13.0, *) {
             self.navigationController?.navigationBar.standardAppearance.configureWithTransparentBackground()
         } else {
-            // Fallback on earlier versions
+            //Fallback on earlier versions
         }
     }
     
@@ -96,7 +97,7 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
                 }
             }
         } else {
-            navigationController?.popToRootViewController(animated: true)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "BackButtonBasicKasam"), object: self)
         }
     }
     

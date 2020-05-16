@@ -80,7 +80,7 @@ import Firebase
 
     //USER OPTIONS---------------------------------------------------------------------------------------------
 
-    func showPopupOptions(type: String) {
+    func showBottomPopup(type: String) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -112,7 +112,7 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-    func showBadgesAchieved(kasamID: String?) {
+    func showCenterPopup(kasamID: String?) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light
@@ -146,9 +146,56 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
+    func showAlertView(completion:@escaping (Int) -> ()) {
+        var attributes: EKAttributes
+        attributes = .centerFloat
+        attributes.displayMode = .light
+        attributes.windowLevel = .alerts
+        attributes.displayDuration = .infinity
+        attributes.hapticFeedbackType = .success
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
+        attributes.scroll = .disabled
+        attributes.screenBackground = .color(color: EKColor(UIColor.black).with(alpha: 0.4))
+        attributes.entryBackground = .color(color: .white)
+        attributes.entranceAnimation = .init(scale: .init(from: 0.9, to: 1, duration: 0.4, spring: .init(damping: 1, initialVelocity: 0)), fade: .init(from: 0, to: 1, duration: 0.3))
+        attributes.exitAnimation = .init(fade: .init(from: 1, to: 0, duration: 0.2))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 5))
+        attributes.positionConstraints.maxSize = .init(width: .ratio(value: 0.7), height: .intrinsic)
+        let title = EKProperty.LabelContent(text: "You have unsaved progress", style: .init(font: UIFont.systemFont(ofSize: 18, weight: .medium), color: .black, alignment: .center,displayMode: .light))
+        let text = "Are you sure you want to exit without saving first?"
+        let description = EKProperty.LabelContent(text: text, style: .init(font: UIFont.systemFont(ofSize: 14, weight: .light), color: .black, alignment: .center, displayMode: .light))
+        let simpleMessage = EKSimpleMessage(title: title, description: description)
+        let buttonFont = UIFont.systemFont(ofSize: 15, weight: .medium)
+        
+        let firstGoodButtonLabelStyle = EKProperty.LabelStyle(font: buttonFont, color: EKColor(UIColor.colorFive), displayMode: .light)
+        let firstGoodButtonLabel = EKProperty.LabelContent(text: "SAVE KASAM", style: firstGoodButtonLabelStyle)
+        let firstGoodButton = EKProperty.ButtonContent(label: firstGoodButtonLabel, backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {
+                completion(0)
+                SwiftEntryKit.dismiss()
+        }
+        let secondGoodButtonLabelStyle = EKProperty.LabelStyle(font: buttonFont, color: EKColor(UIColor.colorFive), displayMode: .light)
+        let secondGooddButtonLabel = EKProperty.LabelContent(text: "KEEP EDITING", style: secondGoodButtonLabelStyle)
+        let secondGoodButton = EKProperty.ButtonContent(label: secondGooddButtonLabel, backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {
+                completion(1)
+                SwiftEntryKit.dismiss()
+        }
+        let badButtonLabelStyle = EKProperty.LabelStyle(font: buttonFont, color: EKColor(UIColor.darkGray), displayMode: .light)
+        let badButtonLabel = EKProperty.LabelContent(text: "DISCARD KASAM", style: badButtonLabelStyle)
+        let badButton = EKProperty.ButtonContent(label: badButtonLabel, backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {
+                completion(2)
+                SwiftEntryKit.dismiss()
+        }
+        
+        // Generate the content
+        let buttonsBarContent = EKProperty.ButtonBarContent(with: firstGoodButton, secondGoodButton, badButton, separatorColor: EKColor(UIColor.lightGray), displayMode: .light, expandAnimatedly: false)
+        let contentView = EKAlertMessageView(with: EKAlertMessage(simpleMessage: simpleMessage,buttonBarContent: buttonsBarContent))
+        SwiftEntryKit.display(entry: contentView, using: attributes)
+    }
+
 
     //ADD KASAM---------------------------------------------------------------------------------------------
-func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?) {
+    func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light

@@ -39,6 +39,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     @IBOutlet weak var newCategoryIcon: UIButton!
     @IBOutlet weak var newCategoryView: UIView!
     @IBOutlet weak var newCategoryChosenLabel: UILabel!
+    @IBOutlet weak var deleteKasamButton: UIButton!
     
     var imagePicker: UIImagePickerController!
     var headerBlurImageView: UIImageView!
@@ -80,6 +81,9 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     }
     
     func setupLoad(){
+        let backButtonBasicKasam = NSNotification.Name("BackButtonBasicKasam")
+        NotificationCenter.default.addObserver(self, selector: #selector(NewKasamController.backButtonBasicKasam), name: backButtonBasicKasam, object: nil)
+        
         //setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
         profileViewRadius.layer.cornerRadius = 16.0
@@ -105,8 +109,12 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             addAnImageLabel.text = "Change Image"
             if basicKasam == true {
                 createActivitiesLabel.text = "Update Kasam"
+                deleteKasamButton.layer.cornerRadius = deleteKasamButton.frame.height / 2
+                deleteKasamButton.setIcon(icon: .fontAwesomeSolid(.trashAlt), iconSize: 20, color: UIColor.white, backgroundColor: UIColor.init(hex: 0xDB482D), forState: .normal)
+                deleteKasamButton.isHidden = false
             }
         } else {
+            deleteKasamButton.isHidden = true
             if basicKasam == true {
                 createActivitiesLabel.text = "Save Kasam"
             }
@@ -117,14 +125,14 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         let style = NSMutableParagraphStyle()
         style.lineSpacing = 10
         newKasamDescription.attributedText = NSAttributedString(string: "Description", attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        benefitsTextView.attributedText = NSAttributedString(string: "1. E.g. Improved Endurance", attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        benefitsTextView.attributedText = NSAttributedString(string: "\u{2022} E.g. Improved Endurance", attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(categoryOptions))
         newCategoryView.addGestureRecognizer(tap)
     }
     
     @objc func categoryOptions(){
-        showPopupOptions(type: "categoryOptions")
+        showBottomPopup(type: "categoryOptions")
         saveCategoryObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveCategory"), object: nil, queue: OperationQueue.main) {(notification) in
             let categoryVC = notification.object as! UserOptionsController
             self.newCategoryChosenLabel.text = categoryVC.categoryChosen
@@ -133,6 +141,15 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             NotificationCenter.default.removeObserver(self.saveCategoryObserver as Any)
         }
     }
+    
+    @objc func backButtonBasicKasam(){
+        showAlertView {(result) in
+            if result == 0 {}
+            else if result == 1 {}
+            else {self.navigationController?.popToRootViewController(animated: true)}
+        }
+    }
+    
     
     @IBAction func createActivitiesButtonPressed(_ sender: Any) {
         if basicKasam == true {
@@ -147,7 +164,8 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 if success == true {
                     self.animationView.removeFromSuperview()
                     self.animationOverlay.removeFromSuperview()
-                    self.dismiss(animated: true, completion: nil)
+                    self.navigationController?.popToRootViewController(animated: true)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
                 }
             }
         } else {
@@ -165,6 +183,10 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
             }
         }
+    }
+    
+    @IBAction func deleteKasamButtonPressed(_ sender: Any) {
+        deleteUserKasam()
     }
     
     //Prevents more than xx characters and return button
@@ -194,7 +216,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             newKasamDescription.text = nil
             newKasamDescription.textColor = UIColor.darkGray
             newKasamDescriptionCount.isHidden = false
-        } else if textView == benefitsTextView && benefitsTextView.text == "1. E.g. Improved Endurance" {
+        } else if textView == benefitsTextView && benefitsTextView.text == "\u{2022} E.g. Improved Endurance" {
             benefitsLine.isSelected = true
             benefitsTextView.text = nil
             benefitsTextView.textColor = UIColor.darkGray
@@ -209,7 +231,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             newKasamDescriptionCount.isHidden = true
         } else if textView == benefitsTextView && benefitsTextView.text.isEmpty {
             benefitsLine.isSelected = false
-            benefitsTextView.text = "1. E.g. Improved Endurance"
+            benefitsTextView.text = "\u{2022} E.g. Improved Endurance"
             benefitsTextView.textColor = UIColor.lightGray
         }
     }
