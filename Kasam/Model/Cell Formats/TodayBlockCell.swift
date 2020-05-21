@@ -13,7 +13,7 @@ import Lottie
 
 protocol TableCellDelegate : class {
     func updateKasamDayButtonPressed(kasamOrder: Int, day: Int, challenge: Bool)
-    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?)
+    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, dayOrder: Int?, dayCount: Int?)
     func goToKasamHolder(_ sender: UIButton, kasamOrder: Int)
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
 }
@@ -83,7 +83,7 @@ class TodayBlockCell: UITableViewCell {
             today = Int(block.dayOrder)
             if block.dayOrder > SavedData.kasamDict[kasamID]?.repeatDuration ?? 0 {dayNumber.text = "Complete!"}
             else if SavedData.kasamDict[kasamID]?.timelineDuration != nil {
-                dayNumber.text = "\(block.blockTitle)"
+                dayNumber.text = "E\(block.dayCount!) • \(block.blockTitle)"
                 dayNumber.font = dayNumber.font.withSize(16)
             } else {dayNumber.text = "Day \(block.dayOrder) of \(SavedData.kasamDict[kasamID]!.repeatDuration)"}
             kasamImage.sd_setImage(with: block.image)
@@ -149,7 +149,7 @@ class TodayBlockCell: UITableViewCell {
             if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
                 cellDelegate?.updateKasamDayButtonPressed(kasamOrder: row, day: tempBlock?.dayOrder ?? 1, challenge: false)
             } else {
-                cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil)
+                cellDelegate?.openKasamBlock(sender, kasamOrder: row, dayOrder: nil, dayCount: nil)
             }
         }
         centerCollectionView()

@@ -49,7 +49,7 @@ import Firebase
         attributes.hapticFeedbackType = .success
         attributes.displayDuration = .infinity
         attributes.entryBackground = .gradient(gradient: .init(colors: [EKColor(UIColor.colorFour), EKColor(UIColor.colorFour.darker)], startPoint: .zero, endPoint: CGPoint(x: 1, y: 1)))
-        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
+        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
         attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 8))
         attributes.screenInteraction = .dismiss
         attributes.entryInteraction = .absorbTouches
@@ -78,6 +78,40 @@ import Firebase
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
+    func missingFieldsPopup(title: String, description: String, image: UIImage, buttonText: String) {
+        var attributes: EKAttributes
+        attributes = EKAttributes.centerFloat
+        attributes.hapticFeedbackType = .success
+        attributes.displayDuration = .infinity
+        attributes.entryBackground = .gradient(gradient: .init(colors: [EKColor(UIColor.white), EKColor(UIColor.white)], startPoint: .zero, endPoint: CGPoint(x: 1, y: 1)))
+        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 8))
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
+        attributes.scroll = .enabled(swipeable: true, pullbackAnimation: .jolt)
+        attributes.roundCorners = .all(radius: 20)
+        attributes.entranceAnimation = .init(translate: .init(duration: 0.7, spring: .init(damping: 0.7, initialVelocity: 0)), scale: .init(from: 0.7, to: 1, duration: 0.4, spring: .init(damping: 1, initialVelocity: 0)))
+        attributes.exitAnimation = .init(translate: .init(duration: 0.2))
+        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        attributes.positionConstraints.size = .init(width: .offset(value: 20), height: .intrinsic)
+        attributes.positionConstraints.maxSize = .init(width: .intrinsic, height: .intrinsic)
+        attributes.statusBar = .dark
+        
+        let image = image
+        let title = title
+        let description = description
+        var themeImage: EKPopUpMessage.ThemeImage?
+        themeImage = EKPopUpMessage.ThemeImage(image: EKProperty.ImageContent(image: image, displayMode: .light, size: CGSize(width: 60, height: 60), tint: .white, contentMode: .scaleAspectFit))
+        let finalTitle = EKProperty.LabelContent(text: title, style: .init(font: UIFont.systemFont(ofSize: 23, weight: .bold), color: EKColor(.colorFive), alignment: .center, displayMode: .light))
+        let finalDescription = EKProperty.LabelContent(text: description, style: .init(font: UIFont.systemFont(ofSize: 17, weight: .semibold), color: EKColor(.darkGray), alignment: .center, displayMode: .light))
+        let button = EKProperty.ButtonContent(label: .init(text: buttonText, style: .init(font: UIFont.systemFont(ofSize: 16, weight: .semibold), color: EKColor(.white),displayMode: .light)), backgroundColor: EKColor(.colorFour), highlightedBackgroundColor: EKColor(UIColor.colorFive).with(alpha: 0.05), displayMode: .light)
+        let message = EKPopUpMessage(themeImage: themeImage, title: finalTitle, description: finalDescription, button: button) {
+            SwiftEntryKit.dismiss()
+        }
+        let contentView = EKPopUpMessageView(with: message)
+        SwiftEntryKit.display(entry: contentView, using: attributes)
+    }
+
     //USER OPTIONS---------------------------------------------------------------------------------------------
 
     func showBottomPopup(type: String) {
@@ -86,7 +120,7 @@ import Firebase
         attributes.displayMode = .light
         attributes.displayDuration = .infinity
         attributes.hapticFeedbackType = .none
-        attributes.screenBackground = .color(color: EKColor(UIColor(white: 100.0/255.0, alpha: 0.3)))
+        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
         attributes.entryBackground = .color(color: .white)
         attributes.screenInteraction = .dismiss
         attributes.entryInteraction = .absorbTouches
@@ -118,7 +152,7 @@ import Firebase
         attributes.displayMode = .light
         attributes.displayDuration = .infinity
         attributes.hapticFeedbackType = .none
-        attributes.screenBackground = .color(color: EKColor(UIColor.black).with(alpha: 0.4))
+        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
         attributes.entryBackground = .color(color: .white)
         attributes.screenInteraction = .dismiss
         attributes.entryInteraction = .absorbTouches
@@ -146,7 +180,7 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-    func showAlertView(completion:@escaping (Int) -> ()) {
+    func showAlertView(level: Int, completion:@escaping (Int) -> ()) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light
@@ -156,39 +190,39 @@ import Firebase
         attributes.screenInteraction = .dismiss
         attributes.entryInteraction = .absorbTouches
         attributes.scroll = .disabled
-        attributes.screenBackground = .color(color: EKColor(UIColor.black).with(alpha: 0.4))
+        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
         attributes.entryBackground = .color(color: .white)
         attributes.entranceAnimation = .init(scale: .init(from: 0.9, to: 1, duration: 0.4, spring: .init(damping: 1, initialVelocity: 0)), fade: .init(from: 0, to: 1, duration: 0.3))
         attributes.exitAnimation = .init(fade: .init(from: 1, to: 0, duration: 0.2))
         attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 5))
         attributes.positionConstraints.maxSize = .init(width: .ratio(value: 0.7), height: .intrinsic)
-        let title = EKProperty.LabelContent(text: "You have unsaved progress", style: .init(font: UIFont.systemFont(ofSize: 18, weight: .medium), color: .black, alignment: .center,displayMode: .light))
-        let text = "Are you sure you want to exit without saving first?"
-        let description = EKProperty.LabelContent(text: text, style: .init(font: UIFont.systemFont(ofSize: 14, weight: .light), color: .black, alignment: .center, displayMode: .light))
-        let simpleMessage = EKSimpleMessage(title: title, description: description)
-        let buttonFont = UIFont.systemFont(ofSize: 15, weight: .medium)
         
-        let firstGoodButtonLabelStyle = EKProperty.LabelStyle(font: buttonFont, color: EKColor(UIColor.colorFive), displayMode: .light)
-        let firstGoodButtonLabel = EKProperty.LabelContent(text: "SAVE KASAM", style: firstGoodButtonLabelStyle)
-        let firstGoodButton = EKProperty.ButtonContent(label: firstGoodButtonLabel, backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {
-                completion(0)
-                SwiftEntryKit.dismiss()
-        }
-        let secondGoodButtonLabelStyle = EKProperty.LabelStyle(font: buttonFont, color: EKColor(UIColor.colorFive), displayMode: .light)
-        let secondGooddButtonLabel = EKProperty.LabelContent(text: "KEEP EDITING", style: secondGoodButtonLabelStyle)
-        let secondGoodButton = EKProperty.ButtonContent(label: secondGooddButtonLabel, backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {
-                completion(1)
-                SwiftEntryKit.dismiss()
-        }
-        let badButtonLabelStyle = EKProperty.LabelStyle(font: buttonFont, color: EKColor(UIColor.darkGray), displayMode: .light)
-        let badButtonLabel = EKProperty.LabelContent(text: "DISCARD KASAM", style: badButtonLabelStyle)
-        let badButton = EKProperty.ButtonContent(label: badButtonLabel, backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {
-                completion(2)
-                SwiftEntryKit.dismiss()
-        }
+        let goodLabelStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15, weight: .medium), color: EKColor(UIColor.colorFive), displayMode: .light)
+        let badLabelStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15, weight: .medium), color: EKColor(UIColor.darkGray), displayMode: .light)
+        
+        let firstButton = EKProperty.ButtonContent(label: EKProperty.LabelContent(text: "SAVE KASAM", style: goodLabelStyle), backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {completion(0); SwiftEntryKit.dismiss()}
+        let secondButton = EKProperty.ButtonContent(label: EKProperty.LabelContent(text: "KEEP EDITING", style: goodLabelStyle), backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {completion(1); SwiftEntryKit.dismiss()}
+        let badButton = EKProperty.ButtonContent(label: EKProperty.LabelContent(text: "DISCARD KASAM", style: badLabelStyle), backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {completion(2); SwiftEntryKit.dismiss()}
         
         // Generate the content
-        let buttonsBarContent = EKProperty.ButtonBarContent(with: firstGoodButton, secondGoodButton, badButton, separatorColor: EKColor(UIColor.lightGray), displayMode: .light, expandAnimatedly: false)
+        var buttonList: [EKProperty.ButtonContent]
+        var title = "You have unsaved progress"
+        var description = "Are you sure you want to exit without saving first?"
+        switch level {
+            case 0: buttonList = [badButton]
+            case 1:
+                buttonList = [secondButton, badButton]
+                title = "Your Kasam isn't complete"
+                description = "Do you want to keep working on it?"
+            case 2: buttonList = [firstButton, secondButton, badButton]
+            default: buttonList = [badButton]
+        }
+        
+        let titleLabel = EKProperty.LabelContent(text: title, style: .init(font: UIFont.systemFont(ofSize: 18, weight: .medium), color: .black, alignment: .center,displayMode: .light))
+        let descriptionLabel = EKProperty.LabelContent(text: description, style: .init(font: UIFont.systemFont(ofSize: 14, weight: .light), color: .black, alignment: .center, displayMode: .light))
+        let simpleMessage = EKSimpleMessage(title: titleLabel, description: descriptionLabel)
+        
+        let buttonsBarContent = EKProperty.ButtonBarContent(with: buttonList, separatorColor: EKColor(UIColor.lightGray), displayMode: .light, expandAnimatedly: false)
         let contentView = EKAlertMessageView(with: EKAlertMessage(simpleMessage: simpleMessage,buttonBarContent: buttonsBarContent))
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
@@ -200,7 +234,7 @@ import Firebase
         attributes = .bottomFloat
         attributes.displayMode = .light
         attributes.displayDuration = .infinity
-        attributes.screenBackground = .color(color: EKColor(UIColor(white: 0, alpha: 0.6)))
+        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
         attributes.entryBackground = .gradient(gradient: .init(colors: [EKColor(UIColor.white), EKColor(UIColor.white)], startPoint: .zero, endPoint: CGPoint(x: 1, y: 1)))
         attributes.screenInteraction = .dismiss
         attributes.entryInteraction = .absorbTouches

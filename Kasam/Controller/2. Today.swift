@@ -265,7 +265,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                             if dateString == Dates.getCurrentDate() {
                                 DBRef.coachKasams.child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : "\(dayCount)").observeSingleEvent(of: .childAdded, with: {(snapshot) in
                                     todayKasamCount += 1
-                                    self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID)
+                                    self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID, dayCount: dayCount)
                                     
                                 })
                             }
@@ -276,7 +276,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                     if kasam.metricType == "Checkmark" {
                     DBRef.coachKasams.child(kasam.kasamID).observe(.value) {(snapshot) in
                         todayKasamCount += 1
-                        self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID)
+                        self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID, dayCount: nil)
                     }
                 } else {
                 //OPTION 3 - Load blocks based on day number (CHALLENGE KASAMS)
@@ -288,7 +288,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                         //Get block info for the Today Repeated Kasams
                         DBRef.coachKasams.child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: {(snapshot) in
                             todayKasamCount += 1
-                            self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID)
+                            self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID, dayCount: nil)
                         })
                     })
                 }
@@ -297,8 +297,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     }
     
     //STEP 4
-    func saveKasamBlocks(value: Dictionary<String,Any>, todayKasamCount: Int, dayOrder: Int, kasam: KasamSavedFormat, repeatMultiple: Bool, specificKasam: String?){
-        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
+    func saveKasamBlocks(value: Dictionary<String,Any>, todayKasamCount: Int, dayOrder: Int, kasam: KasamSavedFormat, repeatMultiple: Bool, specificKasam: String?, dayCount: Int?){
+        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, dayCount: dayCount)
         if repeatMultiple == true {
             SavedData.kasamBlocks.append(block)
             SavedData.kasamBlocks = SavedData.kasamBlocks.sorted(by: {$0.kasamOrder < $1.kasamOrder})
@@ -843,15 +843,14 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                 let kasamBlock = SavedData.kasamBlocks[collectionView.tag]
                 let day = indexPath.row + 1
                 let today = Int(kasamBlock.dayOrder)
-                let future = day > today
                 let date = dayTrackerDateFormat(date: Date(), todayDay: today, row: indexPath.row + 1)
                 if SavedData.kasamDict[kasamBlock.kasamID]?.dayTrackerArray?[indexPath.row + 1] != nil {
                     let block = SavedData.kasamDict[kasamBlock.kasamID]?.dayTrackerArray![indexPath.row + 1]
                     //set green and black dots for day tracker
-                    cell.setBlock(kasamOrder: collectionView.tag, day: day, status: block?.1 ?? 0.0, date: date, metricType: SavedData.kasamDict[kasamBlock.kasamID]!.metricType, today: day == today, future: future)
+                    cell.setBlock(kasamOrder: collectionView.tag, day: day, dayCount: kasamBlock.dayCount, status: block?.1 ?? 0.0, date: date, metricType: SavedData.kasamDict[kasamBlock.kasamID]!.metricType, today: day == today, future: day > today)
                 } else {
                     //grey out day tracker
-                    cell.setBlock(kasamOrder: collectionView.tag, day: day, status: 0.0, date: date, metricType: SavedData.kasamDict[kasamBlock.kasamID]!.metricType, today: day == today, future: future)
+                    cell.setBlock(kasamOrder: collectionView.tag, day: day, dayCount: kasamBlock.dayCount, status: 0.0, date: date, metricType: SavedData.kasamDict[kasamBlock.kasamID]!.metricType, today: day == today, future: day > today)
                 }
             }
             return cell
@@ -893,44 +892,44 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         }
     }
     
-    func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, metricType: String) {
-        if day <= SavedData.kasamBlocks[kasamOrder].dayOrder {
+    func dayPressed(_ sender: UIButton, kasamOrder: Int, dayOrder: Int, dayCount: Int?, metricType: String) {
+        if dayOrder <= SavedData.kasamBlocks[kasamOrder].dayOrder {
             if metricType == "Checkmark" {
-                updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: day, challenge: false)
+                updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: dayOrder, challenge: false)
             } else {
-                openKasamBlock(sender, kasamOrder: kasamOrder, day: day)
+                openKasamBlock(sender, kasamOrder: kasamOrder, dayOrder: dayOrder, dayCount: dayCount)
             }
         }
     }
     
-    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?) {
+    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, dayOrder: Int?, dayCount: Int?) {
         loadingAnimation(animationView: animationView, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
         UIApplication.shared.beginIgnoringInteractionEvents()
         let kasamID = SavedData.kasamBlocks[kasamOrder].kasamID
         kasamIDforViewer = kasamID
         blockIDGlobal = SavedData.kasamBlocks[kasamOrder].blockID
         dayOrderGlobal = SavedData.kasamBlocks[kasamOrder].dayOrder
-        if day != nil {
-            //opening a past day's block
+        if dayOrder != nil {
+            //Opening a past day's block
             DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
                 let blockCount = Int(blockCountSnapshot.childrenCount)
                 var blockOrder = "1"
-                if day! <= blockCount {
-                    blockOrder = String(day!)
+                if dayOrder! <= blockCount {
+                    blockOrder = String(dayOrder!)
                 } else {
-                    blockOrder = String((blockCount / day!) + 1)
+                    blockOrder = String((blockCount / dayOrder!) + 1)
                 }
                 if blockCount > 1 {
                     //OPTION 1 - Day in past, so find the correct block to show
                     DBRef.coachKasams.child(kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: {(snapshot) in
                         let value = snapshot.value as! Dictionary<String,Any>
                         self.blockIDGlobal = value["BlockID"] as? String ?? SavedData.kasamBlocks[kasamOrder].blockID
-                        self.dayToLoadGlobal = day!
+                        self.dayToLoadGlobal = dayCount ?? dayOrder!
                         self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
                     })
                 } else {
                     //OPTION 2 - Day in past and Kasam has only 1 block, so no point finding the correct block
-                    self.dayToLoadGlobal = day!
+                    self.dayToLoadGlobal = dayCount ?? dayOrder!
                     self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
                 }
             })

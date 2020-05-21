@@ -9,7 +9,7 @@
 import UIKit
 
 protocol DayTrackerCellDelegate : class {
-    func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, metricType: String)
+    func dayPressed(_ sender: UIButton, kasamOrder: Int, dayOrder: Int, dayCount: Int?, metricType: String)
 }
 
 class TodayDayTrackerCell: UICollectionViewCell {
@@ -20,15 +20,17 @@ class TodayDayTrackerCell: UICollectionViewCell {
     
     var dayTrackerDelegate: DayTrackerCellDelegate?
     var dayInternal = 0
+    var dayCountInternal: Int?
     var kasamOrderInternal = 0
     var metricTypeInternal = "Checkmark"
     
-    func setBlock(kasamOrder: Int, day: Int, status: Double, date: String, metricType: String, today: Bool?, future: Bool){
+    func setBlock(kasamOrder: Int, day: Int, dayCount: Int?, status: Double, date: String, metricType: String, today: Bool?, future: Bool){
         cellButton.layer.cornerRadius = cellButton.frame.width / 2
         cellButton.setTitle("\(day)", for: .normal)
         dayTrackerDate.text = date
         dayTrackerDate.textColor = UIColor.colorFive
         dayInternal = day
+        dayCountInternal = dayCount
         metricTypeInternal = metricType
         kasamOrderInternal = kasamOrder
         
@@ -66,7 +68,7 @@ class TodayDayTrackerCell: UICollectionViewCell {
     }
     
     @IBAction func dayPressed(_ sender: UIButton) {
-        dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, day: dayInternal, metricType: metricTypeInternal)
+        dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, dayOrder: dayInternal, dayCount: dayCountInternal, metricType: metricTypeInternal)
     }
 }
 

@@ -917,6 +917,10 @@ extension BidirectionalCollection where Element: StringProtocol {
             dropLast().joined(separator: ", ") + ", and " + last
     }
     
+    var list: String {
+        return joined(separator: "\n")
+    }
+    
     var dayArraySentence: String {
         guard let last = last else { return "" }
         if count == 3 {

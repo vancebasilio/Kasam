@@ -56,6 +56,9 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     var blockDuration = [Int:String]()
     var basicKasam = false
     
+    let categoryDefault = "Category (tap to select)"
+    let benefitsDefault = "\u{2022} E.g. Improved Endurance"
+    
     //No of Blocks Picker Variables
     var numberOfBlocks = 1
     var transferTitle = [Int:String]()
@@ -125,7 +128,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         let style = NSMutableParagraphStyle()
         style.lineSpacing = 10
         newKasamDescription.attributedText = NSAttributedString(string: "Description", attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        benefitsTextView.attributedText = NSAttributedString(string: "\u{2022} E.g. Improved Endurance", attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        benefitsTextView.attributedText = NSAttributedString(string: benefitsDefault, attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(categoryOptions))
         newCategoryView.addGestureRecognizer(tap)
@@ -143,16 +146,64 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     }
     
     @objc func backButtonBasicKasam(){
-        showAlertView {(result) in
-            if result == 0 {}
-            else if result == 1 {}
-            else {self.navigationController?.popToRootViewController(animated: true)}
+        var level = 2
+        //OPTION 1 - EDITING A KASAM
+        if NewKasam.editKasamCheck == true {
+            if newKasamTitle.text == NewKasam.kasamName && newKasamDescription.text == NewKasam.kasamDescription && benefitsTextView.text == NewKasam.benefits && self.newCategoryChosenLabel.text == NewKasam.chosenGenre {
+                self.navigationController?.popToRootViewController(animated: true)
+                level = 3           //editing kasam, but no info changed
+            } else {
+                level = 2           //info changed
+            }
+        } else {
+        //OPTION 2 - NEW KASAM
+            if newKasamTitle.text == "" && newKasamDescription.text == "Description" && benefitsTextView.text == benefitsDefault && self.newCategoryChosenLabel.text == categoryDefault {
+                level = 1           //no fields filled
+            } else {
+                level = 2           //partial info added
+            }
+        }
+        if level != 3 {
+            showAlertView(level: level) {(result) in
+                if result == 0 {DispatchQueue.main.async {self.saveBasicKasam()}}                   //saveButton
+                else if result == 1 {}                                                              //keepEditing
+                else {self.navigationController?.popToRootViewController(animated: true)}           //discard
+            }
         }
     }
     
-    
     @IBAction func createActivitiesButtonPressed(_ sender: Any) {
         if basicKasam == true {
+            saveBasicKasam()
+        } else {
+            if newKasamTitle.text == "" || newKasamDescription.text == "" || NewKasam.chosenMetric == "" {
+                //there are missing fields that need to be filled
+                var missingFields: [String] = []
+                if newKasamTitle.text == "" {missingFields.append("Title")}
+                if newKasamDescription.text == "" {missingFields.append("Description")}
+                if NewKasam.chosenMetric == "" {missingFields.append("Tracking Metric")}
+                let description = "Please fill out the Kasam \(missingFields.sentence)"
+                floatCellSelected(title: "Missing Fields", description: description)
+            } else {
+                NewKasam.kasamName = newKasamTitle.text ?? "Kasam Title"
+                NewKasam.kasamDescription = newKasamDescription.text ?? "Kasam Description"
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
+            }
+        }
+    }
+    
+    func saveBasicKasam(){
+        if newKasamTitle.text == "" || newKasamDescription.text == "Description" || benefitsTextView.text == "\u{2022} E.g. Improved Endurance" || self.newCategoryChosenLabel.text == categoryDefault {
+            //There are missing fields that need to be filled
+            var missingFields: [String] = []
+            if newKasamTitle.text == "" {missingFields.append("Title")}
+            if newKasamDescription.text == "Description" {missingFields.append("Description")}
+            if benefitsTextView.text == benefitsDefault {missingFields.append("Benefits")}
+            if newCategoryChosenLabel.text == categoryDefault {missingFields.append("Category")}
+            let description = "\(missingFields.list)"
+            let popupImage = UIImage.init(icon: .fontAwesomeSolid(.cookieBite), size: CGSize(width: 30, height: 30), textColor: .colorFour)
+            missingFieldsPopup(title: "Missing Fields:", description: description, image: popupImage, buttonText: "Got it")
+        } else {
             NewKasam.kasamName = newKasamTitle.text ?? ""
             NewKasam.benefits = benefitsTextView.text
             NewKasam.chosenGenre = self.newCategoryChosenLabel.text!
@@ -167,20 +218,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                     self.navigationController?.popToRootViewController(animated: true)
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
                 }
-            }
-        } else {
-            if newKasamTitle.text == "" || newKasamDescription.text == "" || NewKasam.chosenMetric == "" {
-                //there are missing fields that need to be filled
-                var missingFields: [String] = []
-                if newKasamTitle.text == "" {missingFields.append("Title")}
-                if newKasamDescription.text == "" {missingFields.append("Description")}
-                if NewKasam.chosenMetric == "" {missingFields.append("Tracking Metric")}
-                let description = "Please fill out the Kasam \(missingFields.sentence)"
-                floatCellSelected(title: "Missing Fields", description: description)
-            } else {
-                NewKasam.kasamName = newKasamTitle.text ?? "Kasam Title"
-                NewKasam.kasamDescription = newKasamDescription.text ?? "Kasam Description"
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNext"), object: self)
             }
         }
     }
@@ -216,7 +253,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             newKasamDescription.text = nil
             newKasamDescription.textColor = UIColor.darkGray
             newKasamDescriptionCount.isHidden = false
-        } else if textView == benefitsTextView && benefitsTextView.text == "\u{2022} E.g. Improved Endurance" {
+        } else if textView == benefitsTextView && benefitsTextView.text == benefitsDefault {
             benefitsLine.isSelected = true
             benefitsTextView.text = nil
             benefitsTextView.textColor = UIColor.darkGray
@@ -231,7 +268,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             newKasamDescriptionCount.isHidden = true
         } else if textView == benefitsTextView && benefitsTextView.text.isEmpty {
             benefitsLine.isSelected = false
-            benefitsTextView.text = "\u{2022} E.g. Improved Endurance"
+            benefitsTextView.text = benefitsDefault
             benefitsTextView.textColor = UIColor.lightGray
         }
     }
@@ -303,17 +340,21 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             if let value = snapshot.value as? [String: Any] {
                 //load kasam information
                 self.newKasamTitle.text = value["Title"] as? String ?? ""
+                NewKasam.kasamName = self.newKasamTitle.text ?? ""
                 self.newKasamTitle.textColor = UIColor.darkGray
                 
                 self.newKasamDescription.text! = value["Description"] as? String ?? ""
+                NewKasam.kasamDescription = self.newKasamDescription.text ?? ""
                 self.newKasamDescription.textColor = UIColor.darkGray
                 
                 self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: PlaceHolders.kasamLoadingImage)
                 
                 self.benefitsTextView.text = value["Benefits"] as? String ?? ""
+                NewKasam.benefits = self.benefitsTextView.text
                 self.benefitsTextView.textColor = UIColor.darkGray
                 
                 self.newCategoryChosenLabel.text = value["Genre"] as? String ?? ""
+                NewKasam.chosenGenre = self.newCategoryChosenLabel.text ?? ""
                 self.newCategoryChosenLabel.textColor = .darkGray
                 self.newCategoryIcon = self.newCategoryIcon.setKasamTypeIcon(kasamType: self.newCategoryChosenLabel.text!, button: self.newCategoryIcon, location: "options")
                 
