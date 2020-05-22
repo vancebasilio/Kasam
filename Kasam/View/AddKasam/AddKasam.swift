@@ -172,7 +172,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
         label.textAlignment = .center
         if pickerView == repeatPicker {
             if timelineDuration != nil {
-                if row == 0 {label.text = "Complete Once"}
+                if row == 0 {label.text = "No goal"}
                 else {label.text =  String("\(timelineDuration!) days")}
             }
             else {
@@ -180,7 +180,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
                 if currentDay != nil && currentDay != 0 && repeatDuration > 1 {label.text =  String("\(row + currentDay!) days")}
                 //Loading new Kasam
                 else {
-                    if row == 0 {label.text = "Complete Once"}
+                    if row == 0 {label.text = "No goal"}
                     else {label.text =  String("\(row + 1) days")}
                 }
             }

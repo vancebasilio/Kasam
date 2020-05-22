@@ -9,7 +9,7 @@
 import UIKit
 
 protocol DayTrackerCellDelegate : class {
-    func dayPressed(_ sender: UIButton, kasamOrder: Int, dayOrder: Int, dayCount: Int?, metricType: String)
+    func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, metricType: String)
 }
 
 class TodayDayTrackerCell: UICollectionViewCell {
@@ -20,18 +20,25 @@ class TodayDayTrackerCell: UICollectionViewCell {
     
     var dayTrackerDelegate: DayTrackerCellDelegate?
     var dayInternal = 0
-    var dayCountInternal: Int?
     var kasamOrderInternal = 0
     var metricTypeInternal = "Checkmark"
     
-    func setBlock(kasamOrder: Int, day: Int, dayCount: Int?, status: Double, date: String, metricType: String, today: Bool?, future: Bool){
+    func setBlock(kasamID: String, kasamOrder: Int, day: Int, status: Double, date: String, today: Bool?, future: Bool){
+        print("hell2 \(SavedData.kasamDict[kasamID]?.kasamName, day, status)")
         cellButton.layer.cornerRadius = cellButton.frame.width / 2
         cellButton.setTitle("\(day)", for: .normal)
-        dayTrackerDate.text = date
+        if SavedData.kasamDict[kasamID]?.sequence == nil {
+            dayTrackerDate.text = date
+        } else {
+            if let sequenceDate = SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.0 {
+                dayTrackerDate.text = dateShortestFormat(date: sequenceDate)
+            } else {
+                dayTrackerDate.text = date
+            }
+        }
         dayTrackerDate.textColor = UIColor.colorFive
         dayInternal = day
-        dayCountInternal = dayCount
-        metricTypeInternal = metricType
+        metricTypeInternal = SavedData.kasamDict[kasamID]!.metricType
         kasamOrderInternal = kasamOrder
         
         //Set Today Button
@@ -46,6 +53,8 @@ class TodayDayTrackerCell: UICollectionViewCell {
             cellButtonOutline.isHidden = true
         }
         
+        print("hell4 \(SavedData.kasamDict[kasamID]?.kasamName, dayInternal, status)")
+        
         //Set Status Color
         if future == true {
             cellButton.setTitleColor(UIColor.lightGray, for: .normal)       //greys out buttonBG that are in the future
@@ -59,7 +68,7 @@ class TodayDayTrackerCell: UICollectionViewCell {
             cellButton.backgroundColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7)                //light green color
             cellButtonOutline.layer.borderColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7).cgColor
             cellButton.setTitleColor(UIColor.black, for: .normal)
-        } else if future != true && status == 1.0 {
+        } else if future != true && status >= 1.0 {
             //Fully complete Kasams
             cellButton.backgroundColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7)                //green color
             cellButtonOutline.layer.borderColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7).cgColor
@@ -68,7 +77,7 @@ class TodayDayTrackerCell: UICollectionViewCell {
     }
     
     @IBAction func dayPressed(_ sender: UIButton) {
-        dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, dayOrder: dayInternal, dayCount: dayCountInternal, metricType: metricTypeInternal)
+        dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, day: dayInternal, metricType: metricTypeInternal)
     }
 }
 

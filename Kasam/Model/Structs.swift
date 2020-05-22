@@ -18,7 +18,6 @@ struct SavedData {
     static var todayKasamList: [String] = []                        //A list of all the kasams the user is actively following by KasamID
     
     static var kasamDict: [String:KasamSavedFormat] = [:]           //KasamDict is used to update kasams when progress is made
-    static var dayTrackerDict: [String: [Int:String]] = [:]
 
     static func addKasam(kasam: KasamSavedFormat) {self.kasamDict[kasam.kasamID] = kasam}
     

@@ -13,7 +13,7 @@ import Lottie
 
 protocol TableCellDelegate : class {
     func updateKasamDayButtonPressed(kasamOrder: Int, day: Int, challenge: Bool)
-    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, dayOrder: Int?, dayCount: Int?)
+    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?)
     func goToKasamHolder(_ sender: UIButton, kasamOrder: Int)
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
 }
@@ -29,9 +29,6 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var statsShadow: UIView!
     @IBOutlet weak var streakShadow: UIView!
     @IBOutlet weak var completionBadge: AnimationView!
-    @IBOutlet weak var blockPlaceholderView: UIStackView!
-    @IBOutlet weak var blockPlaceholderBG: UIView!
-    @IBOutlet weak var blockPlaceholderAdd: UIImageView!
     @IBOutlet weak var yesButton: UIButton!
     @IBOutlet weak var checkHolder: UIView!
     @IBOutlet weak var percentComplete: UILabel!
@@ -55,22 +52,6 @@ class TodayBlockCell: UITableViewCell {
         dayTrackerCollectionView.delegate = dataSourceDelegate
         dayTrackerCollectionView.dataSource = dataSourceDelegate
         dayTrackerCollectionView.tag = row
-        dayTrackerCollectionView.reloadData()
-    }
-    
-    func setPlaceholder() {
-        blockPlaceholderView.isHidden = false
-        blockContents.isHidden = true
-        statsShadow.backgroundColor = UIColor(patternImage: PlaceHolders.kasamHeaderPlaceholderImage!)
-        blockPlaceholderView.isHidden = false
-        blockPlaceholderAdd.setIcon(icon: .fontAwesomeSolid(.plus), textColor: .white, backgroundColor: .lightGray, size: CGSize(width: 25, height: 25))
-        blockPlaceholderBG.layer.cornerRadius = blockPlaceholderBG.frame.width / 2
-        blockPlaceholderBG.clipsToBounds = true
-    }
-    
-    func removePlaceholder(){
-        blockContents.isHidden = false
-        blockPlaceholderView.isHidden = true
     }
     
     func setBlock(block: TodayBlockFormat) {
@@ -80,10 +61,11 @@ class TodayBlockCell: UITableViewCell {
             kasamID = block.kasamID
             tempBlock = block
             kasamName.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
-            today = Int(block.dayOrder)
+            if block.dayCount != nil {today = block.dayCount!}
+            else {today = Int(block.dayOrder)}
             if block.dayOrder > SavedData.kasamDict[kasamID]?.repeatDuration ?? 0 {dayNumber.text = "Complete!"}
             else if SavedData.kasamDict[kasamID]?.timelineDuration != nil {
-                dayNumber.text = "E\(block.dayCount!) • \(block.blockTitle)"
+                dayNumber.text = "\(block.blockTitle)"
                 dayNumber.font = dayNumber.font.withSize(16)
             } else {dayNumber.text = "Day \(block.dayOrder) of \(SavedData.kasamDict[kasamID]!.repeatDuration)"}
             kasamImage.sd_setImage(with: block.image)
@@ -149,7 +131,7 @@ class TodayBlockCell: UITableViewCell {
             if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
                 cellDelegate?.updateKasamDayButtonPressed(kasamOrder: row, day: tempBlock?.dayOrder ?? 1, challenge: false)
             } else {
-                cellDelegate?.openKasamBlock(sender, kasamOrder: row, dayOrder: nil, dayCount: nil)
+                cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil)
             }
         }
         centerCollectionView()

@@ -194,7 +194,6 @@ class StatisticsViewController: UIViewController {
                     dayCount -= 1
                 }
                 if self.dayTrackerArray.count == dayCount && dayCount > 0 {
-                    SavedData.dayTrackerDict[self.kasamStatsTransfer!.kasamID] = self.dayTrackerDateArray
                     DBRef.userHistory.child(self.kasamStatsTransfer!.kasamID).removeAllObservers()
                     self.getChartAndTableStats(kasamDay: 30)
                 }

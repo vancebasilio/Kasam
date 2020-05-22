@@ -754,6 +754,15 @@ extension UICollectionViewCell {
         let finalDate = formatter.string(from: currentDateTime)
         return finalDate
     }
+    
+    func dateShortestFormat(date: Date) -> String {
+        let date = date
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateFormat = "MMM d"
+        let finalDate = formatter.string(from: date)
+        return finalDate
+    }
 }
 
 extension UIColor {
