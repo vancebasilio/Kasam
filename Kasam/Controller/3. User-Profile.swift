@@ -177,8 +177,11 @@ class ProfileViewController: UIViewController {
                     kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
                     
                     DBRef.userHistory.child(kasam.kasamID).observeSingleEvent(of: .value, with:{(snap) in
-                        let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: Int(snap.childrenCount), imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
+                        //PART 1 - Weekly Stats for Current Kasams
+                        if kasam.currentStatus == "active" {self.getWeeklyStats(kasamID: kasam.kasamID, snap: snap)}
                         
+                        //PART 2 - Completed Stats Table
+                        let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: Int(snap.childrenCount), imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
                         self.completedStats.append(stats)
                         if self.completedStats.count == SavedData.kasamDict.count {
                             self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
@@ -186,7 +189,7 @@ class ProfileViewController: UIViewController {
                         }
                     })
                     
-                    //ACTIVE KASAMS
+                    //PART 3 - Current Stats CollectionView
                     if kasam.currentStatus == "active" {
                         let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
                         let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
@@ -194,9 +197,6 @@ class ProfileViewController: UIViewController {
                         self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
                         self.detailedStatsCollectionView.reloadData()
                         self.weekStatsCollectionView.reloadData()
-                        
-                        //GET WEEKLY STATS FOR ACTIVE KASAMS
-                        self.getWeeklyStats(kasamID: kasam.kasamID)
                     }
                         
                 //Kasam Level
@@ -222,7 +222,7 @@ class ProfileViewController: UIViewController {
     }
     
     //STEP 2
-    func getWeeklyStats(kasamID: String) {
+    func getWeeklyStats(kasamID: String, snap: DataSnapshot) {
         let kasam = SavedData.kasamDict[kasamID]!
         let daysPast = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1
         var metricCount = 0
@@ -230,37 +230,40 @@ class ProfileViewController: UIViewController {
         var checkerCount = 0
         let imageURL = URL(string:kasam.image)
         for x in 1...7 {
+            checkerCount += 1
+            self.metricDictionary[x] = 0                                      //To set the base as zero for each day
             var avgMetric = 0
-            DBRef.userHistory.child(kasam.kasamID).child(self.dayDictionary[x]!).observe(.value, with:{(snapshot) in
-                checkerCount += 1
-                self.metricDictionary[x] = 0                                      //to set the base as zero for each day
-                //OPTION 1 - Basic Kasam
-                if let value = snapshot.value as? Int {
-                    self.metricDictionary[x] = Double(value)
-                    metricMatrix += 1
-                }
-                //OPTION 2 - CHALLENGE KASAM
-                else if let value = snapshot.value as? [String: Any] {
-                    self.metricDictionary[x] = value["Metric Percent"] as? Double
-                    metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
-                }
-                metricCount += 1
-                if checkerCount == 7 && metricCount != 0 {
-                    if kasam.metricType == "Checkmark" {
-                        let daysPast = (Date().dayNumberOfWeek() ?? 7)   //divide 100% checkmark days by no of days in the week completed
-                        if daysPast != 0 {
-                            avgMetric = Int((Double(metricMatrix) / Double(daysPast)) * 100)          //for Basic Kasams, show avg %
-                        }
-                    } else {
-                        avgMetric = (metricMatrix)             //for Complex Kasams, show total for the weeks
+            for kasamStats in snap.children {
+                let kasamStats = kasamStats as! DataSnapshot
+                if kasamStats.key == self.dayDictionary[x]! {
+                    //OPTION 1 - Basic Kasam
+                    if let value = kasamStats.value as? Int {
+                        self.metricDictionary[x] = Double(value)
+                        metricMatrix += 1
                     }
-                    self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
-                    
-                    //orders the array as kasams with no history will always show up first, even though they were loaded later
-                    self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
-                    self.weekStatsCollectionView.reloadData()
+                    //OPTION 2 - CHALLENGE KASAM
+                    else if let value = kasamStats.value as? [String: Any] {
+                        self.metricDictionary[x] = value["Metric Percent"] as? Double
+                        metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
+                    }
+                    metricCount += 1
                 }
-            })
+            }
+            if checkerCount == 7 && metricCount != 0 {
+                if kasam.metricType == "Checkmark" {
+                    let daysPast = (Date().dayNumberOfWeek() ?? 7)   //divide 100% checkmark days by no of days in the week completed
+                    if daysPast != 0 {
+                        avgMetric = Int((Double(metricMatrix) / Double(daysPast)) * 100)          //for Basic Kasams, show avg %
+                    }
+                } else {
+                    avgMetric = (metricMatrix)             //for Complex Kasams, show total for the weeks
+                }
+                self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysPast, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
+                
+                //orders the array as kasams with no history will always show up first, even though they were loaded later
+                self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
+                self.weekStatsCollectionView.reloadData()
+            }
         }
     }
     
@@ -302,7 +305,7 @@ class ProfileViewController: UIViewController {
             }
         } else {
             for x in 1...7 {
-                self.dayDictionary[x] = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: x - (todayDay! - 1), to: Date())!)
+                self.dayDictionary[x] = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: x - (todayDay!), to: Date())!)
             }
         }
     }
