@@ -85,12 +85,12 @@ class KasamActivityViewer: UIViewController {
                         self.statusDate = self.dateFormat(date: SavedData.kasamDict[self.kasamID]?.dayTrackerArray?[self.dayToLoad!]?.0 ?? Date())
                     }
                     
-                    var currentMetric = "0"
-                    var currentText = ""
                     count += 1
                     //Load in past history
+                    var currentMetric = "0"
+                    var currentText = ""
                     self.historyRef.child(self.kasamID).child(self.statusDate).child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
-                        if snap.exists(){
+                        if snap.exists() && self.viewingOnlyCheck == false {
                             currentMetric = snap.value as! String               //gets the metric for the activity
                         }
                         self.historyRef.child(self.kasamID).child(self.statusDate).child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
@@ -161,8 +161,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         cell.kasamIDTransfer["kasamID"] = kasamID
         cell.setKasamViewer(activity: activity)
         if activity.type == "Reps" {
-            var pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
-            if viewingOnlyCheck == true {pastProgress = Double(activityBlocks[indexPath.row].totalMetric) ?? 0.0}
+            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             cell.setupPicker(pastProgress: pastProgress)
         } else if activity.type == "Countdown" {
             let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0

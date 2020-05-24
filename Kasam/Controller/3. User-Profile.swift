@@ -36,6 +36,7 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var kasamStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var completedStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     @IBOutlet weak var badgesView: UIStackView!
     @IBOutlet weak var sideMenuButton: UIButton!
@@ -51,7 +52,7 @@ class ProfileViewController: UIViewController {
     var weeklyStats: [weekStatsFormat] = []
     var detailedStats: [UserStatsFormat] = []
     var myKasamsArray: [EditMyKasamFormat] = []
-    var completedStats: [UserStatsFormat] = []
+    var completedStats: [CompletedKasamFormat] = []
     var daysCompletedDict: [String:Int] = [:]
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
@@ -64,6 +65,7 @@ class ProfileViewController: UIViewController {
     var kasamIDGlobal: String = ""
     var kasamImageGlobal: URL!
     var kasamStatsTransfer: UserStatsFormat?
+    var userHistoryTransfer: CompletedKasamFormat?
     var kasamHistoryRefHandle: DatabaseHandle!
     var kasamUserRefHandle: DatabaseHandle!
     var kasamUserFollowRefHandle: DatabaseHandle!
@@ -84,7 +86,7 @@ class ProfileViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        //hides the nav bar
+        //Hides the nav bar
         self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
@@ -106,6 +108,7 @@ class ProfileViewController: UIViewController {
     //STEP 3 - TableView
         if completedStats.count > 0 {
             tableViewHeight = completedKasamTableHeight.constant + 42.5                //42.5 is the completed label height
+            completedStatsHeight.constant = completedKasamTableHeight.constant
         }
         let contentViewHeight = topViewHeight.constant + collectionViewHeight.constant + tableViewHeight
         if contentViewHeight > frame.height {
@@ -164,7 +167,7 @@ class ProfileViewController: UIViewController {
         completedStats.removeAll()
         weeklyStats.removeAll()
         metricDictionary.removeAll()
-        //loops through all kasams that user is following and get kasamID
+        //Loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamDict.values {
             DBRef.coachKasams.child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
                 if snap.exists() {
@@ -172,22 +175,21 @@ class ProfileViewController: UIViewController {
                     let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
                     kasam.image = snapshot["Image"]! as! String
                     kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
-                    let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
-                    let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
                     
-                    //COMPLETED KASAMS
-                    if kasam.pastKasamJoinDates?.count != 0 && kasam.pastKasamJoinDates != nil {
-                        for pastJoinDate in kasam.pastKasamJoinDates! {
-                            let pastDateJoined = self.stringToDate(date: pastJoinDate.key)
-                            let pastEndDate = Calendar.current.date(byAdding: .day, value: pastJoinDate.value - 1, to: pastDateJoined)!
-                            let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: pastDateJoined, endDate: pastEndDate, metricType: kasam.metricType, order: kasam.kasamOrder)
-                            self.completedStats.append(userStats)
+                    DBRef.userHistory.child(kasam.kasamID).observeSingleEvent(of: .value, with:{(snap) in
+                        let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: Int(snap.childrenCount), imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
+                        
+                        self.completedStats.append(stats)
+                        if self.completedStats.count == SavedData.kasamDict.count {
+                            self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
                             self.completedKasamsTable.reloadData()
                         }
-                    }
+                    })
                     
                     //ACTIVE KASAMS
                     if kasam.currentStatus == "active" {
+                        let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
+                        let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
                         self.detailedStats.append(userStats)
                         self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
                         self.detailedStatsCollectionView.reloadData()
@@ -372,6 +374,7 @@ class ProfileViewController: UIViewController {
         if segue.identifier == "goToStats" {
             let segueTransferHolder = segue.destination as! StatisticsViewController
             segueTransferHolder.kasamStatsTransfer = kasamStatsTransfer
+            segueTransferHolder.userHistoryTransfer = userHistoryTransfer
         } else if segue.identifier == "goToEditKasam" {
             NewKasam.editKasamCheck = true
             NewKasam.kasamID = kasamIDGlobal
@@ -469,10 +472,10 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
                 self.tabBarController?.selectedIndex = 0
             } else if detailedStats.count != 0 && weeklyStats.count == 0 {  //user following kasams that aren't active yet
-                kasamStatsTransfer = detailedStats[indexPath.row]
+                kasamStatsTransfer = detailedStats[indexPath.row]; userHistoryTransfer = nil
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             } else {
-                kasamStatsTransfer = detailedStats[indexPath.row]
+                kasamStatsTransfer = detailedStats[indexPath.row]; userHistoryTransfer = nil
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
         } else if collectionView == editKasamsCollectionView {
@@ -485,7 +488,7 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
                self.tabBarController?.selectedIndex = 0
             } else {
-                kasamStatsTransfer = detailedStats[indexPath.row]
+                kasamStatsTransfer = detailedStats[indexPath.row]; userHistoryTransfer = nil
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
         }
@@ -506,12 +509,12 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CompletedKasamCell") as! CompletedKasamCell
-        cell.setBlock(block: completedStats[indexPath.row])
+        cell.setCompletedBlock(block: completedStats[indexPath.row])
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        kasamStatsTransfer = completedStats[indexPath.row]
+        userHistoryTransfer = completedStats[indexPath.row]; kasamStatsTransfer = nil
         self.performSegue(withIdentifier: "goToStats", sender: indexPath)
     }
 }

@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Firebase
 
 class discoverKasamFormat {
     var image: URL
@@ -143,6 +144,22 @@ class KasamSavedFormat {
         self.badgeThresholds = badgeThresholds
         self.badgeList = badgeList
         self.dayTrackerArray = dayTrackerArray
+    }
+}
+
+class CompletedKasamFormat {
+    var kasamID: String
+    var kasamName: String
+    var daysCompleted: Int
+    var imageURL: URL
+    var userHistorySnap: DataSnapshot?
+    
+    init(kasamID: String, kasamName: String, daysCompleted: Int, imageURL: URL, userHistorySnap: DataSnapshot?){
+        self.kasamID = kasamID
+        self.kasamName = kasamName
+        self.daysCompleted = daysCompleted
+        self.imageURL = imageURL
+        self.userHistorySnap = userHistorySnap
     }
 }
 

@@ -36,6 +36,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     var blockIDGlobal = ""
     var dayToLoadGlobal = 0
     var dayOrderGlobal = 0
+    var viewOnlyGlobal = false
     var setupCheck = 0
     
     //Get Preferences Variables
@@ -722,6 +723,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             kasamActivityHolder.blockID = blockIDGlobal
             kasamActivityHolder.dayToLoad = dayToLoadGlobal
             kasamActivityHolder.dayOrder = dayOrderGlobal
+            kasamActivityHolder.viewingOnlyCheck = viewOnlyGlobal
         } else if segue.identifier == "goToKasamHolder" {
             let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDforHolder
@@ -891,17 +893,17 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         }
     }
     
-    func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, metricType: String) {
-        if day <= SavedData.kasamBlocks[kasamOrder].dayOrder {
+    func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, metricType: String, viewOnly: Bool?) {
+        if day <= SavedData.kasamBlocks[kasamOrder].dayOrder || SavedData.kasamDict[SavedData.kasamBlocks[kasamOrder].kasamID]?.timelineDuration != nil {
             if metricType == "Checkmark" {
                 updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: day, challenge: false)
             } else {
-                openKasamBlock(sender, kasamOrder: kasamOrder, day: day)
+                openKasamBlock(sender, kasamOrder: kasamOrder, day: day, viewOnly: viewOnly)
             }
         }
     }
     
-    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?) {
+    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, viewOnly: Bool?) {
         loadingAnimation(animationView: animationView, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
         UIApplication.shared.beginIgnoringInteractionEvents()
         let kasamID = SavedData.kasamBlocks[kasamOrder].kasamID
@@ -909,7 +911,8 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         blockIDGlobal = SavedData.kasamBlocks[kasamOrder].blockID
         dayOrderGlobal = SavedData.kasamBlocks[kasamOrder].dayOrder
         if day != nil {
-            //opening a past day's block
+            viewOnlyGlobal = viewOnly ?? false
+            //Opening a past day's block
             DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
                 let blockCount = Int(blockCountSnapshot.childrenCount)
                 var blockOrder = "1"

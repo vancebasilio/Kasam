@@ -10,7 +10,7 @@ import UIKit
 import SDWebImage
 
 protocol CollectionCellDelegate : class {
-    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?)
+    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, viewOnly: Bool?)
     func goToChallengeKasamHolder(_ sender: UIButton, kasamOrder: Int)
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
 }

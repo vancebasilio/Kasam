@@ -487,12 +487,9 @@ extension UIViewController {
     func convertTimeAndMetric(time: Double, metric: String ) -> (Double, String) {
         var convertedTime = time
         var convertedMetric = metric
-        if time < 60 {
+        if time < 120 {
             convertedMetric = "secs"
-        } else if time >= 60 && time < 66 {
-            convertedTime = time / 60.0
-            convertedMetric = "min"
-        } else if time >= 66 && time < 3600 {
+        } else if time >= 120 && time < 3600 {
             convertedTime = time / 60.0
             convertedMetric = "mins"
         } else if time >= 3600 && time < 3636 {

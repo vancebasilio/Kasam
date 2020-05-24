@@ -13,7 +13,7 @@ import Lottie
 
 protocol TableCellDelegate : class {
     func updateKasamDayButtonPressed(kasamOrder: Int, day: Int, challenge: Bool)
-    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?)
+    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, viewOnly: Bool?)
     func goToKasamHolder(_ sender: UIButton, kasamOrder: Int)
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
 }
@@ -131,7 +131,7 @@ class TodayBlockCell: UITableViewCell {
             if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
                 cellDelegate?.updateKasamDayButtonPressed(kasamOrder: row, day: tempBlock?.dayOrder ?? 1, challenge: false)
             } else {
-                cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil)
+                cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil, viewOnly: false)
             }
         }
         centerCollectionView()
@@ -247,11 +247,11 @@ class TodayBlockCell: UITableViewCell {
             else {percentComplete.text = "\(Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100))%"}
         }
         if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[kasamID]!.metricType == "Checkmark" {
-            streakShadow.backgroundColor = UIColor.colorFour
+            streakShadow.backgroundColor = .colorFour
             yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
         } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[kasamID]!.metricType != "Checkmark" {
             streakShadow.backgroundColor = UIColor.colorFour
-            percentComplete.textColor = UIColor.colorFive
+            percentComplete.textColor = .colorFive
             yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
         } else if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {
             streakShadow.backgroundColor = .dayYesColor
