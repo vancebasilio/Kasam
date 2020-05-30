@@ -68,16 +68,18 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
         if popupType == "userOptions" {
             if indexPath.row == 0 {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "basic"])
+                SwiftEntryKit.dismiss()
             } else if indexPath.row == 1 {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "complex"])
+                SwiftEntryKit.dismiss()
             } else if indexPath.row == 2 {
                 let popupImage = UIImage.init(icon: .fontAwesomeSolid(.doorOpen), size: CGSize(width: 30, height: 30), textColor: .white)
                 showPopupConfirmation(title: "Are you sure?", description: "", image: popupImage, buttonText: "Logout") {(success) in
                     AppManager.shared.logoout()
                     LoginManager().logOut()
+                    SwiftEntryKit.dismiss()
                 }
             }
-            SwiftEntryKit.dismiss()
         } else if popupType == "categoryOptions" {
             categoryChosen = Icons.categoryIcons[indexPath.row]
             NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveCategory"), object: self)

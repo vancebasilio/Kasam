@@ -309,7 +309,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             self.getDayTracker(kasamID: specificKasam)
         } else {
             if todayKasamCount == SavedData.todayKasamList.count {
-                //only does the below after all Kasams loaded
+                //Only does the below after all Kasams loaded
                 self.todaySublabel.text = "You have \(SavedData.kasamBlocks.count) kasams to complete"
                 self.tableView.reloadData()
                 self.challengesColletionView.reloadData()
@@ -400,19 +400,19 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                                 if kasamID == nil {
                                     //OPTION 1 - Updating all the kasams on the today page
                                     if let cell = self.tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-                                        self.tableView.beginUpdates()
                                         cell.statusUpdate()
+                                        self.tableView.beginUpdates()
                                         cell.updateDayTrackerCollection()
-                                        self.tableView.reloadData()             //need this to update the daytracker alpha cover
+                                        cell.collectionCoverUpdate()
                                         self.tableView.endUpdates()
                                     }
                                 } else {
                                     //OPTION 2 - Updating a single kasam after a preference change
                                     if let cell = self.tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
                                         self.tableView.beginUpdates()
-                                        cell.setupCheck = 0
                                         cell.setBlock(block: SavedData.kasamBlocks[kasamOrder])
                                         cell.statusUpdate()
+                                        cell.centerCollectionView()
                                         cell.dayTrackerCollectionView.reloadData()
                                         self.updateContentTableHeight()
                                         self.tableView.endUpdates()
@@ -420,8 +420,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                                 }
                             }
                         })
+                    //No history recorded in Firebase
                     } else {
-                        //No history recorded in Firebase
                         if kasamID == nil {
                             //OPTION 1 - Updating all the kasams on the today page
                             if let cell = self.tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
@@ -432,7 +432,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                         } else {
                             //OPTION 2 - Updating a single kasam after a preference change
                             if let cell = self.tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-                                cell.setupCheck = 0
                                 cell.setBlock(block: SavedData.kasamBlocks[kasamOrder])
                                 cell.statusUpdate()
                                 cell.dayTrackerCollectionView.reloadData()
@@ -757,8 +756,8 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let tableCell = cell as? TodayBlockCell else { return }
         tableCell.setCollectionViewDataSourceDelegate(dataSourceDelegate: self, forRow: indexPath.row)
+        tableCell.cellFormatting()
         tableCell.setBlock(block: SavedData.kasamBlocks[indexPath.row])
-        tableCell.collectionCoverUpdate()
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -819,7 +818,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         } else if collectionView == challengesColletionView{
             return CGSize(width: collectionViewHeight, height: collectionViewHeight)
         } else {
-            return CGSize(width: 30, height: 50)
+            return CGSize(width: 37, height: 50)
         }
     }
     

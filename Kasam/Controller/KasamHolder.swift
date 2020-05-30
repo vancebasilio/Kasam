@@ -417,8 +417,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             //Existing Kasam prefernces being updated
             addKasamPopup(kasamID: kasamID, new: false, timelineDuration: timelineDuration)
         }
-        
-        //SETS UP THE OBSERVERS TO SAVE INFORMATION ONCE THE PREFERENCES ARE SAVED
+        //If the user presses save:
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             self.chosenTime = timeVC.formattedTime
@@ -429,7 +428,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             if self.registerCheck == 0 {
                 self.registerUserToKasam()                          //only gets executed once user presses save
             } else {
-                self.addUserPreferncestoKasam(reset: reset)
+                self.addUserPreferncestoKasam(reset: reset)         //updating kasam that user is already following
                 //manually change values below so if the user opens this window again, the values are updated. Can't rely on the todaykasamreload, since it takes too long and if the user opens this window earlier, it'll show old values
                 SavedData.kasamDict[self.kasamID]?.repeatDuration = self.chosenRepeat
                 SavedData.kasamDict[self.kasamID]?.startTime = self.chosenTime
@@ -437,6 +436,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
             NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
         }
+        //If the user presses unfollow:
         unfollowObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "UnfollowKasam\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             showPopupConfirmation(title: "You sure?", description: "Your past progress will be saved.", image: UIImage.init(icon: .fontAwesomeSolid(.heartbeat), size: CGSize(width: 35, height: 35), textColor: .white), buttonText: "Unfollow") {(success) in
                 SavedData.kasamDict[self.kasamID] = nil
@@ -444,6 +444,56 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             }
             NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
             NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
+        }
+    }
+    
+    func registerUserToKasam() {
+            setupNotifications()
+            //STEP 1: Adds the user to the Kasam-following list
+            DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
+            
+            //STEP 2: Adds the user to the Coach-following list
+            DBRef.userCreator.child(coachIDGlobal).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
+            countFollowers()
+                    
+            //STEP 3: Adds the user preferences to the Kasam they just followed
+            self.addUserPreferncestoKasam(reset: false)
+    }
+    
+    func unregisterUseFromKasam() {
+        self.registerCheck = 0
+        self.initialRepeat = nil            //set to nil so that all kasams will be reloaded when user re-follows kasam (look at if function in above function)
+        
+        //Removes the user from the Kasam following
+        DBRef.coachKasams.child(kasamID).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+        
+        //Removes the user from the Coach following
+        DBRef.userCreator.child(coachIDGlobal).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+        
+        //Removes the kasam from the user's following list
+        DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("inactive") {(error, reference) in
+            Analytics.logEvent("unfollowing_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
+        }
+    }
+    
+        
+    func addUserPreferncestoKasam(reset: Bool){
+        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Status": "active", "Duration": timelineDuration as Any]) {(error, reference) in
+            if error == nil {
+//                Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
+                if self.initialRepeat == 1 && self.chosenRepeat > 1 || self.initialRepeat == nil  {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
+                } else {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
+                    if reset == true {
+                        DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(self.dateFormat(date: SavedData.kasamDict[self.kasamID]!.joinedDate)).setValue(SavedData.kasamDict[self.kasamID]?.repeatDuration)
+                    }
+                }
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
+            }
         }
     }
     
@@ -488,60 +538,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         let request = UNNotificationRequest(identifier: uniqueID, content: content, trigger: trigger)
         let center = UNUserNotificationCenter.current()
         center.add(request) {(error : Error?) in        // Add the notification request
-        }
-    }
-    
-    func registerUserToKasam() {
-        setupNotifications()
-        //STEP 1: Adds the user to the Kasam-following list
-        DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
-        
-        //STEP 2: Adds the user to the Coach-following list
-        DBRef.userCreator.child(coachIDGlobal).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
-        countFollowers()
-                
-        //STEP 3: Adds the user preferences to the Kasam they just followed
-        self.addUserPreferncestoKasam(reset: false)
-    }
-    
-    func addUserPreferncestoKasam(reset: Bool){
-        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Status": "active", "Duration": timelineDuration as Any]) {(error, reference) in
-            if error == nil {
-//                Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-                if self.initialRepeat == 1 && self.chosenRepeat > 1 || self.initialRepeat == nil  {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
-                } else {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
-                    if reset == true {
-                        DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(self.dateFormat(date: SavedData.kasamDict[self.kasamID]!.joinedDate)).setValue(SavedData.kasamDict[self.kasamID]?.repeatDuration)
-                    }
-                }
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
-            }
-        }
-    }
-    
-    func unregisterUseFromKasam() {
-        self.registerCheck = 0
-        self.initialRepeat = nil            //set to nil so that all kasams will be reloaded when user re-follows kasam (look at if function in above function)
-        
-        //Removes the user from the Kasam following
-        DBRef.coachKasams.child(kasamID).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
-        
-        //Removes the user from the Coach following
-        DBRef.userCreator.child(coachIDGlobal).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
-        
-        //Removes the kasam from the user's following list
-        DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("inactive") {(error, reference) in
-            if error != nil {
-                print(error!)
-            } else {
-                Analytics.logEvent("unfollowing_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayChallenges"), object: self)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
-            }
         }
     }
     

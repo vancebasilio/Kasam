@@ -21,9 +21,13 @@ class CompletedKasamCell: UITableViewCell {
         kasamImage.clipsToBounds = true
         kasamName.text = block.kasamName
         daysCompleted.text = "\(block.daysCompleted) days"
-//        let joinedDate = dateConverter(date: block.joinedDate)
-//        let endDate = dateConverter(date: block.endDate ?? block.joinedDate)
-//        joinedDates.text = "\(joinedDate) - \(endDate)"
+        
+        if let snap = block.userHistorySnap {
+            let snapArray = Array((snap.value as! [String:Any]).keys).sorted()
+            let joinedDate = convertLongDateToShort(date: snapArray.first!)
+            let endDate = convertLongDateToShort(date: snapArray.last ?? joinedDate)
+            joinedDates.text = "\(joinedDate) - \(endDate)"
+        }
     }
     
     func dateConverter(date: Date) -> String {

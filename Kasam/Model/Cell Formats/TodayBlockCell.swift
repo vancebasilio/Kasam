@@ -37,6 +37,7 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var hideDayTrackerView: UIView!
     @IBOutlet weak var collectionTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var collectionBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var restartButton: UIButton!
     
     var cellDelegate: TableCellDelegate?
     var row = 0
@@ -46,7 +47,6 @@ class TodayBlockCell: UITableViewCell {
     var hideDayTrackerDates = true
     let iconSize = CGFloat(35)
     var kasamID = ""
-    var setupCheck = 0
     
     func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
         dayTrackerCollectionView.delegate = dataSourceDelegate
@@ -55,32 +55,28 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func setBlock(block: TodayBlockFormat) {
-        if setupCheck == 0 {
-            print("hello set block \(SavedData.kasamDict[block.kasamID]?.kasamName)")
-            cellFormatting()
-            kasamID = block.kasamID
-            tempBlock = block
-            kasamName.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
-            if block.dayCount != nil {today = block.dayCount!}
-            else {today = Int(block.dayOrder)}
-            if block.dayOrder > SavedData.kasamDict[kasamID]?.repeatDuration ?? 0 {dayNumber.text = "Complete!"}
-            else if SavedData.kasamDict[kasamID]?.timelineDuration != nil {
-                dayNumber.text = "\(block.blockTitle)"
-                dayNumber.font = dayNumber.font.withSize(16)
-            } else {dayNumber.text = "Day \(block.dayOrder) of \(SavedData.kasamDict[kasamID]!.repeatDuration)"}
-            kasamImage.sd_setImage(with: block.image)
-            if SavedData.kasamDict[kasamID]!.metricType == "Checkmark" && block.dayOrder < SavedData.kasamDict[kasamID]?.repeatDuration ?? 0{
-                percentComplete.isHidden = true
-            }
-            DBRef.coachKasams.child(kasamID).child("Sequence").observeSingleEvent(of: .value) {(snap) in
-                if snap.exists() {SavedData.kasamDict[self.kasamID]?.sequence = (snap.value as? String)!}
-            }
-            setupCheck = 1
+        kasamID = block.kasamID
+        tempBlock = block
+        kasamName.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
+        print("hell2 \(SavedData.kasamDict[kasamID]?.kasamName)")
+        if block.dayCount != nil {today = block.dayCount!}
+        else {today = Int(block.dayOrder)}
+        if block.dayOrder > SavedData.kasamDict[kasamID]?.repeatDuration ?? 0 {dayNumber.text = "Complete!"}
+        else if SavedData.kasamDict[kasamID]?.timelineDuration != nil {
+            dayNumber.text = "\(block.blockTitle)"
+            dayNumber.font = dayNumber.font.withSize(16)
+        } else {dayNumber.text = "Day \(block.dayOrder) of \(SavedData.kasamDict[kasamID]!.repeatDuration)"}
+        kasamImage.sd_setImage(with: block.image)
+        if SavedData.kasamDict[kasamID]!.metricType == "Checkmark" && block.dayOrder < SavedData.kasamDict[kasamID]?.repeatDuration ?? 0{
+            percentComplete.isHidden = true
+        }
+        DBRef.coachKasams.child(kasamID).child("Sequence").observeSingleEvent(of: .value) {(snap) in
+            if snap.exists() {SavedData.kasamDict[self.kasamID]?.sequence = (snap.value as? String)!}
         }
     }
     
     func cellFormatting(){          //called in the Today Controller on "WillDisplay"
-        print("hello cell formatting")
+        print("hell2 cell formatting")
         //Cell formatting
         statsContent.layer.cornerRadius = 16.0
         
@@ -102,13 +98,15 @@ class TodayBlockCell: UITableViewCell {
         streakShadow.layer.shadowOffset = CGSize.zero
         streakShadow.layer.shadowRadius = 4
         
-        hideDayTrackerButton.setIcon(icon: .fontAwesomeRegular(.calendar), iconSize: 15, color: UIColor.colorFour, forState: .normal)
+        hideDayTrackerButton.setIcon(icon: .fontAwesomeRegular(.calendar), iconSize: 15, color: UIColor.darkGray, forState: .normal)
+        restartButton.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 15, color: UIColor.colorFour, forState: .normal)
         
         let centerCollectionView = NSNotification.Name("CenterCollectionView")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
     }
     
     func collectionCoverUpdate(){
+        print("hell2 collectionCoverUpdate")
         let gradient = CAGradientLayer()
         gradient.frame = dayTrackerCollectionView.superview?.bounds ?? CGRect.zero
         gradient.colors = [UIColor.white.withAlphaComponent(0).cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.white.withAlphaComponent(0).cgColor]
@@ -148,6 +146,20 @@ class TodayBlockCell: UITableViewCell {
             collectionTopConstraint.constant = 5
             collectionBottomConstraint.constant = -5
             hideDayTrackerDates = true
+        }
+    }
+    
+    @IBAction func restartButtonPressed(_ sender: Any) {
+        var saveTimeObserver: NSObjectProtocol?
+        addKasamPopup(kasamID: kasamID, new: true, timelineDuration: SavedData.kasamDict[kasamID]?.timelineDuration)
+        saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
+            let timeVC = notification.object as! AddKasamController
+            DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
+                DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(self.dateFormat(date: SavedData.kasamDict[self.kasamID]!.joinedDate)).setValue(SavedData.kasamDict[self.kasamID]?.repeatDuration)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
+                NotificationCenter.default.removeObserver(saveTimeObserver as Any)
+            }
         }
     }
     

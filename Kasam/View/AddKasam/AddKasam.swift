@@ -58,7 +58,12 @@ class AddKasamController: UIViewController {
             //Load in chosen Kasam preferences
             startDateTimeLabel.text = "Edit Preferences"
             if repeatDuration > 1 && (currentDay ?? 1 < repeatDuration) {
-                repeatPicker.selectRow(repeatDuration - (currentDay ?? 1), inComponent: 0, animated: false)
+                if timelineDuration == nil {
+                    repeatPicker.selectRow(repeatDuration - (currentDay ?? 1), inComponent: 0, animated: false)
+                } else {
+                    //If it's a timeline Kasam, only two options, so select the one without "No Goal"
+                    repeatPicker.selectRow(1, inComponent: 0, animated: false)
+                }
             }
             timeUnit = formattedTime.components(separatedBy: " ").last ?? "AM"
             let setAMPM = timeUnitArray.index(of: timeUnit) ?? 0
@@ -73,6 +78,19 @@ class AddKasamController: UIViewController {
         } else {
              //OPTION 2 - ADDING NEW KASAM, SET DEFAULT DATE AND TIME
             cancelButton.isHidden = true
+            if SavedData.kasamDict[kasamID]?.repeatDuration != nil {
+                repeatDuration = SavedData.kasamDict[kasamID]!.repeatDuration
+                if repeatDuration > 1 && (currentDay ?? 1 < repeatDuration) {
+                    startDateTimeLabel.text = "Restart Kasam"
+                    if timelineDuration == nil {
+                        //Restarting a kasam, so load in the previous duration
+                        repeatPicker.selectRow(repeatDuration - (currentDay ?? 1), inComponent: 0, animated: false)
+                    } else {
+                        //If it's a timeline Kasam, only two options, so select the one without "No Goal"
+                        repeatPicker.selectRow(1, inComponent: 0, animated: false)
+                    }
+                }
+            }
             formattedDate = dateFormat(date: Date())
             var tempMin = (Double(Calendar.current.component(.minute, from: Date())) / 60.0).rounded(toPlaces: 0)
             var tempHour = Calendar.current.component(.hour, from: Date())

@@ -50,7 +50,6 @@ class BlocksCell: UITableViewCell {
     }
     
     func setBasicKasamBenefits() {
-        print("hell90")
         imageHolder.isHidden = true
         dayNo.text = "Benefits:"
         dayNo.textColor = UIColor.black

@@ -1014,6 +1014,22 @@ extension UITableViewCell {
         let finalDate = formatter.string(from: currentDateTime)
         return finalDate
     }
+    
+    func convertLongDateToShort(date: String) -> String {
+        var dateOutput = ""
+        let dateFormatterGet = DateFormatter()
+        dateFormatterGet.dateFormat = "yyyy-MM-dd"                              //***keep this value the same as above
+        
+        let dateFormatterPrint = DateFormatter()
+        dateFormatterPrint.dateFormat = "MMM dd"
+        
+        if let date = dateFormatterGet.date(from: date) {
+            dateOutput = dateFormatterPrint.string(from: date)
+        } else {
+            print("There was an error converting the date")
+        }
+        return dateOutput
+    }
 }
 
 class PassThroughView: UIView {
