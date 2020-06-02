@@ -14,11 +14,11 @@ class discoverKasamFormat {
     var image: URL
     var title: String
     var rating: String
-    var creator: String
+    var creator: String?
     var kasamID: String
     var genre: String
     
-    init(title: String, image: URL, rating: String, creator: String, kasamID: String, genre: String){
+    init(title: String, image: URL, rating: String, creator: String?, kasamID: String, genre: String){
         self.image = image
         self.title = title
         self.rating = rating
@@ -120,11 +120,11 @@ class KasamSavedFormat {
     var streakInfo: streakInfo
     var displayStatus: String
     var percentComplete: Double
-    var badgeThresholds: [String]?
+    var badgeThresholds: [String]
     var badgeList: [String:Int]?
     var dayTrackerArray: [Int:(Date,Double)]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, timelineDuration: Int?, currentStatus: String, pastKasamJoinDates: [String:Int]?, sequence: String, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeThresholds: [String]?, badgeList: [String:Int]?, dayTrackerArray: [Int:(Date,Double)]?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, timelineDuration: Int?, currentStatus: String, pastKasamJoinDates: [String:Int]?, sequence: String, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeThresholds: [String], badgeList: [String:Int]?, dayTrackerArray: [Int:(Date,Double)]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate

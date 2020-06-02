@@ -349,7 +349,15 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 
                 self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: PlaceHolders.kasamLoadingImage)
                 
-                self.benefitsTextView.text = value["Benefits"] as? String ?? ""
+                let benefitsArray = (value["Benefits"] as? String ?? "").components(separatedBy: ";")
+                var benefitsText = ""
+                for benefit in benefitsArray {
+                    var formattedString = ""
+                    if benefit == benefitsArray.last {formattedString = "\u{2022} \(benefit)"}
+                    else {formattedString = "\u{2022} \(benefit)\n"}
+                    benefitsText.append(formattedString)
+                }
+                self.benefitsTextView.text = benefitsText
                 NewKasam.benefits = self.benefitsTextView.text
                 self.benefitsTextView.textColor = UIColor.darkGray
                 

@@ -41,6 +41,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let featuredString = snap.value as? String
             Assets.featuredKasams = featuredString?.components(separatedBy: ";") ?? ["-LqRRHDQuwf2tJmoNoaa"]
         })
+        Database.database().reference().child("Assets").child("DiscoverCriteria").observeSingleEvent(of: .value, with:{(snap) in
+            let discoverCriteria = snap.value as? String
+            Assets.discoverCriteria = discoverCriteria?.components(separatedBy: ";") ?? ["Fitness", "Health", "User"]
+        })
         return true
     }
     

@@ -111,11 +111,7 @@ extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
         let badge = SavedData.badgesAchieved[kasamName]?[indexPath.row]
         cell.selectionStyle = .none
         if badge != nil {
-            if badge!.badgeThreshold == 1 {
-                cell.kasamName.text = "\(badge!.badgeThreshold) day"
-            } else {
-                cell.kasamName.text = "\(badge!.badgeThreshold) days"
-            }
+            cell.kasamName.text = badge!.badgeThreshold.pluralUnit(unit: "day")
             cell.badgeDate.text = convertLongDateToShortYear(date: badge!.completedDate)
         }
         cell.textLabel?.textAlignment = .left

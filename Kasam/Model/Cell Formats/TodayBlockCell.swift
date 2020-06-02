@@ -151,7 +151,7 @@ class TodayBlockCell: UITableViewCell {
     
     @IBAction func restartButtonPressed(_ sender: Any) {
         var saveTimeObserver: NSObjectProtocol?
-        addKasamPopup(kasamID: kasamID, new: true, timelineDuration: SavedData.kasamDict[kasamID]?.timelineDuration)
+        addKasamPopup(kasamID: kasamID, new: true, timelineDuration: SavedData.kasamDict[kasamID]?.timelineDuration, badgeThresholds: SavedData.kasamDict[kasamID]!.badgeThresholds)
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
@@ -215,7 +215,7 @@ class TodayBlockCell: UITableViewCell {
         DispatchQueue.global(qos: .background).sync {
             if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
                 DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                    if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = (snap.value as? String)?.components(separatedBy: ";")}
+                    if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = (snap.value as! String).components(separatedBy: ";")}
                     else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = ["10","30","90"]}
                     self.blockBadge()
                 }
@@ -227,7 +227,7 @@ class TodayBlockCell: UITableViewCell {
     
     func blockBadge(){
         if SavedData.kasamDict[kasamID]?.badgeThresholds != nil {
-            let thresholdToHit = self.nearestElement(value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreak, array: SavedData.kasamDict[kasamID]!.badgeThresholds!)
+            let thresholdToHit = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak.nearestElement(array: SavedData.kasamDict[kasamID]!.badgeThresholds)
             let longestStreakDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date())
             if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak == thresholdToHit.value {
                 //Will only set the badge if the threshold is reached

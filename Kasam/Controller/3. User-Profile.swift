@@ -31,8 +31,6 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var startLevel: UILabel!
     @IBOutlet weak var totalDays: UILabel!
     @IBOutlet weak var weekStatsCollectionView: UICollectionView!
-    @IBOutlet weak var detailedStatsCollectionView: UICollectionView!
-    @IBOutlet weak var detailedStatsCollectionViewHeight: NSLayoutConstraint!
     @IBOutlet weak var kasamStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionViewHeight: NSLayoutConstraint!
@@ -98,13 +96,11 @@ class ProfileViewController: UIViewController {
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
         
     //STEP 1 - Titles
-        var titleHeights = 52.5 * 3
-        if editKasamsHeight.constant == 0 {
-            titleHeights = 52.5 * 2
-            editKasamsHeight.constant = 0
-        }
+        var multiplier = 0
+        if myKasamsArray.count != 0 {multiplier += 1}
+        let titleHeights = 52.5 + (57.5 * (Double(multiplier)))
     //STEP 2 - CollectionViews
-        collectionViewHeight.constant = detailedStatsCollectionViewHeight.constant + kasamStatsHeight.constant + editKasamsHeight.constant + CGFloat(titleHeights)
+        collectionViewHeight.constant = kasamStatsHeight.constant + editKasamsHeight.constant + CGFloat(titleHeights)
     //STEP 3 - TableView
         if completedStats.count > 0 {
             tableViewHeight = completedKasamTableHeight.constant + 42.5                //42.5 is the completed label height
@@ -170,7 +166,6 @@ class ProfileViewController: UIViewController {
         //Loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamDict.values {
             DBRef.coachKasams.child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
-                if snap.exists() {
                     let snapshot = snap.value as! Dictionary<String,Any>
                     let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
                     kasam.image = snapshot["Image"]! as! String
@@ -188,6 +183,7 @@ class ProfileViewController: UIViewController {
                         if self.completedStats.count == SavedData.kasamDict.count {
                             self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
                             self.completedKasamsTable.reloadData()
+                            
                         }
                     })
                     
@@ -197,7 +193,6 @@ class ProfileViewController: UIViewController {
                         let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
                         self.detailedStats.append(userStats)
                         self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
-                        self.detailedStatsCollectionView.reloadData()
                         self.weekStatsCollectionView.reloadData()
                     }
                         
@@ -206,11 +201,7 @@ class ProfileViewController: UIViewController {
                     self.kasamHistoryRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
                     self.daysCompletedDict[snapshot.key] = 1
                     let total = self.daysCompletedDict.count
-                    if total == 1 {
-                         self.totalDays.text = "\(String(total)) Kasam Day"
-                    } else {
-                        self.totalDays.text = "\(String(total)) Kasam Days"
-                    }
+                    self.totalDays.text = total.pluralUnit(unit: "Kasam Day")
                     if total <= 30 {
                         self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
                     } else if total > 30 && total <= 90 {
@@ -219,7 +210,6 @@ class ProfileViewController: UIViewController {
                     }
                 })
             }
-        }
         }
     }
     
@@ -285,7 +275,6 @@ class ProfileViewController: UIViewController {
                         self.editKasamsCollectionView.reloadData()
                         self.editKasamLabel.isHidden = false
                         self.editKasamsCollectionView.isHidden = false
-                        self.viewDidLayoutSubviews()
                     }
                     //remove observer
                     Database.database().reference().child("Coach-Kasams").child(snapshot.key).removeAllObservers()
@@ -460,7 +449,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
         } else {
             //for active kasam stats + completed kasam stats
             let cellWidth = ((view.frame.size.width - (15 * 4)) / 3)
-            detailedStatsCollectionViewHeight.constant = cellWidth + 40
             return CGSize(width: cellWidth, height: cellWidth + 40)
         }
     }
@@ -482,15 +470,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             kasamIDGlobal = myKasamsArray[indexPath.row].kasamID
             kasamImageGlobal = myKasamsArray[indexPath.row].imageURL
             self.performSegue(withIdentifier: "goToEditKasam", sender: indexPath)
-        } else if collectionView == detailedStatsCollectionView {
-            if detailedStats.count == 0 {
-               //go to Discover Page when clicked
-               animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
-               self.tabBarController?.selectedIndex = 0
-            } else {
-                kasamStatsTransfer = detailedStats[indexPath.row]; userHistoryTransfer = nil
-                self.performSegue(withIdentifier: "goToStats", sender: indexPath)
-            }
         }
     }
 }

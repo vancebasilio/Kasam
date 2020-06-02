@@ -31,21 +31,18 @@ class TodayChallengesCell: UICollectionViewCell {
     var row = 0
     var tempBlock: TodayBlockFormat?
     var kasamID = ""
-    var setupCheck = 0
     
     func setBlock(challenge: TodayBlockFormat) {
-        if setupCheck == 0 {
-            cellFormatting()
-            tempBlock = challenge
-            kasamID = challenge.kasamID
-            kasamImage.sd_setImage(with: challenge.image)
-            kasamImage.alpha = 0.7
-            kasamTitle.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
-            kasamDuration.textColor = UIColor.colorFive
-            if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {kasamDuration.text = "All day"}
-            else {kasamDuration.text = challenge.duration}
-            setupCheck = 1
-        }
+        cellFormatting()
+        tempBlock = challenge
+        kasamID = challenge.kasamID
+        kasamImage.sd_setImage(with: challenge.image)
+        kasamImage.alpha = 0.7
+        kasamTitle.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
+        kasamDuration.textColor = UIColor.colorFive
+        if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {kasamDuration.text = "All day"}
+        else {kasamDuration.text = challenge.duration}
+        statusUpdate()
     }
     
     @IBAction func kasamTitleSelected(_ sender: UIButton) {
@@ -78,8 +75,11 @@ class TodayChallengesCell: UICollectionViewCell {
         statusButtonHeight.constant = iconSize
         
         //Set percent value
-        if SavedData.kasamDict[kasamID]?.percentComplete == nil {percentComplete.setTitle("0%", for: .normal)}
-        else {percentComplete.setTitle("\(Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100))%", for: .normal)}
+        if SavedData.kasamDict[kasamID]?.percentComplete == nil {
+            percentComplete.setTitle("0%", for: .normal)
+        } else {
+            percentComplete.setTitle("\(Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100))%", for: .normal)
+        }
         
         if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
             percentComplete.backgroundColor = UIColor.colorFour
@@ -106,7 +106,7 @@ class TodayChallengesCell: UICollectionViewCell {
         DispatchQueue.global(qos: .background).sync {
             if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
                 DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                    if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = (snap.value as? String)?.components(separatedBy: ";")}
+                    if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = (snap.value as? String)!.components(separatedBy: ";")}
                     else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = ["10","30","90"]}
                     self.blockBadge()
                 }
@@ -118,7 +118,7 @@ class TodayChallengesCell: UICollectionViewCell {
     
     func blockBadge(){
         if SavedData.kasamDict[kasamID]?.badgeThresholds != nil {
-            let thresholdToHit = self.nearestElement(value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreak, array: SavedData.kasamDict[kasamID]!.badgeThresholds!)
+            let thresholdToHit = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak.nearestElement(array: SavedData.kasamDict[kasamID]!.badgeThresholds)
             if Int(SavedData.kasamDict[kasamID]?.percentComplete ?? 0) == thresholdToHit.value {
                 //Will only set the badge if the threshold is reached
                 DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(thresholdToHit.value)

@@ -38,7 +38,6 @@ class BlocksCell: UITableViewCell {
                 dayNo.font = dayNo.font.withSize(15)
             } else {
                 dayNo.isHidden = true
-                
                 challengeBenefitsLabelTopConstraint.constant = -17
             }
             blockTitle.isHidden = true

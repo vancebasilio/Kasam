@@ -116,9 +116,7 @@ class StatisticsViewController: UIViewController {
             }
         } else if userHistoryTransfer != nil {
             //OPTION 2 - Get all Kasam Stats
-            if userHistoryTransfer?.daysCompleted == 1 {self.dayNoValue.text = "1 Day"}
-            else {self.dayNoValue.text = "\(userHistoryTransfer!.daysCompleted) Days"}
-            
+            self.dayNoValue.text = userHistoryTransfer!.daysCompleted.pluralUnit(unit: "Day")
             let enumerator = userHistoryTransfer!.userHistorySnap!.children
             while let history = enumerator.nextObject() as? DataSnapshot {
                 getChartsAndTableStats(metricType: SavedData.kasamDict[userHistoryTransfer!.kasamID]!.metricType, day: nil, dayDate: nil, kasamDay: userHistoryTransfer!.daysCompleted, snapshot: history)

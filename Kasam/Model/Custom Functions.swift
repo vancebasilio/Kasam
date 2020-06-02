@@ -25,12 +25,6 @@ class ProgessView: UIProgressView {
 
 extension UITableViewCell {
     
-    func nearestElement(value : Int, array : [String]) -> (value: Int, level: Int) {
-        var n = 0
-        while Int(array[n]) ?? 1 < value {n+=1}
-        return (Int(array[n]) ?? 1, n)
-    }
-    
     func dateFormat(date: Date) -> String {
         let date = date
         let formatter = DateFormatter()
@@ -42,12 +36,6 @@ extension UITableViewCell {
 }
 
 extension UICollectionViewCell {
-    
-    func nearestElement(value : Int, array : [String]) -> (value: Int, level: Int) {
-        var n = 0
-        while Int(array[n]) ?? 1 < value {n+=1}
-        return (Int(array[n]) ?? 1, n)
-    }
     
     func dateFormat(date: Date) -> String {
         let date = date
@@ -261,12 +249,6 @@ extension UIViewController {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
-    }
-    
-    func nearestElement(value : Int, array : [String]) -> (value: Int, level: Int) {
-        var n = 0
-        while Int(array[n]) ?? 1 < value {n+=1}
-        return (Int(array[n]) ?? 1, n)
     }
     
     func setStatusBarColor(color: UIColor) {
@@ -945,6 +927,20 @@ extension Int {
         let mins = fullIntTime / 60 % 60
         let secs = fullIntTime % 60
         return (hours: hours, mins: mins, secs: secs)
+    }
+    
+    func pluralUnit(unit: String) -> String {
+        if self == 1 {
+            return "\(self) \(unit)"
+        } else {
+            return "\(self) \(unit)s"
+        }
+    }
+    
+    func nearestElement(array : [String]) -> (value: Int, level: Int) {
+        var n = 0
+        while Int(array[n]) ?? 1 < self {n+=1}
+        return (Int(array[n]) ?? 1, n)
     }
 }
 
