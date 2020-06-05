@@ -483,7 +483,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func addUserPreferncestoKasam(restart: Bool){
         DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Status": "active", "Duration": timelineDuration as Any]) {(error, reference) in
 //          Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-            if self.initialRepeat == 0 && self.chosenRepeat > 0 || self.initialRepeat == nil  {
+            if self.initialRepeat == nil {
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "AddKasamToday"), object: self, userInfo: ["kasamID": self.kasamID])
+            } else if self.initialRepeat == 0 && self.chosenRepeat > 0 {
                 print("option 1")
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
             } else if self.initialRepeat! > 0 && self.chosenRepeat == 0 {

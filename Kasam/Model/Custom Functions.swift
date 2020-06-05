@@ -218,9 +218,11 @@ extension UIViewController {
                     
                     //delete the pictures from the Kasam if it's not the placeholder image
                     if let headerImageToDelete = NewKasam.loadedInKasamImageURL {self.deleteFileFromURL(from: headerImageToDelete)}
-                    for block in 1...NewKasam.fullActivityMatrix.count {
-                        if let activityImageToDelete = NewKasam.fullActivityMatrix[block]?[0]?.imageToLoad {
-                            self.deleteFileFromURL(from: activityImageToDelete)
+                    if NewKasam.fullActivityMatrix.count != 0 {
+                        for block in 1...NewKasam.fullActivityMatrix.count {
+                            if let activityImageToDelete = NewKasam.fullActivityMatrix[block]?[0]?.imageToLoad {
+                                self.deleteFileFromURL(from: activityImageToDelete)
+                            }
                         }
                     }
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "getUserKasams"), object: self)
@@ -694,11 +696,11 @@ extension Date {
     }
     
     func dayNumberOfWeek() -> Int? {
-        let dayNo = Calendar.current.dateComponents([.weekday], from: self).weekday
+        let dayNo = Calendar.current.dateComponents([.weekday], from: self).weekday!
         if  dayNo != 1 {
-            return dayNo ?? 2 - 1
+            return dayNo - 1
         } else {
-            return (dayNo ?? 1) + 6
+            return dayNo + 6
         }
     }
     

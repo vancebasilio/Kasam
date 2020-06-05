@@ -19,6 +19,7 @@ class TodayChallengesCell: UICollectionViewCell {
 
     @IBOutlet weak var BGOutline: UIView!
     @IBOutlet weak var kasamImage: UIImageView!
+    @IBOutlet weak var kasamImageBGColor: UIView!
     @IBOutlet weak var kasamTitle: UIButton!
     @IBOutlet weak var kasamDuration: UILabel!
     @IBOutlet weak var statusIcon: UIButton!
@@ -33,13 +34,13 @@ class TodayChallengesCell: UICollectionViewCell {
     var kasamID = ""
     
     func setBlock(challenge: TodayBlockFormat) {
+        print("hell2 challenge \(SavedData.kasamDict[challenge.kasamID]?.kasamName)")
         cellFormatting()
         tempBlock = challenge
         kasamID = challenge.kasamID
         kasamImage.sd_setImage(with: challenge.image)
         kasamImage.alpha = 0.7
         kasamTitle.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
-        kasamDuration.textColor = UIColor.colorFive
         if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {kasamDuration.text = "All day"}
         else {kasamDuration.text = challenge.duration}
         statusUpdate()
@@ -50,6 +51,7 @@ class TodayChallengesCell: UICollectionViewCell {
     }
     
     func cellFormatting(){
+        print("hell2 challenge cell formatting")
         BG.layer.cornerRadius = 20
         BG.clipsToBounds = true
         BG.layer.cornerRadius = 20
@@ -77,8 +79,15 @@ class TodayChallengesCell: UICollectionViewCell {
         //Set percent value
         if SavedData.kasamDict[kasamID]?.percentComplete == nil {
             percentComplete.setTitle("0%", for: .normal)
+            kasamImageBGColor.backgroundColor = UIColor.black
         } else {
-            percentComplete.setTitle("\(Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100))%", for: .normal)
+            let percent = Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100)
+            percentComplete.setTitle("\(percent)%", for: .normal)
+            if percent == 100 {
+                kasamImageBGColor.backgroundColor = UIColor.init(hex: 0x043927)
+            } else {
+                kasamImageBGColor.backgroundColor = UIColor.black
+            }
         }
         
         if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {

@@ -111,6 +111,9 @@ class DiscoverViewController: UIViewController {
         if segue.identifier == "goToKasam" {
             let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDGlobal
+        } else if segue.identifier == "goToCreateKasam" {
+            let segueTransferHolder = segue.destination as! NewKasamPageController
+            segueTransferHolder.kasamType = "basic"
         }
     }
     

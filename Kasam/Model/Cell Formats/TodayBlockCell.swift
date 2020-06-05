@@ -168,7 +168,7 @@ class TodayBlockCell: UITableViewCell {
     }
     
     @objc func centerCollectionView() {
-        if today != nil {
+        if today != nil && tempBlock != nil {
             if tempBlock!.dayOrder < SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
                 let indexPath = IndexPath(item: self.today! - 1, section: 0)
                 self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells

@@ -25,7 +25,7 @@ class TodayDayTrackerCell: UICollectionViewCell {
     var futureInternal: Bool?
     
     func setBlock(kasamID: String, kasamOrder: Int, day: Int, status: Double, date: String, today: Bool?, future: Bool){
-        cellButton.layer.cornerRadius = cellButton.frame.width / 2
+        cellButton.layer.cornerRadius = 12
         cellButton.setTitle("\(day)", for: .normal)
         if SavedData.kasamDict[kasamID]?.sequence == nil {
             dayTrackerDate.text = date
@@ -48,7 +48,7 @@ class TodayDayTrackerCell: UICollectionViewCell {
             cellButton.setTitleColor(UIColor.black, for: .normal)           //black text buttons for today and past days
             cellButtonOutline.layer.borderColor = UIColor.colorFour.cgColor
             cellButtonOutline.layer.borderWidth = 2.0
-            cellButtonOutline.layer.cornerRadius = cellButtonOutline.frame.size.width / 2
+            cellButtonOutline.layer.cornerRadius = 15
             cellButtonOutline.isHidden = false
         } else {
             cellButtonOutline.isHidden = true
