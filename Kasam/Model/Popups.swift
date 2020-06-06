@@ -161,7 +161,7 @@ import Firebase
         attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
         attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
         attributes.roundCorners = .all(radius: 20)
-        var height = CGFloat(35)        //Badges Title height
+        var height = CGFloat(40)        //Badges Title height
         if kasamID == nil {
             height += CGFloat(SavedData.badgeSubCatCount * 40)
         } else {

@@ -80,13 +80,16 @@ class TodayChallengesCell: UICollectionViewCell {
         if SavedData.kasamDict[kasamID]?.percentComplete == nil {
             percentComplete.setTitle("0%", for: .normal)
             kasamImageBGColor.backgroundColor = UIColor.black
+            kasamImage.alpha = 0.7
         } else {
             let percent = Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100)
             percentComplete.setTitle("\(percent)%", for: .normal)
             if percent == 100 {
                 kasamImageBGColor.backgroundColor = UIColor.init(hex: 0x043927)
+                kasamImage.alpha = 0.4
             } else {
                 kasamImageBGColor.backgroundColor = UIColor.black
+                kasamImage.alpha = 0.7
             }
         }
         
@@ -103,7 +106,7 @@ class TodayChallengesCell: UICollectionViewCell {
             shadow.layer.shadowOpacity = 0.6
             percentComplete.backgroundColor = .dayYesColor
             statusIcon.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: .dayYesColor, backgroundColor: .white, forState: .normal)
-            statusIcon.layer.cornerRadius = statusIcon.frame.height
+            statusIcon.layer.cornerRadius = 25
         } else if SavedData.kasamDict[kasamID]?.displayStatus == "Progress" {
             shadow.layer.shadowColor = UIColor.black.cgColor
             shadow.layer.shadowOpacity = 0.2

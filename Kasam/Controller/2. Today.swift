@@ -128,12 +128,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         
         //elongates the entire scrollview, based on the tableview height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let challengeCollectionPadding: CGFloat =  30
-        let collectionViewSize = frame.size.width - challengeCollectionPadding
-        challengeCellWidth = (collectionViewSize * 0.6)           //0.7 sets how much of the screen width to use up, the height is then 1.3x this width
+        challengeCellWidth = ((frame.size.width - CGFloat(30)) * 0.6)             //CHANGE THIS VALUE FOR COLLECTIONVIEWCELL WIDTH
         challengesCollectionHeight.constant = (challengeCellWidth * 1.3)
         
-        let contentViewHeight = tableViewHeight.constant + (challengesCollectionHeight.constant)
+        let contentViewHeight = 105.5 + tableViewHeight.constant + 50 + challengesCollectionHeight.constant
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {
@@ -663,18 +661,11 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         SavedData.badgesCount = 0
         for kasam in SavedData.kasamDict {
             //STEP 1 - GET THE BADGE THRESHOLDS
-            if SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds == nil {
-                DBRef.coachKasams.child(kasam.value.kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                    if snap.exists() {
-                        SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds = (snap.value as! String).components(separatedBy: ";")
-                    }
-                    else {
-                        SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds = ["10","30","90"]
-                    }
-                    self.badgesAchieved(kasam:kasam)
+            DBRef.coachKasams.child(kasam.value.kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
+                if snap.exists() {
+                    SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds = (snap.value as! String).components(separatedBy: ";")
                 }
-            } else {
-                self.badgesAchieved(kasam: kasam)
+                self.badgesAchieved(kasam:kasam)
             }
         }
     }

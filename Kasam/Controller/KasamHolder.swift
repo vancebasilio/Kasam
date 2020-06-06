@@ -214,7 +214,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             var daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress ?? 0)
             let maxAchieved = Int(daysCompleted).nearestElement(array: badgeThresholds)
             finishIcon.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 35, color: UIColor.colorFive.lighter, forState: .normal)
-            extendIcon.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 30, color: UIColor.colorFive.lighter, forState: .normal)
+            extendIcon.setIcon(icon: .fontAwesomeSolid(.arrowCircleRight), iconSize: 30, color: UIColor.colorFive.lighter, forState: .normal)
             finishLabel.textColor = UIColor.colorFive.lighter
             extendLabel.textColor = UIColor.colorFive.lighter
             if SavedData.kasamDict[kasamID]!.currentDay >= SavedData.kasamDict[kasamID]!.repeatDuration {
@@ -282,7 +282,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func extendButtonPressed(_ sender: Any) {
-        addButtonPress(reset:true)
+        addButtonPress(reset:false)
     }
     
     //BUTTON PRESSES----------------------------------------------------------------------

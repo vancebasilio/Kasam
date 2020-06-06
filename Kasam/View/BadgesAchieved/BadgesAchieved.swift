@@ -19,7 +19,7 @@ class BadgesAchieved: UIViewController {
     required init?(coder aDecoder: NSCoder) {fatalError("init(coder:) has not been implemented")}
     
     var kasamID: String?
-    var badgeNameArray = Array(SavedData.badgesAchieved.keys)
+    var badgeNameArray = Array(SavedData.badgesAchieved.keys).sorted()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -116,21 +116,6 @@ extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
         }
         cell.textLabel?.textAlignment = .left
         return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        if indexPath.row == 0 {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self)
-            SwiftEntryKit.dismiss()
-        } else if indexPath.row == 1 {
-            let popupImage = UIImage.init(icon: .fontAwesomeSolid(.doorOpen), size: CGSize(width: 30, height: 30), textColor: .white)
-            showPopupConfirmation(title: "Are you sure?", description: "", image: popupImage, buttonText: "Logout") {(success) in
-                AppManager.shared.logoout()
-                LoginManager().logOut()
-                SwiftEntryKit.dismiss()
-            }
-        }
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
