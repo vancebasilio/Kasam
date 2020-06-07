@@ -57,7 +57,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         getKasamFollowing(nil)
         getMotivationBackgrounds()
         setupNotifications()
-        printLocalNotifications()
     }
     
     //Center the day Tracker to today
@@ -99,18 +98,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         
         let resetTodayChallenges = NSNotification.Name("ResetTodayChallenges")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.resetTodayChallenges), name: resetTodayChallenges, object: nil)
-    }
-    
-    func printLocalNotifications(){
-        let center = UNUserNotificationCenter.current()
-//        center.removeAllDeliveredNotifications() // To remove all delivered notifications
-//        center.removeAllPendingNotificationRequests()
-        center.getPendingNotificationRequests { (notifications) in
-            print("Count: \(notifications.count)")
-            for item in notifications {
-                print(item.content.title, item.content.body, item.content)
-            }
-        }
     }
     
     //Table Resizing----------------------------------------------------------------------------------------

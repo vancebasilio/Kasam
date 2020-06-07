@@ -66,6 +66,8 @@
 		BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06122A9D22E008C5A7D /* AppContainer.swift */; };
 		BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06322A9D2AB008C5A7D /* AppManager.swift */; };
 		BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */ = {isa = PBXBuildFile; fileRef = BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */; };
+		BCB7FFCE248BCF4900E41913 /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB7FFCD248BCF4900E41913 /* NotificationsController.swift */; };
+		BCB7FFD0248BD3F600E41913 /* NotificationsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB7FFCF248BD3F600E41913 /* NotificationsCell.swift */; };
 		BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */; };
 		BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */; };
 		BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BCC79A05226BD56000B72D65 /* Default-568h@2x.png */; };
@@ -156,6 +158,8 @@
 		BCA9A06122A9D22E008C5A7D /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		BCA9A06322A9D2AB008C5A7D /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
 		BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fireworks-loading.json"; path = "Supporting Files/Lottie Animations/fireworks-loading.json"; sourceTree = SOURCE_ROOT; };
+		BCB7FFCD248BCF4900E41913 /* NotificationsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsController.swift; sourceTree = "<group>"; };
+		BCB7FFCF248BD3F600E41913 /* NotificationsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsCell.swift; sourceTree = "<group>"; };
 		BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KasamTrackerCell.swift; sourceTree = "<group>"; };
 		BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
 		BCC79A05226BD56000B72D65 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -225,6 +229,15 @@
 				BC2B4C7F23A70436005F2255 /* rocket-fast.json */,
 			);
 			path = "Lottie Animations";
+			sourceTree = "<group>";
+		};
+		BC1C8412248B531400797A20 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				BCB7FFCD248BCF4900E41913 /* NotificationsController.swift */,
+				BCB7FFCF248BD3F600E41913 /* NotificationsCell.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		BC1FAF202269FAFA006A9245 = {
@@ -363,6 +376,7 @@
 				BCC07F4D2466F357000E2D81 /* UserOptions */,
 				BCF8A2FF246436140030C323 /* BadgesAchieved */,
 				BCC07F4E24670A11000E2D81 /* AddKasam */,
+				BC1C8412248B531400797A20 /* Notifications */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -675,6 +689,7 @@
 				BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */,
 				BC9C7841228CD2DB000C8D0A /* 2. Today.swift in Sources */,
 				BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */,
+				BCB7FFCE248BCF4900E41913 /* NotificationsController.swift in Sources */,
 				BCE4B4BB23666E2800C75480 /* UserOptionsController.swift in Sources */,
 				BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */,
 				BC38419C24037DE6005D929A /* TodayDayTrackerCell.swift in Sources */,
@@ -700,6 +715,7 @@
 				BC9C2424226FD6FF00E7B64B /* -NewKasam.swift in Sources */,
 				BC5C499C228122BB00EC0EA8 /* KasamSquareCell.swift in Sources */,
 				BCE50BDD22D0497B000F2534 /* KasamHolder.swift in Sources */,
+				BCB7FFD0248BD3F600E41913 /* NotificationsCell.swift in Sources */,
 				BC520BBB227413E100553C6B /* Transitions.swift in Sources */,
 				BC1092A923A0555D00575EDB /* AddKasam.swift in Sources */,
 				BC08B957229D585900F90288 /* CellFormats.swift in Sources */,

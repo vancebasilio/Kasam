@@ -136,7 +136,7 @@ import Firebase
         
         var noOfRows = 0
         if type == "userOptions" {
-            noOfRows = 3
+            noOfRows = 4
             viewController.popupType = "userOptions"
         } else if type == "categoryOptions" {
             noOfRows = Icons.categoryIcons.count

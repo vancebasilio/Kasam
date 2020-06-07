@@ -15,7 +15,7 @@ import SkeletonView
 import GoogleSignIn
 import Lottie
 
-class ProfileViewController: UIViewController {
+class ProfileViewController: UIViewController, UIPopoverPresentationControllerDelegate {
    
     @IBOutlet weak var userFirstName: UILabel!
     @IBOutlet weak var profileImage: UIImageView!
@@ -134,6 +134,9 @@ class ProfileViewController: UIViewController {
         let goToCreateKasam = NSNotification.Name("GoToCreateKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
         
+        let goToNotifications = NSNotification.Name("GoToNotifications")
+        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.goToNotifications), name: goToNotifications, object: nil)
+        
         let showCompletionAnimation = NSNotification.Name("ShowCompletionAnimation")
                NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.showCompletionAnimation), name: showCompletionAnimation, object: nil)
     }
@@ -146,6 +149,10 @@ class ProfileViewController: UIViewController {
         NewKasam.resetKasam()
         newKasamType = notification?.userInfo?["type"] as! String
         performSegue(withIdentifier: "goToCreateKasam", sender: nil)
+    }
+    
+    @objc func goToNotifications(){
+        performSegue(withIdentifier: "goToNotifications", sender: nil)
     }
     
     @objc func showCompletionAnimation(){
@@ -370,6 +377,7 @@ class ProfileViewController: UIViewController {
         } else if segue.identifier == "goToCreateKasam" {
             let segueTransferHolder = segue.destination as! NewKasamPageController
             segueTransferHolder.kasamType = newKasamType
+        } else if segue.identifier == "goToNotifications" {
         }
     }
     

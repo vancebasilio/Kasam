@@ -32,7 +32,7 @@ class UserOptionsController: UIViewController {
 extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if popupType == "userOptions" {
-            return 3
+            return 4
         } else {
             return Icons.categoryIcons.count
         }
@@ -45,7 +45,8 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
             switch indexPath.row {
                 case 0: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.gift), postfixText: "  Create a Basic Kasam", size: 20)
                 case 1: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.cubes), postfixText: "  Create a Complex Kasam", size: 20)
-                case 2: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.signOutAlt), postfixText: "  Log Out", size: 20)
+                case 2: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.bell), postfixText: "  Notifications", size: 20)
+                case 3: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.signOutAlt), postfixText: "  Log Out", size: 20)
                 default: cell.textLabel?.text = ""
             }
         } else if popupType == "categoryOptions" {
@@ -66,19 +67,26 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if popupType == "userOptions" {
-            if indexPath.row == 0 {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "basic"])
-                SwiftEntryKit.dismiss()
-            } else if indexPath.row == 1 {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "complex"])
-                SwiftEntryKit.dismiss()
-            } else if indexPath.row == 2 {
-                let popupImage = UIImage.init(icon: .fontAwesomeSolid(.doorOpen), size: CGSize(width: 30, height: 30), textColor: .white)
-                showPopupConfirmation(title: "Are you sure?", description: "", image: popupImage, buttonText: "Logout") {(success) in
-                    AppManager.shared.logoout()
-                    LoginManager().logOut()
+            switch indexPath.row {
+                case 0:
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "basic"])
                     SwiftEntryKit.dismiss()
-                }
+                
+                case 1:
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "complex"])
+                    SwiftEntryKit.dismiss()
+                
+                case 2:
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNotifications"), object: self)
+                    SwiftEntryKit.dismiss()
+                case 3:
+                    let popupImage = UIImage.init(icon: .fontAwesomeSolid(.doorOpen), size: CGSize(width: 30, height: 30), textColor: .white)
+                    showPopupConfirmation(title: "Are you sure?", description: "", image: popupImage, buttonText: "Logout") {(success) in
+                        AppManager.shared.logoout()
+                        LoginManager().logOut()
+                        SwiftEntryKit.dismiss()
+                    }
+                default: SwiftEntryKit.dismiss()
             }
         } else if popupType == "categoryOptions" {
             categoryChosen = Icons.categoryIcons[indexPath.row]

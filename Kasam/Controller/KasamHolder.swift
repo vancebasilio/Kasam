@@ -539,7 +539,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         
         // Create request
-        let uniqueID = "Notification-\(kasamID)"        // Keep a record of this
+        let uniqueID = "\(kasamID)"        // Keep a record of this
         let request = UNNotificationRequest(identifier: uniqueID, content: content, trigger: trigger)
         let center = UNUserNotificationCenter.current()
         center.add(request) {(error : Error?) in        // Add the notification request
