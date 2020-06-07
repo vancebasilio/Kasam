@@ -26,11 +26,13 @@ class NotificationsController: UIViewController {
         saveButton.layer.cornerRadius = 20.0
         closeButton?.setIcon(icon: .fontAwesomeSolid(.times), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
         localNotifications()
+        
+        let setupNotification = NSNotification.Name("SetupNotification")
+        NotificationCenter.default.addObserver(self, selector: #selector(NotificationsController.setupNotification), name: setupNotification, object: nil)
     }
      
     func localNotifications(){
         let center = UNUserNotificationCenter.current()
-//        center.removeAllDeliveredNotifications() // To remove all delivered notifications
 //        center.removeAllPendingNotificationRequests()
         center.getPendingNotificationRequests {(notifications) in
             print("hell7 Count: \(notifications.count)")
@@ -42,7 +44,18 @@ class NotificationsController: UIViewController {
         }
     }
     
+    @objc func setupNotification (_ notification: NSNotification?){
+        if let kasamID = notification?.userInfo?["kasamID"] as? String {
+            let kasam = SavedData.kasamDict[kasamID]
+            setupNotifications(kasamID: kasamID, kasamName: kasam!.kasamName, startDate: dateFormat(date:kasam!.joinedDate), chosenTime: kasam!.startTime)
+        }
+    }
+    
     @IBAction func closeButtonPressed(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func saveButtonPressed(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
 }

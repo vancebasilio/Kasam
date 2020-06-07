@@ -34,4 +34,13 @@ class NotificationsCell: UITableViewCell {
             preferenceSwitch.setOn(false, animated: false)
         }
     }
+    
+    @IBAction func switchClicked(_ sender: Any) {
+        let center = UNUserNotificationCenter.current()
+        if preferenceSwitch.isOn {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "SetupNotification"), object: self, userInfo: ["kasamID": kasamID])
+        } else {
+            center.removePendingNotificationRequests(withIdentifiers: [kasamID])
+        }
+    }
 }

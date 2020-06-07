@@ -448,7 +448,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func registerUserToKasam() {
-            setupNotifications()
+            setupNotifications(kasamID: kasamID, kasamName: kasamGTitle, startDate: self.startDate, chosenTime: self.chosenTime)
             //STEP 1: Adds the user to the Kasam-following list
             DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
             
@@ -506,44 +506,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
         NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
         NotificationCenter.default.removeObserver(self.refreshBadge as Any)
-    }
-    
-    func setupNotifications(){
-        // Ask permission for notifications
-        let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
-            if granted {
-                //Permission granted
-            } else {
-                //Permission denied
-            }
-        }
-        scheduleNotification()
-    }
-    
-    private func scheduleNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = "\(kasamGTitle) Reminder"
-        content.body = "Time to get cracking on your '\(kasamGTitle)' Kasam"
-        content.categoryIdentifier = "\(kasamGTitle) \(self.startDate) \(self.chosenTime)"
-        content.sound = UNNotificationSound.default
-        content.userInfo = ["example": "information"] // You can retrieve this when displaying notification
-
-        //Set notification to trigger at the chosen time
-        let startDate = stringToDate(date: self.startDate)
-        let endDate = Calendar.current.date(byAdding: .day, value: 30, to: startDate)!
-        
-        var dateComponents = Calendar.current.dateComponents([.hour, .minute], from: startDate, to: endDate)
-        dateComponents.hour = self.chosenTimeHour
-        dateComponents.minute = self.chosenTimeMin
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        
-        // Create request
-        let uniqueID = "\(kasamID)"        // Keep a record of this
-        let request = UNNotificationRequest(identifier: uniqueID, content: content, trigger: trigger)
-        let center = UNUserNotificationCenter.current()
-        center.add(request) {(error : Error?) in        // Add the notification request
-        }
     }
     
     func countFollowers(){

@@ -575,6 +575,39 @@ extension UIViewController {
         return headerBlurImageView
     }
     
+    func setupNotifications(kasamID: String, kasamName: String, startDate: String, chosenTime: String){
+        // Ask permission for notifications
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .badge, .sound]) {(granted, error) in
+            if granted {
+                //Permission granted
+            } else {
+                //Permission denied
+            }
+        }
+        let content = UNMutableNotificationContent()
+        content.title = "\(kasamName) Reminder"
+        content.body = "Time to get cracking on your '\(kasamName)' Kasam"
+        content.categoryIdentifier = "\(kasamName) \(startDate) \(chosenTime)"
+        content.sound = UNNotificationSound.default
+        content.userInfo = ["example": "information"] // You can retrieve this when displaying notification
+
+        //Set notification to trigger at the chosen time
+        let startDate = stringToDate(date: startDate)
+        let endDate = Calendar.current.date(byAdding: .day, value: 30, to: startDate)!
+        
+        var dateComponents = Calendar.current.dateComponents([.hour, .minute], from: startDate, to: endDate)
+        dateComponents.hour = chosenTime.stringToTime().hour
+        dateComponents.minute = chosenTime.stringToTime().minute
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        
+        // Create request
+        let uniqueID = "\(kasamID)"        // Keep a record of this
+        let request = UNNotificationRequest(identifier: uniqueID, content: content, trigger: trigger)
+        center.add(request) {(error : Error?) in        // Add the notification request
+        }
+    }
+    
     func finishKasamPress (kasamID: String, completion: @escaping (Bool) -> ()) {
         let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
         showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
@@ -802,12 +835,19 @@ extension UIImage {
 
 extension String {
     func slice(from: String, to: String) -> String? {
-        
         return (range(of: from)?.upperBound).flatMap { substringFrom in
             (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
                 String(self[substringFrom..<substringTo])
             }
         }
+    }
+    
+    func stringToTime () -> (hour: Int, minute: Int) {
+        let dateAsString = self
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "h:mm a"
+        let date = dateFormatter.date(from: dateAsString)
+        return (Calendar.current.component(.hour, from: date!), Calendar.current.component(.minute, from: date!))
     }
 }
 
