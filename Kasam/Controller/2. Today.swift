@@ -182,27 +182,34 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     //STEP 2
     func getPreferences(snapshot: DataSnapshot, kasamID: String?, new: Bool){
         print("step 2 hell6 inside get preferences")
+        var image: String?
         //Get Kasams from user following + their preference for each kasam
         if let value = snapshot.value as? [String: Any] {
             let currentStatus = value["Status"] as? String ?? "active"
             let repeatDuration = value["Repeat"] as? Int ?? 1
     
             var order = 0
-            if kasamID != nil && new == false {order = SavedData.kasamDict[kasamID!]!.kasamOrder}
-            else if kasamID != nil && new == true {
+            if kasamID != nil && new == false {
+                //Reloading kasam already being followed
+                order = SavedData.kasamDict[kasamID!]!.kasamOrder
+                image = SavedData.kasamDict[kasamID!]?.image
+            } else if kasamID != nil && new == true {
+                //Adding a new kasam to the today page
                 if repeatDuration > 0 {order = SavedData.kasamBlocks.count}
                 else if repeatDuration == 0 {order = SavedData.challengeBlocks.count}
             }
             else {
+                //Reloading all kasams
                 if repeatDuration > 0 {order = kasamOrder}
                 else if repeatDuration == 0 {order = challengeOrder}
             }
             
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: self.stringToDate(date: value["Date Joined"] as? String ?? ""), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: nil, metricType: value["Metric"] as? String ?? "Checkmark", timelineDuration: value["Duration"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: "days", streakInfo: (0,0,0,0,0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: ["10","30","90"], badgeList: value["Badges"] as? [String: Int], dayTrackerArray: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: self.stringToDate(date: value["Date Joined"] as? String ?? ""), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timelineDuration: value["Duration"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: "days", streakInfo: (0,0,0,0,0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: ["10","30","90"], badgeList: value["Badges"] as? [String: Int], dayTrackerArray: nil)
+            
             if currentStatus == "active" {
                 if repeatDuration > 0 {kasamOrder += 1}
                 else if repeatDuration == 0 {challengeOrder += 1}
-                SavedData.todayKasamList.append(preference.kasamID)
+                if kasamID == nil {SavedData.todayKasamList.append(preference.kasamID)}
             } else {
                 count -= 1
             }

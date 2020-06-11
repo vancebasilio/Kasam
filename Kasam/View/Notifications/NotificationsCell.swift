@@ -16,6 +16,7 @@ class NotificationsCell: UITableViewCell {
     @IBOutlet weak var preferenceSwitch: UISwitch!
     
     var kasamID = ""
+    var order = 0
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -41,6 +42,19 @@ class NotificationsCell: UITableViewCell {
             NotificationCenter.default.post(name: Notification.Name(rawValue: "SetupNotification"), object: self, userInfo: ["kasamID": kasamID])
         } else {
             center.removePendingNotificationRequests(withIdentifiers: [kasamID])
+        }
+    }
+    
+    @IBAction func editButtonPressed(_ sender: Any) {
+        var saveTimeObserver: NSObjectProtocol?
+        addKasamPopup(kasamID: kasamID, new: false, timelineDuration: SavedData.kasamDict[kasamID]?.timelineDuration, badgeThresholds: SavedData.kasamDict[kasamID]!.badgeThresholds, fullView: false)
+        saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
+            let timeVC = notification.object as! AddKasamController
+            DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Time": timeVC.formattedTime]) {(error, reference) in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ReloadNotifications"), object: self, userInfo: ["order": self.order])
+                NotificationCenter.default.removeObserver(saveTimeObserver as Any)
+            }
         }
     }
 }

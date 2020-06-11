@@ -229,7 +229,7 @@ import Firebase
 
 
     //ADD KASAM---------------------------------------------------------------------------------------------
-    func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?, badgeThresholds: [String]) {
+    func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?, badgeThresholds: [String], fullView: Bool) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -244,7 +244,11 @@ import Firebase
         attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
         attributes.shadow = .active(with: .init(color: EKColor(UIColor.colorFour), opacity: 0.6, radius: 6))
         attributes.roundCorners = .all(radius: 20)
-        attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 380))
+        if fullView == true {
+            attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 380))
+        } else {
+            attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 300))
+        }
         attributes.positionConstraints.verticalOffset = 0
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark
@@ -252,6 +256,7 @@ import Firebase
         vC.kasamID = kasamID
         vC.badgeThresholds = badgeThresholds
         vC.new = new
+        vC.fullView = fullView
         vC.timelineDuration = timelineDuration
         SwiftEntryKit.display(entry: vC, using: attributes)
     }

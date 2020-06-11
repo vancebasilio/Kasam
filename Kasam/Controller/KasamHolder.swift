@@ -412,10 +412,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //OPENS THE POPUP TO ENTER PREFERENCES
         if registerCheck == 0 || reset == true {
             //Adding new Kasam
-            addKasamPopup(kasamID: kasamID, new: true, timelineDuration: timelineDuration, badgeThresholds: badgeThresholds)
+            addKasamPopup(kasamID: kasamID, new: true, timelineDuration: timelineDuration, badgeThresholds: badgeThresholds, fullView: true)
         } else {
             //Existing Kasam prefernces being updated
-            addKasamPopup(kasamID: kasamID, new: false, timelineDuration: timelineDuration, badgeThresholds: badgeThresholds)
+            addKasamPopup(kasamID: kasamID, new: false, timelineDuration: timelineDuration, badgeThresholds: badgeThresholds, fullView: true)
         }
         //If the user presses save:
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in

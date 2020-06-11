@@ -151,7 +151,7 @@ class TodayBlockCell: UITableViewCell {
     
     @IBAction func restartButtonPressed(_ sender: Any) {
         var saveTimeObserver: NSObjectProtocol?
-        addKasamPopup(kasamID: kasamID, new: true, timelineDuration: SavedData.kasamDict[kasamID]?.timelineDuration, badgeThresholds: SavedData.kasamDict[kasamID]!.badgeThresholds)
+        addKasamPopup(kasamID: kasamID, new: true, timelineDuration: SavedData.kasamDict[kasamID]?.timelineDuration, badgeThresholds: SavedData.kasamDict[kasamID]!.badgeThresholds, fullView: true)
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in

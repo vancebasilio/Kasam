@@ -18,10 +18,16 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var repeatPicker: UIPickerView!
     @IBOutlet weak var startDayPicker: UIPickerView!
     @IBOutlet weak var startTimePicker: UIPickerView!
+    @IBOutlet weak var goalStackView: UIStackView!
+    @IBOutlet weak var startDayStackView: UIStackView!
+    @IBOutlet weak var reminderTimeStackView: UIStackView!
+    @IBOutlet weak var fillerStackView: UIStackView!
+    @IBOutlet weak var fillerStackViewTop: UIStackView!
     
     var kasamID = ""                        //loaded in value
     var timelineDuration: Int?              //loaded in value
     var badgeThresholds = ["10","30","90"]  //loaded in value
+    var fullView = true                     //loaded in value
     
     var formattedDate = ""                  //loaded out value
     var formattedTime = ""                  //loaded out value
@@ -46,6 +52,14 @@ class AddKasamController: UIViewController {
         slidingHandle.layer.cornerRadius = 3
         slidingHandle.clipsToBounds = true
         setupTimePicker()
+        if fullView == false {
+            cancelButton.isHidden = true
+            startDateTimeLabel.text = "Edit Reminder Time"
+            goalStackView.isHidden = true
+            startDayView.isHidden = true
+            fillerStackView.isHidden = false
+            fillerStackViewTop.isHidden = false
+        }
     }
     
     func setupTimePicker(){

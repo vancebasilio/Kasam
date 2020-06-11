@@ -13,6 +13,8 @@ class NotificationsController: UIViewController {
     @IBOutlet weak var slidingHandle: UIView!
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
+    @IBOutlet weak var contentViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var kasamLogo: UIImageView!
     @IBOutlet weak var notificationsTable: UITableView!
     
@@ -25,13 +27,22 @@ class NotificationsController: UIViewController {
         slidingHandle.layer.cornerRadius = 3
         saveButton.layer.cornerRadius = 20.0
         closeButton?.setIcon(icon: .fontAwesomeSolid(.times), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
-        localNotifications()
+        localNotifications(nil)
         
         let setupNotification = NSNotification.Name("SetupNotification")
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationsController.setupNotification), name: setupNotification, object: nil)
+        
+        let reloadNotification = NSNotification.Name("ReloadNotifications")
+        NotificationCenter.default.addObserver(self, selector: #selector(NotificationsController.localNotifications), name: reloadNotification, object: nil)
+    }
+    
+    override func updateViewConstraints() {
+        super.updateViewConstraints()
+        tableViewHeight.constant = CGFloat(100 * SavedData.todayKasamList.count)
+        contentViewHeight.constant = 400 + (tableViewHeight.constant)
     }
      
-    func localNotifications(){
+    @objc func localNotifications(_ notification: NSNotification?){
         let center = UNUserNotificationCenter.current()
 //        center.removeAllPendingNotificationRequests()
         center.getPendingNotificationRequests {(notifications) in
@@ -39,6 +50,12 @@ class NotificationsController: UIViewController {
             for item in notifications {
                 if let index = SavedData.todayKasamList.index(of:item.identifier) {
                     self.notificationArray[index] = item
+                }
+            }
+            DispatchQueue.main.async {
+                if let order = notification?.userInfo?["order"] as? Int {
+                    print("hell7 updating row")
+                    self.notificationsTable.reloadRows(at: [IndexPath(row: order, section: 0)], with: .none)
                 }
             }
         }
@@ -61,7 +78,6 @@ class NotificationsController: UIViewController {
 }
 
 extension NotificationsController: UITableViewDelegate, UITableViewDataSource {
-        
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return SavedData.todayKasamList.count
     }
@@ -72,6 +88,7 @@ extension NotificationsController: UITableViewDelegate, UITableViewDataSource {
         cell.kasamImage.sd_setImage(with: URL(string: block.image))
         cell.kasamName.text = block.kasamName
         cell.kasamID = block.kasamID
+        cell.order = indexPath.row
         cell.updateSwitch(notificationInfo: self.notificationArray[indexPath.row])
         cell.preferenceTime.setIcon(prefixText: "", prefixTextColor: .clear, icon: .fontAwesomeSolid(.clock), iconColor: .colorFive, postfixText: " \(block.startTime)", postfixTextColor: .colorFive, size: 13, iconSize: 13)
         cell.preferenceTime.textAlignment = .left
