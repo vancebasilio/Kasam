@@ -448,7 +448,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func registerUserToKasam() {
-            setupNotifications(kasamID: kasamID, kasamName: kasamGTitle, startDate: self.startDate, chosenTime: self.chosenTime)
+        var endDate: Date?
+        let startDateConverted = stringToDate(date: startDate)
+        if self.chosenRepeat != 0 {
+            endDate = Calendar.current.date(byAdding: .day, value: self.chosenRepeat, to: startDateConverted)!
+        }
+        kasamID.setupNotifications(kasamName: kasamGTitle, startDate: startDateConverted, endDate: endDate, chosenTime: self.chosenTime)
             //STEP 1: Adds the user to the Kasam-following list
             DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
             

@@ -48,8 +48,18 @@ class NotificationsCell: UITableViewCell {
     @IBAction func editButtonPressed(_ sender: Any) {
         var saveTimeObserver: NSObjectProtocol?
         addKasamPopup(kasamID: kasamID, new: false, timelineDuration: SavedData.kasamDict[kasamID]?.timelineDuration, badgeThresholds: SavedData.kasamDict[kasamID]!.badgeThresholds, fullView: false)
+        
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
+            
             let timeVC = notification.object as! AddKasamController
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers:[self.kasamID])
+            var endDate: Date?
+            let kasam = SavedData.kasamDict[self.kasamID]
+            if kasam!.repeatDuration != 0 {
+                endDate = Calendar.current.date(byAdding: .day, value: kasam!.repeatDuration, to: kasam!.joinedDate)!
+            }
+            self.kasamID.setupNotifications(kasamName: kasam!.kasamName, startDate: Date(), endDate: endDate, chosenTime: timeVC.formattedTime)
+            
             DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Time": timeVC.formattedTime]) {(error, reference) in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ReloadNotifications"), object: self, userInfo: ["order": self.order])
