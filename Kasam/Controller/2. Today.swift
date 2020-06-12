@@ -209,7 +209,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             if currentStatus == "active" {
                 if repeatDuration > 0 {kasamOrder += 1}
                 else if repeatDuration == 0 {challengeOrder += 1}
-                if kasamID == nil {SavedData.todayKasamList.append(preference.kasamID)}
+                if (kasamID == nil && new == false) || (kasamID != nil && new == true) {
+                    SavedData.todayKasamList.append(preference.kasamID)
+                }
             } else {
                 count -= 1
             }
@@ -314,6 +316,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     func saveKasamBlocks(value: Dictionary<String,Any>, todayKasamCount: Int, dayOrder: Int, kasam: KasamSavedFormat, repeatMultiple: Bool, specificKasam: String?, dayCount: Int?){
         print("step 4 hell6 save kasam Blocks")
         let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, dayCount: dayCount)
+        
         if repeatMultiple == true {
             SavedData.kasamBlocks.append(block)
             SavedData.kasamBlocks = SavedData.kasamBlocks.sorted(by: {$0.kasamOrder < $1.kasamOrder})
@@ -321,6 +324,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             SavedData.challengeBlocks.append(block)
             SavedData.challengeBlocks = SavedData.challengeBlocks.sorted(by: {$0.kasamOrder < $1.kasamOrder})
         }
+        
         if specificKasam != nil {
             self.getDayTracker(kasamID: specificKasam)
         } else {
