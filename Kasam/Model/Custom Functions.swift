@@ -23,18 +23,6 @@ class ProgessView: UIProgressView {
     }
 }
 
-extension UITableViewCell {
-    
-    func dateFormat(date: Date) -> String {
-        let date = date
-        let formatter = DateFormatter()
-        formatter.timeStyle = .none
-        formatter.dateFormat = "yyyy-MM-dd"                                     //***keep this value the same as above
-        let finalDate = formatter.string(from: date)
-        return finalDate
-    }
-}
-
 extension UICollectionViewCell {
     
     func dateFormat(date: Date) -> String {

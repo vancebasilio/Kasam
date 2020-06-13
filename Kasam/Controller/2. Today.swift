@@ -195,7 +195,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 else if repeatDuration == 0 {order = challengeOrder}
             }
             
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timelineDuration: value["Duration"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (0,0,0,0,0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: ["10","30","90"], badgeList: value["Badges"] as? [String: Int], dayTrackerArray: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timelineDuration: value["Duration"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:0, currentStreakCompleteProgress:0, daysWithAnyProgress:0, daysWithCompleteProgress:0, longestStreak:0, longestStreakDay:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: ["10","30","90"], badgeList: value["Badges"] as? [String: Int], dayTrackerArray: nil)
             
             if currentStatus == "active" {
                 if repeatDuration > 0 {kasamOrder += 1}
@@ -403,7 +403,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                             SavedData.kasamDict[(kasam.kasamID)]?.percentComplete = percentComplete
                             SavedData.kasamDict[kasam.kasamID]?.dayTrackerArray = dayTrackerArrayInternal
                             
-                            let streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: SavedData.kasamBlocks[kasamOrder].dayOrder)
+                            let streakInfo = self.currentStreak(kasamID: kasam.kasamID, dictionary: dayTrackerArrayInternal, currentDay: SavedData.kasamBlocks[kasamOrder].dayOrder)
                             SavedData.kasamDict[kasam.kasamID]?.streakInfo = streakInfo
                             DBRef.userHistory.child(kasam.kasamID).removeAllObservers()
                             count += 1
@@ -458,7 +458,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     }
     
     //STEP 5B
-    func currentStreak(dictionary: [Int:(Date, Double)], currentDay: Int) -> (Int, Int, Int, Int, Int) {
+    func currentStreak(kasamID: String, dictionary: [Int:(Date, Double)], currentDay: Int) -> (currentStreak:Int, currentStreakCompleteProgress:Int, daysWithAnyProgress:Int, daysWithCompleteProgress:Int, longestStreak:Int, longestStreakDay:Int) {
         var daysWithAnyProgress = 0
         var daysWithCompleteProgress = 0
         var currentStreak = 0
@@ -499,7 +499,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 currentStreakCompleteProgress = daysWithCompleteProgress
             }
         }
-        return (currentStreak, currentStreakCompleteProgress, daysWithAnyProgress, longestStreak, longestStreakDay)
+        return (currentStreak, currentStreakCompleteProgress, daysWithAnyProgress, daysWithCompleteProgress, longestStreak, longestStreakDay)
     }
     
     @objc func removeTodayKasam(_ notification: NSNotification){
@@ -589,7 +589,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                     
                     //STEP 3 - Get the current streak based on the updated daytracker
                     if SavedData.kasamDict[kasamID]?.dayTrackerArray != nil {
-                        let streak = self.currentStreak(dictionary: (SavedData.kasamDict[kasamID]?.dayTrackerArray!)!, currentDay: SavedData.kasamBlocks[kasamOrder].dayOrder)
+                        let streak = self.currentStreak(kasamID: kasamID, dictionary: (SavedData.kasamDict[kasamID]?.dayTrackerArray!)!, currentDay: SavedData.kasamBlocks[kasamOrder].dayOrder)
                         SavedData.kasamDict[kasamID]!.streakInfo = streak
                     }
                     

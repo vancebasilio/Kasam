@@ -157,7 +157,7 @@ class TodayBlockCell: UITableViewCell {
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
-                DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(self.dateFormat(date: SavedData.kasamDict[self.kasamID]!.joinedDate)).setValue(SavedData.kasamDict[self.kasamID]?.repeatDuration)
+                DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(( SavedData.kasamDict[self.kasamID]!.joinedDate).dateToString()).setValue(SavedData.kasamDict[self.kasamID]?.repeatDuration)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                 NotificationCenter.default.removeObserver(saveTimeObserver as Any)
@@ -232,10 +232,11 @@ class TodayBlockCell: UITableViewCell {
         var progressAchieved = 0
         var statusDate = ""
         var badgeLevel = 0
+        
         if SavedData.kasamDict[kasamID]?.sequence == "streak" {
             if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak != nil {
                 progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak
-                statusDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date())
+                statusDate = (Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date()).dateToString()
             }
         } else {
             if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {

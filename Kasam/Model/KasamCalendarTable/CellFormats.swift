@@ -103,7 +103,7 @@ class TodayBlockFormat {
 }
 
 class KasamSavedFormat {
-    typealias streakInfo = (currentStreak : Int, currentStreakCompleteProgress: Int, daysWithAnyProgress: Int, longestStreak: Int, longestStreakDay: Int)
+    typealias streakInfo = (currentStreak:Int, currentStreakCompleteProgress:Int, daysWithAnyProgress:Int, daysWithCompleteProgress:Int, longestStreak:Int, longestStreakDay:Int)
     var kasamID: String
     var kasamName: String
     var joinedDate: Date

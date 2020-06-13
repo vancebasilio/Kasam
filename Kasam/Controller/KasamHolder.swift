@@ -528,7 +528,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             if kasamStatus == "completed" || kasamStatus == "inactive" {
                 //OPTION 1 - User compeleted kasam in past, and may now want to rejoin
                 self.registerCheck = 0
-                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.redo), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
+                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
             } else if kasamStatus == "active" {
                 //OPTION 2 - User registered to kasam (GEAR ICON)
                 self.registerCheck = 1
@@ -537,7 +537,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             } else if kasamStatus == nil {
                 //OPTION 3 - User not registered to kasam (PLUS ICON)
                 self.registerCheck = 0
-                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 20, color: .white, backgroundColor: .clear, forState: .normal)
+                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
             }
         })
     }
