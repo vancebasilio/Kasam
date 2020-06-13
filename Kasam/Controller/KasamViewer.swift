@@ -17,16 +17,15 @@ class KasamActivityViewer: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     
     var activityBlocks: [KasamActivityCellFormat] = []
-    var kasamID = ""
+    var kasamID = ""                    //loaded in
+    var blockID = ""                    //loaded in
+    var dayOrder = 0                    //loaded in - for current kasams
+    var dayToLoad: Int?                 //loaded in - for picking the correct block to show (for past and today days)
     
-    //determines which block and past history loads
-    var blockID = ""
-    var dayOrder = 0                    //
-    var dayToLoad: Int?                 //for picking the correct block to show (for past and today days)
+    var dateToLoad: Date?
     
     var activityRef: DatabaseReference!
     var activityRefHandle: DatabaseHandle!
-    var historyRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     var metricRef: DatabaseReference?
     var metricRefHandle: DatabaseHandle?
     var metricCompleted = 0
@@ -72,28 +71,28 @@ class KasamActivityViewer: UIViewController {
         activityBlocks.removeAll()
         var count = 0
         if reviewOnly == false {
+            
+            if self.dayToLoad == nil {self.dayToLoad = self.dayOrder}      //In case DayToLoad isn't loaded
+            var diff = self.dayOrder - self.dayToLoad!
+            if SavedData.kasamDict[self.kasamID]?.repeatDuration == 0 {diff = 0}
+            if SavedData.kasamDict[self.kasamID]?.sequence == nil {
+                self.statusDate = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: -diff, to: Date())!)
+            } else {
+                self.statusDate = self.dateFormat(date: SavedData.kasamDict[self.kasamID]?.dayTrackerArray?[self.dayToLoad!]?.0 ?? Date())
+            }
+            
+            //Check if user has past progress and download metric
             self.activityRef = DBRef.coachKasams.child(kasamID).child("Blocks").child(blockID).child("Activity")
             self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
                 if let value = snapshot.value as? [String: Any] {
-                    //check if user has past progress from today and download metric
-                    if self.dayToLoad == nil {self.dayToLoad = self.dayOrder}      //in case DayToLoad isn't loaded
-                    var diff = self.dayOrder - self.dayToLoad!
-                    if SavedData.kasamDict[self.kasamID]?.repeatDuration == 0 {diff = 0}
-                    if SavedData.kasamDict[self.kasamID]?.sequence == nil {
-                        self.statusDate = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: -diff, to: Date())!)
-                    } else {
-                        self.statusDate = self.dateFormat(date: SavedData.kasamDict[self.kasamID]?.dayTrackerArray?[self.dayToLoad!]?.0 ?? Date())
-                    }
-                    
                     count += 1
-                    //Load in past history
                     var currentMetric = "0"
                     var currentText = ""
-                    self.historyRef.child(self.kasamID).child(self.statusDate).child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                    DBRef.userHistory.child(self.kasamID).child(self.statusDate).child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
                         if snap.exists() && self.viewingOnlyCheck == false {
                             currentMetric = snap.value as! String               //gets the metric for the activity
                         }
-                        self.historyRef.child(self.kasamID).child(self.statusDate).child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                        DBRef.userHistory.child(self.kasamID).child(self.statusDate).child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
                             if snap.exists() {
                                 currentText = snap.value as! String         //gets the text for the activity
                             }

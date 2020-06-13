@@ -17,6 +17,7 @@
 		BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */; };
 		BC12F1EE233FC17100D93227 /* Statistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1ED233FC17100D93227 /* Statistics.swift */; };
 		BC12F1F0233FF1E900D93227 /* DetailedStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */; };
+		BC1414EB2493397F0073E577 /* SwipeTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1414EA2493397F0073E577 /* SwipeTable.swift */; };
 		BC16A20423292ABD00FDF70C /* loading.json in Resources */ = {isa = PBXBuildFile; fileRef = BC16A20323292ABD00FDF70C /* loading.json */; };
 		BC1FAF2D2269FAFA006A9245 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1FAF2C2269FAFA006A9245 /* AppDelegate.swift */; };
 		BC1FAF2F2269FAFA006A9245 /* LogIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1FAF2E2269FAFA006A9245 /* LogIn.swift */; };
@@ -107,6 +108,7 @@
 		BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamFollowingCell.swift; sourceTree = "<group>"; };
 		BC12F1ED233FC17100D93227 /* Statistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Statistics.swift; sourceTree = "<group>"; };
 		BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedStatsCell.swift; sourceTree = "<group>"; };
+		BC1414EA2493397F0073E577 /* SwipeTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeTable.swift; sourceTree = "<group>"; };
 		BC16A20323292ABD00FDF70C /* loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = loading.json; path = "Supporting Files/Lottie Animations/loading.json"; sourceTree = SOURCE_ROOT; };
 		BC1FAF292269FAFA006A9245 /* Kasam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kasam.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC1FAF2C2269FAFA006A9245 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -358,6 +360,7 @@
 				BC5C3C79234D60E800C68238 /* PopupForm.swift */,
 				BC06DDA323523C7D00162A8C /* Structs.swift */,
 				BC651490238DAD4600510971 /* Popups.swift */,
+				BC1414EA2493397F0073E577 /* SwipeTable.swift */,
 				BCE50BDF22D04A37000F2534 /* FXBlurView.h */,
 				BCE50BDE22D04A37000F2534 /* FXBlurView.m */,
 				BCE50BE322D04B26000F2534 /* Kasam-Bridging-Header.h */,
@@ -587,6 +590,7 @@
 				"${BUILT_PRODUCTS_DIR}/SkyFloatingLabelTextField/SkyFloatingLabelTextField.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftEntryKit/SwiftEntryKit.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftIcons/SwiftIcons.framework",
+				"${BUILT_PRODUCTS_DIR}/SwipeCellKit/SwipeCellKit.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/lottie-ios/Lottie.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
@@ -624,6 +628,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SkyFloatingLabelTextField.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftEntryKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftIcons.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwipeCellKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Lottie.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
@@ -699,6 +704,7 @@
 				BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */,
 				BCFCB43722AF04EA00DC2DD7 /* DiscoverCategoryCell.swift in Sources */,
 				BC554BD6226D8BDB00D707CC /* UIColor.swift in Sources */,
+				BC1414EB2493397F0073E577 /* SwipeTable.swift in Sources */,
 				BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */,
 				BC791A21234BF93600A9D25A /* TodayMotivationCell.swift in Sources */,
 				BC96F8482292085200E161FC /* TodayBlockCell.swift in Sources */,

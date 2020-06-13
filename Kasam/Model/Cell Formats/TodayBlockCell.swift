@@ -226,30 +226,23 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func blockBadge(){
-        if SavedData.kasamDict[kasamID]?.badgeThresholds != nil {
-            let thresholdToHit = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak.nearestElement(array: SavedData.kasamDict[kasamID]!.badgeThresholds)
-            let longestStreakDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date())
-            if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak == thresholdToHit.value {
-                //Will only set the badge if the threshold is reached
-                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(longestStreakDate).setValue(thresholdToHit.value)
-                //Show the completion badge animation
-                completionBadge.animation = Animations.kasamBadges[thresholdToHit.level]
-                completionBadge.loopMode = .loop
-                completionBadge.play()
-                DispatchQueue.main.async {self.completionBadge.isHidden = false}
-            } else {
-                if tempBlock!.dayOrder >= SavedData.kasamDict[tempBlock!.kasamID]!.repeatDuration {
-                    completionBadge.animation = Animation.named("flagmountainBG")
-                    completionBadge.play()
-                    DispatchQueue.main.async {self.completionBadge.isHidden = false}
-                }
-                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(longestStreakDate).setValue(nil)
-                self.completionBadge.isHidden = true
-            }
-            DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in
-                SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String: Int]
-            })
+        let thresholdToHit = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak.nearestElement(array: SavedData.kasamDict[kasamID]!.badgeThresholds)
+        let longestStreakDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date())
+        
+        if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak == thresholdToHit.value {
+            //Will only set the badge if the threshold is reached
+            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(longestStreakDate).setValue(thresholdToHit.value)
+            //Show the completion badge animation
+            completionBadge.animation = Animations.kasamBadges[thresholdToHit.level]
+            DispatchQueue.main.async {self.completionBadge.isHidden = false}
+        } else {
+            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(longestStreakDate).setValue(nil)
+            self.completionBadge.isHidden = true
         }
+        //Update the badges the user has achieved after update to the today block
+        DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in
+            SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String: Int]
+        })
     }
     
     func checkmarkAndPercentageUpdate(){

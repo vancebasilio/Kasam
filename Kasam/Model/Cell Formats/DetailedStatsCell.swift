@@ -8,8 +8,9 @@
 
 import UIKit
 import Charts
+import SwipeCellKit
 
-class KasamHistoryTableCell: UITableViewCell {
+class KasamHistoryTableCell: SwipeTableViewCell {
     @IBOutlet weak var dayLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var metricLabel: UILabel!
@@ -20,7 +21,7 @@ class KasamHistoryTableCell: UITableViewCell {
     
     func setBlock(block: kasamFollowingFormat) {
         dayLabel.text = "Day \(block.day)"
-        dateLabel.text = block.date
+        dateLabel.text = block.shortDate
         if block.text != "" {
             metricLabel.text = block.text
         } else {

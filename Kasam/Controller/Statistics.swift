@@ -9,8 +9,10 @@
 import UIKit
 import Firebase
 import Charts
+import SwipeCellKit
+import SwiftEntryKit
 
-class StatisticsViewController: UIViewController {
+class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     
     @IBOutlet weak var backButton: UIButton!
     @IBOutlet weak var mChart: LineChartView!
@@ -40,6 +42,8 @@ class StatisticsViewController: UIViewController {
     var dayTrackerRefHandle: DatabaseHandle!
     var dayTrackerArray = [Int]()
     var dayTrackerDateArray = [Int:String]()
+    var dateToLoadGlobal: Date?
+    var kasamID = ""
     
     var metricTotal = 0
     var block: kasamFollowingFormat?
@@ -51,6 +55,8 @@ class StatisticsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if kasamStatsTransfer != nil {kasamID = kasamStatsTransfer!.kasamID}
+        else {kasamID = userHistoryTransfer!.kasamID}
         setupView()
         getKasamStats()
         setupChart()
@@ -59,10 +65,6 @@ class StatisticsViewController: UIViewController {
     override func updateViewConstraints() {
         super.updateViewConstraints()
         tableViewHeight.constant = historyTableView.contentSize.height
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        updateViewConstraints()
         bottomViewHeight.constant = tableViewHeight.constant + 50 + mChart.frame.height + 4.0
         contentViewHeight.constant = bottomViewHeight.constant + topViewHeight.constant
         //elongates the entire scrollview, based on the tableview height
@@ -76,7 +78,7 @@ class StatisticsViewController: UIViewController {
     func setupView(){
         if kasamStatsTransfer != nil {
             kasamImageView.sd_setImage(with: kasamStatsTransfer?.imageURL, placeholderImage: PlaceHolders.kasamLoadingImage)
-            kasamNameLabel.text = SavedData.kasamDict[kasamStatsTransfer!.kasamID]?.kasamName
+            kasamNameLabel.text = SavedData.kasamDict[kasamID]?.kasamName
         } else if userHistoryTransfer != nil {
             kasamImageView.sd_setImage(with: userHistoryTransfer?.imageURL, placeholderImage: PlaceHolders.kasamLoadingImage)
             kasamNameLabel.text = userHistoryTransfer?.kasamName
@@ -153,16 +155,18 @@ class StatisticsViewController: UIViewController {
             metricTotal += Int(indieMetric)
             
             //OPTION 1 - REPS
+            var metric = ""
             if metricType == "Reps" {
-                block = kasamFollowingFormat(day: dayNo, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(indieMetric.removeZerosFromEnd()) \(metricType)", text: textField)
+                metric = "\(indieMetric.removeZerosFromEnd()) \(metricType)"
             //OPTION 2 - TIME
             } else if metricType == "Time" {
                 let tableTime = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
-                block = kasamFollowingFormat(day: dayNo, date: self.convertLongDateToShort(date: snapshot.key), metric: "\(tableTime.0.removeZerosFromEnd()) \(tableTime.1)", text: textField)
+                metric = "\(tableTime.0.removeZerosFromEnd()) \(tableTime.1)"
             //OPTION 3 - PERCENTAGE COMPLETED
             } else if metricType == "Checkmark" {
-                block = kasamFollowingFormat(day: dayNo, date: self.convertLongDateToShort(date: snapshot.key), metric: "Complete", text: textField)
+                metric = "Complete"
             }
+            block = kasamFollowingFormat(day: dayNo, shortDate: self.convertLongDateToShort(date: snapshot.key), fullDate: snapshot.key, metric: metric, text: textField)
             self.kasamBlocks.append(block!)
             self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
         } else {
@@ -281,7 +285,48 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let block = kasamBlocks[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "KasamStatsCell") as! KasamHistoryTableCell
+        cell.delegate = self
         cell.setBlock(block: block)
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
+        if orientation == .left {
+            return nil
+        } else {
+            let delete = SwipeAction(style: .destructive, title: nil) { action, indexPath in
+                let popupImage = UIImage.init(icon: .fontAwesomeSolid(.eraser), size: CGSize(width: 30, height: 30), textColor: .white)
+                showPopupConfirmation(title: "Are you sure you want to delete your progress on\n\(self.kasamBlocks[indexPath.row].shortDate)?", description: "", image: popupImage, buttonText: "Delete") {(success) in
+                    DBRef.userHistory.child(self.kasamID).child(self.kasamBlocks[indexPath.row].fullDate).setValue(nil)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
+                    self.kasamBlocks.remove(at: indexPath.row)
+                    self.historyTableView.reloadData()
+                    self.updateViewConstraints()
+                    SwiftEntryKit.dismiss()
+                }
+            }
+            configure(action: delete, with: .trash)
+            
+            let edit = SwipeAction(style: .default, title: nil) { action, indexPath in
+                self.dateToLoadGlobal = self.stringToDate(date: self.kasamBlocks[indexPath.row].fullDate)
+                self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
+            }
+            configure(action: edit, with: .edit)
+            return [delete, edit]
+        }
+    }
+    
+    func configure(action: SwipeAction, with descriptor: ActionDescriptor) {
+        action.title = descriptor.title(forDisplayMode: .imageOnly)
+        action.image = descriptor.image(forStyle: .backgroundColor, displayMode: .imageOnly)
+        action.backgroundColor = descriptor.color(forStyle: .backgroundColor)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToKasamActivityViewer" {
+            let kasamActivityHolder = segue.destination as! KasamActivityViewer
+            kasamActivityHolder.kasamID = kasamID
+            kasamActivityHolder.dateToLoad = dateToLoadGlobal
+        }
     }
 }

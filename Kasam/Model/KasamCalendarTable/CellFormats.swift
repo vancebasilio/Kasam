@@ -116,7 +116,7 @@ class KasamSavedFormat {
     var timelineDuration: Int?
     var currentStatus: String
     var pastKasamJoinDates: [String:Int]?
-    var sequence: String
+    var sequence: String?
     var streakInfo: streakInfo
     var displayStatus: String
     var percentComplete: Double
@@ -124,7 +124,7 @@ class KasamSavedFormat {
     var badgeList: [String:Int]?
     var dayTrackerArray: [Int:(Date,Double)]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, timelineDuration: Int?, currentStatus: String, pastKasamJoinDates: [String:Int]?, sequence: String, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeThresholds: [String], badgeList: [String:Int]?, dayTrackerArray: [Int:(Date,Double)]?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, timelineDuration: Int?, currentStatus: String, pastKasamJoinDates: [String:Int]?, sequence: String?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeThresholds: [String], badgeList: [String:Int]?, dayTrackerArray: [Int:(Date,Double)]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
@@ -179,13 +179,15 @@ class NewKasamLoadFormat{
 
 class kasamFollowingFormat {
     var day: Int
-    var date: String
+    var shortDate: String
+    var fullDate: String
     var metric: String
     var text: String
     
-    init(day: Int, date: String, metric: String, text: String) {
+    init(day: Int, shortDate: String, fullDate:String, metric: String, text: String) {
         self.day = day
-        self.date = date
+        self.shortDate = shortDate
+        self.fullDate = fullDate
         self.metric = metric
         self.text = text
     }

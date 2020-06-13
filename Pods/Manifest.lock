@@ -200,6 +200,7 @@ PODS:
   - SwiftEntryKit (1.1.4):
     - QuickLayout (= 3.0.0)
   - SwiftIcons (2.2.0)
+  - SwipeCellKit (2.7.1)
   - youtube-ios-player-helper (0.1.6)
 
 DEPENDENCIES:
@@ -229,6 +230,7 @@ DEPENDENCIES:
   - SVProgressHUD
   - SwiftEntryKit (= 1.1.4)
   - SwiftIcons
+  - SwipeCellKit
   - youtube-ios-player-helper
 
 SPEC REPOS:
@@ -286,6 +288,7 @@ SPEC REPOS:
     - SVProgressHUD
     - SwiftEntryKit
     - SwiftIcons
+    - SwipeCellKit
     - youtube-ios-player-helper
 
 SPEC CHECKSUMS:
@@ -342,8 +345,9 @@ SPEC CHECKSUMS:
   SVProgressHUD: 1428aafac632c1f86f62aa4243ec12008d7a51d6
   SwiftEntryKit: fa997eb1c45afb5cf27ab0145e680759dd7152ca
   SwiftIcons: e7eb9bf2b475d6bdd8b37c5bdedc6d120aab0829
+  SwipeCellKit: 3972254a826da74609926daf59b08d6c72e619ea
   youtube-ios-player-helper: 21ab92db027c7ff86cb17a3843a3f6eafc8158d2
 
-PODFILE CHECKSUM: 6f4fb2abb08e073847979eb69755eb80d8452e29
+PODFILE CHECKSUM: 05109175c0fa847fa9cd7565cc6655ae315cea20
 
 COCOAPODS: 1.9.1
