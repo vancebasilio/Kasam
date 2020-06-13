@@ -111,7 +111,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
             let repeatDuration = SavedData.kasamDict[kasamStatsTransfer!.kasamID]?.repeatDuration ?? 0
             self.dayNoValue.text = "Day \(SavedData.kasamDict[kasamStatsTransfer!.kasamID]?.currentDay ?? 0)"
             for day in 1...repeatDuration {
-                let dayDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: day - 1, to: kasamStatsTransfer!.joinedDate)!)
+                let dayDate = (Calendar.current.date(byAdding: .day, value: day - 1, to: kasamStatsTransfer!.joinedDate)!).dateToString()
                 self.kasamHistoryRefHandle = DBRef.userHistory.child(kasamStatsTransfer!.kasamID).child(dayDate).observe(.value, with:{(snapshot) in
                     self.getChartsAndTableStats(metricType: SavedData.kasamDict[self.kasamStatsTransfer!.kasamID]!.metricType, day: day, dayDate: dayDate, kasamDay: repeatDuration, snapshot: snapshot)
                 })
@@ -132,8 +132,8 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
         var textField = ""
         if day != nil {dayNo = day!}
         else {
-            if firstDateCheck == true {firstDate = stringToDate(date: snapshot.key); firstDateCheck = false}
-            dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: stringToDate(date: snapshot.key)).day ?? 0) + 1
+            if firstDateCheck == true {firstDate = snapshot.key.stringToDate(); firstDateCheck = false}
+            dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: snapshot.key.stringToDate()).day ?? 0) + 1
         }
         if snapshot.exists() {
             progressDayCount += 1
@@ -308,7 +308,7 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
             configure(action: delete, with: .trash)
             
             let edit = SwipeAction(style: .default, title: nil) { action, indexPath in
-                self.dateToLoadGlobal = self.stringToDate(date: self.kasamBlocks[indexPath.row].fullDate)
+                self.dateToLoadGlobal = self.kasamBlocks[indexPath.row].fullDate.stringToDate()
                 self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
             }
             configure(action: edit, with: .edit)

@@ -76,9 +76,9 @@ class KasamActivityViewer: UIViewController {
             var diff = self.dayOrder - self.dayToLoad!
             if SavedData.kasamDict[self.kasamID]?.repeatDuration == 0 {diff = 0}
             if SavedData.kasamDict[self.kasamID]?.sequence == nil {
-                self.statusDate = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: -diff, to: Date())!)
+                self.statusDate = (Calendar.current.date(byAdding: .day, value: -diff, to: Date())!).dateToString()
             } else {
-                self.statusDate = self.dateFormat(date: SavedData.kasamDict[self.kasamID]?.dayTrackerArray?[self.dayToLoad!]?.0 ?? Date())
+                self.statusDate = (SavedData.kasamDict[self.kasamID]?.dayTrackerArray?[self.dayToLoad!]?.0 ?? Date()).dateToString()
             }
             
             //Check if user has past progress and download metric

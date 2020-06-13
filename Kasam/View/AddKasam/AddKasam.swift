@@ -65,7 +65,7 @@ class AddKasamController: UIViewController {
     func setupTimePicker(){
         //OPTION 1 - EDITING EXISTING KASAM
         if new == false {
-            formattedDate = dateFormat(date:SavedData.kasamDict[kasamID]?.joinedDate ?? Date())
+            formattedDate = (SavedData.kasamDict[kasamID]?.joinedDate ?? Date()).dateToString()
             formattedTime = SavedData.kasamDict[kasamID]!.startTime
             repeatDuration = SavedData.kasamDict[kasamID]!.repeatDuration
             currentDay = SavedData.kasamDict[kasamID]?.currentDay
@@ -86,7 +86,7 @@ class AddKasamController: UIViewController {
             min = Int(setHourMin?.components(separatedBy: ":").last ?? "30") ?? 0
             startTimePicker.selectRow(hour - 1, inComponent: 0, animated: false)
             startTimePicker.selectRow(timeMinArray.index(of:String(format:"%02d", min)) ?? 0, inComponent: 2, animated: false)
-            baseDate = stringToDate(date: formattedDate)
+            baseDate = formattedDate.stringToDate()
        
         //OPTION 2 - ADDING NEW KASAM, SET DEFAULT DATE AND TIME
         } else {
@@ -104,7 +104,7 @@ class AddKasamController: UIViewController {
                 }
             }
             
-            formattedDate = dateFormat(date: Date())
+            formattedDate = Date().dateToString()
             var tempMin = (Double(Calendar.current.component(.minute, from: Date())) / 60.0).rounded(toPlaces: 0)
             var tempHour = Calendar.current.component(.hour, from: Date())
             
@@ -245,7 +245,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
                 else {repeatDuration = Int(badgeThresholds[row])!}
             }
         } else if pickerView == startDayPicker {
-            formattedDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: row, to: baseDate ?? Date())!)
+            formattedDate = (Calendar.current.date(byAdding: .day, value: row, to: baseDate ?? Date())!).dateToString()
         } else if pickerView == startTimePicker {
             if component == 0 {
                 hour = row + 1

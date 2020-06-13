@@ -294,11 +294,11 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         let todayDay = Date().dayNumberOfWeek()
         if todayDay == 1 {
             for x in 1...7 {
-                self.dayDictionary[x] = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: x - 7, to: Date())!)
+                self.dayDictionary[x] = (Calendar.current.date(byAdding: .day, value: x - 7, to: Date())!).dateToString()
             }
         } else {
             for x in 1...7 {
-                self.dayDictionary[x] = self.dateFormat(date: Calendar.current.date(byAdding: .day, value: x - (todayDay!), to: Date())!)
+                self.dayDictionary[x] = (Calendar.current.date(byAdding: .day, value: x - (todayDay!), to: Date())!).dateToString()
             }
         }
     }

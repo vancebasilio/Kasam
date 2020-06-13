@@ -401,13 +401,6 @@ extension UIViewController {
         return finalDate
     }
     
-    func stringToDate(date: String) -> Date {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let kasamDate = dateFormatter.date(from: date) ?? Date()
-        return kasamDate
-    }
-    
     func convertLongDateToShortYear(date: String) -> String {
         var dateOutput = ""
         let dateFormatterGet = DateFormatter()
@@ -422,15 +415,6 @@ extension UIViewController {
             print("There was an error converting the date")
         }
         return dateOutput
-    }
-    
-    func dateFormat(date: Date) -> String {
-        let date = date
-        let formatter = DateFormatter()
-        formatter.timeStyle = .none
-        formatter.dateFormat = "yyyy-MM-dd"                                     //***keep this value the same as above
-        let finalDate = formatter.string(from: date)
-        return finalDate
     }
 
     func dateShortFormat(date: Date) -> String {
@@ -579,7 +563,7 @@ extension UIViewController {
         let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
         showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
             //STEP 2 - ADD DATE TO PAST JOIN DATE
-            let kasamJoinDate = self.dateFormat(date: SavedData.kasamDict[kasamID]?.joinedDate ?? Date())
+            let kasamJoinDate = (SavedData.kasamDict[kasamID]?.joinedDate ?? Date()).dateToString()
             DBRef.userKasamFollowing.child(kasamID).child("Past Join Dates").child(kasamJoinDate).setValue(SavedData.kasamDict[kasamID]?.repeatDuration)
             //STEP 3 - MARK KASAM AS COMPLETED
             DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("completed")
@@ -715,6 +699,14 @@ extension Date {
         }
         return dates
     }
+    
+    func dateToString() -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateFormat = "yyyy-MM-dd"
+        let finalDate = formatter.string(from: self)
+        return finalDate
+    }
 }
 
 extension UIView {
@@ -807,6 +799,13 @@ extension String {
                 String(self[substringFrom..<substringTo])
             }
         }
+    }
+    
+    func stringToDate() -> Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let kasamDate = dateFormatter.date(from: self) ?? Date()
+        return kasamDate
     }
     
     func stringToTime () -> (hour: Int, minute: Int) {

@@ -28,7 +28,9 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var statsContent: UIView!
     @IBOutlet weak var statsShadow: UIView!
     @IBOutlet weak var streakShadow: UIView!
-    @IBOutlet weak var completionBadge: AnimationView!
+    @IBOutlet weak var badge1: AnimationView!
+    @IBOutlet weak var badge2: AnimationView!
+    @IBOutlet weak var badge3: AnimationView!
     @IBOutlet weak var yesButton: UIButton!
     @IBOutlet weak var checkHolder: UIView!
     @IBOutlet weak var percentComplete: UILabel!
@@ -182,7 +184,7 @@ class TodayBlockCell: UITableViewCell {
         }
     }
     
-    func statusUpdate(){
+    func statusUpdate(_ day: String?){
         //STEP 1 - SET THE BLOCK STATUS
         if tempBlock!.dayOrder >= SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
             //OPTION 1 - COMPLETE KASAMS
@@ -217,27 +219,41 @@ class TodayBlockCell: UITableViewCell {
                 DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
                     if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = (snap.value as! String).components(separatedBy: ";")}
                     else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = ["10","30","90"]}
-                    self.blockBadge()
+                    self.blockBadge(day)
                 }
             } else {
-                blockBadge()
+                blockBadge(day)
             }
         }
     }
     
-    func blockBadge(){
-        let thresholdToHit = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak.nearestElement(array: SavedData.kasamDict[kasamID]!.badgeThresholds)
-        let longestStreakDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date())
-        
-        if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak == thresholdToHit.value {
-            //Will only set the badge if the threshold is reached
-            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(longestStreakDate).setValue(thresholdToHit.value)
-            //Show the completion badge animation
-            completionBadge.animation = Animations.kasamBadges[thresholdToHit.level]
-            DispatchQueue.main.async {self.completionBadge.isHidden = false}
+    func blockBadge(_ day:String?){
+        let badgeLevelArray = [badge1, badge2, badge3]
+        var progressAchieved = 0
+        var statusDate = ""
+        var badgeLevel = 0
+        if SavedData.kasamDict[kasamID]?.sequence == "streak" {
+            if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak != nil {
+                progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak
+                statusDate = dateFormat(date: Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date())
+            }
         } else {
-            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(longestStreakDate).setValue(nil)
-            self.completionBadge.isHidden = true
+            if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {
+                progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
+                statusDate = day ?? Date().dateToString()
+            }
+        }
+        for badge in SavedData.kasamDict[kasamID]!.badgeThresholds {
+            if progressAchieved == Int(badge)! {
+                //Will only set the badge if the threshold is reached
+                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(Int(badge))
+                badgeLevelArray[badgeLevel]?.animation = Animations.kasamBadges[badgeLevel]
+                badgeLevelArray[badgeLevel]!.isHidden = false
+            } else {
+                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(nil)
+                badgeLevelArray[badgeLevel]!.isHidden = true
+            }
+            badgeLevel += 1
         }
         //Update the badges the user has achieved after update to the today block
         DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in

@@ -449,7 +449,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func registerUserToKasam() {
         var endDate: Date?
-        let startDateConverted = stringToDate(date: startDate)
+        let startDateConverted = startDate.stringToDate()
         if self.chosenRepeat != 0 {
             endDate = Calendar.current.date(byAdding: .day, value: self.chosenRepeat, to: startDateConverted)!
         }
@@ -500,7 +500,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 print("option 3")
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
                 if restart == true {
-                    DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(self.dateFormat(date: SavedData.kasamDict[self.kasamID]!.joinedDate)).setValue(SavedData.kasamDict[self.kasamID]?.repeatDuration)
+                    DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(( SavedData.kasamDict[self.kasamID]!.joinedDate).dateToString()).setValue(SavedData.kasamDict[self.kasamID]?.repeatDuration)
                 }
             }
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
