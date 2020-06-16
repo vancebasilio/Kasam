@@ -569,16 +569,6 @@ extension UIViewController {
             UIView.transition(from: fromView, to: toView, duration: 0.3, options: [.transitionCrossDissolve], completion: nil)
         }
     }
-
-    func setKasamLevelIcon (kasamLevel: String, button: UIButton){
-        let iconSize = CGFloat(20)
-        switch kasamLevel {
-            case Assets.levelsArray[0]: button.setIcon(icon: .fontAwesomeSolid(.chessPawn), iconSize: iconSize, color: .white, backgroundColor: .darkGray, forState: .normal)
-            case Assets.levelsArray[1]: button.setIcon(icon: .fontAwesomeSolid(.chessKnight), iconSize: iconSize, color: .white, backgroundColor: .darkGray, forState: .normal)
-            case Assets.levelsArray[2]: button.setIcon(icon: .fontAwesomeSolid(.chessRook), iconSize: iconSize, color: .white, backgroundColor: .darkGray, forState: .normal)
-            default: button.setIcon(icon: .fontAwesomeSolid(.chessPawn), iconSize: iconSize, color: .white, backgroundColor: .darkGray, forState: .normal)
-        }
-    }
 }
 
 extension UIButton {
@@ -593,6 +583,9 @@ extension UIButton {
         }
         
         switch kasamType {
+            case Assets.levelsArray[0]: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.chessPawn), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
+            case Assets.levelsArray[1]: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.chessKnight), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
+            case Assets.levelsArray[2]: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.chessRook), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
             case "Fitness": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
             case "Personal": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.seedling), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
             case "Health": button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.heart), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)

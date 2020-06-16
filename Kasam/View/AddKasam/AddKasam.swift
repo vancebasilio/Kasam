@@ -13,9 +13,18 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var slidingHandle: UIView!
+    @IBOutlet weak var dayGoalButton: UIView!
+    @IBOutlet weak var dayGoalOutline: UIView!
+    @IBOutlet weak var dayGoalBG: UIView!
+    @IBOutlet weak var dayGoaldayLabel: UILabel!
+    @IBOutlet weak var dayGoalImage: UIImageView!
+    @IBOutlet weak var justForFunButton: UIView!
+    @IBOutlet weak var justForFunOutilne: UIView!
+    @IBOutlet weak var justForFunBG: UIView!
+    @IBOutlet weak var justForFunLabel: UILabel!
+    @IBOutlet weak var justForFunImage: UIImageView!
     @IBOutlet weak var startDateTimeLabel: UILabel!
     @IBOutlet weak var startDayView: UIStackView!
-    @IBOutlet weak var repeatPicker: UIPickerView!
     @IBOutlet weak var startDayPicker: UIPickerView!
     @IBOutlet weak var startTimePicker: UIPickerView!
     @IBOutlet weak var goalStackView: UIStackView!
@@ -26,7 +35,7 @@ class AddKasamController: UIViewController {
     
     var kasamID = ""                        //loaded in value
     var timelineDuration: Int?              //loaded in value
-    var badgeThresholds = ["10","30","90"]  //loaded in value
+    var badgeThresholds = 30                //loaded in value
     var fullView = true                     //loaded in value
     
     var formattedDate = ""                  //loaded out value
@@ -50,7 +59,25 @@ class AddKasamController: UIViewController {
         saveButton.layer.cornerRadius = 20
         cancelButton.layer.cornerRadius = 20
         slidingHandle.layer.cornerRadius = 3
-        slidingHandle.clipsToBounds = true
+        
+        dayGoalBG.layer.cornerRadius = 20
+        dayGoalOutline.layer.cornerRadius = 25
+        dayGoalOutline.layer.borderColor = UIColor.init(hex: 0x66A058).cgColor
+        dayGoalOutline.layer.borderWidth = 3.0
+        dayGoaldayLabel.text = "\(badgeThresholds) days"
+        dayGoalImage.setIcon(icon: .fontAwesomeSolid(.calendarAlt), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
+        
+        justForFunBG.layer.cornerRadius = 20
+        justForFunOutilne.layer.cornerRadius = 25
+        justForFunOutilne.layer.borderColor = UIColor.init(hex: 0x66A058).cgColor
+        justForFunOutilne.layer.borderWidth = 3.0
+        justForFunImage.setIcon(icon: .fontAwesomeSolid(.footballBall), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
+        
+        let dayGoalTap = UITapGestureRecognizer(target: self, action: #selector(dayChallengeSelected))
+        dayGoalButton.addGestureRecognizer(dayGoalTap)
+        let funTap = UITapGestureRecognizer(target: self, action: #selector(justForFunSelected))
+        justForFunButton.addGestureRecognizer(funTap)
+        
         setupTimePicker()
         if fullView == false {
             cancelButton.isHidden = true
@@ -60,6 +87,26 @@ class AddKasamController: UIViewController {
             fillerStackView.isHidden = false
             fillerStackViewTop.isHidden = false
         }
+    }
+    
+    @objc func dayChallengeSelected(){
+        dayGoalOutline.isHidden = false
+        justForFunOutilne.isHidden = true
+        dayGoaldayLabel.textColor = .white
+        justForFunLabel.textColor = .darkGray
+        dayGoalBG.backgroundColor = .dayYesColor
+        justForFunBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
+        repeatDuration = badgeThresholds
+    }
+    
+    @objc func justForFunSelected(){
+        dayGoalOutline.isHidden = true
+        justForFunOutilne.isHidden = false
+        dayGoaldayLabel.textColor = .darkGray
+        justForFunLabel.textColor = .white
+        dayGoalBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
+        justForFunBG.backgroundColor = .dayYesColor
+        repeatDuration = 0
     }
     
     func setupTimePicker(){
@@ -72,10 +119,10 @@ class AddKasamController: UIViewController {
             
             //Load in chosen Kasam preferences
             startDateTimeLabel.text = "Edit Preferences"
-            if repeatDuration > 1 && (currentDay ?? 1 < repeatDuration) {
-                repeatPicker.selectRow(repeatDuration.nearestElement(array: badgeThresholds).level, inComponent: 0, animated: false)
+            if repeatDuration > 0 && (currentDay ?? 1 < repeatDuration) {
+                dayChallengeSelected()
             } else {
-                repeatPicker.selectRow(3, inComponent: 0, animated: false)
+                justForFunSelected()
             }
             timeUnit = formattedTime.components(separatedBy: " ").last ?? "AM"
             let setAMPM = timeUnitArray.index(of: timeUnit) ?? 0
@@ -99,7 +146,7 @@ class AddKasamController: UIViewController {
                     startDateTimeLabel.text = "Restart Kasam"
                     //Restarting a kasam, so load in the previous duration
                     if timelineDuration == nil {
-                        repeatPicker.selectRow(repeatDuration - (currentDay ?? 1), inComponent: 0, animated: false)
+                        dayChallengeSelected()
                     }
                 }
             }
@@ -169,10 +216,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         pickerView.subviews.forEach({$0.isHidden = $0.frame.height < 1.0})
-        if pickerView == repeatPicker {
-            if timelineDuration != nil {return 2}
-            else {return 4}
-        } else if pickerView == startDayPicker{
+        if pickerView == startDayPicker{
             if currentDay != nil && currentDay != 0 {
                 return currentDay!
             } else {
@@ -196,16 +240,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
         if let v = view as? UILabel { label = v }
         label.font = UIFont.systemFont(ofSize: 23, weight: .regular)
         label.textAlignment = .center
-        if pickerView == repeatPicker {
-            if timelineDuration != nil {
-                if row == 1 {label.text = "Try the final challenge"}
-                else {label.text =  String("\(timelineDuration!) days")}
-            } else {
-                //Editing existing Kasam preferences
-                if row == 3 {label.text = "Just for fun"}
-                else {if badgeThresholds.count > row {label.text = (Int(badgeThresholds[row]))?.pluralUnit(unit: "day")}}
-            }
-        } else if pickerView == startDayPicker {
+        if pickerView == startDayPicker {
             if baseDate == nil {
                 if row == 0 {label.text = "Today"}
                 else if row == 1 {label.text = "Tomorrow"}
@@ -235,16 +270,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        if pickerView == repeatPicker {
-            if timelineDuration != nil {
-                if row == 1 {repeatDuration = 0}
-                else {repeatDuration = timelineDuration!}
-            } else {
-                //Editing existing Kasam preferences
-                if row == 3 {repeatDuration = 0}
-                else {repeatDuration = Int(badgeThresholds[row])!}
-            }
-        } else if pickerView == startDayPicker {
+        if pickerView == startDayPicker {
             formattedDate = (Calendar.current.date(byAdding: .day, value: row, to: baseDate ?? Date())!).dateToString()
         } else if pickerView == startTimePicker {
             if component == 0 {

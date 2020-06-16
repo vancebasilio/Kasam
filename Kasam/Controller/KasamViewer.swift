@@ -231,8 +231,8 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         }
         if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
             DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = (snap.value as! String).components(separatedBy: ";")} else {
-                    SavedData.kasamDict[self.kasamID]?.badgeThresholds = ["10","30","90"]
+                if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = snap.value as! Int} else {
+                    SavedData.kasamDict[self.kasamID]?.badgeThresholds = 30
                 }
             }
         }

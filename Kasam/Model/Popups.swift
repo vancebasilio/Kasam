@@ -163,8 +163,10 @@ import Firebase
         attributes.roundCorners = .all(radius: 20)
         var height = CGFloat(40)        //Badges Title height
         if kasamID == nil {
-            height += CGFloat(SavedData.badgeSubCatCount * 40)
+            //For Profile View page (lists all trophies)
+            height += CGFloat((SavedData.badgeSubCatCount + 1) * 40)
         } else {
+            //For specific Kasam
             if SavedData.kasamDict[kasamID!] != nil {
                 height += CGFloat((SavedData.badgesAchieved[SavedData.kasamDict[kasamID!]!.kasamName]?.count ?? 0) + 2) * 40
             } else {
@@ -229,7 +231,7 @@ import Firebase
 
 
     //ADD KASAM---------------------------------------------------------------------------------------------
-    func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?, badgeThresholds: [String], fullView: Bool) {
+    func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?, badgeThresholds: Int, fullView: Bool) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -245,7 +247,7 @@ import Firebase
         attributes.shadow = .active(with: .init(color: EKColor(UIColor.colorFour), opacity: 0.6, radius: 6))
         attributes.roundCorners = .all(radius: 20)
         if fullView == true {
-            attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 380))
+            attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 410))
         } else {
             attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 300))
         }

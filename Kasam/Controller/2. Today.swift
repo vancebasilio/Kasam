@@ -195,7 +195,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 else if repeatDuration == 0 {order = challengeOrder}
             }
             
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timelineDuration: value["Duration"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:0, currentStreakCompleteProgress:0, daysWithAnyProgress:0, daysWithCompleteProgress:0, longestStreak:0, longestStreakDay:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: ["10","30","90"], badgeList: value["Badges"] as? [String: Int], dayTrackerArray: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timelineDuration: value["Duration"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:0, currentStreakCompleteProgress:0, daysWithAnyProgress:0, daysWithCompleteProgress:0, longestStreak:0, longestStreakDay:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: 30, badgeList: value["Badges"] as? [String: Int], dayTrackerArray: nil)
             
             if currentStatus == "active" {
                 if repeatDuration > 0 {kasamOrder += 1}
@@ -645,6 +645,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
+    
     //PART 1
     func badgeThresholds(){
         SavedData.badgesCount = 0
@@ -652,7 +653,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             //STEP 1 - GET THE BADGE THRESHOLDS
             DBRef.coachKasams.child(kasam.value.kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
                 if snap.exists() {
-                    SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds = (snap.value as! String).components(separatedBy: ";")
+                    SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds = snap.value as? Int ?? 30
                 }
                 self.badgesAchieved(kasam:kasam)
             }
@@ -665,12 +666,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         SavedData.badgesCount += kasam.value.badgeList?.count ?? 0
         if kasam.value.badgeList != nil {
             for badge in kasam.value.badgeList! {
-                if let level = (kasam.value.badgeThresholds).index(of: String(badge.value)) {
-                    if SavedData.badgesAchieved[kasam.value.kasamName] == nil {
-                        SavedData.badgesAchieved[kasam.value.kasamName] = [((badge.key, badge.value, level))]
-                    } else {
-                        SavedData.badgesAchieved[kasam.value.kasamName]!.append((badge.key, badge.value, level))
-                    }
+                if SavedData.badgesAchieved[kasam.value.kasamName] == nil {
+                    SavedData.badgesAchieved[kasam.value.kasamName] = [((badge.key, badge.value))]
+                } else {
+                    SavedData.badgesAchieved[kasam.value.kasamName]!.append((badge.key, badge.value))
                 }
             }
             SavedData.badgesCount = (SavedData.badgesAchieved.values.map { $0.count }).reduce(0, { $0 + $1 })

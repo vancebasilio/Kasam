@@ -217,8 +217,8 @@ class TodayBlockCell: UITableViewCell {
         DispatchQueue.global(qos: .background).sync {
             if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
                 DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                    if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = (snap.value as! String).components(separatedBy: ";")}
-                    else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = ["10","30","90"]}
+                    if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = snap.value as! Int}
+                    else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = 30}
                     self.blockBadge(day)
                 }
             } else {
@@ -228,10 +228,8 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func blockBadge(_ day:String?){
-        let badgeLevelArray = [badge1, badge2, badge3]
         var progressAchieved = 0
         var statusDate = ""
-        var badgeLevel = 0
         
         if SavedData.kasamDict[kasamID]?.sequence == "streak" {
             if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak != nil {
@@ -244,17 +242,14 @@ class TodayBlockCell: UITableViewCell {
                 statusDate = day ?? Date().dateToString()
             }
         }
-        for badge in SavedData.kasamDict[kasamID]!.badgeThresholds {
-            if progressAchieved == Int(badge)! {
-                //Will only set the badge if the threshold is reached
-                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(Int(badge))
-                badgeLevelArray[badgeLevel]?.animation = Animations.kasamBadges[badgeLevel]
-                badgeLevelArray[badgeLevel]!.isHidden = false
-            } else {
-                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(nil)
-                badgeLevelArray[badgeLevel]!.isHidden = true
-            }
-            badgeLevel += 1
+        if progressAchieved == SavedData.kasamDict[kasamID]!.badgeThresholds {
+            //Will only set the badge if the threshold is reached
+            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(SavedData.kasamDict[kasamID]!.badgeThresholds)
+            badge1.animation = Animations.kasamBadges[1]
+            badge1.isHidden = false
+        } else {
+            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(nil)
+            badge1.isHidden = true
         }
         //Update the badges the user has achieved after update to the today block
         DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in

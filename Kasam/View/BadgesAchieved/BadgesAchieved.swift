@@ -42,9 +42,9 @@ class BadgesAchieved: UIViewController {
         for kasamName in badgeNameArray {
             var badgeCount = 0
             if SavedData.badgesAchieved[kasamName] != nil {
-                for badge in SavedData.badgesAchieved[kasamName]! {
+                for _ in SavedData.badgesAchieved[kasamName]! {
                     if let cell = self.tableView.cellForRow(at: IndexPath(item: badgeCount, section: kasamCount)) as? BadgesAchievedCell {
-                        cell.badgeImage.animation = Animations.kasamBadges[badge.badgeLevel]
+                        cell.badgeImage.animation = Animations.kasamBadges[1]
                         cell.badgeImage.play()
                     }
                     badgeCount += 1
@@ -111,8 +111,8 @@ extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
         let badge = SavedData.badgesAchieved[kasamName]?[indexPath.row]
         cell.selectionStyle = .none
         if badge != nil {
-            cell.kasamName.text = badge!.badgeThreshold.pluralUnit(unit: "day")
-            cell.badgeDate.text = convertLongDateToShortYear(date: badge!.completedDate)
+            cell.kasamName.text = convertLongDateToShortYear(date: badge!.completedDate)
+            cell.badgeDate.text = badge!.badgeThreshold.pluralUnit(unit: "day")
         }
         cell.textLabel?.textAlignment = .left
         return cell
@@ -123,6 +123,6 @@ extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return CGFloat(30)
+        return CGFloat(40)
     }
 }

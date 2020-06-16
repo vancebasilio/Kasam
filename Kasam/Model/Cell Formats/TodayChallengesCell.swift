@@ -118,8 +118,8 @@ class TodayChallengesCell: UICollectionViewCell {
         DispatchQueue.global(qos: .background).sync {
             if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
                 DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                    if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = (snap.value as? String)!.components(separatedBy: ";")}
-                    else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = ["10","30","90"]}
+                    if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = snap.value as! Int}
+                    else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = 30}
                     self.blockBadge()
                 }
             } else {
@@ -130,10 +130,9 @@ class TodayChallengesCell: UICollectionViewCell {
     
     func blockBadge(){
         if SavedData.kasamDict[kasamID]?.badgeThresholds != nil {
-            let thresholdToHit = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak.nearestElement(array: SavedData.kasamDict[kasamID]!.badgeThresholds)
-            if Int(SavedData.kasamDict[kasamID]?.percentComplete ?? 0) == thresholdToHit.value {
+            if Int(SavedData.kasamDict[kasamID]?.percentComplete ?? 0) == SavedData.kasamDict[kasamID]!.badgeThresholds {
                 //Will only set the badge if the threshold is reached
-                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(thresholdToHit.value)
+                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(SavedData.kasamDict[kasamID]!.badgeThresholds)
             } else {
                 DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(nil)
             }
