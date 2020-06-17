@@ -247,7 +247,7 @@ import Firebase
         attributes.shadow = .active(with: .init(color: EKColor(UIColor.colorFour), opacity: 0.6, radius: 6))
         attributes.roundCorners = .all(radius: 20)
         if fullView == true {
-            attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 410))
+            attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 420))
         } else {
             attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 300))
         }

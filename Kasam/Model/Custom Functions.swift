@@ -550,14 +550,21 @@ extension UIViewController {
     func finishKasamPress (kasamID: String, completion: @escaping (Bool) -> ()) {
         let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
         showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
+            
+            //STEP 1 - Remove notification
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
+            
             //STEP 2 - ADD DATE TO PAST JOIN DATE
             let kasamJoinDate = (SavedData.kasamDict[kasamID]?.joinedDate ?? Date()).dateToString()
             DBRef.userKasamFollowing.child(kasamID).child("Past Join Dates").child(kasamJoinDate).setValue(SavedData.kasamDict[kasamID]?.repeatDuration)
+            
             //STEP 3 - MARK KASAM AS COMPLETED
-            DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("completed")
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
-            completion(success)
+            DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("completed") {(error, reference) in
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
+                completion(success)
+            }
         })
     }
     
@@ -795,6 +802,17 @@ extension String {
         dateFormatter.dateFormat = "h:mm a"
         let date = dateFormatter.date(from: dateAsString)
         return (Calendar.current.component(.hour, from: date!), Calendar.current.component(.minute, from: date!))
+    }
+    
+    func restartExistingNotification() {
+        let kasamID = self
+        let kasam = SavedData.kasamDict[kasamID]
+        let startDate = kasam!.joinedDate
+        var endDate: Date?
+        if kasam?.repeatDuration != 0 {
+            endDate = Calendar.current.date(byAdding: .day, value: kasam!.repeatDuration, to: startDate)!
+        }
+        kasamID.setupNotifications(kasamName: kasam!.kasamName, startDate: Date(), endDate: endDate, chosenTime: kasam!.startTime)
     }
     
     func setupNotifications(kasamName: String, startDate: Date, endDate: Date?, chosenTime: String) {

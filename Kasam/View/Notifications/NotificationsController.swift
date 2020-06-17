@@ -29,9 +29,6 @@ class NotificationsController: UIViewController {
         closeButton?.setIcon(icon: .fontAwesomeSolid(.times), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
         localNotifications(nil)
         
-        let setupNotification = NSNotification.Name("SetupNotification")
-        NotificationCenter.default.addObserver(self, selector: #selector(NotificationsController.setupNotification), name: setupNotification, object: nil)
-        
         let reloadNotification = NSNotification.Name("ReloadNotifications")
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationsController.localNotifications), name: reloadNotification, object: nil)
     }
@@ -43,17 +40,16 @@ class NotificationsController: UIViewController {
     }
      
     @objc func localNotifications(_ notification: NSNotification?){
-        let center = UNUserNotificationCenter.current()
-//        center.removeAllPendingNotificationRequests()
-        center.getPendingNotificationRequests {(notifications) in
+//        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        UNUserNotificationCenter.current().getPendingNotificationRequests {(notifications) in
             for item in notifications {
                 if let index = SavedData.todayKasamList.index(of:item.identifier) {
                     self.notificationArray[index] = item
-//                    let localTrigger = item.trigger as! UNCalendarNotificationTrigger
-//                    let format = DateFormatter()
-//                    format.timeZone = .current
-//                    format.dateFormat = "yyyy-MM-dd' 'HH:mm"
-//                    print("hell7 \(SavedData.kasamDict[item.identifier]!.kasamName,format.string(from: localTrigger.nextTriggerDate()!))")
+                    let localTrigger = item.trigger as! UNCalendarNotificationTrigger
+                    let format = DateFormatter()
+                    format.timeZone = .current
+                    format.dateFormat = "yyyy-MM-dd' 'HH:mm"
+                    print("hell7 \((SavedData.kasamDict[item.identifier]!.kasamName,format.string(from: localTrigger.nextTriggerDate()!)))")
                 }
             }
             DispatchQueue.main.async {
@@ -61,18 +57,6 @@ class NotificationsController: UIViewController {
                     self.notificationsTable.reloadRows(at: [IndexPath(row: order, section: 0)], with: .none)
                 }
             }
-        }
-    }
-    
-    @objc func setupNotification (_ notification: NSNotification?){
-        if let kasamID = notification?.userInfo?["kasamID"] as? String {
-            let kasam = SavedData.kasamDict[kasamID]
-            let startDate = kasam!.joinedDate
-            var endDate: Date?
-            if kasam?.repeatDuration != 0 {
-                endDate = Calendar.current.date(byAdding: .day, value: kasam!.repeatDuration, to: startDate)!
-            }
-            kasamID.setupNotifications(kasamName: kasam!.kasamName, startDate: Date(), endDate: endDate, chosenTime: kasam!.startTime)
         }
     }
     
@@ -97,7 +81,7 @@ extension NotificationsController: UITableViewDelegate, UITableViewDataSource {
         cell.kasamName.text = block.kasamName
         cell.kasamID = block.kasamID
         cell.order = indexPath.row
-        cell.updateSwitch(notificationInfo: self.notificationArray[indexPath.row])
+        cell.updateSwitch(notificationInfo: self.notificationArray[indexPath.row])      //Updates the state of the switch
         cell.preferenceTime.setIcon(prefixText: "", prefixTextColor: .clear, icon: .fontAwesomeSolid(.clock), iconColor: .colorFive, postfixText: " \(block.startTime)", postfixTextColor: .colorFive, size: 13, iconSize: 13)
         cell.preferenceTime.textAlignment = .left
         return cell

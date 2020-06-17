@@ -13,20 +13,25 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var slidingHandle: UIView!
+    
     @IBOutlet weak var dayGoalButton: UIView!
     @IBOutlet weak var dayGoalOutline: UIView!
     @IBOutlet weak var dayGoalBG: UIView!
     @IBOutlet weak var dayGoaldayLabel: UILabel!
     @IBOutlet weak var dayGoalImage: UIImageView!
+    
     @IBOutlet weak var justForFunButton: UIView!
     @IBOutlet weak var justForFunOutilne: UIView!
     @IBOutlet weak var justForFunBG: UIView!
     @IBOutlet weak var justForFunLabel: UILabel!
     @IBOutlet weak var justForFunImage: UIImageView!
+    
     @IBOutlet weak var startDateTimeLabel: UILabel!
     @IBOutlet weak var startDayView: UIStackView!
     @IBOutlet weak var startDayPicker: UIPickerView!
     @IBOutlet weak var startTimePicker: UIPickerView!
+    @IBOutlet weak var reminderTimeSwitch: UISwitch!
+    
     @IBOutlet weak var goalStackView: UIStackView!
     @IBOutlet weak var startDayStackView: UIStackView!
     @IBOutlet weak var reminderTimeStackView: UIStackView!
@@ -37,12 +42,13 @@ class AddKasamController: UIViewController {
     var timelineDuration: Int?              //loaded in value
     var badgeThresholds = 30                //loaded in value
     var fullView = true                     //loaded in value
+    var new: Bool?
     
     var formattedDate = ""                  //loaded out value
     var formattedTime = ""                  //loaded out value
     var repeatDuration = 1                  //loaded out value
     var currentDay: Int?                    //loaded out value
-    var new: Bool?
+    var notificationCheck = true
     
     //Converter variables
     var timeMinArray = ["00", "30"]
@@ -78,6 +84,11 @@ class AddKasamController: UIViewController {
         let funTap = UITapGestureRecognizer(target: self, action: #selector(justForFunSelected))
         justForFunButton.addGestureRecognizer(funTap)
         
+        reminderTimeSwitch.onTintColor = .colorFour
+        reminderTimeSwitch.tintColor = .gray
+        reminderTimeSwitch.layer.cornerRadius = reminderTimeSwitch.frame.height / 2
+        reminderTimeSwitch.backgroundColor = .gray
+        
         setupTimePicker()
         if fullView == false {
             cancelButton.isHidden = true
@@ -94,7 +105,7 @@ class AddKasamController: UIViewController {
         justForFunOutilne.isHidden = true
         dayGoaldayLabel.textColor = .white
         justForFunLabel.textColor = .darkGray
-        dayGoalBG.backgroundColor = .dayYesColor
+        dayGoalBG.backgroundColor = UIColor.init(hex: 0x6EA960)
         justForFunBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
         repeatDuration = badgeThresholds
     }
@@ -105,8 +116,20 @@ class AddKasamController: UIViewController {
         dayGoaldayLabel.textColor = .darkGray
         justForFunLabel.textColor = .white
         dayGoalBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
-        justForFunBG.backgroundColor = .dayYesColor
+        justForFunBG.backgroundColor = UIColor.init(hex: 0x6EA960)
         repeatDuration = 0
+    }
+    
+    @IBAction func switchSelected(_ sender: Any) {
+         if reminderTimeSwitch.isOn {
+            startTimePicker.alpha = 1
+            startTimePicker.isUserInteractionEnabled = true
+            notificationCheck = true
+         } else {
+            startTimePicker.alpha = 0.5
+            startTimePicker.isUserInteractionEnabled = false
+            notificationCheck = false
+         }
     }
     
     func setupTimePicker(){
@@ -134,6 +157,22 @@ class AddKasamController: UIViewController {
             startTimePicker.selectRow(hour - 1, inComponent: 0, animated: false)
             startTimePicker.selectRow(timeMinArray.index(of:String(format:"%02d", min)) ?? 0, inComponent: 2, animated: false)
             baseDate = formattedDate.stringToDate()
+             
+            UNUserNotificationCenter.current().getPendingNotificationRequests {(notifications) in
+                var notificationCheckExisting = false
+                for item in notifications {
+                    if item.identifier == SavedData.kasamDict[self.kasamID]?.kasamID {
+                        notificationCheckExisting = true
+                    }
+                }
+                DispatchQueue.main.async {
+                    if notificationCheckExisting == true {
+                        self.reminderTimeSwitch.setOn(true, animated: true)
+                    } else {
+                        self.reminderTimeSwitch.setOn(false, animated: false)
+                    }
+                }
+            }
        
         //OPTION 2 - ADDING NEW KASAM, SET DEFAULT DATE AND TIME
         } else {
@@ -191,10 +230,15 @@ class AddKasamController: UIViewController {
     }
     
     @IBAction func saveButtonPressed(_ sender: Any) {
-        if timeUnit == timeUnitArray[1] {
-            hourAMPM = hour + 12
+        if timeUnit == timeUnitArray[1] {hourAMPM = hour + 12}
+        else {hourAMPM = hour}
+        
+        if new == true {
+            if reminderTimeSwitch.isOn {notificationCheck = true}
+            else {notificationCheck = false}
         } else {
-            hourAMPM = hour
+            if reminderTimeSwitch.isOn {kasamID.restartExistingNotification()}
+            else {UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])}
         }
         NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: self)
         SwiftEntryKit.dismiss()

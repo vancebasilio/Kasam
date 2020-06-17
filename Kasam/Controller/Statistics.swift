@@ -312,7 +312,7 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
                 self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
             }
             configure(action: edit, with: .edit)
-            return [delete, edit]
+            return [delete]
         }
     }
     

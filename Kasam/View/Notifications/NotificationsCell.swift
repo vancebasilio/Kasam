@@ -37,11 +37,10 @@ class NotificationsCell: UITableViewCell {
     }
     
     @IBAction func switchClicked(_ sender: Any) {
-        let center = UNUserNotificationCenter.current()
         if preferenceSwitch.isOn {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "SetupNotification"), object: self, userInfo: ["kasamID": kasamID])
+            kasamID.restartExistingNotification()
         } else {
-            center.removePendingNotificationRequests(withIdentifiers: [kasamID])
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
         }
     }
     

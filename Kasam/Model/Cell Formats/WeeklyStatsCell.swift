@@ -53,7 +53,9 @@ class WeeklyStatsCell: UICollectionViewCell {
             let pushValue = ((height - 70)  * (CGFloat(cell.metricDictionary[i+1] ?? 0.0)))
             constraintArray[i]?.constant = pushValue
         }
-        self.daysLeft.text = String(cell.daysCompleted)
+        if SavedData.kasamDict[cell.kasamID]?.repeatDuration == 0 {self.daysLeft.text = "∞"}
+        else {self.daysLeft.text = String(cell.daysCompleted)}
+        
         if cell.metricType == "Time" && cell.avgMetric <= 60 {
             averageMetric.text = String(cell.avgMetric)
             averageMetricLabel.text = "Total secs"

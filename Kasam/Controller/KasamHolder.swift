@@ -64,12 +64,16 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var headerBlurImageView: UIImageView!
     var saveTimeObserver: NSObjectProtocol?
     var unfollowObserver: NSObjectProtocol?
+    
+    var initialRepeat: Int?             //used to compare against new repeatDuration; if user switching from one-time to repeat
+    
     var chosenTime = ""
     var chosenTimeHour = 0
     var chosenTimeMin = 0
-    var initialRepeat: Int?             //used to compare against new repeatDuration; if user switching from one-time to repeat
     var chosenRepeat = 1
     var startDate = ""
+    var notificationCheck = true
+    
     var previewLink = ""
     var kasamBlocks: [BlockFormat] = []
     var followerCountGlobal = 0
@@ -261,8 +265,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func finishButtonPressed(_ sender: Any) {
-        finishKasamPress(kasamID: kasamID, completion: {(success) -> Void in
-        })
+        finishKasamPress(kasamID: kasamID, completion: {(success) -> Void in})
     }
     
     @IBAction func extendButtonPressed(_ sender: Any) {
@@ -409,6 +412,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             self.chosenTimeMin = timeVC.min
             self.startDate = timeVC.formattedDate
             self.chosenRepeat = timeVC.repeatDuration
+            self.notificationCheck = timeVC.notificationCheck
+            
             if self.registerCheck == 0 {
                 self.registerUserToKasam()                          //only gets executed once user presses save
             } else {
@@ -437,27 +442,33 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         if self.chosenRepeat != 0 {
             endDate = Calendar.current.date(byAdding: .day, value: self.chosenRepeat, to: startDateConverted)!
         }
-        kasamID.setupNotifications(kasamName: kasamGTitle, startDate: startDateConverted, endDate: endDate, chosenTime: self.chosenTime)
-            //STEP 1: Adds the user to the Kasam-following list
-            DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
-            
-            //STEP 2: Adds the user to the Coach-following list
-            DBRef.userCreator.child(coachIDGlobal).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
-            countFollowers()
-                    
-            //STEP 3: Adds the user preferences to the Kasam they just followed
-            self.addUserPreferncestoKasam(restart: false)
+        if notificationCheck == true {
+            kasamID.setupNotifications(kasamName: kasamGTitle, startDate: startDateConverted, endDate: endDate, chosenTime: self.chosenTime)
+        }
+        
+        //STEP 1: Adds the user to the Kasam-following list
+        DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
+        
+        //STEP 2: Adds the user to the Coach-following list
+        DBRef.userCreator.child(coachIDGlobal).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
+        countFollowers()
+                
+        //STEP 3: Adds the user preferences to the Kasam they just followed
+        self.addUserPreferncestoKasam(restart: false)
     }
     
     func unregisterUseFromKasam() {
         self.registerCheck = 0
-        self.initialRepeat = nil            //set to nil so that all kasams will be reloaded when user re-follows kasam (look at if function in above function)
+        self.initialRepeat = nil    //set to nil so that all kasams will be reloaded when user re-follows kasam (look at if function in above function)
         
         //Removes the user from the Kasam following
         DBRef.coachKasams.child(kasamID).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         
         //Removes the user from the Coach following
         DBRef.userCreator.child(coachIDGlobal).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+        
+        //Remove notification
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
         
         //Removes the kasam from the user's following list
         DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("inactive") {(error, reference) in
@@ -471,17 +482,18 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         
     func addUserPreferncestoKasam(restart: Bool){
         DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Status": "active", "Duration": timelineDuration as Any]) {(error, reference) in
-//          Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
+          Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
+            //OPTION 1 - Add new kasam to the today page
             if self.initialRepeat == nil {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "AddKasamToday"), object: self, userInfo: ["kasamID": self.kasamID])
+            //OPTOIN 2 - Switching from FUN kasam to Tracked kasam
             } else if self.initialRepeat == 0 && self.chosenRepeat > 0 {
-                print("option 1")
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
+            //OPTION 3 - Switching from Tracked kasam to FUN Kasam
             } else if self.initialRepeat! > 0 && self.chosenRepeat == 0 {
-                print("option 2")
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
+            //OPTION 4 - Updating existing kasam, keeping FUN and Tracked status same
             } else {
-                print("option 3")
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
                 if restart == true {
                     DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(( SavedData.kasamDict[self.kasamID]!.joinedDate).dateToString()).setValue(SavedData.kasamDict[self.kasamID]?.repeatDuration)
