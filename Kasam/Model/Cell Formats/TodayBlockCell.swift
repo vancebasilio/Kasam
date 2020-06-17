@@ -25,6 +25,7 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var levelLineBack: UIView!
     @IBOutlet weak var levelLine: UIView!
     @IBOutlet weak var levelLineProgress: NSLayoutConstraint!
+    @IBOutlet weak var levelLinePercent: UILabel!
     @IBOutlet weak var currentDayStreak: UILabel!
     @IBOutlet weak var streakPostText: UILabel!
     @IBOutlet weak var blockContents: UIView!
@@ -61,7 +62,7 @@ class TodayBlockCell: UITableViewCell {
         kasamID = block.kasamID
         tempBlock = block
         kasamName.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
-        print("hell2 \(SavedData.kasamDict[kasamID]?.kasamName)")
+        print("hell2 \(String(describing: SavedData.kasamDict[kasamID]?.kasamName))")
         if block.dayCount != nil {today = block.dayCount!}
         else {today = Int(block.dayOrder)}
         if block.dayOrder > SavedData.kasamDict[kasamID]?.repeatDuration ?? 0 {dayNumber.text = "Complete!"}
@@ -69,7 +70,7 @@ class TodayBlockCell: UITableViewCell {
             dayNumber.text = "\(block.blockTitle)"
             dayNumber.font = dayNumber.font.withSize(16)
         } else {
-//            dayNumberHeight.constant = 0
+            dayNumberHeight.constant = 0
         }
         kasamImage.sd_setImage(with: block.image)
         if SavedData.kasamDict[kasamID]!.metricType == "Checkmark" && block.dayOrder < SavedData.kasamDict[kasamID]?.repeatDuration ?? 0{
@@ -210,7 +211,11 @@ class TodayBlockCell: UITableViewCell {
             }
         } else {
             //OPTION 2 - ACTIVE KASAMS
-            currentDayStreak.text = String(describing: SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress)
+            if SavedData.kasamDict[kasamID]?.sequence == "streak" {
+                currentDayStreak.text = String(describing: SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress)
+            } else {
+                currentDayStreak.text = String(describing: SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress)
+            }
             statsShadow.layer.shadowColor = UIColor.black.cgColor
             statsShadow.layer.shadowOpacity = 0.2
             
@@ -240,8 +245,9 @@ class TodayBlockCell: UITableViewCell {
         var statusDate = ""
         if SavedData.kasamDict[kasamID]?.sequence == "streak" {
             if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak != nil {
-                progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak
+                progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
                 statusDate = (Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date()).dateToString()
+                
             }
         } else {
             if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {
@@ -251,10 +257,7 @@ class TodayBlockCell: UITableViewCell {
         }
         let ratio = Double(progressAchieved) / Double(SavedData.kasamDict[kasamID]!.badgeThresholds)
         self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(ratio)
-        
-        if SavedData.kasamDict[kasamID]?.timelineDuration == nil {
-            dayNumber.text = "\(Int(ratio * 100))%"
-        }
+        levelLinePercent.text = "\(Int(ratio * 100))%"
         
         if progressAchieved == SavedData.kasamDict[kasamID]!.badgeThresholds {
             //Will only set the badge if the threshold is reached

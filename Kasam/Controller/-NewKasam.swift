@@ -97,14 +97,24 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         if basicKasam == true {
             trackingProgressLabel.text = "Benefits:"
             createActivitiesCircle.setIcon(icon: .fontAwesomeSolid(.featherAlt), iconSize: 27, color: UIColor.white, backgroundColor: UIColor.black, forState: .normal)
-            self.metricTypeCollection.isUserInteractionEnabled = false
+            self.metricTypeCollection.isHidden = true
+            self.benefitsTextView.isHidden = false
+            self.benefitsLine.isHidden = false
             DispatchQueue.main.async {
                 self.metricTypeCollection.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: [.centeredHorizontally])
                 self.collectionView(self.metricTypeCollection, didSelectItemAt : IndexPath(item: 1, section: 0))
             }
         } else {
+            trackingProgressLabel.text = "Metric:"
             createActivitiesLabel.text = "Edit Activities"
             createActivitiesCircle.setIcon(icon: .fontAwesomeSolid(.arrowRight), iconSize: 25, color: UIColor.white, backgroundColor: UIColor.black, forState: .normal)
+            self.metricTypeCollection.isHidden = false
+            self.benefitsTextView.isHidden = true
+            self.benefitsLine.isHidden = true
+            DispatchQueue.main.async {
+                self.metricTypeCollection.selectItem(at: IndexPath(item: 1, section: 0), animated: false, scrollPosition: [.centeredHorizontally])
+                self.collectionView(self.metricTypeCollection, didSelectItemAt : IndexPath(item: 1, section: 0))
+            }
         }
         if NewKasam.editKasamCheck == true {
             loadKasam()
