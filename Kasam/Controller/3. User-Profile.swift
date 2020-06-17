@@ -331,9 +331,9 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
 //                followingcount = [snapshot.key: "1"]                    //this shows no of coaches the user is following
                 self.kasamFollowingNo.text = String(kasamcount)
         }
-        if kasamcount == 1 {kasamFollowingLabel.text = "kasams"}
+        if kasamcount == 1 {kasamFollowingLabel.text = "kasam"}
         badgeNo.text = String(describing: SavedData.badgesCount)
-        if SavedData.badgesCount == 1 {badgeLabel.text = "badge"}
+        if SavedData.badgesCount == 1 {badgeLabel.text = "trophy"}
     }
     
     func profilePicture() {

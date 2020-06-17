@@ -21,6 +21,10 @@ protocol TableCellDelegate : class {
 class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var kasamName: UIButton!
     @IBOutlet weak var dayNumber: UILabel!
+    @IBOutlet weak var dayNumberHeight: NSLayoutConstraint!
+    @IBOutlet weak var levelLineBack: UIView!
+    @IBOutlet weak var levelLine: UIView!
+    @IBOutlet weak var levelLineProgress: NSLayoutConstraint!
     @IBOutlet weak var currentDayStreak: UILabel!
     @IBOutlet weak var streakPostText: UILabel!
     @IBOutlet weak var blockContents: UIView!
@@ -28,9 +32,6 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var statsContent: UIView!
     @IBOutlet weak var statsShadow: UIView!
     @IBOutlet weak var streakShadow: UIView!
-    @IBOutlet weak var badge1: AnimationView!
-    @IBOutlet weak var badge2: AnimationView!
-    @IBOutlet weak var badge3: AnimationView!
     @IBOutlet weak var yesButton: UIButton!
     @IBOutlet weak var checkHolder: UIView!
     @IBOutlet weak var percentComplete: UILabel!
@@ -67,7 +68,9 @@ class TodayBlockCell: UITableViewCell {
         else if SavedData.kasamDict[kasamID]?.timelineDuration != nil {
             dayNumber.text = "\(block.blockTitle)"
             dayNumber.font = dayNumber.font.withSize(16)
-        } else {dayNumber.text = "Day \(block.dayOrder) of \(SavedData.kasamDict[kasamID]!.repeatDuration)"}
+        } else {
+//            dayNumberHeight.constant = 0
+        }
         kasamImage.sd_setImage(with: block.image)
         if SavedData.kasamDict[kasamID]!.metricType == "Checkmark" && block.dayOrder < SavedData.kasamDict[kasamID]?.repeatDuration ?? 0{
             percentComplete.isHidden = true
@@ -75,6 +78,10 @@ class TodayBlockCell: UITableViewCell {
         DBRef.coachKasams.child(kasamID).child("Sequence").observeSingleEvent(of: .value) {(snap) in
             if snap.exists() {SavedData.kasamDict[self.kasamID]?.sequence = (snap.value as? String)!}
         }
+        levelLineBack.layer.cornerRadius = 4
+        levelLineBack.clipsToBounds = true
+        levelLine.layer.cornerRadius = 4
+        levelLine.clipsToBounds = true
     }
     
     func cellFormatting(){          //called in the Today Controller on "WillDisplay"
@@ -213,6 +220,7 @@ class TodayBlockCell: UITableViewCell {
         if SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress == 1 {
             streakPostText.text = "day completed"
         }
+        
         //STEP 2 - SET THE BADGE
         DispatchQueue.global(qos: .background).sync {
             if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
@@ -230,7 +238,6 @@ class TodayBlockCell: UITableViewCell {
     func blockBadge(_ day:String?){
         var progressAchieved = 0
         var statusDate = ""
-        
         if SavedData.kasamDict[kasamID]?.sequence == "streak" {
             if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak != nil {
                 progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak
@@ -242,14 +249,18 @@ class TodayBlockCell: UITableViewCell {
                 statusDate = day ?? Date().dateToString()
             }
         }
+        let ratio = Double(progressAchieved) / Double(SavedData.kasamDict[kasamID]!.badgeThresholds)
+        self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(ratio)
+        
+        if SavedData.kasamDict[kasamID]?.timelineDuration == nil {
+            dayNumber.text = "\(Int(ratio * 100))%"
+        }
+        
         if progressAchieved == SavedData.kasamDict[kasamID]!.badgeThresholds {
             //Will only set the badge if the threshold is reached
             DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(SavedData.kasamDict[kasamID]!.badgeThresholds)
-            badge1.animation = Animations.kasamBadges[1]
-            badge1.isHidden = false
         } else {
             DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(nil)
-            badge1.isHidden = true
         }
         //Update the badges the user has achieved after update to the today block
         DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in

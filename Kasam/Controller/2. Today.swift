@@ -811,7 +811,19 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         } else {
             //for Kasam DayTracker
             if SavedData.kasamBlocks.count > collectionView.tag {        //ensures the kasam is loaded before reading the dayTracker
-                return SavedData.kasamDict[SavedData.kasamBlocks[collectionView.tag].kasamID]!.repeatDuration
+                let kasamID = SavedData.kasamBlocks[collectionView.tag].kasamID
+                var progressAchieved = 0
+                if SavedData.kasamDict[kasamID]?.sequence == "streak" {
+                    if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak != nil {
+                        progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak
+                    }
+                } else {
+                    if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {
+                        progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
+                    }
+                }
+                let dayNo = SavedData.kasamDict[kasamID]!.repeatDuration + SavedData.kasamDict[kasamID]!.currentDay - progressAchieved
+                return dayNo
             } else {
                 return 10
             }
