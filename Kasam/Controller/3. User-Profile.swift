@@ -8,7 +8,6 @@
 
 import UIKit
 import Firebase
-import Parchment
 import FBSDKLoginKit
 import SwiftEntryKit
 import SkeletonView

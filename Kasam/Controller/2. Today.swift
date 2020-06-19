@@ -195,8 +195,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 else if repeatDuration == 0 {order = challengeOrder}
             }
             
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timelineDuration: value["Duration"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:0, currentStreakCompleteProgress:0, daysWithAnyProgress:0, daysWithCompleteProgress:0, longestStreak:0, longestStreakDay:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: 30, badgeList: value["Badges"] as? [String: Int], dayTrackerArray: nil)
-            
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timeline: value["Timeline"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:0, currentStreakCompleteProgress:0, daysWithAnyProgress:0, daysWithCompleteProgress:0, longestStreak:0, longestStreakDay:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: 30, badgeList: value["Badges"] as? [String:Int], dayTrackerArray: nil)
             if currentStatus == "active" {
                 if repeatDuration > 0 {kasamOrder += 1}
                 else if repeatDuration == 0 {challengeOrder += 1}
@@ -262,8 +261,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 dayOrder = ((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
                 SavedData.kasamDict[kasam.kasamID]?.currentDay = dayOrder
                 
-                //OPTION 1 - Load blocks based on last completed (TIMELINE KASAMS)
-                if kasam.timelineDuration != nil {
+                //OPTION 1 - Load blocks based on last completed (TIMELINE KASAMS) e.g. Insanity
+                if kasam.timeline != nil {
                     var dayCount = 1
                     for date in Date.dates(from: kasam.joinedDate, to: Date()) {
                         let dateString = date.dateToString()
@@ -271,9 +270,16 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                             if dateString != Dates.getCurrentDate() && snapCount.exists() {
                                 dayCount += 1               //the user has completed xx number of blocks in the past (excludes today's block)
                             } else if dateString == Dates.getCurrentDate() {
-                                DBRef.coachKasams.child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : "\(dayCount)").observeSingleEvent(of: .childAdded, with: {(snapshot) in
-                                    todayKasamCount += 1
-                                    self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID, dayCount: dayCount)
+                                DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observe(.value, with: {(snapshot) in
+                                    if let value = snapshot.value as? [String:String] {
+                                        if dayCount > value.count {
+                                            dayCount = dayCount % value.count
+                                        }
+                                        DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(dayCount)"]!).observeSingleEvent(of: .value) {(snapshot) in
+                                            todayKasamCount += 1
+                                            self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID, dayCount: dayCount)
+                                        }
+                                    }
                                 })
                             }
                         }
@@ -286,7 +292,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                         self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID, dayCount: nil)
                     }
                 } else {
-                //OPTION 3 - Load blocks based on day number (CHALLENGE KASAMS)
+                //OPTION 3 - Load blocks based on day number (CHALLENGE KASAMS) e.g. 200 Push-ups
                     DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
                         let blockCount = Int(blockCountSnapshot.childrenCount)
                         var blockOrder = "1"
@@ -356,9 +362,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                         SavedData.kasamDict[(kasam.kasamID)]?.percentComplete = statusPercent.0
                         SavedData.kasamDict[(kasam.kasamID)]?.displayStatus = statusPercent.1
                         count += 1
-                        if let cell = self.challengesColletionView.cellForItem(at: IndexPath(item: kasam.kasamOrder, section: 0)) as? TodayChallengesCell {print("hell4 status update");cell.statusUpdate()}
+                        if let cell = self.challengesColletionView.cellForItem(at: IndexPath(item: kasam.kasamOrder, section: 0)) as? TodayChallengesCell {cell.statusUpdate()}
                     } else {
-                        if let cell = self.challengesColletionView.cellForItem(at: IndexPath(item: kasam.kasamOrder, section: 0)) as? TodayChallengesCell {print("hell4 status update");cell.statusUpdate()}
+                        if let cell = self.challengesColletionView.cellForItem(at: IndexPath(item: kasam.kasamOrder, section: 0)) as? TodayChallengesCell {cell.statusUpdate()}
                     }
                 })
         //OPTION 2 - GET REPEATED KASAM PERCENT COMPLETE AND DAYTRACKERS
@@ -377,8 +383,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                     self.dayTrackerRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with: {(snap) in
                         let kasamDate = snap.key.stringToDate()
                         if kasamDate >= kasam.joinedDate {
-                            if SavedData.kasamDict[(kasam.kasamID)]?.timelineDuration == nil {
-                                order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
+                            if SavedData.kasamDict[(kasam.kasamID)]?.timeline == nil {
+//order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1     //use for no gaps for days missed
+                                order += 1
                             } else {
                                 order += 1
                             }
@@ -561,8 +568,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                     //OPTION 1 - FOR UPDATING REPEATED KASAM
                     let kasamDate = snapshot.key.stringToDate()
                     var dayOrder = 0
-                    if SavedData.kasamDict[kasamID]?.timelineDuration != nil {
-                        dayOrder = notification.userInfo?["day"] as? Int ?? 0
+                    if SavedData.kasamDict[kasamID]?.timeline != nil {
+//dayOrder = notification.userInfo?["day"] as? Int ?? 0         //use for no gaps for missing days
+                        dayOrder = (Calendar.current.dateComponents([.day], from: SavedData.kasamDict[kasamID]!.joinedDate, to: kasamDate)).day! + 1
                     } else {
                         dayOrder = (Calendar.current.dateComponents([.day], from: SavedData.kasamDict[kasamID]!.joinedDate, to: kasamDate)).day! + 1
                     }
@@ -815,7 +823,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                 var progressAchieved = 0
                 if SavedData.kasamDict[kasamID]?.sequence == "streak" {
                     if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak != nil {
-                        progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.longestStreak
+                        progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
                     }
                 } else {
                     if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {
@@ -870,7 +878,9 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                 let kasamBlock = SavedData.kasamBlocks[collectionView.tag]
                 let day = indexPath.row + 1
                 var today = Int(kasamBlock.dayOrder)
-                if kasamBlock.dayCount != nil {today = kasamBlock.dayCount!}
+                if kasamBlock.dayCount != nil {
+                    today = kasamBlock.dayCount!            //for timeline kasams only
+                }
                 cell.setBlock(kasamID: kasamBlock.kasamID, kasamOrder: collectionView.tag, day: day, status: SavedData.kasamDict[kasamBlock.kasamID]?.dayTrackerArray?[indexPath.row + 1]?.1 ?? 0.0, date: dayTrackerDateFormat(date: Date(), todayDay: today, row: indexPath.row + 1), today: day == today, future: day > today)
             }
             return cell
@@ -913,7 +923,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, metricType: String, viewOnly: Bool?) {
-        if day <= SavedData.kasamBlocks[kasamOrder].dayOrder || SavedData.kasamDict[SavedData.kasamBlocks[kasamOrder].kasamID]?.timelineDuration != nil {
+        if day <= SavedData.kasamBlocks[kasamOrder].dayOrder || SavedData.kasamDict[SavedData.kasamBlocks[kasamOrder].kasamID]?.timeline != nil {
             if metricType == "Checkmark" {
                 updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: day, challenge: false)
             } else {
@@ -934,19 +944,21 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
             //Opening a past day's block
             DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
                 let blockCount = Int(blockCountSnapshot.childrenCount)
-                var blockOrder = "1"
-                if day! <= blockCount {
-                    blockOrder = String(day!)
-                } else {
-                    blockOrder = String((blockCount / day!) + 1)
-                }
-                if blockCount > 1 {
+                var blockOrder = 1
+                if day! <= blockCount {blockOrder = day!}
+                else {blockOrder = (blockCount / day!) + 1}
+                if SavedData.kasamDict[kasamID]?.timeline != nil {
                     //OPTION 1 - Day in past, so find the correct block to show
-                    DBRef.coachKasams.child(kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: {(snapshot) in
-                        let value = snapshot.value as! Dictionary<String,Any>
-                        self.blockIDGlobal = value["BlockID"] as? String ?? SavedData.kasamBlocks[kasamOrder].blockID
-                        self.dayToLoadGlobal = day!
-                        self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
+                    DBRef.coachKasams.child(kasamID).child("Timeline").observe(.value, with: {(snapshot) in
+                        if let value = snapshot.value as? [String:String] {
+                            if blockOrder > value.count {
+                                blockOrder = blockOrder % value.count
+                            }
+                            self.blockIDGlobal = value["D\(blockOrder)"]!
+                            self.dayToLoadGlobal = day!
+                            self.definesPresentationContext = true
+                            self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
+                        }
                     })
                 } else {
                     //OPTION 2 - Day in past and Kasam has only 1 block, so no point finding the correct block
@@ -955,6 +967,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                 }
             })
         } else {
+            print("hell7")
             //OPTION 3 - Open Today's block
             self.dayToLoadGlobal = self.dayOrderGlobal
             self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)

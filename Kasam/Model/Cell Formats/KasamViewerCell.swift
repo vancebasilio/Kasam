@@ -7,10 +7,13 @@
 //
 
 import UIKit
+import AVKit
+import AVFoundation
 import SDWebImage
 import SwiftEntryKit
 import SkyFloatingLabelTextField
 import HGCircularSlider
+import HCVimeoVideoExtractor
 
 protocol KasamViewerCellDelegate {
     func dismissViewController()
@@ -35,6 +38,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBOutlet weak var timerButtonStackView: UIStackView!
     @IBOutlet weak var textField: SkyFloatingLabelTextField!
     @IBOutlet weak var maskButton: UIButton!
+    @IBOutlet weak var videoPlayer: UIView!
     @IBOutlet weak var restImageView: UIImageView!
     
     @IBOutlet weak var topView: UIView!
@@ -61,6 +65,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     var increment = 1              //for the reps slider
     var viewOnlyCheck = false
     
+    var player = AVPlayer()
+    
     //Timer variables
     var maxTime: TimeInterval = 0   //set max timer value
     var currentTime = 0.0
@@ -86,13 +92,37 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
         pickerView.reloadAllComponents()                                    //important so that the pickerview updates to the max metric
         if activity.image == nil {
-            if activity.imageURL == "" {
+            if activity.imageURL == nil && activity.videoURL == nil {
                 animatedImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityPlaceholderURL))
-            } else {
-                animatedImageView.sd_setImage(with: URL(string: activity.imageURL))
+            } else if activity.imageURL != nil && activity.videoURL == nil {
+                animatedImageView.sd_setImage(with: URL(string: activity.imageURL!))
+            } else if activity.videoURL != nil {
+                print("hell7")
+                let url = URL(string: "https://vimeo.com/209288527")!
+                HCVimeoVideoExtractor.fetchVideoURLFrom(url: url, completion: {(video:HCVimeoVideo?, error:Error?) -> Void in
+                    if let err = error {
+                        print("Error = \(err.localizedDescription)")
+                        return
+                    }
+                    guard let vid = video else {
+                        print("Invalid video object")
+                        return
+                    }
+                    if let videoURL = vid.videoURL[.Quality720p] {
+                        DispatchQueue.main.async {
+                            print("hell7 Title = \(vid.title), url = \(vid.videoURL), thumbnail = \(vid.thumbnailURL)")
+                            self.player = AVPlayer(url: videoURL)
+                            let layer = AVPlayerLayer(player: self.player)
+                            layer.frame = self.videoPlayer.bounds
+                            layer.videoGravity = .resizeAspectFill
+                            self.videoPlayer.layer.addSublayer(layer)
+                            self.player.play()
+                        }
+                    }
+                })
             }
         } else {
-            //only activated when creating a Kasam and a full image is loaded in directly
+            //Only activated when creating a Kasam and a full image is loaded in directly
             animatedImageView.image = activity.image
         }
         if currentOrder == totalOrder {

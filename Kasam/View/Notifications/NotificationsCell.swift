@@ -46,7 +46,7 @@ class NotificationsCell: UITableViewCell {
     
     @IBAction func editButtonPressed(_ sender: Any) {
         var saveTimeObserver: NSObjectProtocol?
-        addKasamPopup(kasamID: kasamID, new: false, timelineDuration: SavedData.kasamDict[kasamID]?.timelineDuration, badgeThresholds: SavedData.kasamDict[kasamID]!.badgeThresholds, fullView: false)
+        addKasamPopup(kasamID: kasamID, new: false, timelineDuration: SavedData.kasamDict[kasamID]?.timeline, badgeThresholds: SavedData.kasamDict[kasamID]!.badgeThresholds, fullView: false)
         
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             

@@ -62,6 +62,16 @@ class KasamActivityViewer: UIViewController {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        //Stop all the videos playing once the screen is closed
+        for i in 0...(self.activityBlocks.count - 1) {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: i, section: 0)) as? KasamViewerCell {
+                print("hell7 stop")
+                cell.player.pause()
+            }
+        }
+    }
+    
     func setupButtons() {
         UIApplication.shared.endIgnoringInteractionEvents()
         closeButton?.setIcon(icon: .fontAwesomeSolid(.times), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
@@ -96,7 +106,7 @@ class KasamActivityViewer: UIViewController {
                             if snap.exists() {
                                 currentText = snap.value as! String         //gets the text for the activity
                             }
-                            let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, imageURL: value["Image"] as! String, image: nil, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0, currentText: currentText)
+                            let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, imageURL: value["Image"] as? String, videoURL: value["Video"] as? String, image: nil, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0, currentText: currentText)
                             self.activityBlocks.append(activity)
                             self.collectionView.reloadData()
                             if self.activityBlocks.count == count {
@@ -114,7 +124,7 @@ class KasamActivityViewer: UIViewController {
             count += 1
             let blockNo = Int(blockID) ?? 1
             let blockActivity = NewKasam.fullActivityMatrix[blockNo]
-            let activity = KasamActivityCellFormat(kasamID: "", blockID: "", title: blockActivity?[0]?.title ?? "Activity Title", description: blockActivity?[0]?.description ?? "Activity Description", totalMetric: String(describing: blockActivity?[0]?.reps), increment: String(describing: blockActivity?[0]?.interval), currentMetric: "", imageURL: "", image: blockActivity?[0]?.imageToSave, type: NewKasam.chosenMetric, currentOrder: 0, totalOrder: 0, currentText: "")
+            let activity = KasamActivityCellFormat(kasamID: "", blockID: "", title: blockActivity?[0]?.title ?? "Activity Title", description: blockActivity?[0]?.description ?? "Activity Description", totalMetric: String(describing: blockActivity?[0]?.reps), increment: String(describing: blockActivity?[0]?.interval), currentMetric: "", imageURL: "", videoURL: "", image: blockActivity?[0]?.imageToSave, type: NewKasam.chosenMetric, currentOrder: 0, totalOrder: 0, currentText: "")
             self.activityBlocks.append(activity)
             self.collectionView.reloadData()
             if self.activityBlocks.count == count {
@@ -194,6 +204,12 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         return CGSize(width: view.frame.size.width, height: view.frame.size.height)
     }
     
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//        if let cell = collectionView.cellForItem(at: IndexPath(item: Int(scrollView.contentOffset.x / scrollView.frame.size.width) + 1, section: 0)) as? KasamViewerCell {
+//            cell.player.pause()
+//        }
+//    }
+    
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         activityCurrentValue = Int(scrollView.contentOffset.x / scrollView.frame.size.width) + 1
         activityNumber.text = "\(activityCurrentValue)/\(activityBlocks.count)"
@@ -236,7 +252,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
                 }
             }
         }
-        if transferAvg > 0.0 || SavedData.kasamDict[self.kasamID]?.timelineDuration != nil {
+        if transferAvg > 0.0 {
             DBRef.userHistory.child(kasamID).child(statusDate).setValue(["Block Completed": blockID, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
         } else {
             //removes the dayTracker for today if kasam is set to zero

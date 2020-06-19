@@ -16,15 +16,13 @@ pod 'Fabric'
 pod 'Crashlytics'
 pod 'GoogleSignIn'
 pod ‘youtube-ios-player-helper’
-
-pod 'SVProgressHUD'
-pod 'ChameleonFramework'
-pod 'Parchment'
-pod 'SDWebImage'
-
 pod 'FacebookCore'
 pod 'FacebookLogin'
 pod 'FacebookShare'
+
+pod 'SVProgressHUD'
+pod 'ChameleonFramework'
+pod 'SDWebImage'
 
 pod 'MXSegmentedPager'
 pod 'Cosmos'
@@ -33,10 +31,11 @@ pod 'lottie-ios'
 pod 'HGCircularSlider'
 pod 'SkyFloatingLabelTextField'
 pod 'Charts'
-pod 'SwiftEntryKit', '1.1.4'
+pod 'SwiftEntryKit'
 pod 'SkeletonView'
 pod 'IQKeyboardManagerSwift'
 pod 'SwipeCellKit'
+pod 'HCVimeoVideoExtractor'
 
 end
 
