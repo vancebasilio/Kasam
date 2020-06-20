@@ -908,6 +908,12 @@ extension TimeInterval{
     }
 }
 
+extension AVPlayer {
+    var isPlaying: Bool {
+        return rate != 0 && error == nil
+    }
+}
+
 extension UIView{
     func roundedLeft(){
         let maskPath1 = UIBezierPath(roundedRect: bounds, byRoundingCorners: [.topLeft , .bottomLeft], cornerRadii: CGSize(width: 8, height: 8))
@@ -923,6 +929,18 @@ extension UIView{
         maskLayer1.frame = bounds
         maskLayer1.path = maskPath1.cgPath
         layer.mask = maskLayer1
+    }
+    
+    func fadeIn(withDuration duration: TimeInterval = 0.5) {
+        UIView.animate(withDuration: duration, animations: {
+            self.alpha = 1.0
+        })
+    }
+    
+    func fadeOut(withDuration duration: TimeInterval = 0.5) {
+        UIView.animate(withDuration: duration, animations: {
+            self.alpha = 0.0
+        })
     }
 }
 

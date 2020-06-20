@@ -38,9 +38,20 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBOutlet weak var timerButtonStackView: UIStackView!
     @IBOutlet weak var textField: SkyFloatingLabelTextField!
     @IBOutlet weak var maskButton: UIButton!
-    @IBOutlet weak var videoPlayer: UIView!
-    @IBOutlet weak var restImageView: UIImageView!
+    @IBOutlet weak var view: UIView!
     
+    @IBOutlet weak var kasamLogoBG: UIImageView!
+    @IBOutlet weak var regularView: UIStackView!
+    
+    @IBOutlet weak var videoView: UIView!
+    @IBOutlet weak var videoPlayer: UIView!
+    @IBOutlet weak var videoControlsView: UIView!
+    @IBOutlet weak var playPauseButton: UIButton!
+    @IBOutlet weak var progressSlider: UISlider!
+    @IBOutlet weak var timeRemainingLabel: UILabel!
+    @IBOutlet weak var videoTitle: UILabel!
+    
+    @IBOutlet weak var restImageView: UIImageView!
     @IBOutlet weak var topView: UIView!
     @IBOutlet weak var bottomView: UIStackView!
     
@@ -65,7 +76,11 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     var increment = 1              //for the reps slider
     var viewOnlyCheck = false
     
-    var player = AVPlayer()
+    //Video variables
+    var pauseState = false
+    var player: AVPlayer?
+    var timeObserver: Any?
+    var timer: Timer?
     
     //Timer variables
     var maxTime: TimeInterval = 0   //set max timer value
@@ -82,8 +97,9 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     //BASIC SETUP-----------------------------------------------------------------------------------
     
     func setKasamViewer(activity: KasamActivityCellFormat) {
-        restView.isHidden = true
         textField.isHidden = true
+        kasamLogoBG.image = kasamLogoBG.image?.withRenderingMode(.alwaysTemplate)
+        kasamLogoBG.tintColor = .lightGray
         activityTitle.text = activity.activityTitle
         activityDescription.text = activity.activityDescription
         currentOrder = activity.currentOrder
@@ -93,33 +109,14 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         pickerView.reloadAllComponents()                                    //important so that the pickerview updates to the max metric
         if activity.image == nil {
             if activity.imageURL == nil && activity.videoURL == nil {
+                regularView.isHidden = false
                 animatedImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityPlaceholderURL))
             } else if activity.imageURL != nil && activity.videoURL == nil {
+                regularView.isHidden = false
                 animatedImageView.sd_setImage(with: URL(string: activity.imageURL!))
             } else if activity.videoURL != nil {
-                print("hell7")
-                let url = URL(string: "https://vimeo.com/209288527")!
-                HCVimeoVideoExtractor.fetchVideoURLFrom(url: url, completion: {(video:HCVimeoVideo?, error:Error?) -> Void in
-                    if let err = error {
-                        print("Error = \(err.localizedDescription)")
-                        return
-                    }
-                    guard let vid = video else {
-                        print("Invalid video object")
-                        return
-                    }
-                    if let videoURL = vid.videoURL[.Quality720p] {
-                        DispatchQueue.main.async {
-                            print("hell7 Title = \(vid.title), url = \(vid.videoURL), thumbnail = \(vid.thumbnailURL)")
-                            self.player = AVPlayer(url: videoURL)
-                            let layer = AVPlayerLayer(player: self.player)
-                            layer.frame = self.videoPlayer.bounds
-                            layer.videoGravity = .resizeAspectFill
-                            self.videoPlayer.layer.addSublayer(layer)
-                            self.player.play()
-                        }
-                    }
-                })
+                setVideoPlayer(url: URL(string: activity.videoURL!)!)
+                resetTimer()
             }
         } else {
             //Only activated when creating a Kasam and a full image is loaded in directly
@@ -133,6 +130,107 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         if viewOnlyCheck == true {
             self.resetButton.isHidden = true
         }
+    }
+    
+    //VIDEO---------------------------------------------------------------------------------------
+    
+    func setVideoPlayer(url: URL){
+        videoView.isHidden = false
+        playPauseButton.setIcon(icon: .fontAwesomeSolid(.pauseCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(toggleControls))
+        videoPlayer.addGestureRecognizer(tap)
+        HCVimeoVideoExtractor.fetchVideoURLFrom(url: url, completion: {(video:HCVimeoVideo?, error:Error?) -> Void in
+            if let err = error {
+                print("Error = \(err.localizedDescription)")
+                return
+            }
+            guard let vid = video else {
+                print("Invalid video object")
+                return
+            }
+            if let videoURL = vid.videoURL[.Quality720p] {
+                DispatchQueue.main.async {
+                    self.videoTitle.text = vid.title
+                    self.player = AVPlayer(url: videoURL)
+                    let layer = AVPlayerLayer(player: self.player)
+                    layer.frame = self.videoPlayer.bounds
+                    layer.videoGravity = .resizeAspectFill
+                    self.videoPlayer.layer.addSublayer(layer)
+                    self.player?.play()
+                    self.videoControlsView.fadeIn()
+                    
+                    let interval = CMTime(seconds: 0.01, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+                    self.timeObserver = self.player?.addPeriodicTimeObserver(forInterval: interval, queue: DispatchQueue.main, using: { elapsedTime in
+                        self.updateVideoPlayerSlider()
+                    })
+                }
+            }
+        })
+    }
+    
+    func updateVideoPlayerSlider() {
+        guard let currentTime = player?.currentTime() else { return }
+        let currentTimeInSeconds = CMTimeGetSeconds(currentTime)
+        progressSlider.value = Float(currentTimeInSeconds)
+        if let currentItem = player?.currentItem {
+            let duration = currentItem.duration
+            if (CMTIME_IS_INVALID(duration)) {
+                return;
+            }
+            let currentTime = currentItem.currentTime()
+            progressSlider.value = Float(CMTimeGetSeconds(currentTime) / CMTimeGetSeconds(duration))
+            print("hell7 \(progressSlider.value * 100)")
+
+            // Update time remaining label
+            let totalTimeInSeconds = CMTimeGetSeconds(duration)
+            let remainingTimeInSeconds = totalTimeInSeconds - currentTimeInSeconds
+
+            let mins = remainingTimeInSeconds / 60
+            let secs = remainingTimeInSeconds.truncatingRemainder(dividingBy: 60)
+            let timeformatter = NumberFormatter()
+            timeformatter.minimumIntegerDigits = 2
+            timeformatter.minimumFractionDigits = 0
+            timeformatter.roundingMode = .down
+            guard let minsStr = timeformatter.string(from: NSNumber(value: mins)), let secsStr = timeformatter.string(from: NSNumber(value: secs)) else {
+                return
+            }
+            timeRemainingLabel.text = "\(minsStr):\(secsStr)"
+        }
+    }
+    
+    func resetTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(hideControls), userInfo: nil, repeats: false)
+    }
+    
+    @objc func toggleControls() {
+        if videoControlsView.alpha == 0 {videoControlsView.fadeIn()}
+        else {videoControlsView.fadeOut()}
+        resetTimer()
+    }
+    
+    @objc func hideControls() {
+        videoControlsView.fadeOut()
+    }
+    
+    @IBAction func playPauseButtonTapped(_ sender: Any) {
+        guard let player = player else { return }
+        if !player.isPlaying {
+            playPauseButton.setIcon(icon: .fontAwesomeSolid(.pauseCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
+            player.play()
+        } else {
+            playPauseButton.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
+            player.pause()
+        }
+        resetTimer()
+    }
+    
+    @IBAction func playbackSliderValueChanged(_ sender: Any) {
+        guard let duration = player?.currentItem?.duration else { return }
+        let value = Float64(progressSlider.value) * CMTimeGetSeconds(duration)
+        let seekTime = CMTime(value: CMTimeValue(value), timescale: 1)
+        player?.seek(to: seekTime)
+        resetTimer()
     }
     
     //COUNTDOWN-----------------------------------------------------------------------------------

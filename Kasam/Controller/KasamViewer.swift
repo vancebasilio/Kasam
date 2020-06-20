@@ -66,8 +66,7 @@ class KasamActivityViewer: UIViewController {
         //Stop all the videos playing once the screen is closed
         for i in 0...(self.activityBlocks.count - 1) {
             if let cell = collectionView.cellForItem(at: IndexPath(item: i, section: 0)) as? KasamViewerCell {
-                print("hell7 stop")
-                cell.player.pause()
+                cell.player?.pause()
             }
         }
     }
@@ -81,7 +80,6 @@ class KasamActivityViewer: UIViewController {
         activityBlocks.removeAll()
         var count = 0
         if reviewOnly == false {
-            
             if self.dayToLoad == nil {self.dayToLoad = self.dayOrder}      //In case DayToLoad isn't loaded
             var diff = self.dayOrder - self.dayToLoad!
             if SavedData.kasamDict[self.kasamID]?.repeatDuration == 0 {diff = 0}
