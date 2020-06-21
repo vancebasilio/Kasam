@@ -304,7 +304,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 kasamActivityHolder.kasamID = kasamID
                 kasamActivityHolder.blockID = blockIDGlobal
                 kasamActivityHolder.viewingOnlyCheck = true
-                kasamActivityHolder.dayOrder = 0                //this field is for saving kasam progress, so set it to zero as we're only reviewing
             } else if reviewOnly == true {
                 kasamActivityHolder.reviewOnly = true
                 kasamActivityHolder.blockID = blockIDGlobal     //this is the block No that gets transferred

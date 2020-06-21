@@ -430,14 +430,10 @@ extension UIViewController {
         return dateOutput
     }
     
-    func dayTrackerDateFormat(date: Date, todayDay: Int, row: Int) -> String {
+    func dayTrackerDateFormat(date: Date, todayDay: Int, row: Int) -> Date {
         let substract = todayDay - row
         let date = Calendar.current.date(byAdding: .day, value: -substract, to: date) ?? date
-        let formatter = DateFormatter()
-        formatter.timeStyle = .none
-        formatter.dateFormat = "MMM d"
-        let finalDate = formatter.string(from: date)
-        return finalDate
+        return date
     }
     
     func convertTimeAndMetric(time: Double, metric: String ) -> (Double, String) {
@@ -692,6 +688,14 @@ extension Date {
         let formatter = DateFormatter()
         formatter.timeStyle = .none
         formatter.dateFormat = "yyyy-MM-dd"
+        let finalDate = formatter.string(from: self)
+        return finalDate
+    }
+    
+    func dateToShortString() -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateFormat = "MMM d"
         let finalDate = formatter.string(from: self)
         return finalDate
     }

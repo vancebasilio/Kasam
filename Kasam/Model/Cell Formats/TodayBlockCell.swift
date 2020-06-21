@@ -13,7 +13,7 @@ import Lottie
 
 protocol TableCellDelegate : class {
     func updateKasamDayButtonPressed(kasamOrder: Int, day: Int, challenge: Bool)
-    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, viewOnly: Bool?)
+    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?)
     func goToKasamHolder(_ sender: UIButton, kasamOrder: Int)
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
 }
@@ -141,7 +141,7 @@ class TodayBlockCell: UITableViewCell {
             if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
                 cellDelegate?.updateKasamDayButtonPressed(kasamOrder: row, day: tempBlock?.dayOrder ?? 1, challenge: false)
             } else {
-                cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil, viewOnly: false)
+                cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil, date: nil, viewOnly: false)
             }
         }
         centerCollectionView()

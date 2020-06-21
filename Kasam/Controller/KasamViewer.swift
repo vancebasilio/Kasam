@@ -19,10 +19,8 @@ class KasamActivityViewer: UIViewController {
     var activityBlocks: [KasamActivityCellFormat] = []
     var kasamID = ""                    //loaded in
     var blockID = ""                    //loaded in
-    var dayOrder = 0                    //loaded in - for current kasams
-    var dayToLoad: Int?                 //loaded in - for picking the correct block to show (for past and today days)
-    
-    var dateToLoad: Date?
+    var dateToLoad: Date?               //loaded in
+    var dayToLoad: Int?                 //loaded in (for timeline kasams, to update the right dayTracker day)
     
     var activityRef: DatabaseReference!
     var activityRefHandle: DatabaseHandle!
@@ -56,17 +54,28 @@ class KasamActivityViewer: UIViewController {
     }
     
     func updateControllers(){
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: ["kasamID":kasamID, "date":statusDate, "day": self.dayToLoad!])
+        //For video kasams - to save progress and stop videos
+        stopAllVideos()
+        
+        //TIMELINE KASAMS - Update the dayTracker using skipped day (e.g. 2nd day might show as 5th day if 3 days skipped)
+        if SavedData.kasamDict[kasamID]?.timeline != nil {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: ["kasamID": kasamID, "date": dateToLoad?.dateToString() ?? Date().dateToString, "day": dayToLoad as Any])
+        //OTHER KASAMS - Update the dayTracker using linear day (.e.g 5th day will show as 5th day because days skipped shows as grey)
+        } else {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: ["kasamID":kasamID, "date":statusDate])
+        }
         NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        //Stop all the videos playing once the screen is closed
+    func stopAllVideos(){
         for i in 0...(self.activityBlocks.count - 1) {
             if let cell = collectionView.cellForItem(at: IndexPath(item: i, section: 0)) as? KasamViewerCell {
-                cell.player?.pause()
+                if cell.videoView.isHidden == false {
+                    cell.player?.pause()
+                    sendCompletedMatrix(key: 1, value: Double(cell.progressSlider.value * 100), text: "")
+                }
             }
         }
     }
@@ -80,15 +89,13 @@ class KasamActivityViewer: UIViewController {
         activityBlocks.removeAll()
         var count = 0
         if reviewOnly == false {
-            if self.dayToLoad == nil {self.dayToLoad = self.dayOrder}      //In case DayToLoad isn't loaded
-            var diff = self.dayOrder - self.dayToLoad!
-            if SavedData.kasamDict[self.kasamID]?.repeatDuration == 0 {diff = 0}
+            //For non-streak kasams
             if SavedData.kasamDict[self.kasamID]?.sequence == nil {
-                self.statusDate = (Calendar.current.date(byAdding: .day, value: -diff, to: Date())!).dateToString()
+                self.statusDate = dateToLoad?.dateToString() ?? Date().dateToString()
+            //For streak kasams
             } else {
-                self.statusDate = (SavedData.kasamDict[self.kasamID]?.dayTrackerArray?[self.dayToLoad!]?.0 ?? Date()).dateToString()
+                self.statusDate = dateToLoad?.dateToString() ?? Date().dateToString()
             }
-            
             //Check if user has past progress and download metric
             self.activityRef = DBRef.coachKasams.child(kasamID).child("Blocks").child(blockID).child("Activity")
             self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
@@ -108,6 +115,8 @@ class KasamActivityViewer: UIViewController {
                             self.activityBlocks.append(activity)
                             self.collectionView.reloadData()
                             if self.activityBlocks.count == count {
+                                if self.activityBlocks.count == 1 {self.activityNumber.isHidden = true}
+                                else {self.activityNumber.isHidden = false}
                                 self.activityNumber.text = "1/\(self.activityBlocks.count)"
                                 completion()
                             }
@@ -167,29 +176,24 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         cell.viewOnlyCheck = viewingOnlyCheck
         cell.kasamIDTransfer["kasamID"] = kasamID
         cell.setKasamViewer(activity: activity)
+        cell.pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
         if activity.type == "Reps" {
-            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
-            cell.setupPicker(pastProgress: pastProgress)
+            cell.setupPicker()
         } else if activity.type == "Countdown" {
-            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
-            cell.setupCountdown(maxtime: activity.totalMetric, pastProgress: pastProgress)
+            cell.setupCountdown(maxtime: activity.totalMetric)
         } else if activity.type == "CountdownText" {
-            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
-            cell.setupCountdown(maxtime: activity.totalMetric, pastProgress: pastProgress)
+            cell.setupCountdown(maxtime: activity.totalMetric)
             cell.textField.isHidden = false
         } else if activity.type == "Timer" {
-            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
-            cell.setupTimer(maxtime: activity.totalMetric, pastProgress: pastProgress)
+            cell.setupTimer(maxtime: activity.totalMetric)
         } else if activity.type == "Checkmark" {
             cell.textField.isHidden = false
-            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             let pastText = activityBlocks[indexPath.row].currentText
-            cell.setupCheckmark(pastProgress: pastProgress, pastText: pastText)
+            cell.setupCheckmark(pastText: pastText)
         } else if activity.type == "CheckmarkText" {
-            let pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
             let pastText = activityBlocks[indexPath.row].currentText
             cell.textField.isHidden = false
-            cell.setupCheckmark(pastProgress: pastProgress, pastText: pastText)
+            cell.setupCheckmark(pastText: pastText)
         }
         else if activity.type == "Rest" {
             cell.setupRest(activity: activity)
@@ -201,12 +205,6 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: view.frame.size.width, height: view.frame.size.height)
     }
-    
-//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//        if let cell = collectionView.cellForItem(at: IndexPath(item: Int(scrollView.contentOffset.x / scrollView.frame.size.width) + 1, section: 0)) as? KasamViewerCell {
-//            cell.player.pause()
-//        }
-//    }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         activityCurrentValue = Int(scrollView.contentOffset.x / scrollView.frame.size.width) + 1

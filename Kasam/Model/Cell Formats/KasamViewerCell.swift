@@ -75,6 +75,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     var count = 0
     var increment = 1              //for the reps slider
     var viewOnlyCheck = false
+    var pastProgress = 0.0
+    var startCheck = false
     
     //Video variables
     var pauseState = false
@@ -158,7 +160,6 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
                     self.videoPlayer.layer.addSublayer(layer)
                     self.player?.play()
                     self.videoControlsView.fadeIn()
-                    
                     let interval = CMTime(seconds: 0.01, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
                     self.timeObserver = self.player?.addPeriodicTimeObserver(forInterval: interval, queue: DispatchQueue.main, using: { elapsedTime in
                         self.updateVideoPlayerSlider()
@@ -179,12 +180,18 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
             }
             let currentTime = currentItem.currentTime()
             progressSlider.value = Float(CMTimeGetSeconds(currentTime) / CMTimeGetSeconds(duration))
-            print("hell7 \(progressSlider.value * 100)")
 
             // Update time remaining label
             let totalTimeInSeconds = CMTimeGetSeconds(duration)
+            if totalTimeInSeconds > 0 && startCheck == false {
+                let secondsToStartAt = (self.pastProgress / 100) * totalTimeInSeconds
+                self.player?.seek(to: CMTimeMakeWithSeconds(secondsToStartAt, preferredTimescale: currentItem.duration.timescale))
+                startCheck = true
+            }
             let remainingTimeInSeconds = totalTimeInSeconds - currentTimeInSeconds
-
+            if currentTimeInSeconds == totalTimeInSeconds {
+                playPauseButton.setIcon(icon: .fontAwesomeSolid(.redo), iconSize: 40, color: UIColor.colorFour, forState: .normal)
+            }
             let mins = remainingTimeInSeconds / 60
             let secs = remainingTimeInSeconds.truncatingRemainder(dividingBy: 60)
             let timeformatter = NumberFormatter()
@@ -235,7 +242,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     //COUNTDOWN-----------------------------------------------------------------------------------
     
-    func setupCountdown(maxtime: String, pastProgress: Double){
+    func setupCountdown(maxtime: String){
         //hide picker views
         animatedImageView.isHidden = true
         doneButton.isHidden = true
@@ -283,7 +290,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     //TIMER-----------------------------------------------------------------------------------
     
-    func setupTimer(maxtime: String, pastProgress: Double){
+    func setupTimer(maxtime: String){
         //hide picker views
         animatedImageView.isHidden = true
         doneButton.isHidden = true
@@ -320,7 +327,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     //PICKER-----------------------------------------------------------------------------------
     
-    func setupPicker(pastProgress: Double){
+    func setupPicker(){
         pickerView.delegate = self
         pickerView.dataSource = self
         pickerView.selectRow(Int(pastProgress) / 10, inComponent: 0, animated: false)
@@ -368,7 +375,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     //CHECKMARK------------------------------------------------------------------ -----------------
     
-    func setupCheckmark(pastProgress: Double, pastText: String){
+    func setupCheckmark(pastText: String){
         //hide picker views
         doneButton.isHidden = true
         pickerView.isHidden = true

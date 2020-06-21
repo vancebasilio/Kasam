@@ -9,7 +9,7 @@
 import UIKit
 
 protocol DayTrackerCellDelegate : class {
-    func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, metricType: String, viewOnly: Bool?)
+    func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, date: Date?, metricType: String, viewOnly: Bool?)
 }
 
 class TodayDayTrackerCell: UICollectionViewCell {
@@ -23,21 +23,27 @@ class TodayDayTrackerCell: UICollectionViewCell {
     var kasamOrderInternal = 0
     var metricTypeInternal = "Checkmark"
     var futureInternal: Bool?
+    var dateInternal: Date?
     
-    func setBlock(kasamID: String, kasamOrder: Int, day: Int, status: Double, date: String, today: Bool?, future: Bool){
+    func setBlock(kasamID: String, kasamOrder: Int, day: Int, status: Double, date: Date, today: Bool, future: Bool){
         cellButton.layer.cornerRadius = 12
-        cellButton.setTitle("\(day)", for: .normal)
+        if day == 0 {
+            cellButton.setTitle("", for: .normal)
+        } else {
+            cellButton.setTitle("\(day)", for: .normal)
+        }
         if SavedData.kasamDict[kasamID]?.sequence == nil {
-            dayTrackerDate.text = date
+            dayTrackerDate.text = date.dateToShortString()
         } else {
             if let sequenceDate = SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.0 {
                 dayTrackerDate.text = dateShortestFormat(date: sequenceDate)
             } else {
-                dayTrackerDate.text = date
+                dayTrackerDate.text = date.dateToShortString()
             }
         }
         dayTrackerDate.textColor = UIColor.colorFive
         dayInternal = day
+        dateInternal = date
         futureInternal = future
         metricTypeInternal = SavedData.kasamDict[kasamID]!.metricType
         kasamOrderInternal = kasamOrder
@@ -76,7 +82,7 @@ class TodayDayTrackerCell: UICollectionViewCell {
     }
     
     @IBAction func dayPressed(_ sender: UIButton) {
-        dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, day: dayInternal, metricType: metricTypeInternal, viewOnly: futureInternal)
+        dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, day: dayInternal, date: dateInternal, metricType: metricTypeInternal, viewOnly: futureInternal)
     }
 }
 
