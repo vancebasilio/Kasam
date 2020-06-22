@@ -50,6 +50,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBOutlet weak var progressSlider: UISlider!
     @IBOutlet weak var timeRemainingLabel: UILabel!
     @IBOutlet weak var videoTitle: UILabel!
+    @IBOutlet weak var completeButton: UIButton!
     
     @IBOutlet weak var restImageView: UIImageView!
     @IBOutlet weak var topView: UIView!
@@ -117,6 +118,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
                 regularView.isHidden = false
                 animatedImageView.sd_setImage(with: URL(string: activity.imageURL!))
             } else if activity.videoURL != nil {
+                completeButton.layer.cornerRadius = completeButton.frame.height / 2
                 setVideoPlayer(url: URL(string: activity.videoURL!)!)
                 resetTimer()
             }
@@ -175,9 +177,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         progressSlider.value = Float(currentTimeInSeconds)
         if let currentItem = player?.currentItem {
             let duration = currentItem.duration
-            if (CMTIME_IS_INVALID(duration)) {
-                return;
-            }
+            if (CMTIME_IS_INVALID(duration)) {return}
             let currentTime = currentItem.currentTime()
             progressSlider.value = Float(CMTimeGetSeconds(currentTime) / CMTimeGetSeconds(duration))
 
@@ -205,11 +205,6 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         }
     }
     
-    func resetTimer() {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(hideControls), userInfo: nil, repeats: false)
-    }
-    
     @objc func toggleControls() {
         if videoControlsView.alpha == 0 {videoControlsView.fadeIn()}
         else {videoControlsView.fadeOut()}
@@ -222,14 +217,31 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     @IBAction func playPauseButtonTapped(_ sender: Any) {
         guard let player = player else { return }
-        if !player.isPlaying {
+        if progressSlider.value == 1 {
+            //RESTART the kasam video
+            self.player?.seek(to: CMTimeMakeWithSeconds(0, preferredTimescale: player.currentItem!.duration.timescale))
+            self.player?.play()
             playPauseButton.setIcon(icon: .fontAwesomeSolid(.pauseCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
-            player.play()
         } else {
-            playPauseButton.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
-            player.pause()
+            if !player.isPlaying {
+                playPauseButton.setIcon(icon: .fontAwesomeSolid(.pauseCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
+                player.play()
+            } else {
+                playPauseButton.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
+                player.pause()
+            }
         }
-        resetTimer()
+    }
+    
+    @IBAction func completedButtonPressed(_ sender: Any) {
+        guard let player = player else { return }
+        self.player?.seek(to: CMTimeMakeWithSeconds(CMTimeGetSeconds(player.currentItem!.duration), preferredTimescale: player.currentItem!.duration.timescale))
+        
+    }
+    
+    func resetTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(hideControls), userInfo: nil, repeats: false)
     }
     
     @IBAction func playbackSliderValueChanged(_ sender: Any) {
@@ -237,6 +249,13 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         let value = Float64(progressSlider.value) * CMTimeGetSeconds(duration)
         let seekTime = CMTime(value: CMTimeValue(value), timescale: 1)
         player?.seek(to: seekTime)
+        
+        guard let player = player else { return }
+        if !player.isPlaying {
+            playPauseButton.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
+        } else {
+            playPauseButton.setIcon(icon: .fontAwesomeSolid(.pauseCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
+        }
         resetTimer()
     }
     

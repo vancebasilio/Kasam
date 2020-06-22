@@ -54,7 +54,7 @@ class WeeklyStatsCell: UICollectionViewCell {
             constraintArray[i]?.constant = pushValue
         }
         if SavedData.kasamDict[cell.kasamID]?.repeatDuration == 0 {self.daysLeft.text = "∞"}
-        else {self.daysLeft.text = String(cell.daysCompleted)}
+        else {self.daysLeft.text = String(cell.daysLeft)}
         
         if cell.metricType == "Time" && cell.avgMetric <= 60 {
             averageMetric.text = String(cell.avgMetric)
@@ -69,6 +69,9 @@ class WeeklyStatsCell: UICollectionViewCell {
         } else if cell.metricType == "Checkmark" {
             averageMetric.text = String(cell.avgMetric)
             averageMetricLabel.text = "Avg. %"
+        } else {
+            averageMetric.text = "\(SavedData.kasamDict[cell.kasamID]?.streakInfo.daysWithAnyProgress ?? 0)"
+            averageMetricLabel.text = "Days Done"
         }
     }
     

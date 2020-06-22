@@ -85,5 +85,3 @@ class TodayDayTrackerCell: UICollectionViewCell {
         dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, day: dayInternal, date: dateInternal, metricType: metricTypeInternal, viewOnly: futureInternal)
     }
 }
-
-

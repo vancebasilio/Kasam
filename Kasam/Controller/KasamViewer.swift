@@ -55,7 +55,7 @@ class KasamActivityViewer: UIViewController {
     
     func updateControllers(){
         //For video kasams - to save progress and stop videos
-        stopAllVideos()
+        stopAllVideosSaveProgress()
         
         //TIMELINE KASAMS - Update the dayTracker using skipped day (e.g. 2nd day might show as 5th day if 3 days skipped)
         if SavedData.kasamDict[kasamID]?.timeline != nil {
@@ -69,11 +69,12 @@ class KasamActivityViewer: UIViewController {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
     }
     
-    func stopAllVideos(){
+    func stopAllVideosSaveProgress(){
         for i in 0...(self.activityBlocks.count - 1) {
             if let cell = collectionView.cellForItem(at: IndexPath(item: i, section: 0)) as? KasamViewerCell {
                 if cell.videoView.isHidden == false {
                     cell.player?.pause()
+                    if cell.progressSlider.value >= 0.9 {cell.progressSlider.value = 1.0}
                     sendCompletedMatrix(key: 1, value: Double(cell.progressSlider.value * 100), text: "")
                 }
             }
