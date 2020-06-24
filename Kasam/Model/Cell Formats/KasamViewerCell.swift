@@ -18,7 +18,7 @@ import HCVimeoVideoExtractor
 protocol KasamViewerCellDelegate {
     func dismissViewController()
     func updateControllers()
-    func sendCompletedMatrix(key: Int, value: Double, text: String)
+    func sendCompletedMatrix(activityNo: Int, value: Double, text: String)
     func nextItem()
 }
 
@@ -61,7 +61,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBOutlet weak var restDoneButton: UIButton!
     @IBOutlet weak var restView: UIStackView!
     
-    //slider variables
+    //Slider variables
     var delegate: KasamViewerCellDelegate?
     var kasamIDTransfer:[String: String] = ["kasamID": ""]
     var buttoncheck = 0       //to stop and start the gif
@@ -84,6 +84,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     var player: AVPlayer?
     var timeObserver: Any?
     var timer: Timer?
+    var currentTimeInSeconds = Float64(0)
+    var totalTimeInSeconds = Float64(0)
     
     //Timer variables
     var maxTime: TimeInterval = 0   //set max timer value
@@ -109,23 +111,25 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         totalOrder = activity.totalOrder
         increment = Int(activity.increment ?? "1") ?? 1
         pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
-        pickerView.reloadAllComponents()                                    //important so that the pickerview updates to the max metric
-        if activity.image == nil {
+        pickerView.reloadAllComponents()
+        //important so that the pickerview updates to the max metric
+        if activity.videoURL != nil {
+            completeButton.layer.cornerRadius = completeButton.frame.height / 2
+            setVideoPlayer(url: URL(string: activity.videoURL!)!, title: activity.activityTitle)
+            resetTimer()
+        } else if activity.image == nil {
             if activity.imageURL == nil && activity.videoURL == nil {
                 regularView.isHidden = false
                 animatedImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityPlaceholderURL))
             } else if activity.imageURL != nil && activity.videoURL == nil {
                 regularView.isHidden = false
                 animatedImageView.sd_setImage(with: URL(string: activity.imageURL!))
-            } else if activity.videoURL != nil {
-                completeButton.layer.cornerRadius = completeButton.frame.height / 2
-                setVideoPlayer(url: URL(string: activity.videoURL!)!)
-                resetTimer()
             }
         } else {
             //Only activated when creating a Kasam and a full image is loaded in directly
             animatedImageView.image = activity.image
         }
+        
         if currentOrder == totalOrder {
             doneButton.setTitle("Done", for: .normal)
         } else {
@@ -138,23 +142,17 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     //VIDEO---------------------------------------------------------------------------------------
     
-    func setVideoPlayer(url: URL){
+    func setVideoPlayer(url: URL, title: String){
         videoView.isHidden = false
         playPauseButton.setIcon(icon: .fontAwesomeSolid(.pauseCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
         let tap = UITapGestureRecognizer(target: self, action: #selector(toggleControls))
         videoPlayer.addGestureRecognizer(tap)
         HCVimeoVideoExtractor.fetchVideoURLFrom(url: url, completion: {(video:HCVimeoVideo?, error:Error?) -> Void in
-            if let err = error {
-                print("Error = \(err.localizedDescription)")
-                return
-            }
-            guard let vid = video else {
-                print("Invalid video object")
-                return
-            }
+            if let err = error {print("Error = \(err.localizedDescription)"); return}
+            guard let vid = video else {print("Invalid video object");return}
             if let videoURL = vid.videoURL[.Quality720p] {
                 DispatchQueue.main.async {
-                    self.videoTitle.text = vid.title
+                    self.videoTitle.text = title
                     self.player = AVPlayer(url: videoURL)
                     let layer = AVPlayerLayer(player: self.player)
                     layer.frame = self.videoPlayer.bounds
@@ -173,7 +171,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     
     func updateVideoPlayerSlider() {
         guard let currentTime = player?.currentTime() else { return }
-        let currentTimeInSeconds = CMTimeGetSeconds(currentTime)
+        currentTimeInSeconds = CMTimeGetSeconds(currentTime)
         progressSlider.value = Float(currentTimeInSeconds)
         if let currentItem = player?.currentItem {
             let duration = currentItem.duration
@@ -182,7 +180,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
             progressSlider.value = Float(CMTimeGetSeconds(currentTime) / CMTimeGetSeconds(duration))
 
             // Update time remaining label
-            let totalTimeInSeconds = CMTimeGetSeconds(duration)
+            totalTimeInSeconds = CMTimeGetSeconds(duration)
             if totalTimeInSeconds > 0 && startCheck == false {
                 let secondsToStartAt = (self.pastProgress / 100) * totalTimeInSeconds
                 self.player?.seek(to: CMTimeMakeWithSeconds(secondsToStartAt, preferredTimescale: currentItem.duration.timescale))
@@ -191,6 +189,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
             let remainingTimeInSeconds = totalTimeInSeconds - currentTimeInSeconds
             if currentTimeInSeconds == totalTimeInSeconds {
                 playPauseButton.setIcon(icon: .fontAwesomeSolid(.redo), iconSize: 40, color: UIColor.colorFour, forState: .normal)
+                completeButton.setTitle("Save & Close", for: .normal)
             }
             let mins = remainingTimeInSeconds / 60
             let secs = remainingTimeInSeconds.truncatingRemainder(dividingBy: 60)
@@ -221,6 +220,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
             //RESTART the kasam video
             self.player?.seek(to: CMTimeMakeWithSeconds(0, preferredTimescale: player.currentItem!.duration.timescale))
             self.player?.play()
+            completeButton.setTitle("Complete", for: .normal)
             playPauseButton.setIcon(icon: .fontAwesomeSolid(.pauseCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
         } else {
             if !player.isPlaying {
@@ -231,17 +231,18 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
                 player.pause()
             }
         }
+        resetTimer()
     }
     
     @IBAction func completedButtonPressed(_ sender: Any) {
-        guard let player = player else { return }
-        self.player?.seek(to: CMTimeMakeWithSeconds(CMTimeGetSeconds(player.currentItem!.duration), preferredTimescale: player.currentItem!.duration.timescale))
-        
-    }
-    
-    func resetTimer() {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(hideControls), userInfo: nil, repeats: false)
+        if currentTimeInSeconds == totalTimeInSeconds {
+            delegate?.updateControllers()
+            delegate?.dismissViewController()
+        } else {
+            guard let player = player else { return }
+            self.player?.seek(to: CMTimeMakeWithSeconds(CMTimeGetSeconds(player.currentItem!.duration), preferredTimescale: player.currentItem!.duration.timescale))
+        }
+        resetTimer()
     }
     
     @IBAction func playbackSliderValueChanged(_ sender: Any) {
@@ -249,14 +250,21 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         let value = Float64(progressSlider.value) * CMTimeGetSeconds(duration)
         let seekTime = CMTime(value: CMTimeValue(value), timescale: 1)
         player?.seek(to: seekTime)
-        
         guard let player = player else { return }
+        if completeButton.titleLabel?.text == "Save & Close" {
+            completeButton.setTitle("Complete", for: .normal)
+        }
         if !player.isPlaying {
             playPauseButton.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
         } else {
             playPauseButton.setIcon(icon: .fontAwesomeSolid(.pauseCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
         }
         resetTimer()
+    }
+    
+    func resetTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(hideControls), userInfo: nil, repeats: false)
     }
     
     //COUNTDOWN-----------------------------------------------------------------------------------
@@ -439,9 +447,9 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         delegate?.dismissViewController()
         if viewOnlyCheck == false {
             if timerOrCountdown == "Checkmark" {
-                delegate?.sendCompletedMatrix(key: currentOrder, value: 100.0, text: textField.text ?? "")
+                delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 100.0, text: textField.text ?? "")
             } else {
-                delegate?.sendCompletedMatrix(key: currentOrder, value: (maxTime - currentTime), text: textField.text ?? "")
+                delegate?.sendCompletedMatrix(activityNo: currentOrder, value: (maxTime - currentTime), text: textField.text ?? "")
             }
             delegate?.updateControllers()
         }
@@ -450,7 +458,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBAction func resetButtonPress(_ sender: Any) {
         if viewOnlyCheck == false {
             if timerOrCountdown == "Checkmark" {
-                delegate?.sendCompletedMatrix(key: currentOrder, value: 0.0, text: textField.text ?? "")
+                delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 0.0, text: textField.text ?? "")
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
@@ -492,7 +500,7 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if viewOnlyCheck == false {
-            delegate?.sendCompletedMatrix(key: currentOrder, value: Double(row * increment), text: "")
+            delegate?.sendCompletedMatrix(activityNo: currentOrder, value: Double(row * increment), text: "")
         }
     }
 }

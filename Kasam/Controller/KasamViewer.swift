@@ -19,6 +19,7 @@ class KasamActivityViewer: UIViewController {
     var activityBlocks: [KasamActivityCellFormat] = []
     var kasamID = ""                    //loaded in
     var blockID = ""                    //loaded in
+    var blockName = ""                  //loaded in
     var dateToLoad: Date?               //loaded in
     var dayToLoad: Int?                 //loaded in (for timeline kasams, to update the right dayTracker day)
     
@@ -74,8 +75,11 @@ class KasamActivityViewer: UIViewController {
             if let cell = collectionView.cellForItem(at: IndexPath(item: i, section: 0)) as? KasamViewerCell {
                 if cell.videoView.isHidden == false {
                     cell.player?.pause()
-                    if cell.progressSlider.value >= 0.9 {cell.progressSlider.value = 1.0}
-                    sendCompletedMatrix(key: 1, value: Double(cell.progressSlider.value * 100), text: "")
+                    //Only save progress if it's today's progress
+                    if dateToLoad?.dateToString() == Date().dateToString() {
+                        if cell.progressSlider.value >= 0.9 {cell.progressSlider.value = 1.0}
+                        sendCompletedMatrix(activityNo: 1, value: Double(cell.progressSlider.value * 100), text: "")
+                    }
                 }
             }
         }
@@ -110,7 +114,7 @@ class KasamActivityViewer: UIViewController {
                         }
                         DBRef.userHistory.child(self.kasamID).child(self.statusDate).child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
                             if snap.exists() {
-                                currentText = snap.value as! String         //gets the text for the activity
+                                currentText = snap.value as! String             //gets the text for the activity
                             }
                             let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, imageURL: value["Image"] as? String, videoURL: value["Video"] as? String, image: nil, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0, currentText: currentText)
                             self.activityBlocks.append(activity)
@@ -227,10 +231,10 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         dismiss(animated: true, completion: nil)
     }
     
-    func sendCompletedMatrix(key: Int, value: Double, text: String) {
-        transferMetricMatrix[String(key)] = String(value)
-        transferTextFieldMatrix[String(key)] = text
-        activityBlocks[key - 1].currentMetric = String(value)
+    func sendCompletedMatrix(activityNo: Int, value: Double, text: String) {
+        transferMetricMatrix[String(activityNo)] = String(value)
+        transferTextFieldMatrix[String(activityNo)] = text
+        activityBlocks[activityNo - 1].currentMetric = String(value)
         let statusDateTime = getCurrentDateTime()
         var transferAvg = 1.0
         var sum = 0.0
@@ -250,7 +254,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
             }
         }
         if transferAvg > 0.0 {
-            DBRef.userHistory.child(kasamID).child(statusDate).setValue(["Block Completed": blockID, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
+            DBRef.userHistory.child(kasamID).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
         } else {
             //removes the dayTracker for today if kasam is set to zero
             DBRef.userHistory.child(kasamID).child(statusDate).setValue(nil)

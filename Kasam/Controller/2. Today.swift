@@ -34,6 +34,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     var kasamIDforViewer = ""
     var kasamIDforHolder = ""
     var blockIDGlobal = ""
+    var blockNameGlobal = ""
     var dateGlobal: Date?
     var dayToLoadGlobal: Int?
     var viewOnlyGlobal = false
@@ -107,7 +108,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         //elongates the entire scrollview, based on the tableview height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
         challengeCellWidth = ((frame.size.width - CGFloat(30)) * 0.6)             //CHANGE THIS VALUE FOR COLLECTIONVIEWCELL WIDTH
-        challengesCollectionHeight.constant = (challengeCellWidth * 1.3)
+        if challengeOrder != 0 {challengesCollectionHeight.constant = (challengeCellWidth * 1.3)}
+        else {challengesCollectionHeight.constant = 0}
         
         let contentViewHeight = 105.5 + tableViewHeight.constant + 50 + challengesCollectionHeight.constant
         if contentViewHeight > frame.height {
@@ -324,6 +326,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         
         if specificKasam != nil {
             self.getDayTracker(kasamID: specificKasam)
+            self.challengesColletionView.reloadData()
+            self.updateContentTableHeight()
         } else {
             if todayKasamCount == SavedData.todayKasamList.count {
                 //Only does the below after all Kasams loaded
@@ -738,6 +742,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             let kasamViewer = segue.destination as! KasamActivityViewer
             kasamViewer.kasamID = kasamIDforViewer
             kasamViewer.blockID = blockIDGlobal
+            kasamViewer.blockName = blockNameGlobal
             kasamViewer.viewingOnlyCheck = viewOnlyGlobal
             kasamViewer.dateToLoad = dateGlobal
             kasamViewer.dayToLoad = dayToLoadGlobal
@@ -950,6 +955,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         let kasamID = SavedData.kasamBlocks[kasamOrder].kasamID
         kasamIDforViewer = kasamID
         blockIDGlobal = SavedData.kasamBlocks[kasamOrder].blockID
+        blockNameGlobal = SavedData.kasamBlocks[kasamOrder].blockTitle
         dateGlobal = date
         if day != nil {
             viewOnlyGlobal = viewOnly ?? false

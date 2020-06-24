@@ -485,7 +485,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             //OPTION 1 - Add new kasam to the today page
             if self.initialRepeat == nil {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "AddKasamToday"), object: self, userInfo: ["kasamID": self.kasamID])
-            //OPTOIN 2 - Switching from FUN kasam to Tracked kasam
+            //OPTION 2 - Switching from FUN kasam to Tracked kasam
             } else if self.initialRepeat == 0 && self.chosenRepeat > 0 {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
             //OPTION 3 - Switching from Tracked kasam to FUN Kasam

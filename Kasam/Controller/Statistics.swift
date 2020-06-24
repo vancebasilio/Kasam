@@ -137,6 +137,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
         }
         if snapshot.exists() {
             progressDayCount += 1
+            var blockName = ""
             if let value = snapshot.value as? [String: Any] {
                 //Kasam is Reps or Timer
                 indieMetric = value["Total Metric"] as? Double ?? 0.0
@@ -147,6 +148,9 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                     timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
                     indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
                 }
+                if SavedData.kasamDict[kasamID]?.timeline != nil {
+                    blockName = value["Block Name"] as? String ?? ""
+                }
             } else if let value = snapshot.value as? Int{
                 //Kasam is only Checkmark
                 indieMetric = Double(value * 100)
@@ -154,21 +158,29 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
             self.metricArray[dayNo] = Int(indieMetric)
             metricTotal += Int(indieMetric)
             
-            //OPTION 1 - REPS
             var metric = ""
-            if metricType == "Reps" {
-                metric = "\(indieMetric.removeZerosFromEnd()) \(metricType)"
-            //OPTION 2 - TIME
-            } else if metricType == "Time" {
-                let tableTime = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
-                metric = "\(tableTime.0.removeZerosFromEnd()) \(tableTime.1)"
-            //OPTION 3 - PERCENTAGE COMPLETED
-            } else if metricType == "Checkmark" {
-                metric = "Complete"
+            var shortDate = ""
+            if SavedData.kasamDict[kasamID]?.timeline == nil {
+                //OPTION 1 - REPS
+                if metricType == "Reps" {
+                    metric = "\(indieMetric.removeZerosFromEnd()) \(metricType)"
+                //OPTION 2 - TIME
+                } else if metricType == "Time" {
+                    let tableTime = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
+                    metric = "\(tableTime.0.removeZerosFromEnd()) \(tableTime.1)"
+                //OPTION 3 - PERCENTAGE COMPLETED
+                } else if metricType == "Checkmark" {
+                    metric = "Complete"
+                }
+                shortDate = self.convertLongDateToShort(date: snapshot.key)
+            } else {
+                shortDate = blockName
+                metric = self.convertLongDateToShort(date: snapshot.key)
             }
-            block = kasamFollowingFormat(day: dayNo, shortDate: self.convertLongDateToShort(date: snapshot.key), fullDate: snapshot.key, metric: metric, text: textField)
-            self.kasamBlocks.append(block!)
+            self.block = kasamFollowingFormat(day: self.dayNo, shortDate: shortDate, fullDate: snapshot.key, metric: metric, text: textField)
+            self.kasamBlocks.append(self.block!)
             self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
+            
         } else {
             //Adds the missing zero days to the chart where the user hasn't logged any progress
             noProgressDayCount += 1

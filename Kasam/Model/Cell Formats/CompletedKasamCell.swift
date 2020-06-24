@@ -20,13 +20,23 @@ class CompletedKasamCell: UITableViewCell {
         kasamImage.layer.cornerRadius = 8.0
         kasamImage.clipsToBounds = true
         kasamName.text = block.kasamName
-        daysCompleted.text = "\(block.daysCompleted) days"
+        daysCompleted.text = block.daysCompleted.pluralUnit(unit: "day")
         
         if let snap = block.userHistorySnap {
-            let snapArray = Array((snap.value as! [String:Any]).keys).sorted()
-            let joinedDate = convertLongDateToShort(date: snapArray.first!)
-            let endDate = convertLongDateToShort(date: snapArray.last ?? joinedDate)
-            joinedDates.text = "\(joinedDate) - \(endDate)"
+            if snap.exists() {
+                let snapArray = Array((snap.value as! [String:Any]).keys).sorted()
+                let joinedDate = convertLongDateToShort(date: snapArray.first!)
+                let endDate = convertLongDateToShort(date: snapArray.last ?? joinedDate)
+                if joinedDate == endDate {
+                    joinedDates.text = "\(joinedDate)"
+                } else {
+                    joinedDates.text = "\(joinedDate) - \(endDate)"
+                }
+            } else {
+                if let joinedDate = SavedData.kasamDict[block.kasamID]?.joinedDate.dateToShortString() {
+                    joinedDates.text = "\(joinedDate)"
+                }
+            }
         }
     }
     
