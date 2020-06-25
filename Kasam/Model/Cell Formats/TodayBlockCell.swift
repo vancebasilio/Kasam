@@ -87,9 +87,7 @@ class TodayBlockCell: UITableViewCell {
         levelLine.clipsToBounds = true
     }
     
-    func cellFormatting(){          //called in the Today Controller on "WillDisplay"
-        print("hell2 cell formatting")
-        //Cell formatting
+    override func awakeFromNib() {
         statsContent.layer.cornerRadius = 16.0
         
         statsShadow.layer.cornerRadius = 16.0
@@ -195,6 +193,7 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func statusUpdate(_ day: String?){
+        if tempBlock != nil {
         //STEP 1 - SET THE BLOCK STATUS
         if tempBlock!.dayOrder >= SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
             //OPTION 1 - COMPLETE KASAMS
@@ -239,6 +238,7 @@ class TodayBlockCell: UITableViewCell {
             } else {
                 blockBadge(day)
             }
+        }
         }
     }
     

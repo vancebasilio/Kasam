@@ -43,6 +43,11 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
     override func viewWillDisappear(_ animated: Bool) {
         self.tabBarController?.tabBar.isHidden = false
         self.tabBarController?.tabBar.isTranslucent = false
+        if #available(iOS 13.0, *) {
+            self.navigationController?.navigationBar.standardAppearance.configureWithOpaqueBackground()
+        } else {
+            //Fallback on earlier versions
+        }
     }
     
     override func viewDidLoad() {

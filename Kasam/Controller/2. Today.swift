@@ -286,15 +286,14 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                             }
                         }
                     }
-                } else
                 //OPTION 2 - Load Kasam as Block (BASIC KASAMS)
-                if kasam.metricType == "Checkmark" {
+                } else if kasam.metricType == "Checkmark" {
                     DBRef.coachKasams.child(kasam.kasamID).observe(.value) {(snapshot) in
                         todayKasamCount += 1
                         self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID, dayCount: nil)
                     }
-                } else {
                 //OPTION 3 - Load blocks based on day number (CHALLENGE KASAMS) e.g. 200 Push-ups
+                } else {
                     DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
                         let blockCount = Int(blockCountSnapshot.childrenCount)
                         var blockOrder = "1"
@@ -423,8 +422,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                             NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
                             self.setupCheck = 1
                             if kasamID == nil {
+                                print("hell2 today all update")
                                 //OPTION 1 - Updating all the kasams on the today page
-                                self.allTodayKasamUpdate(kasamOrder: kasamOrder)
+//                                self.allTodayKasamUpdate(kasamOrder: kasamOrder)
+                                self.singleKasamUpdate(kasamOrder: kasamOrder)
                             } else {
                                 //OPTION 2 - Updating a single kasam after a preference change OR adding a new kasam
                                 self.singleKasamUpdate(kasamOrder: kasamOrder)
@@ -435,7 +436,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 } else {
                     if kasamID == nil {
                         //OPTION 1 - Updating all the kasams on the today page
-                        self.allTodayKasamUpdate(kasamOrder: kasamOrder)
+                        self.singleKasamUpdate(kasamOrder: kasamOrder)
                     } else {
                         //OPTION 2 - Updating a single kasam after a preference change OR adding a new kasam
                         self.singleKasamUpdate(kasamOrder: kasamOrder)
@@ -464,6 +465,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             cell.setBlock(block: SavedData.kasamBlocks[kasamOrder])
             cell.statusUpdate(nil)
             cell.centerCollectionView()
+            cell.collectionCoverUpdate()
             cell.dayTrackerCollectionView.reloadData()
             self.updateContentTableHeight()
             self.tableView.endUpdates()
@@ -779,8 +781,6 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let tableCell = cell as? TodayBlockCell else { return }
         tableCell.setCollectionViewDataSourceDelegate(dataSourceDelegate: self, forRow: indexPath.row)
-        tableCell.cellFormatting()
-        tableCell.setBlock(block: SavedData.kasamBlocks[indexPath.row])
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

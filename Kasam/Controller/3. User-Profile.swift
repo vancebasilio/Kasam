@@ -169,6 +169,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         completedStats.removeAll()
         weeklyStats.removeAll()
         metricDictionary.removeAll()
+        var count = 0
         //Loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamDict.values {
             DBRef.coachKasams.child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
@@ -178,18 +179,22 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                     kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
                     
                     DBRef.userHistory.child(kasam.kasamID).observeSingleEvent(of: .value, with:{(snap) in
-                        //PART 1 - Weekly Stats for Current Kasams
+                    //PART 1 - Weekly Stats for Current Kasams
                         if kasam.currentStatus == "active" {
                             self.getWeeklyStats(kasamID: kasam.kasamID, snap: snap)
                         }
                         
-                        //PART 2 - Completed Stats Table
-                        let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: Int(snap.childrenCount), imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
-                        self.completedStats.append(stats)
-                        if self.completedStats.count == SavedData.kasamDict.count {
-                            self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
-                            self.completedKasamsTable.reloadData()
-                            
+                    //PART 2 - Completed Stats Table
+                        if Int(snap.childrenCount) == 0 && kasam.currentStatus == "inactive" {
+                            count += 1
+                           //Unfollowed kasam with no progress
+                        } else {
+                            let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: Int(snap.childrenCount), imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
+                            self.completedStats.append(stats)
+                            count += 1
+                            if count == SavedData.kasamDict.count {
+                                self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
+                            }
                         }
                     })
                     
