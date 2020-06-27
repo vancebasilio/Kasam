@@ -174,7 +174,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             }
         }
         if level != 3 {
-            showAlertView(level: level) {(result) in
+            saveKasamPopup(level: level) {(result) in
                 if result == 0 {DispatchQueue.main.async {self.saveBasicKasam()}}                   //saveButton
                 else if result == 1 {}                                                              //keepEditing
                 else {self.navigationController?.popToRootViewController(animated: true)}           //discard
@@ -220,7 +220,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             NewKasam.kasamDescription = newKasamDescription.text
             NewKasam.chosenMetric = "Checkmark"
             NewKasam.kasamImageToSave = self.headerImageView.image!
-            self.loadingAnimation(animationView: self.animationView, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
+            self.animationView.loadingAnimation(view: view, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
             createKasam(existingKasamID: NewKasam.kasamID, basicKasam: true) {(success) in
                 if success == true {
                     self.animationView.removeFromSuperview()

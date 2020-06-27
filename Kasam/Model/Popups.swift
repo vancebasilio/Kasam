@@ -182,7 +182,7 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-    func showAlertView(level: Int, completion:@escaping (Int) -> ()) {
+    func saveKasamPopup(level: Int, completion:@escaping (Int) -> ()) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light

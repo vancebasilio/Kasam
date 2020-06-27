@@ -14,6 +14,7 @@ import SwiftEntryKit
 import SkyFloatingLabelTextField
 import HGCircularSlider
 import HCVimeoVideoExtractor
+import Lottie
 
 protocol KasamViewerCellDelegate {
     func dismissViewController()
@@ -78,6 +79,9 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     var viewOnlyCheck = false
     var pastProgress = 0.0
     var startCheck = false
+    var shouldSave = false
+    let animationView = AnimationView()
+    var pickerViewIsScrolling = false {didSet {if !pickerViewIsScrolling && shouldSave {savePickerValue()}}}
     
     //Video variables
     var pauseState = false
@@ -434,13 +438,22 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     @IBAction func doneButton(_ sender: UIButton) {
         if currentOrder == totalOrder {
             if viewOnlyCheck == false {
-                //user recording progress, so save it
-                delegate?.updateControllers()
+                savePickerValue()
             }
-            delegate?.dismissViewController()
         } else {
             delegate?.nextItem()
         }
+    }
+    
+    func savePickerValue(){
+        //user recording progress, so save it
+        if(pickerViewIsScrolling){
+            shouldSave = true
+            animationView.loadingAnimation(view: view, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
+            return
+        }
+        delegate?.updateControllers()
+        delegate?.dismissViewController()
     }
     
     @IBAction func timerDoneButton(_ sender: Any) {
@@ -486,6 +499,7 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        pickerViewIsScrolling = true
         var label = UILabel()
         if let v = view as? UILabel { label = v }
         label.font = UIFont.systemFont(ofSize: 35, weight: .bold)
@@ -500,6 +514,7 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if viewOnlyCheck == false {
+            pickerViewIsScrolling = false
             delegate?.sendCompletedMatrix(activityNo: currentOrder, value: Double(row * increment), text: "")
         }
     }

@@ -31,8 +31,8 @@ class DiscoverViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         getDiscoverFeatured()
-        getMyKasams()
         for discoverCriteria in Assets.discoverCriteria {getDiscoverKasams(criteria: discoverCriteria)}
+        getMyKasams()
         setupNavBar()
         self.view.showAnimatedSkeleton()
         let getUserKasams = NSNotification.Name("GetUserKasams")
@@ -118,13 +118,15 @@ class DiscoverViewController: UIViewController {
     }
     
     func getDiscoverFeatured(){
-        for kasam in Assets.featuredKasams {
-            DBRef.coachKasams.child(kasam).observe(.value) {(snapshot) in
-                let value = snapshot.value as? Dictionary<String,Any>
-                let kasam = discoverKasamFormat(title: value?["Title"] as? String ?? "", image: URL(string: value?["Image"] as? String ?? "") ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value?["Rating"] as? String ?? "5", creator: value?["CreatorName"] as? String ?? "", kasamID: value?["KasamID"] as? String ?? "", genre: value?["Genre"] as? String ?? "Fitness")
-                self.featuredKasamArray.append(kasam)
-                self.categoryCollection.reloadData()
-                self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
+        if Assets.featuredKasams != nil {
+            for kasam in Assets.featuredKasams! {
+                DBRef.coachKasams.child(kasam).observe(.value) {(snapshot) in
+                    let value = snapshot.value as? Dictionary<String,Any>
+                    let kasam = discoverKasamFormat(title: value?["Title"] as? String ?? "", image: URL(string: value?["Image"] as? String ?? "") ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value?["Rating"] as? String ?? "5", creator: value?["CreatorName"] as? String ?? "", kasamID: value?["KasamID"] as? String ?? "", genre: value?["Genre"] as? String ?? "Fitness")
+                    self.featuredKasamArray.append(kasam)
+                    self.categoryCollection.reloadData()
+                    self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
+                }
             }
         }
     }

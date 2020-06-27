@@ -288,7 +288,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         }
         playerView.load(withVideoId: previewLink)
         playerView.isHidden = false
-        loadingAnimation(animationView: animationView, animation: "fireworks-loading", height: 200, overlayView: nil, loop: true, completion: nil)
+        animationView.loadingAnimation(view: view, animation: "fireworks-loading", height: 200, overlayView: nil, loop: true, completion: nil)
         self.view.isUserInteractionEnabled = true
     }
     
@@ -588,7 +588,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             if check == true {
                 if NewKasam.loadedInKasamImage == UIImage() {
                     //creating a new kasam
-                    self.loadingAnimation(animationView: self.animationView, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
+                    self.animationView.loadingAnimation(view: self.view, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
                     self.createKasam(existingKasamID: nil, basicKasam: false) {(success) in
                         if success == true {
                             self.animationView.removeFromSuperview()
@@ -597,7 +597,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     }
                 } else {
                     //updating an existing kasam
-                    self.loadingAnimation(animationView: self.animationView, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
+                    self.animationView.loadingAnimation(view: self.view, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
                     self.createKasam(existingKasamID: NewKasam.kasamID, basicKasam: false) {(success) in
                         if success == true {
                             self.animationView.removeFromSuperview()

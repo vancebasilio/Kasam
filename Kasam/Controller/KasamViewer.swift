@@ -173,6 +173,12 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         return activityBlocks.count
     }
     
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if let collectionViewCell = cell as? KasamViewerCell {
+            collectionViewCell.pickerViewIsScrolling = false
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         activityBlocks[indexPath.row].currentOrder = indexPath.row + 1
         activityBlocks[indexPath.row].totalOrder = activityBlocks.count

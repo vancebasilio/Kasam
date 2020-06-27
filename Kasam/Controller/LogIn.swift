@@ -121,13 +121,13 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
         let credentials = GoogleAuthProvider.credential(withIDToken: auth.idToken, accessToken: auth.accessToken)
         Auth.auth().signIn(with: credentials) {(authResult, error) in
             self.userLoginandRegistration(authResult: authResult, error: error)
-            //get the profile image for google
+            //Get the profile image for google
             self.getProfilePicture(googleUser:user)
         }
     }
     
     func CustomFBLogin(){
-        LoginManager().logIn(permissions: ["email", "public_profile"], from: self) { (result: LoginManagerLoginResult?, error: Error?) in
+        LoginManager().logIn(permissions: ["email", "public_profile"], from: self) {(result: LoginManagerLoginResult?, error: Error?) in
             if error == nil {
                 if result!.isCancelled {return}
                 let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.tokenString)
@@ -164,7 +164,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                 } else {
                     //user doesn't exist, so create a new profile for them
                     let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
-                    let userDictionary = ["Name": authResult?.user.displayName!, "History" : "", "UserID": Auth.auth().currentUser?.uid, "Type": "User", "Wins": "5", "Blocks": "7"]
+                    let userDictionary = ["Name": authResult?.user.displayName!, "History" : "", "UserID": Auth.auth().currentUser?.uid, "Type": "User", "Blocks": "7"]
                     
                     newUser.setValue(userDictionary) {
                         (error, reference) in
@@ -198,12 +198,12 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
             //Check if the image is stored in Firebase
             profilePicRef.downloadURL { (url, error) in
                 if url != nil {
-                    //Get the image from Firebase
+                    //OPTION 1 - Get the image from Firebase
                 } else {
                     if error != nil {
                     //Unable to download image from Firebase, so get from Google
                         if googleUser != nil {
-                            //download image from Google
+                            //OPTION 2 - Download image from Google
                             if let imageData = NSData(contentsOf: googleUser!.profile.imageURL(withDimension: 400)) {
                             //Upload the file to the storage reference location
                                 _ = profilePicRef.putData(imageData as Data, metadata:nil){
@@ -215,7 +215,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                                 }
                             }
                         } else {
-                            //download image from Facebook
+                            //OPTION 3 - Download image from Facebook
                             let profilePic = GraphRequest(graphPath: "me/picture", parameters:  ["height": 300, "width": 300, "redirect": false], httpMethod: HTTPMethod(rawValue: "GET"))
                             profilePic.start(completionHandler: {(connection, result, error) -> Void in
                                 if(error == nil) {

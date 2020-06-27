@@ -274,34 +274,6 @@ extension UIViewController {
         return truncUserFirst
     }
     
-    func loadingAnimation(animationView: AnimationView, animation: String, height: Int, overlayView: UIView?, loop: Bool, completion: (() -> Void)?){
-        animationView.animation = Animation.named(animation)
-        animationView.contentMode = .scaleAspectFit
-        
-        if overlayView != nil  {
-            if let window = view.window {
-                overlayView?.frame = window.frame
-                overlayView?.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
-                window.addSubview(overlayView!)
-            }
-        }
-        view.addSubview(animationView)
-        animationView.translatesAutoresizingMaskIntoConstraints = false
-        animationView.centerXAnchor.constraint(lessThanOrEqualTo: self.view.centerXAnchor).isActive = true
-        animationView.centerYAnchor.constraint(lessThanOrEqualTo: self.view.centerYAnchor).isActive = true
-        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: CGFloat(height)).isActive = true
-        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: CGFloat(height)).isActive = true
-        animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
-        animationView.play()
-        if loop == true {
-            animationView.loopMode = .loop
-        } else {
-            animationView.play{(finished) in
-                completion!()
-            }
-        }
-    }
-    
     func setupNavBar(){
         let logo = UIImage(named: "Kasam-logo")
         let imageView = UIImageView(image:logo)
@@ -570,6 +542,46 @@ extension UIViewController {
         let toView: UIView = viewController.view
         if fromView != toView {
             UIView.transition(from: fromView, to: toView, duration: 0.3, options: [.transitionCrossDissolve], completion: nil)
+        }
+    }
+    
+    func alert(message: String, title: String = "") {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(OKAction)
+        DispatchQueue.main.async {
+            self.present(alertController, animated: true, completion: nil)
+        }
+    }
+}
+
+extension AnimationView {
+    func loadingAnimation(view: UIView, animation: String, height: Int, overlayView: UIView?, loop: Bool, completion: (() -> Void)?){
+        let animationView = self
+        animationView.animation = Animation.named(animation)
+        animationView.contentMode = .scaleAspectFit
+        
+        if overlayView != nil  {
+            if let window = view.window {
+                overlayView?.frame = window.frame
+                overlayView?.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+                window.addSubview(overlayView!)
+            }
+        }
+        view.addSubview(animationView)
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        animationView.centerXAnchor.constraint(lessThanOrEqualTo: view.centerXAnchor).isActive = true
+        animationView.centerYAnchor.constraint(lessThanOrEqualTo: view.centerYAnchor).isActive = true
+        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: CGFloat(height)).isActive = true
+        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: CGFloat(height)).isActive = true
+        animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
+        animationView.play()
+        if loop == true {
+            animationView.loopMode = .loop
+        } else {
+            animationView.play{(finished) in
+                completion!()
+            }
         }
     }
 }

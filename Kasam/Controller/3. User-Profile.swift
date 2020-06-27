@@ -156,7 +156,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
     @objc func showCompletionAnimation(){
         getMyKasams()
-        loadingAnimation(animationView: animationView, animation: "checkmark", height: 400, overlayView: nil, loop: false){
+        animationView.loadingAnimation(view: view, animation: "checkmark", height: 400, overlayView: nil, loop: false){
             self.animationView.removeFromSuperview()
         }
     }
@@ -552,7 +552,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
         if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             self.profileImage.image = editedImage.withRenderingMode(.alwaysOriginal)
             if self.profileImage?.image != PlaceHolders.kasamHeaderPlaceholderImage {
-                loadingAnimation(animationView: animationView, animation: "success", height: 100, overlayView: nil, loop: false) {
+                animationView.loadingAnimation(view: view, animation: "success", height: 100, overlayView: nil, loop: false) {
                     self.animationView.removeFromSuperview()
                 }
                 profileImage.hideSkeleton()
@@ -565,7 +565,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
         } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.profileImage?.image = originalImage.withRenderingMode(.alwaysOriginal)
             if self.profileImage?.image != PlaceHolders.kasamHeaderPlaceholderImage {
-                loadingAnimation(animationView: animationView, animation: "success", height: 100, overlayView: nil, loop: false) {
+                    animationView.loadingAnimation(view: view, animation: "success", height: 100, overlayView: nil, loop: false) {
                     self.animationView.removeFromSuperview()
                 }
                 profileImage.hideSkeleton()

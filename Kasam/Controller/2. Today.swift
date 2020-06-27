@@ -13,21 +13,19 @@ import SDWebImage
 import SwiftEntryKit
 import SkeletonView
 import Lottie
+import SystemConfiguration
 
 class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, CollectionCellDelegate {
 
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var todayMotivationCollectionView: UICollectionView!
     @IBOutlet weak var todaySublabel: UILabel!
-    @IBOutlet weak var todayCollectionHeight: NSLayoutConstraint!
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var challengesTitle: UILabel!
     @IBOutlet weak var challengesColletionView: UICollectionView!
     @IBOutlet weak var challengesCollectionHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
-    var motivationArray: [motivationFormat] = []
-    var motivationBackground: [String] = []
+    let reachability = try! Reachability()
     
     var blockURLGlobal = ""
     var dateSelected = ""
@@ -51,13 +49,33 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     var dayTrackerRefHandle: DatabaseHandle!
     var noKasamTracker = 0
     let animationView = AnimationView()
+    let connectionAnimationView = AnimationView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.getKasamFollowing(nil)
         setupNavBar()                   //global function
-        getKasamFollowing(nil)
-        getMotivationBackgrounds()
         setupNotifications()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setReachabilityNotifier()
+    }
+    
+    private func setReachabilityNotifier() {
+        reachability.whenReachable = { reachability in
+            if reachability.connection == .wifi {print("Reachable via WiFi")}
+            else {print("Reachable via Cellular")}
+            self.connectionAnimationView.removeFromSuperview()
+        }
+        reachability.whenUnreachable = { _ in
+            print("Not reachable")
+            self.updateContentTableHeight()
+            self.connectionAnimationView.loadingAnimation(view: self.view, animation: "flagmountainBG", height: 200, overlayView: nil, loop: true, completion: nil)
+            self.connectionAnimationView.backgroundBehavior = .pauseAndRestore
+        }
+        do {try reachability.startNotifier()}
+        catch {print("Unable to start notifier")}
     }
     
     //Center the day Tracker to today
@@ -65,8 +83,13 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         NotificationCenter.default.post(name: Notification.Name(rawValue: "CenterCollectionView"), object: self)
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        DBRef.motivationImages.removeObserver(withHandle: motivationRefHandle)
+    
+    private func isNetworkReachable (with flags: SCNetworkReachabilityFlags) -> Bool {
+        let isReachable = flags.contains (.reachable)
+        let needsConnection = flags.contains (.connectionRequired)
+        let canConnectAutomatically = flags.contains(.connectionOnDemand) || flags.contains(.connectionOnTraffic)
+        let canConnectWithoutUserInteraction = canConnectAutomatically && !flags.contains (.interventionRequired)
+        return isReachable && (!needsConnection || canConnectWithoutUserInteraction)
     }
     
     func setupNotifications(){
@@ -85,9 +108,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         let unfollowTodayKasam = NSNotification.Name("UnfollowTodayKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.removeTodayKasam), name: unfollowTodayKasam, object: nil)
 
-        let editMotivation = NSNotification.Name("EditMotivation")
-        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.editMotivation), name: editMotivation, object: nil)
-        
         let resetTodayChallenges = NSNotification.Name("ResetTodayChallenges")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.resetTodayChallenges), name: resetTodayChallenges, object: nil)
     }
@@ -292,18 +312,11 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                         todayKasamCount += 1
                         self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID, dayCount: nil)
                     }
-                //OPTION 3 - Load blocks based on day number (CHALLENGE KASAMS) e.g. 200 Push-ups
+                //OPTION 3 - Load single repeated block (CHALLENGE KASAMS) e.g. 200 Push-ups
                 } else {
-                    DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
-                        let blockCount = Int(blockCountSnapshot.childrenCount)
-                        var blockOrder = "1"
-                        if dayOrder <= blockCount {blockOrder = String(dayOrder)}
-                        else {blockOrder = String((blockCount / dayOrder) + 1)}
-                        //Get block info for the Today Repeated Kasams
-                        DBRef.coachKasams.child(kasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : blockOrder).observeSingleEvent(of: .childAdded, with: {(snapshot) in
-                            todayKasamCount += 1
-                            self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID, dayCount: nil)
-                        })
+                    DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in
+                        todayKasamCount += 1
+                        self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 1, specificKasam: kasamID, dayCount: nil)
                     })
                 }
             }
@@ -319,6 +332,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             SavedData.kasamBlocks.append(block)
             SavedData.kasamBlocks = SavedData.kasamBlocks.sorted(by: {$0.kasamOrder < $1.kasamOrder})
         } else {
+            print("hell6 collection \(block.blockTitle)")
             SavedData.challengeBlocks.append(block)
             SavedData.challengeBlocks = SavedData.challengeBlocks.sorted(by: {$0.kasamOrder < $1.kasamOrder})
         }
@@ -332,9 +346,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 //Only does the below after all Kasams loaded
                 self.todaySublabel.text = "You have \(SavedData.kasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
                 self.tableView.reloadData()
-                self.challengesColletionView.reloadData()
+                print("hell6 challenge collection reloaded")
                 self.updateContentTableHeight()
                 self.getDayTracker(kasamID: nil)
+                DispatchQueue.main.async {self.challengesColletionView.reloadData()}
             }
         }
         self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
@@ -422,9 +437,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                             NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
                             self.setupCheck = 1
                             if kasamID == nil {
-                                print("hell2 today all update")
                                 //OPTION 1 - Updating all the kasams on the today page
-//                                self.allTodayKasamUpdate(kasamOrder: kasamOrder)
                                 self.singleKasamUpdate(kasamOrder: kasamOrder)
                             } else {
                                 //OPTION 2 - Updating a single kasam after a preference change OR adding a new kasam
@@ -570,7 +583,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         if let kasamID = notification.userInfo?["kasamID"] as? String {
             let kasamOrder = (SavedData.kasamDict[kasamID]!.kasamOrder)
             var statusDate = Dates.getCurrentDate()
-            if notification.userInfo?["date"] != nil {statusDate = notification.userInfo?["date"] as! String}
+            if notification.userInfo?["date"] != nil {statusDate = notification.userInfo?["date"] as? String ?? Date().dateToString()}
             DBRef.userHistory.child(kasamID).child(statusDate).observe(.value, with: {(snapshot) in
                 if SavedData.kasamDict[kasamID]!.repeatDuration > 0 {
                     //OPTION 1 - FOR UPDATING REPEATED KASAM
@@ -696,49 +709,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         }
     }
     
-//MOTIVATIONS----------------------------------------------------------------------------------------
-    
-    func getMotivations(){
-        motivationArray.removeAll()
-        let motivationRef = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
-        var motivationRefHandle: DatabaseHandle!
-        motivationRef.observeSingleEvent(of: .value, with:{(snap) in
-            let count = Int(snap.childrenCount)
-            if count == 0 {
-                self.motivationArray.append(motivationFormat(motivationID: "", motivationText: "Enter your personal motivation here!"))
-                self.todayMotivationCollectionView.reloadData()
-                self.todayMotivationCollectionView.hideSkeleton(transition: .crossDissolve(0.25))
-            } else {
-                motivationRefHandle = motivationRef.observe(.childAdded) {(snapshot) in
-                    let motivation = motivationFormat(motivationID: snapshot.key, motivationText: snapshot.value as! String)
-                    self.motivationArray.append(motivation)
-                    if self.motivationArray.count == count {
-                        self.motivationArray.append(motivationFormat(motivationID: "", motivationText: "Enter your personal motivation here!"))
-                        motivationRef.removeObserver(withHandle: motivationRefHandle)
-                        self.todayMotivationCollectionView.reloadData()
-                        self.todayMotivationCollectionView.hideSkeleton(transition: .crossDissolve(0.25))
-                    }
-                }
-            }
-        })
-    }
-    
-    func getMotivationBackgrounds(){
-            self.motivationRefHandle = DBRef.motivationImages.observe(.childAdded) {(snap) in
-            let motivationURL = snap.value as! String
-            self.motivationBackground.append(motivationURL)
-            self.todayMotivationCollectionView.reloadData()
-        }
-    }
-    
-    @objc func editMotivation(_ notification: NSNotification){
-        if let motivationID = notification.userInfo?["motivationID"] as? String {
-            changeMotivationPopup(motivationID: motivationID) { (true) in
-                self.getMotivations()
-            }
-        }
-    }
-    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToKasamActivityViewer" {
             let kasamViewer = segue.destination as! KasamActivityViewer
@@ -784,7 +754,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let height = UITableView.automaticDimension
+        let height = (tableView.frame.width / 2.4) + 15
         return height
     }
     
@@ -822,9 +792,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
 extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, SkeletonCollectionViewDataSource, DayTrackerCellDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == todayMotivationCollectionView {
-            return motivationArray.count
-        } else if collectionView == challengesColletionView {
+        if collectionView == challengesColletionView {
             return SavedData.challengeBlocks.count
         } else {
             //for Kasam DayTracker
@@ -849,36 +817,19 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionView == todayMotivationCollectionView {
-            todayCollectionHeight.constant = (view.bounds.size.width * (2/5))
-            return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
-        } else if collectionView == challengesColletionView{
-            return CGSize(width: challengeCellWidth, height: challengeCellWidth * 1.3)
+        if collectionView == challengesColletionView{
+            return CGSize(width: challengeCellWidth, height: (challengeCellWidth * 1.3) - 10)
         } else {
             return CGSize(width: 37, height: 50)    //day tracker
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if let collectionViewCell = cell as? TodayChallengesCell {
-            collectionViewCell.setBlock(challenge: SavedData.challengeBlocks[indexPath.row])
-        }
-    }
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == todayMotivationCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TodayMotivationCell", for: indexPath) as! TodayMotivationCell
-            if indexPath.row < motivationBackground.count  {
-                cell.backgroundImage.sd_setImage(with: URL(string: motivationBackground[indexPath.row]))
-            } else {
-                cell.backgroundImage.image = PlaceHolders.motivationPlaceholder
-            }
-            cell.motivationText.text = motivationArray[indexPath.row].motivationText
-            cell.motivationID["motivationID"] = motivationArray[indexPath.row].motivationID
-            return cell
-        } else if collectionView == challengesColletionView {
+        if collectionView == challengesColletionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TodayChallengesCell", for: indexPath) as! TodayChallengesCell
             cell.cellDelegate = self
+            cell.setBlock(challenge: SavedData.challengeBlocks[indexPath.row])
+            print("hell6 setcollection \(SavedData.challengeBlocks[indexPath.row].blockTitle)")
             cell.row = indexPath.row
             return cell
         } else {
@@ -910,25 +861,10 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         self.performSegue(withIdentifier: "goToKasamHolder", sender: kasamOrder)
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        if collectionView == todayMotivationCollectionView {
-            return UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
-        } else if collectionView == challengesColletionView {
-            return UIEdgeInsets(top: 0, left: 10, bottom: 10, right: 10)
-        } else {
-            return UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
-        }
-    }
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == todayMotivationCollectionView {
-            let motivationID = motivationArray[indexPath.row].motivationID
-            changeMotivationPopup(motivationID: motivationID) {(true) in
-                self.getMotivations()
-            }
-        } else if collectionView == challengesColletionView {
+        if collectionView == challengesColletionView {
             if SavedData.kasamDict[SavedData.challengeBlocks[indexPath.row].kasamID]?.metricType != "Checkmark" {
-                loadingAnimation(animationView: animationView, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
+                animationView.loadingAnimation(view: view, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
                 UIApplication.shared.beginIgnoringInteractionEvents()
                 kasamIDforViewer = SavedData.challengeBlocks[indexPath.row].kasamID
                 blockIDGlobal = SavedData.challengeBlocks[indexPath.row].blockID
@@ -950,7 +886,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?) {
-        loadingAnimation(animationView: animationView, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
+        animationView.loadingAnimation(view: view, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
         UIApplication.shared.beginIgnoringInteractionEvents()
         let kasamID = SavedData.kasamBlocks[kasamOrder].kasamID
         kasamIDforViewer = kasamID
