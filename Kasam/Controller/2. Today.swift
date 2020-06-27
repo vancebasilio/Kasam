@@ -49,7 +49,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     var dayTrackerRefHandle: DatabaseHandle!
     var noKasamTracker = 0
     let animationView = AnimationView()
-    let connectionAnimationView = AnimationView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,13 +65,12 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         reachability.whenReachable = { reachability in
             if reachability.connection == .wifi {print("Reachable via WiFi")}
             else {print("Reachable via Cellular")}
-            self.connectionAnimationView.removeFromSuperview()
+            SwiftEntryKit.dismiss()
         }
         reachability.whenUnreachable = { _ in
             print("Not reachable")
             self.updateContentTableHeight()
-            self.connectionAnimationView.loadingAnimation(view: self.view, animation: "flagmountainBG", height: 200, overlayView: nil, loop: true, completion: nil)
-            self.connectionAnimationView.backgroundBehavior = .pauseAndRestore
+            showProcessingNote()
         }
         do {try reachability.startNotifier()}
         catch {print("Unable to start notifier")}

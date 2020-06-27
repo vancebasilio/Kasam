@@ -29,12 +29,14 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var currentDayStreak: UILabel!
     @IBOutlet weak var streakPostText: UILabel!
     @IBOutlet weak var blockContents: UIView!
+    @IBOutlet weak var blockImage: UIView!
     @IBOutlet weak var kasamImage: UIImageView!
     @IBOutlet weak var statsContent: UIView!
     @IBOutlet weak var statsShadow: UIView!
     @IBOutlet weak var streakShadow: UIView!
     @IBOutlet weak var yesButton: UIButton!
     @IBOutlet weak var checkHolder: UIView!
+    @IBOutlet weak var progressBar: UIView!
     @IBOutlet weak var percentComplete: UILabel!
     @IBOutlet weak var dayTrackerCollectionView: UICollectionView!
     @IBOutlet weak var hideDayTrackerButton: UIButton!
@@ -240,6 +242,9 @@ class TodayBlockCell: UITableViewCell {
             }
         }
         }
+        dayTrackerCollectionView.fadeIn()
+        blockImage.fadeIn()
+        progressBar.fadeIn()
     }
     
     func blockBadge(_ day:String?){

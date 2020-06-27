@@ -70,7 +70,8 @@ class TodayDayTrackerCell: UICollectionViewCell {
             cellButton.setTitleColor(UIColor.white, for: .normal)
         } else if future != true && status > 0.0 && status < 1.0 {
             //Partially complete Kasams
-            cellButton.backgroundColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7)                //light green color
+            if metricTypeInternal == "Video" {cellButton.backgroundColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7)}
+            else {cellButton.backgroundColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7)}                //light green color
             cellButtonOutline.layer.borderColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7).cgColor
             cellButton.setTitleColor(UIColor.black, for: .normal)
         } else if future != true && status >= 1.0 {

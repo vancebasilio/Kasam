@@ -182,6 +182,33 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
+    func showProcessingNote() {
+        var attributes: EKAttributes
+        attributes = .topNote
+        attributes.displayMode = .light
+        attributes.hapticFeedbackType = .success
+        attributes.displayDuration = .infinity
+        attributes.popBehavior = .animated(animation: .translation)
+        attributes.entryBackground = .color(color: EKColor(UIColor.colorFour))
+        attributes.statusBar = .light
+        let text = "Looks like you're not connect to the internet"
+        let style = EKProperty.LabelStyle(
+            font: UIFont.systemFont(ofSize: 15, weight: .medium),
+            color: .white,
+            alignment: .center,
+            displayMode: .light
+        )
+        let labelContent = EKProperty.LabelContent(
+            text: text,
+            style: style
+        )
+        let contentView = EKProcessingNoteMessageView(
+            with: labelContent,
+            activityIndicator: .white
+        )
+        SwiftEntryKit.display(entry: contentView, using: attributes)
+    }
+
     func saveKasamPopup(level: Int, completion:@escaping (Int) -> ()) {
         var attributes: EKAttributes
         attributes = .centerFloat
@@ -202,9 +229,9 @@ import Firebase
         let goodLabelStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15, weight: .medium), color: EKColor(UIColor.colorFive), displayMode: .light)
         let badLabelStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15, weight: .medium), color: EKColor(UIColor.darkGray), displayMode: .light)
         
-        let firstButton = EKProperty.ButtonContent(label: EKProperty.LabelContent(text: "SAVE KASAM", style: goodLabelStyle), backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {completion(0); SwiftEntryKit.dismiss()}
-        let secondButton = EKProperty.ButtonContent(label: EKProperty.LabelContent(text: "KEEP EDITING", style: goodLabelStyle), backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {completion(1); SwiftEntryKit.dismiss()}
-        let badButton = EKProperty.ButtonContent(label: EKProperty.LabelContent(text: "DISCARD KASAM", style: badLabelStyle), backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {completion(2); SwiftEntryKit.dismiss()}
+        let firstButton = EKProperty.ButtonContent(label: EKProperty.LabelContent(text: "Save Kasam", style: goodLabelStyle), backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {completion(0); SwiftEntryKit.dismiss()}
+        let secondButton = EKProperty.ButtonContent(label: EKProperty.LabelContent(text: "Keep Editing", style: goodLabelStyle), backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {completion(1); SwiftEntryKit.dismiss()}
+        let badButton = EKProperty.ButtonContent(label: EKProperty.LabelContent(text: "Discard Kasam", style: badLabelStyle), backgroundColor: .clear, highlightedBackgroundColor: EKColor(UIColor.colorFour), displayMode: .light) {completion(2); SwiftEntryKit.dismiss()}
         
         // Generate the content
         var buttonList: [EKProperty.ButtonContent]
@@ -229,8 +256,6 @@ import Firebase
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
-
-    //ADD KASAM---------------------------------------------------------------------------------------------
     func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?, badgeThresholds: Int, fullView: Bool) {
         var attributes: EKAttributes
         attributes = .bottomFloat
@@ -261,27 +286,4 @@ import Firebase
         vC.fullView = fullView
         vC.timelineDuration = timelineDuration
         SwiftEntryKit.display(entry: vC, using: attributes)
-    }
-
-    func changeMotivationPopup(motivationID: String, completion:@escaping (Bool) -> ()) {
-        let style: FormStyle = .light
-        let attributes = FormFieldPresetFactory.attributes()
-        let titleStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15), color: .standardContent, alignment: .center, displayMode: .light)
-        let title = EKProperty.LabelContent(text: "Add your motivation!", style: titleStyle)
-        let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
-        let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
-            let newMotivation = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Motivation")
-            if motivationID == "" {
-                newMotivation.childByAutoId().setValue(textFields[0].textContent) {(error, ref) -> Void in
-                    completion(true)
-                }
-            } else if motivationID != "" {
-                newMotivation.child(motivationID).setValue(textFields[0].textContent) {(error, ref) -> Void in
-                    completion(true)
-                }
-            }
-            SwiftEntryKit.dismiss()
-        }
-        let contentView = EKFormMessageView(with: title, textFieldsContent: textFields, buttonContent: button)
-        SwiftEntryKit.display(entry: contentView, using: attributes)
     }

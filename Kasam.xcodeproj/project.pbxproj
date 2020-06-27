@@ -270,6 +270,7 @@
 				BCEE9D2123EF5F0500553BEB /* Kasam.entitlements */,
 				BCF2A773227FB55E009D2368 /* Services */,
 				BCC799FD226BD4F700B72D65 /* Model */,
+				BCADFBAD229CC5CC00A9EAFA /* Cell Formats */,
 				BCC799FE226BD4FC00B72D65 /* View */,
 				BCC799FF226BD4FF00B72D65 /* Controller */,
 				BC1FAF332269FAFA006A9245 /* Assets.xcassets */,
@@ -367,7 +368,6 @@
 				BCE50BDE22D04A37000F2534 /* FXBlurView.m */,
 				BCE50BE322D04B26000F2534 /* Kasam-Bridging-Header.h */,
 				BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */,
-				BCADFBAD229CC5CC00A9EAFA /* Cell Formats */,
 				BC554BD9226E0F2700D707CC /* User Kasams Table */,
 			);
 			path = Model;

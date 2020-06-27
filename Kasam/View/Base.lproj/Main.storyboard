@@ -783,8 +783,8 @@
                                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="K3i-bd-Bve" userLabel="Level">
                                                                         <rect key="frame" x="0.0" y="73" width="183" height="47"/>
                                                                         <subviews>
-                                                                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Beginner" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="di4-7P-GXD">
-                                                                                <rect key="frame" x="0.0" y="16.5" width="53" height="14.5"/>
+                                                                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Beginner" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="di4-7P-GXD">
+                                                                                <rect key="frame" x="130" y="16.5" width="53" height="14.5"/>
                                                                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="12"/>
                                                                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                 <nil key="highlightedColor"/>
@@ -819,9 +819,9 @@
                                                                             <constraint firstItem="di4-7P-GXD" firstAttribute="centerY" secondItem="K3i-bd-Bve" secondAttribute="centerY" id="XWW-kl-dPK"/>
                                                                             <constraint firstItem="jmF-sX-KPY" firstAttribute="leading" secondItem="K3i-bd-Bve" secondAttribute="leading" id="YdP-0Y-2uD"/>
                                                                             <constraint firstItem="znA-AN-o5I" firstAttribute="leading" secondItem="K3i-bd-Bve" secondAttribute="leading" id="Z15-P3-Zc2"/>
+                                                                            <constraint firstAttribute="trailing" secondItem="di4-7P-GXD" secondAttribute="trailing" id="eXe-o8-U4u"/>
                                                                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="znA-AN-o5I" secondAttribute="trailing" id="eyw-eR-kaJ"/>
                                                                             <constraint firstItem="znA-AN-o5I" firstAttribute="centerY" secondItem="K3i-bd-Bve" secondAttribute="centerY" id="oCh-3H-hpi"/>
-                                                                            <constraint firstItem="di4-7P-GXD" firstAttribute="leading" secondItem="K3i-bd-Bve" secondAttribute="leading" id="oVF-eO-cwg"/>
                                                                             <constraint firstAttribute="bottom" secondItem="jmF-sX-KPY" secondAttribute="bottom" id="sUG-5n-9fP"/>
                                                                         </constraints>
                                                                     </view>
@@ -2847,7 +2847,7 @@
                                                                                 <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mbm-Gs-MU2" userLabel="Stats Content">
                                                                                     <rect key="frame" x="5" y="5" width="292" height="125"/>
                                                                                     <subviews>
-                                                                                        <view opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VUP-t9-IFG" userLabel="Block Image">
+                                                                                        <view opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VUP-t9-IFG" userLabel="Block Image">
                                                                                             <rect key="frame" x="0.0" y="0.0" width="75" height="75"/>
                                                                                             <subviews>
                                                                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="T5m-oQ-LsP">
@@ -2947,7 +2947,7 @@
                                                                                                         </userDefinedRuntimeAttribute>
                                                                                                     </userDefinedRuntimeAttributes>
                                                                                                 </label>
-                                                                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VTE-cw-FHa" userLabel="Progress Bar">
+                                                                                                <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VTE-cw-FHa" userLabel="Progress Bar">
                                                                                                     <rect key="frame" x="5" y="80" width="43.5" height="8"/>
                                                                                                     <subviews>
                                                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R0g-50-YVQ">
@@ -3031,7 +3031,7 @@
                                                                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PMM-N6-tG4" userLabel="Day Tracker Collection View">
                                                                                             <rect key="frame" x="0.0" y="75" width="292" height="50"/>
                                                                                             <subviews>
-                                                                                                <collectionView clipsSubviews="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" prefetchingEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fbU-F2-hAU">
+                                                                                                <collectionView clipsSubviews="YES" alpha="0.0" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" prefetchingEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fbU-F2-hAU">
                                                                                                     <rect key="frame" x="5" y="5" width="282" height="50"/>
                                                                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                                     <constraints>
@@ -3280,6 +3280,7 @@
                                                         </userDefinedRuntimeAttributes>
                                                         <connections>
                                                             <outlet property="blockContents" destination="cKl-Ng-FCY" id="WWJ-fK-f3V"/>
+                                                            <outlet property="blockImage" destination="VUP-t9-IFG" id="DUv-bY-gU8"/>
                                                             <outlet property="checkHolder" destination="loa-GN-TbB" id="JET-AY-hfb"/>
                                                             <outlet property="collectionBottomConstraint" destination="XqR-jn-xVa" id="GGj-Hy-RoE"/>
                                                             <outlet property="collectionTopConstraint" destination="LjF-1D-7Ut" id="z2S-N8-Bku"/>
@@ -3296,6 +3297,7 @@
                                                             <outlet property="levelLinePercent" destination="R0g-50-YVQ" id="i1f-KM-pXv"/>
                                                             <outlet property="levelLineProgress" destination="jb1-Ty-bvG" id="HjJ-GZ-xUJ"/>
                                                             <outlet property="percentComplete" destination="LmR-Qb-FeW" id="cg6-fJ-HSt"/>
+                                                            <outlet property="progressBar" destination="VTE-cw-FHa" id="QVi-Tk-1TO"/>
                                                             <outlet property="restartButton" destination="4Pr-7P-hE0" id="aFY-MC-1AX"/>
                                                             <outlet property="statsContent" destination="Mbm-Gs-MU2" id="epq-aW-1gh"/>
                                                             <outlet property="statsShadow" destination="7Bj-bg-Vt6" id="kvc-NQ-mlo"/>
