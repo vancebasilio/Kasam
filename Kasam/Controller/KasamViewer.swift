@@ -78,7 +78,9 @@ class KasamActivityViewer: UIViewController {
                     //Only save progress if it's today's progress
                     if dateToLoad?.dateToString() == Date().dateToString() {
                         if cell.progressSlider.value >= 0.9 {cell.progressSlider.value = 1.0}
-                        sendCompletedMatrix(activityNo: 1, value: Double(cell.progressSlider.value * 100), text: "")
+                        if cell.progressSlider.value > 0.1 {
+                            sendCompletedMatrix(activityNo: 1, value: Double(cell.progressSlider.value * 100), text: "")
+                        }
                     }
                 }
             }

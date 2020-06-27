@@ -183,7 +183,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                         if kasam.currentStatus == "active" {
                             self.getWeeklyStats(kasamID: kasam.kasamID, snap: snap)
                         }
-                        
                     //PART 2 - Completed Stats Table
                         if Int(snap.childrenCount) == 0 && kasam.currentStatus == "inactive" {
                             count += 1
@@ -203,7 +202,10 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                         let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
                         let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
                         self.detailedStats.append(userStats)
-                        self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })     //orders the array as kasams with no history will always show up first, even though they were loaded later
+                        DispatchQueue.main.async {
+                            //orders the array as kasams with no history will always show up first, even though they were loaded later
+                            self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })
+                        }
                         self.weekStatsCollectionView.reloadData()
                     }
                         

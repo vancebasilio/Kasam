@@ -64,7 +64,7 @@ class TodayBlockCell: UITableViewCell {
         kasamID = block.kasamID
         tempBlock = block
         kasamName.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
-        print("hell2 \(String(describing: SavedData.kasamDict[kasamID]?.kasamName))")
+        print("step 6A \(String(describing: SavedData.kasamDict[kasamID]?.kasamName)) hell2")
         if block.dayCount != nil {
             today = block.dayCount!                     //for timeline kasams only
         }
@@ -118,7 +118,7 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func collectionCoverUpdate(){
-        print("hell2 collectionCoverUpdate")
+        print("step 6A2 collectionCoverUpdate hell2")
         let gradient = CAGradientLayer()
         gradient.frame = dayTrackerCollectionView.superview?.bounds ?? CGRect.zero
         gradient.colors = [UIColor.white.withAlphaComponent(0).cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.white.withAlphaComponent(0).cgColor]

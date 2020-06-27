@@ -34,8 +34,7 @@ class TodayChallengesCell: UICollectionViewCell {
     var kasamID = ""
     
     func setBlock(challenge: TodayBlockFormat) {
-        print("hell2 challenge \(SavedData.kasamDict[challenge.kasamID]?.kasamName)")
-        cellFormatting()
+        print("step 6b challenge hell2  \(SavedData.kasamDict[challenge.kasamID]?.kasamName)")
         tempBlock = challenge
         kasamID = challenge.kasamID
         kasamImage.sd_setImage(with: challenge.image)
@@ -50,8 +49,7 @@ class TodayChallengesCell: UICollectionViewCell {
         cellDelegate?.goToChallengeKasamHolder(sender, kasamOrder: row)
     }
     
-    func cellFormatting(){
-        print("hell2 challenge cell formatting")
+    override func awakeFromNib() {
         BG.layer.cornerRadius = 20
         BG.clipsToBounds = true
         BG.layer.cornerRadius = 20

@@ -62,7 +62,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
         setupChart()
     }
     
-    override func updateViewConstraints() {
+    func updateContentTableHeight() {
         super.updateViewConstraints()
         tableViewHeight.constant = historyTableView.contentSize.height
         bottomViewHeight.constant = tableViewHeight.constant + 50 + mChart.frame.height + 4.0
@@ -161,14 +161,14 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
             var metric = ""
             var shortDate = ""
             if SavedData.kasamDict[kasamID]?.timeline == nil {
-                //OPTION 1 - REPS
+            //OPTION 1 - REPS
                 if metricType == "Reps" {
                     metric = "\(indieMetric.removeZerosFromEnd()) \(metricType)"
-                //OPTION 2 - TIME
+            //OPTION 2 - TIME
                 } else if metricType == "Time" {
                     let tableTime = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
                     metric = "\(tableTime.0.removeZerosFromEnd()) \(tableTime.1)"
-                //OPTION 3 - PERCENTAGE COMPLETED
+            //OPTION 3 - PERCENTAGE COMPLETED
                 } else if metricType == "Checkmark" {
                     metric = "Complete"
                 }
@@ -180,21 +180,19 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
             self.block = kasamFollowingFormat(day: self.dayNo, shortDate: shortDate, fullDate: snapshot.key, metric: metric, text: textField)
             self.kasamBlocks.append(self.block!)
             self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
-            
         } else {
             //Adds the missing zero days to the chart where the user hasn't logged any progress
             noProgressDayCount += 1
         }
         if progressDayCount + noProgressDayCount == kasamDay {
-            //OPTION 1 - REPS
+        //OPTION 1 - REPS
             if metricType == "Reps" {
                 self.avgMetric.text = "\(metricTotal) Total \(metricType)"
-            //OPTION 2 - TIME
+        //OPTION 2 - TIME
             } else if metricType == "Time" {
-//                let avgMetric = (metricTotal) / progressDayCount
                 let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(metricTotal), metric: metricType)
                 self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) total \(avgTimeAndMetric.1)"
-            //OPTION 3 - PERCENTAGE COMPLETED
+        //OPTION 3 - PERCENTAGE COMPLETED
             } else if metricType == "Checkmark" {
                 var avgMetric = 0
                 avgMetric = (metricTotal) / (dayNo)
@@ -203,6 +201,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
             
             if self.metricArray[kasamDay] == nil {self.metricArray[kasamDay] = 0}
             self.historyTableView.reloadData()
+            updateContentTableHeight()
             self.setChart(values: self.metricArray)
             //For current kasam stats
             if dayDate != nil {DBRef.userHistory.child(self.kasamStatsTransfer!.kasamID).child(dayDate!).removeAllObservers()}
@@ -295,9 +294,9 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let block = kasamBlocks[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "KasamStatsCell") as! KasamHistoryTableCell
         cell.delegate = self
+        let block = kasamBlocks[indexPath.row]
         cell.setBlock(block: block)
         return cell
     }
