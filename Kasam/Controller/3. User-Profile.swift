@@ -61,7 +61,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     //Kasam Following
     var kasamIDGlobal: String = ""
     var kasamImageGlobal: URL!
-    var kasamStatsTransfer: UserStatsFormat?
+    var currentKasamTransfer: Bool!
     var userHistoryTransfer: CompletedKasamFormat?
     var kasamHistoryRefHandle: DatabaseHandle!
     var kasamUserRefHandle: DatabaseHandle!
@@ -380,9 +380,9 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToStats" {
-            let segueTransferHolder = segue.destination as! StatisticsViewController
-            segueTransferHolder.kasamStatsTransfer = kasamStatsTransfer
-            segueTransferHolder.userHistoryTransfer = userHistoryTransfer
+            let statsTransfer = segue.destination as! StatisticsViewController
+            statsTransfer.currentKasam = currentKasamTransfer
+            statsTransfer.userHistoryTransfer = userHistoryTransfer
         } else if segue.identifier == "goToEditKasam" {
             NewKasam.editKasamCheck = true
             NewKasam.kasamID = kasamIDGlobal
@@ -475,15 +475,22 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == weekStatsCollectionView {
-            if detailedStats.count == 0 {                                   //user not following any kasams
+        //OPTION 1 - User not following any kasams
+            if detailedStats.count == 0 {
                 //go to Discover Page when clicked
                 animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
                 self.tabBarController?.selectedIndex = 0
-            } else if detailedStats.count != 0 && weeklyStats.count == 0 {  //user following kasams that aren't active yet
-                kasamStatsTransfer = detailedStats[indexPath.row]; userHistoryTransfer = nil
+        //OPTION 2 - User following kasams that aren't active yet
+            } else if detailedStats.count != 0 && weeklyStats.count == 0 {
+                if let index = completedStats.index(where: {($0.kasamID == detailedStats[indexPath.row].kasamID)}) {
+                    userHistoryTransfer = completedStats[index]; currentKasamTransfer = true
+                }
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
+        //OPTION 3 - User following active kasam
             } else {
-                kasamStatsTransfer = detailedStats[indexPath.row]; userHistoryTransfer = nil
+                if let index = completedStats.index(where: {($0.kasamID == detailedStats[indexPath.row].kasamID)}) {
+                    userHistoryTransfer = completedStats[index]; currentKasamTransfer = true
+                }
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
         } else if collectionView == editKasamsCollectionView {
@@ -513,7 +520,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        userHistoryTransfer = completedStats[indexPath.row]; kasamStatsTransfer = nil
+        userHistoryTransfer = completedStats[indexPath.row]; currentKasamTransfer = false
         self.performSegue(withIdentifier: "goToStats", sender: indexPath)
     }
 }

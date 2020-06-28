@@ -33,8 +33,8 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     @IBOutlet weak var avgMetric: UILabel!
     
     var dataEntries: [ChartDataEntry] = []
-    var kasamStatsTransfer: UserStatsFormat?                        //transfered in value if viewing current kasam history
     var userHistoryTransfer: CompletedKasamFormat?                  //transfered in value if viewing full history
+    var currentKasam = false
     var metricArray: [Int:Int] = [:]
     var kasamBlocks: [kasamFollowingFormat] = []
     var kasamFollowingRefHandle: DatabaseHandle!
@@ -55,15 +55,13 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        if kasamStatsTransfer != nil {kasamID = kasamStatsTransfer!.kasamID}
-        else {kasamID = userHistoryTransfer!.kasamID}
+        kasamID = userHistoryTransfer!.kasamID
         setupView()
         getKasamStats()
         setupChart()
     }
     
     func updateContentTableHeight() {
-        super.updateViewConstraints()
         tableViewHeight.constant = historyTableView.contentSize.height
         bottomViewHeight.constant = tableViewHeight.constant + 50 + mChart.frame.height + 4.0
         contentViewHeight.constant = bottomViewHeight.constant + topViewHeight.constant
@@ -76,10 +74,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     }
     
     func setupView(){
-        if kasamStatsTransfer != nil {
-            kasamImageView.sd_setImage(with: kasamStatsTransfer?.imageURL, placeholderImage: PlaceHolders.kasamLoadingImage)
-            kasamNameLabel.text = SavedData.kasamDict[kasamID]?.kasamName
-        } else if userHistoryTransfer != nil {
+        if userHistoryTransfer != nil {
             kasamImageView.sd_setImage(with: userHistoryTransfer?.imageURL, placeholderImage: PlaceHolders.kasamLoadingImage)
             kasamNameLabel.text = userHistoryTransfer?.kasamName
         }
@@ -106,106 +101,111 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     
     @objc func getKasamStats(){
         self.kasamBlocks.removeAll()
-        if kasamStatsTransfer != nil && kasamStatsTransfer!.endDate! > Date() {
-            //OPTION 1 - Get Current Kasam Stats only
-            let repeatDuration = SavedData.kasamDict[kasamStatsTransfer!.kasamID]?.repeatDuration ?? 0
-            self.dayNoValue.text = "Day \(SavedData.kasamDict[kasamStatsTransfer!.kasamID]?.currentDay ?? 0)"
-            for day in 1...repeatDuration {
-                let dayDate = (Calendar.current.date(byAdding: .day, value: day - 1, to: kasamStatsTransfer!.joinedDate)!).dateToString()
-                self.kasamHistoryRefHandle = DBRef.userHistory.child(kasamStatsTransfer!.kasamID).child(dayDate).observe(.value, with:{(snapshot) in
-                    self.getChartsAndTableStats(metricType: SavedData.kasamDict[self.kasamStatsTransfer!.kasamID]!.metricType, day: day, dayDate: dayDate, kasamDay: repeatDuration, snapshot: snapshot)
-                })
-            }
-        } else if userHistoryTransfer != nil {
-            //OPTION 2 - Get all Kasam Stats
-            self.dayNoValue.text = userHistoryTransfer!.daysCompleted.pluralUnit(unit: "Day")
-            let enumerator = userHistoryTransfer!.userHistorySnap!.children
-            while let history = enumerator.nextObject() as? DataSnapshot {
-                getChartsAndTableStats(metricType: SavedData.kasamDict[userHistoryTransfer!.kasamID]!.metricType, day: nil, dayDate: nil, kasamDay: userHistoryTransfer!.daysCompleted, snapshot: history)
+        let enumerator = userHistoryTransfer!.userHistorySnap!.children
+        var historyArray = [DataSnapshot]()
+        if userHistoryTransfer != nil {
+            if currentKasam == true {
+                //OPTION 1 - Get Current Kasam Stats only
+                self.dayNoValue.text = "Day \(SavedData.kasamDict[kasamID]?.currentDay ?? 0)"
+                while let history = enumerator.nextObject() as? DataSnapshot {
+                    if history.key.stringToDate() >= SavedData.kasamDict[kasamID]!.joinedDate {
+                        historyArray.append(history)
+                    }
+                }
+                getChartsAndTableStats(metricType: SavedData.kasamDict[kasamID]!.metricType, kasamDay: SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress, snapshot: historyArray)
+            } else {
+                //OPTION 2 - Get all Kasam Stats
+                self.dayNoValue.text = userHistoryTransfer!.daysCompleted.pluralUnit(unit: "Day")
+                while let history = enumerator.nextObject() as? DataSnapshot {
+                    historyArray.append(history)
+                }
+                getChartsAndTableStats(metricType: SavedData.kasamDict[userHistoryTransfer!.kasamID]!.metricType, kasamDay: userHistoryTransfer!.daysCompleted, snapshot: historyArray)
             }
         }
-        
     }
         
-    func getChartsAndTableStats(metricType: String, day: Int?, dayDate: String?, kasamDay: Int, snapshot: DataSnapshot){
-        var indieMetric = 0.0
-        var textField = ""
-        if day != nil {dayNo = day!}
-        else {
-            if firstDateCheck == true {firstDate = snapshot.key.stringToDate(); firstDateCheck = false}
-            dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: snapshot.key.stringToDate()).day ?? 0) + 1
-        }
-        if snapshot.exists() {
-            progressDayCount += 1
-            var blockName = ""
-            if let value = snapshot.value as? [String: Any] {
-                //Kasam is Reps or Timer
-                indieMetric = value["Total Metric"] as? Double ?? 0.0
-                let text = value["Text Breakdown"] as? [Any]
-                textField = text?[1] as! String
-                var timeAndMetric = (0.0,"")
-                if metricType == "Time" {
-                    timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
-                    indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
-                }
-                if SavedData.kasamDict[kasamID]?.timeline != nil {
-                    blockName = value["Block Name"] as? String ?? ""
-                }
-            } else if let value = snapshot.value as? Int{
-                //Kasam is only Checkmark
-                indieMetric = Double(value * 100)
+    func getChartsAndTableStats(metricType: String, kasamDay: Int, snapshot: [DataSnapshot]){
+        print("hell93")
+        for snap in snapshot {
+            var indieMetric = 0.0
+            var textField = ""
+            if currentKasam == true {
+                firstDate = SavedData.kasamDict[kasamID]?.joinedDate
+                dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: snap.key.stringToDate()).day ?? 0) + 1
+            } else {
+                if firstDateCheck == true {firstDate = snap.key.stringToDate(); firstDateCheck = false}
+                dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: snap.key.stringToDate()).day ?? 0) + 1
             }
-            self.metricArray[dayNo] = Int(indieMetric)
-            metricTotal += Int(indieMetric)
             
-            var metric = ""
-            var shortDate = ""
-            if SavedData.kasamDict[kasamID]?.timeline == nil {
+            //STEP 1 - GET THE INFO FOR THE DAY
+            if snap.exists() {
+                progressDayCount += 1
+                var blockName = ""
+                if let value = snap.value as? [String: Any] {
+                    //Kasam is Reps or Timer
+                    indieMetric = value["Total Metric"] as? Double ?? 0.0
+                    let text = value["Text Breakdown"] as? [Any]
+                    textField = text?[1] as! String
+                    var timeAndMetric = (0.0,"")
+                    if metricType == "Time" {
+                        timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
+                        indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
+                    }
+                    if SavedData.kasamDict[kasamID]?.timeline != nil {
+                        blockName = value["Block Name"] as? String ?? ""
+                    }
+                } else if let value = snap.value as? Int{
+                    //Kasam is only Checkmark
+                    indieMetric = Double(value * 100)
+                }
+                self.metricArray[dayNo] = Int(indieMetric)
+                metricTotal += Int(indieMetric)
+                
+                var metric = ""
+                var shortDate = ""
+                if SavedData.kasamDict[kasamID]?.timeline == nil {
+                //OPTION 1 - REPS
+                    if metricType == "Reps" {
+                        metric = "\(indieMetric.removeZerosFromEnd()) \(metricType)"
+                //OPTION 2 - TIME
+                    } else if metricType == "Time" {
+                        let tableTime = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
+                        metric = "\(tableTime.0.removeZerosFromEnd()) \(tableTime.1)"
+                //OPTION 3 - PERCENTAGE COMPLETED
+                    } else if metricType == "Checkmark" {
+                        metric = "Complete"
+                    }
+                    shortDate = self.convertLongDateToShort(date: snap.key)
+                } else {
+                    shortDate = blockName
+                    metric = self.convertLongDateToShort(date: snap.key)
+                }
+                self.block = kasamFollowingFormat(day: self.dayNo, shortDate: shortDate, fullDate: snap.key, metric: metric, text: textField)
+                self.kasamBlocks.append(self.block!)
+                self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
+            }
+            
+            //STEP 2 - IF ALL DAYS ACCOUNTED FOR, UPDATE TABLE AND CHART
+            if progressDayCount >= kasamDay {
             //OPTION 1 - REPS
                 if metricType == "Reps" {
-                    metric = "\(indieMetric.removeZerosFromEnd()) \(metricType)"
+                    self.avgMetric.text = "\(metricTotal) Total \(metricType)"
             //OPTION 2 - TIME
                 } else if metricType == "Time" {
-                    let tableTime = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
-                    metric = "\(tableTime.0.removeZerosFromEnd()) \(tableTime.1)"
+                    let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(metricTotal), metric: metricType)
+                    self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) total \(avgTimeAndMetric.1)"
             //OPTION 3 - PERCENTAGE COMPLETED
                 } else if metricType == "Checkmark" {
-                    metric = "Complete"
+                    var avgMetric = 0
+                    avgMetric = (metricTotal) / (dayNo)
+                    self.avgMetric.text = "\(avgMetric)% Avg."
                 }
-                shortDate = self.convertLongDateToShort(date: snapshot.key)
-            } else {
-                shortDate = blockName
-                metric = self.convertLongDateToShort(date: snapshot.key)
+                if self.metricArray[kasamDay] == nil {self.metricArray[kasamDay] = 0}
+                self.historyTableView.reloadData()
+                updateContentTableHeight()
+                self.setChart(values: self.metricArray)
+                self.metricArray.removeAll()
             }
-            self.block = kasamFollowingFormat(day: self.dayNo, shortDate: shortDate, fullDate: snapshot.key, metric: metric, text: textField)
-            self.kasamBlocks.append(self.block!)
-            self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
-        } else {
-            //Adds the missing zero days to the chart where the user hasn't logged any progress
-            noProgressDayCount += 1
-        }
-        if progressDayCount + noProgressDayCount == kasamDay {
-        //OPTION 1 - REPS
-            if metricType == "Reps" {
-                self.avgMetric.text = "\(metricTotal) Total \(metricType)"
-        //OPTION 2 - TIME
-            } else if metricType == "Time" {
-                let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(metricTotal), metric: metricType)
-                self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) total \(avgTimeAndMetric.1)"
-        //OPTION 3 - PERCENTAGE COMPLETED
-            } else if metricType == "Checkmark" {
-                var avgMetric = 0
-                avgMetric = (metricTotal) / (dayNo)
-                self.avgMetric.text = "\(avgMetric)% Avg."
-            }
-            
-            if self.metricArray[kasamDay] == nil {self.metricArray[kasamDay] = 0}
-            self.historyTableView.reloadData()
-            updateContentTableHeight()
-            self.setChart(values: self.metricArray)
-            //For current kasam stats
-            if dayDate != nil {DBRef.userHistory.child(self.kasamStatsTransfer!.kasamID).child(dayDate!).removeAllObservers()}
-            self.metricArray.removeAll()
         }
     }
     
@@ -216,6 +216,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     //CHART--------------------------------------------------------------------------------------------------------
     
     func setChart(values: [Int:Int]) {
+        print("hell9 \(values)")
         mChart.noDataText = "No data available!"
         let dayUpperBound = ((values.keys.sorted().last.map({ ($0, values[$0]!) }))?.0) ?? 0
         for i in 1...dayUpperBound {
