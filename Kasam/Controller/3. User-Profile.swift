@@ -173,55 +173,55 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         //Loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamDict.values {
             DBRef.coachKasams.child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
-                    let snapshot = snap.value as! Dictionary<String,Any>
-                    let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
-                    kasam.image = snapshot["Image"]! as! String
-                    kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
-                    
-                    DBRef.userHistory.child(kasam.kasamID).observeSingleEvent(of: .value, with:{(snap) in
-                    //PART 1 - Weekly Stats for Current Kasams
-                        if kasam.currentStatus == "active" {
-                            self.getWeeklyStats(kasamID: kasam.kasamID, snap: snap)
-                        }
-                    //PART 2 - Completed Stats Table
-                        if Int(snap.childrenCount) == 0 && kasam.currentStatus == "inactive" {
-                            count += 1
-                           //Unfollowed kasam with no progress
-                        } else {
-                            let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: Int(snap.childrenCount), imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
-                            self.completedStats.append(stats)
-                            count += 1
-                            if count == SavedData.kasamDict.count {
-                                self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
-                            }
-                        }
-                    })
-                    
-                    //PART 3 - Current Stats CollectionView
+                let snapshot = snap.value as! Dictionary<String,Any>
+                let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
+                kasam.image = snapshot["Image"]! as! String
+                kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
+                
+                DBRef.userHistory.child(kasam.kasamID).observeSingleEvent(of: .value, with:{(snap) in
+                //PART 1 - Weekly Stats for Current Kasams
                     if kasam.currentStatus == "active" {
-                        let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
-                        let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
-                        self.detailedStats.append(userStats)
-                        DispatchQueue.main.async {
-                            //orders the array as kasams with no history will always show up first, even though they were loaded later
-                            self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })
-                        }
-                        self.weekStatsCollectionView.reloadData()
+                        self.getWeeklyStats(kasamID: kasam.kasamID, snap: snap)
                     }
-                        
+                //PART 2 - Completed Stats Table
+                    if Int(snap.childrenCount) == 0 && kasam.currentStatus == "inactive" {
+                        count += 1
+                       //Unfollowed kasam with no progress
+                    } else {
+                        let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: Int(snap.childrenCount), imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
+                        self.completedStats.append(stats)
+                        count += 1
+                        if count == SavedData.kasamDict.count {
+                            self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
+                        }
+                    }
+                })
+                
+                //PART 3 - Current Stats CollectionView
+                if kasam.currentStatus == "active" {
+                    let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
+                    let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
+                    self.detailedStats.append(userStats)
+                    self.weekStatsCollectionView.reloadData()
+                }
+                    
                 //Kasam Level
-                self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.grin), postfixText: " Beginner", size: 15)
-                    self.kasamHistoryRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
+                self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeSolid(.leaf), iconColor: self.startLevel.textColor, postfixText: " Beginner", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
+                self.kasamHistoryRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
                     self.daysCompletedDict[snapshot.key] = 1
                     let total = self.daysCompletedDict.count
                     self.totalDays.text = total.pluralUnit(unit: "Kasam Day")
                     if total <= 30 {
                         self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
                     } else if total > 30 && total <= 90 {
-                        self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeSolid(.laugh), postfixText: " Hard", size: 15)
+                        self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeBrands(.pagelines), postfixText: " Intermediate", size: 15)
                         self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 90.0)
                     }
                 })
+                DispatchQueue.main.async {
+                    //Orders the array as kasams with no history will always show up first, even though they were loaded later
+                    self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })
+                }
             }
         }
     }
@@ -260,9 +260,11 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             }
             if checkerCount == 7 {
                 if kasam.metricType == "Checkmark" {
-                    avgMetric = Int((Double(metricMatrix) / Double(Date().dayNumberOfWeek() ?? 7)) * 100)       //for Basic Kasams, show avg %
+                    //For Basic Kasams, show avg %
+                    avgMetric = Int((Double(metricMatrix) / Double(Date().dayNumberOfWeek() ?? 7)) * 100)
                 } else {
-                    avgMetric = (metricMatrix)                                                      //for Complex Kasams, show total for the weeks
+                    //For Complex Kasams, show total for the weeks
+                    avgMetric = (metricMatrix)
                 }
                 self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysLeft, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
                 

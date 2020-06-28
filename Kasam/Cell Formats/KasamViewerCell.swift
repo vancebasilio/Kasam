@@ -116,7 +116,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         increment = Int(activity.increment ?? "1") ?? 1
         pickerMetric = (Int(activity.totalMetric) ?? 20) / increment
         pickerView.reloadAllComponents()
-        //important so that the pickerview updates to the max metric
+        //Important so that the pickerview updates to the max metric
         if activity.videoURL != nil {
             completeButton.layer.cornerRadius = completeButton.frame.height / 2
             setVideoPlayer(url: URL(string: activity.videoURL!)!, title: activity.activityTitle)
@@ -367,6 +367,9 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         timerButtonStackView.isHidden = true
         instruction.isHidden = true
         textField.isHidden = true
+        DispatchQueue.main.async {
+            self.pickerViewIsScrolling = false
+        }
     }
         
     @objc func stopActivityVideo(){
@@ -446,8 +449,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     }
     
     func savePickerValue(){
-        //user recording progress, so save it
-        if(pickerViewIsScrolling){
+        //User recording progress, so save it
+        if (pickerViewIsScrolling){
             shouldSave = true
             animationView.loadingAnimation(view: view, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
             return

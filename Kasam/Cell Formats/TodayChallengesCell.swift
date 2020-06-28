@@ -20,6 +20,7 @@ class TodayChallengesCell: UICollectionViewCell {
     @IBOutlet weak var BGOutline: UIView!
     @IBOutlet weak var kasamImage: UIImageView!
     @IBOutlet weak var kasamImageBGColor: UIView!
+    @IBOutlet weak var kasamImageBGHeight: NSLayoutConstraint!
     @IBOutlet weak var kasamTitle: UIButton!
     @IBOutlet weak var kasamDuration: UILabel!
     @IBOutlet weak var statusIcon: UIButton!
@@ -38,7 +39,6 @@ class TodayChallengesCell: UICollectionViewCell {
         tempBlock = challenge
         kasamID = challenge.kasamID
         kasamImage.sd_setImage(with: challenge.image)
-        kasamImage.alpha = 0.7
         kasamTitle.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
         if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {kasamDuration.text = "All day"}
         else {kasamDuration.text = challenge.duration}
@@ -51,11 +51,7 @@ class TodayChallengesCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         BG.layer.cornerRadius = 20
-        BG.clipsToBounds = true
-        BG.layer.cornerRadius = 20
-        BG.clipsToBounds = true
         BGOutline.layer.cornerRadius = 25
-        BGOutline.clipsToBounds = true
         BGOutline.layer.borderWidth = 3.0
         
         shadow.layer.cornerRadius = 20
@@ -76,18 +72,20 @@ class TodayChallengesCell: UICollectionViewCell {
         
         //Set percent value
         if SavedData.kasamDict[kasamID]?.percentComplete == nil {
+            //No progress made
             percentComplete.setTitle("0%", for: .normal)
             kasamImageBGColor.backgroundColor = UIColor.black
-            kasamImage.alpha = 0.7
         } else {
+            //Progress made
             let percent = Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100)
             percentComplete.setTitle("\(percent)%", for: .normal)
-            if percent == 100 {
-                kasamImageBGColor.backgroundColor = UIColor.init(hex: 0x043927)
-                kasamImage.alpha = 0.4
-            } else {
+            kasamImageBGHeight.constant = (CGFloat(SavedData.kasamDict[kasamID]!.percentComplete) * kasamImage.frame.height)
+            if percent == 0 {
                 kasamImageBGColor.backgroundColor = UIColor.black
-                kasamImage.alpha = 0.7
+            } else if percent == 100 {
+                kasamImageBGColor.backgroundColor = UIColor.init(hex: 0x043927)
+            } else {
+                kasamImageBGColor.backgroundColor = UIColor.init(hex: 0x043927)
             }
         }
         

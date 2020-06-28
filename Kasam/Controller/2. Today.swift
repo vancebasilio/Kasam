@@ -895,14 +895,12 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
             DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
                 let blockCount = Int(blockCountSnapshot.childrenCount)
                 var blockOrder = 1
-                if day! <= blockCount {blockOrder = day!}
-                else {blockOrder = (blockCount / day!) + 1}
-                self.dayToLoadGlobal = day
                 if SavedData.kasamDict[kasamID]?.timeline != nil {
                     //OPTION 1 - Day in past, so find the correct block to show
+                    if day! <= blockCount {blockOrder = day!}
+                    else {blockOrder = day! % blockCount}
                     DBRef.coachKasams.child(kasamID).child("Timeline").observe(.value, with: {(snapshot) in
                         if let value = snapshot.value as? [String:String] {
-                            if blockOrder > value.count {blockOrder = blockOrder % value.count}
                             self.blockIDGlobal = value["D\(blockOrder)"]!
                             self.definesPresentationContext = true
                             self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
@@ -910,8 +908,11 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                     })
                 } else {
                     //OPTION 2 - Day in past and Kasam has only 1 block, so no point finding the correct block
+                    if day! <= blockCount {blockOrder = day!}
+                    else {blockOrder = (blockCount / day!) + 1}
                     self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
                 }
+                self.dayToLoadGlobal = day
             })
         } else {
             //OPTION 3 - Open Today's block

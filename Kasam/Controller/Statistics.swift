@@ -125,7 +125,6 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     }
         
     func getChartsAndTableStats(metricType: String, kasamDay: Int, snapshot: [DataSnapshot]){
-        print("hell93")
         for snap in snapshot {
             var indieMetric = 0.0
             var textField = ""
@@ -137,7 +136,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                 dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: snap.key.stringToDate()).day ?? 0) + 1
             }
             
-            //STEP 1 - GET THE INFO FOR THE DAY
+        //STEP 1 - GET THE INFO FOR THE DAY
             if snap.exists() {
                 progressDayCount += 1
                 var blockName = ""
@@ -185,7 +184,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                 self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
             }
             
-            //STEP 2 - IF ALL DAYS ACCOUNTED FOR, UPDATE TABLE AND CHART
+        //STEP 2 - IF ALL DAYS ACCOUNTED FOR, UPDATE TABLE AND CHART
             if progressDayCount >= kasamDay {
             //OPTION 1 - REPS
                 if metricType == "Reps" {
@@ -216,7 +215,6 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     //CHART--------------------------------------------------------------------------------------------------------
     
     func setChart(values: [Int:Int]) {
-        print("hell9 \(values)")
         mChart.noDataText = "No data available!"
         let dayUpperBound = ((values.keys.sorted().last.map({ ($0, values[$0]!) }))?.0) ?? 0
         for i in 1...dayUpperBound {

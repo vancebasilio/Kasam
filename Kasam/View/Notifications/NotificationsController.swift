@@ -36,7 +36,7 @@ class NotificationsController: UIViewController {
     override func updateViewConstraints() {
         super.updateViewConstraints()
         tableViewHeight.constant = CGFloat(100 * SavedData.todayKasamList.count)
-        contentViewHeight.constant = 400 + (tableViewHeight.constant)
+        contentViewHeight.constant = 380 + (tableViewHeight.constant)
     }
      
     @objc func localNotifications(_ notification: NSNotification?){
