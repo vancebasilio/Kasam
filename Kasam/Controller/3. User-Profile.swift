@@ -186,13 +186,15 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 //PART 2 - Completed Stats Table
                     if Int(snap.childrenCount) == 0 && kasam.currentStatus == "inactive" {
                         count += 1
-                       //Unfollowed kasam with no progress
                     } else {
                         let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: Int(snap.childrenCount), imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
                         self.completedStats.append(stats)
                         count += 1
-                        if count == SavedData.kasamDict.count {
-                            self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
+                        //Order the table by #days completed
+                        DispatchQueue.main.async {
+                            if count == SavedData.kasamDict.count {
+                                self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
+                            }
                         }
                     }
                 })
@@ -206,16 +208,19 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 }
                     
                 //Kasam Level
-                self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeSolid(.leaf), iconColor: self.startLevel.textColor, postfixText: " Beginner", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
                 self.kasamHistoryRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
                     self.daysCompletedDict[snapshot.key] = 1
                     let total = self.daysCompletedDict.count
                     self.totalDays.text = total.pluralUnit(unit: "Kasam Day")
                     if total <= 30 {
+                        self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeSolid(.leaf), iconColor: self.startLevel.textColor, postfixText: " Beginner", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
                         self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
                     } else if total > 30 && total <= 90 {
-                        self.startLevel.setIcon(prefixText: "", icon: .fontAwesomeBrands(.pagelines), postfixText: " Intermediate", size: 15)
+                        self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeBrands(.pagelines), iconColor: self.startLevel.textColor, postfixText: " Intermediate", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
                         self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 90.0)
+                    } else if total > 90 && total <= 360 {
+                        self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeSolid(.tree), iconColor: self.startLevel.textColor, postfixText: " Pro", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
+                        self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 360.0)
                     }
                 })
                 DispatchQueue.main.async {
@@ -306,9 +311,9 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
     func setupDateDictionary(){
         let todayDay = Date().dayNumberOfWeek()
-        if todayDay == 1 {
+        if todayDay == 7 {
             for x in 1...7 {
-                self.dayDictionary[x] = (Calendar.current.date(byAdding: .day, value: x - 7, to: Date())!).dateToString()
+                self.dayDictionary[x] = (Calendar.current.date(byAdding: .day, value: x - (todayDay!), to: Date())!).dateToString()
             }
         } else {
             for x in 1...7 {

@@ -889,14 +889,15 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
         blockIDGlobal = SavedData.kasamBlocks[kasamOrder].blockID
         blockNameGlobal = SavedData.kasamBlocks[kasamOrder].blockTitle
         dateGlobal = date
+        
+        //OPTION 1 - Opening a past day's block
         if day != nil {
             viewOnlyGlobal = viewOnly ?? false
-            //Opening a past day's block
             DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
                 let blockCount = Int(blockCountSnapshot.childrenCount)
                 var blockOrder = 1
                 if SavedData.kasamDict[kasamID]?.timeline != nil {
-                    //OPTION 1 - Day in past, so find the correct block to show
+                    //OPTION 1A - Day in past, so find the correct block to show
                     if day! <= blockCount {blockOrder = day!}
                     else {blockOrder = day! % blockCount}
                     DBRef.coachKasams.child(kasamID).child("Timeline").observe(.value, with: {(snapshot) in
@@ -907,15 +908,15 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                         }
                     })
                 } else {
-                    //OPTION 2 - Day in past and Kasam has only 1 block, so no point finding the correct block
+                    //OPTION 1B - Day in past and Kasam has only 1 block, so no point finding the correct block
                     if day! <= blockCount {blockOrder = day!}
                     else {blockOrder = (blockCount / day!) + 1}
                     self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
                 }
                 self.dayToLoadGlobal = day
             })
+        //OPTION 2 - Open Today's block
         } else {
-            //OPTION 3 - Open Today's block
             self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
         }
     }

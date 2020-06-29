@@ -127,14 +127,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     func getChartsAndTableStats(metricType: String, kasamDay: Int, snapshot: [DataSnapshot]){
         for snap in snapshot {
             var indieMetric = 0.0
-            var textField = ""
-            if currentKasam == true {
-                firstDate = SavedData.kasamDict[kasamID]?.joinedDate
-                dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: snap.key.stringToDate()).day ?? 0) + 1
-            } else {
-                if firstDateCheck == true {firstDate = snap.key.stringToDate(); firstDateCheck = false}
-                dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: snap.key.stringToDate()).day ?? 0) + 1
-            }
+            let textField = ""
             
         //STEP 1 - GET THE INFO FOR THE DAY
             if snap.exists() {
@@ -143,8 +136,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                 if let value = snap.value as? [String: Any] {
                     //Kasam is Reps or Timer
                     indieMetric = value["Total Metric"] as? Double ?? 0.0
-                    let text = value["Text Breakdown"] as? [Any]
-                    textField = text?[1] as! String
+//                    let text = value["Text Breakdown"] as? [Any]
                     var timeAndMetric = (0.0,"")
                     if metricType == "Time" {
                         timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
@@ -163,6 +155,13 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                 var metric = ""
                 var shortDate = ""
                 if SavedData.kasamDict[kasamID]?.timeline == nil {
+                    if currentKasam == true {
+                        firstDate = SavedData.kasamDict[kasamID]?.joinedDate
+                        dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: snap.key.stringToDate()).day ?? 0) + 1
+                    } else {
+                        if firstDateCheck == true {firstDate = snap.key.stringToDate(); firstDateCheck = false}
+                        dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: snap.key.stringToDate()).day ?? 0) + 1
+                    }
                 //OPTION 1 - REPS
                     if metricType == "Reps" {
                         metric = "\(indieMetric.removeZerosFromEnd()) \(metricType)"
@@ -175,7 +174,10 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                         metric = "Complete"
                     }
                     shortDate = self.convertLongDateToShort(date: snap.key)
+                //OPTION 4 - TIMELINE KASAM
                 } else {
+                    print("hell9")
+                    self.dayNo += 1
                     shortDate = blockName
                     metric = self.convertLongDateToShort(date: snap.key)
                 }
