@@ -186,7 +186,6 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                     shortDate = self.convertLongDateToShort(date: snap.key)
                 //OPTION 4 - TIMELINE KASAM
                 } else {
-                    print("hell9")
                     self.dayNo += 1
                     shortDate = blockName
                     metric = self.convertLongDateToShort(date: snap.key)

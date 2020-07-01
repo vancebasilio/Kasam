@@ -305,11 +305,11 @@ extension UIViewController {
         var end : UIColor
         var perc = percent
         if percent < 0.5 {
-            // If the scroll percentage is 0.0..<0.5 blend between yellow and green
+            // If the scroll percentage is 0.0..<0.5 blend between white and black
             start = UIColor.white
             end = UIColor.black
         } else {
-            // If the scroll percentage is 0.5..1.0 blend between green and blue
+            // If the scroll percentage is 0.5..1.0 blend between black and gold
             start = UIColor.black
             end = UIColor.colorFive
             perc -= 0.5
@@ -431,8 +431,10 @@ extension UIViewController {
             
             //Blur ------------
             if let navBar = self.navigationController?.navigationBar {
-                let scrollPercentage = Double(min (1.0, (offset + 220 - alignToNameLabel)/(offsetLabelHeader + 50)))
-                navBar.tintColor = scrollColor(percent: scrollPercentage)
+                if alignToNameLabel - offsetLabelHeader > 0 {
+                    let scrollPercentage = Double(min (1.0, (offset)/(alignToNameLabel - offsetLabelHeader)))
+                    navBar.tintColor = scrollColor(percent: scrollPercentage)
+                }
             }
             
             //Avatar -----------
@@ -564,9 +566,8 @@ extension UINavigationItem {
         
     //Customize the back button
         let backImage = UIImage(named: "back-button")
-        // move the pic by 10, change it to the num you want
         UIGraphicsBeginImageContextWithOptions(CGSize(width: (backImage?.size.width ?? 0.0) + 20, height: backImage?.size.height ?? 0.0), _: false, _: 0)
-        backImage?.draw(at: CGPoint(x: 20, y: 0))
+        backImage?.draw(at: CGPoint(x: 10, y: 0))       // move the pic by 10, change it to the num you want
         let finalImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         UINavigationBar.appearance().backIndicatorImage = finalImage

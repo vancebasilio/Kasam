@@ -77,8 +77,8 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLoad()
-        setupTwitterParallax()
         setupImageHolders()
+        setupTwitterParallax()
         newKasamDescription.delegate = self
         benefitsTextView.delegate = self
     }
@@ -142,6 +142,11 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(categoryOptions))
         newCategoryView.addGestureRecognizer(tap)
+        
+        self.headerImageView = UIImageView(frame: self.headerView.bounds)
+        self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
+        self.headerImageView?.image = PlaceHolders.kasamHeaderPlaceholderImage
+        self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
     }
     
     @objc func categoryOptions(){
@@ -305,24 +310,17 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     let headerHeight = UIScreen.main.bounds.width * 0.65        //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
     
     func setupTwitterParallax(){
+        constrainHeightHeaderImages.constant = headerHeight
         tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)       //setup floating header
-        constrainHeightHeaderImages.constant = headerHeight                                                     //setup floating header
-
-        //Header - Image
-        self.headerImageView = UIImageView(frame: self.headerView.bounds)
-        self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-        self.headerImageView?.image = PlaceHolders.kasamHeaderPlaceholderImage
-        self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
-        
         headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerLabel: headerLabel)
     }
     
     //executes when the user scrolls
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if scrollView != metricTypeCollection {
-            let offsetHeaderStop:CGFloat = headerHeight - 100         // At this offset the Header stops its transformations
+            let offsetHeaderStop:CGFloat = headerHeight - 100     // At this offset the Header stops its transformations
             let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
-            //shrinks the headerClickWindow that opens the imagePicker
+            //Shrinks the headerClickWindow that opens the imagePicker
             headerClickViewHeight.constant = tableView.convert(tableView.frame.origin, to: nil).y - offsetLabelHeader
             twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, shrinkingButton2: nil, mainTitle: newKasamTitle)
         }
