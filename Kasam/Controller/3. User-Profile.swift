@@ -36,7 +36,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     @IBOutlet weak var completedStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     @IBOutlet weak var badgesView: UIStackView!
-    @IBOutlet weak var sideMenuButton: UIButton!
     
     @IBOutlet weak var completedKasamsTable: SelfSizedTableView!
     @IBOutlet weak var completedKasamTableHeight: NSLayoutConstraint!
@@ -80,11 +79,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         getMyKasams()
         viewSetup()
         setupImageHolders()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        //Hides the nav bar
-        self.navigationController?.setNavigationBarHidden(true, animated: true)
+        setupNavBar(clean: true)
     }
     
     override func viewDidLayoutSubviews(){
@@ -120,8 +115,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         levelLineBack.clipsToBounds = true
         levelLine.layer.cornerRadius = 4
         levelLine.clipsToBounds = true
-        sideMenuButton.setIcon(icon: .fontAwesomeSolid(.bars), iconSize: 20, color: UIColor.darkGray, backgroundColor: .clear, forState: .normal)
-        self.navigationItem.title = ""
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
         
         let notificationName = NSNotification.Name("ProfileUpdate")
@@ -138,10 +131,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         
         let showCompletionAnimation = NSNotification.Name("ShowCompletionAnimation")
                NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.showCompletionAnimation), name: showCompletionAnimation, object: nil)
-    }
-    
-    @IBAction func showUserOptionsButton(_ sender: Any) {
-        showBottomPopup(type: "userOptions")
     }
     
     @objc func goToCreateKasam(_ notification: NSNotification?) {

@@ -32,21 +32,23 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
         self.tabBarController?.tabBar.isHidden = true
         self.tabBarController?.tabBar.isTranslucent = true
         UIView.transition(with: tabBarController!.view, duration: 0.35, options: .transitionCrossDissolve, animations: nil)
-        //Hide Navigation Bar
-        if #available(iOS 13.0, *) {
-            self.navigationController?.navigationBar.standardAppearance.configureWithTransparentBackground()
-        } else {
-            //Fallback on earlier versions
+        self.navigationController?.navigationBar.isTranslucent = true
+        self.navigationController?.navigationBar.backgroundColor = UIColor.white.withAlphaComponent(0)
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()         //remove bottom border on navigation bar
+        self.navigationController?.navigationBar.tintColor = UIColor.white       //makes the back button white
+        for subview in self.navigationController!.navigationBar.subviews {
+            if subview.restorationIdentifier == "rightButton" {subview.isHidden = true}
         }
+        self.navigationItem.backBarButtonItem?.title = ""
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         self.tabBarController?.tabBar.isHidden = false
         self.tabBarController?.tabBar.isTranslucent = false
-        if #available(iOS 13.0, *) {
-            self.navigationController?.navigationBar.standardAppearance.configureWithOpaqueBackground()
-        } else {
-            //Fallback on earlier versions
+        self.navigationController?.navigationBar.isTranslucent = false
+        for subview in self.navigationController!.navigationBar.subviews {
+            if subview.restorationIdentifier == "rightButton" {subview.isHidden = false}
         }
     }
     

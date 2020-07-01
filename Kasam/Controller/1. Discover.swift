@@ -33,7 +33,7 @@ class DiscoverViewController: UIViewController {
         getDiscoverFeatured()
         for discoverCriteria in Assets.discoverCriteria {getDiscoverKasams(criteria: discoverCriteria)}
         getMyKasams()
-        setupNavBar()
+        setupNavBar(clean: false)
         self.view.showAnimatedSkeleton()
         let getUserKasams = NSNotification.Name("GetUserKasams")
         NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.getUserKasams), name: getUserKasams, object: nil)

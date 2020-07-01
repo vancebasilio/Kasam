@@ -20,7 +20,7 @@ protocol TableCellDelegate : class {
 
 class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var kasamName: UIButton!
-    @IBOutlet weak var dayNumber: UILabel!
+    @IBOutlet weak var blockSubtitle: UILabel!
     @IBOutlet weak var dayNumberHeight: NSLayoutConstraint!
     @IBOutlet weak var levelLineBack: UIView!
     @IBOutlet weak var levelLine: UIView!
@@ -53,6 +53,7 @@ class TodayBlockCell: UITableViewCell {
     var hideDayTrackerDates = true
     let iconSize = CGFloat(35)
     var kasamID = ""
+    var benefits = [Int:String]()
     
     func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
         dayTrackerCollectionView.delegate = dataSourceDelegate
@@ -65,17 +66,18 @@ class TodayBlockCell: UITableViewCell {
         tempBlock = block
         kasamName.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
         print("step 6A \(String(describing: SavedData.kasamDict[kasamID]?.kasamName)) hell2")
-        if block.dayCount != nil {
-            today = block.dayCount!                     //for timeline kasams only
-        }
+        
+        //For timeline kasams only
+        if block.dayCount != nil {today = block.dayCount!}
         else {today = Int(block.dayOrder)}
-        if block.dayOrder > SavedData.kasamDict[kasamID]?.repeatDuration ?? 0 {dayNumber.text = "Complete!"}
+        
+        //Set the block subtite
+        if block.dayOrder > SavedData.kasamDict[kasamID]?.repeatDuration ?? 0 {blockSubtitle.text = "Complete!"}
         else if SavedData.kasamDict[kasamID]?.timeline != nil {
-            dayNumber.text = "\(block.blockTitle)"
-            dayNumber.font = dayNumber.font.withSize(16)
-        } else {
-            dayNumberHeight.constant = 0
-        }
+            blockSubtitle.text = "\(block.blockTitle)"
+            blockSubtitle.font = blockSubtitle.font.withSize(16)
+        } else {dayNumberHeight.constant = 0}
+        
         kasamImage.sd_setImage(with: block.image)
         if SavedData.kasamDict[kasamID]!.metricType == "Checkmark" && block.dayOrder < SavedData.kasamDict[kasamID]?.repeatDuration ?? 0{
             percentComplete.isHidden = true
@@ -214,11 +216,13 @@ class TodayBlockCell: UITableViewCell {
             }
         } else {
             //OPTION 2 - ACTIVE KASAMS
+            var stat = 0
             if SavedData.kasamDict[kasamID]?.sequence == "streak" {
-                currentDayStreak.text = String(describing: SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress)
+                stat = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
             } else {
-                currentDayStreak.text = String(describing: SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress)
+                stat = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
             }
+            currentDayStreak.text = String(describing: stat)
             statsShadow.layer.shadowColor = UIColor.black.cgColor
             statsShadow.layer.shadowOpacity = 0.2
             
@@ -254,7 +258,6 @@ class TodayBlockCell: UITableViewCell {
             if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak != nil {
                 progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
                 statusDate = (Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date()).dateToString()
-                
             }
         } else {
             if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {

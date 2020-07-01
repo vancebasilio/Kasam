@@ -502,12 +502,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
-        NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
-        NotificationCenter.default.removeObserver(self.refreshBadge as Any)
-    }
-    
     func countFollowers(){
         var count = 0
         DBRef.coachKasams.child(kasamID).child("Followers").observe(.childAdded) {(snapshot) in
@@ -634,6 +628,14 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.navigationBar.isTranslucent = true
+        self.navigationController?.navigationBar.backgroundColor = UIColor.white.withAlphaComponent(0)
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()         //remove bottom border on navigation bar
+        self.navigationController?.navigationBar.tintColor = UIColor.white       //makes the back button white
+        for subview in self.navigationController!.navigationBar.subviews {
+            if subview.restorationIdentifier == "rightButton" {subview.isHidden = true}
+        }
         if reviewOnly == true {
             self.navigationController?.setNavigationBarHidden(false, animated: true)
             self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
@@ -642,20 +644,13 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             self.navigationController?.navigationBar.backgroundColor = UIColor.clear            //set navigation bar color to clear
         } else {
             self.navigationItem.backBarButtonItem?.title = ""
-            //Viewing Kasam Holder from Discovery or Today Page
-            if #available(iOS 13.0, *) {
-                self.navigationController?.navigationBar.standardAppearance.configureWithTransparentBackground()
-            } else {
-                // Fallback on earlier versions
-            }
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        if reviewOnly != true {
-            if #available(iOS 13.0, *) {
-                self.navigationController?.navigationBar.standardAppearance.configureWithOpaqueBackground()
-            }
+        self.navigationController?.navigationBar.isTranslucent = false
+        for subview in self.navigationController!.navigationBar.subviews {
+            if subview.restorationIdentifier == "rightButton" {subview.isHidden = false}
         }
     }
     
@@ -664,6 +659,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             setupReviewOnly()
             self.navigationController?.navigationBar.tintColor = UIColor.white                  //change back arrow color to white
         }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
+        NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
+        NotificationCenter.default.removeObserver(self.refreshBadge as Any)
     }
 }
 

@@ -83,6 +83,8 @@ class TodayDayTrackerCell: UICollectionViewCell {
     }
     
     @IBAction func dayPressed(_ sender: UIButton) {
-        dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, day: dayInternal, date: dateInternal, metricType: metricTypeInternal, viewOnly: futureInternal)
+        if futureInternal == false {
+            dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, day: dayInternal, date: dateInternal, metricType: metricTypeInternal, viewOnly: futureInternal)
+        }
     }
 }

@@ -53,7 +53,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.getKasamFollowing(nil)
-        setupNavBar()                   //global function
+        setupNavBar(clean: false)                   //global function
         setupNotifications()
     }
     

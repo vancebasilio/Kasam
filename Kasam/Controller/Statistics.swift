@@ -61,6 +61,16 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
         setupChart()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        //Hides the nav bar
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        //Shows the nav bar
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
+    }
+    
     func updateContentTableHeight() {
         tableViewHeight.constant = historyTableView.contentSize.height
         bottomViewHeight.constant = tableViewHeight.constant + 50 + mChart.frame.height + 4.0
@@ -308,7 +318,7 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
         } else {
             let delete = SwipeAction(style: .destructive, title: nil) { action, indexPath in
                 let popupImage = UIImage.init(icon: .fontAwesomeSolid(.eraser), size: CGSize(width: 30, height: 30), textColor: .white)
-                showPopupConfirmation(title: "Are you sure you want to delete your progress on\n\(self.kasamBlocks[indexPath.row].shortDate)?", description: "", image: popupImage, buttonText: "Delete") {(success) in
+                showPopupConfirmation(title: "Sure you want to delete your progress on \(self.kasamBlocks[indexPath.row].shortDate)?", description: "", image: popupImage, buttonText: "Delete") {(success) in
                     DBRef.userHistory.child(self.kasamID).child(self.kasamBlocks[indexPath.row].fullDate).setValue(nil)
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                     self.kasamBlocks.remove(at: indexPath.row)

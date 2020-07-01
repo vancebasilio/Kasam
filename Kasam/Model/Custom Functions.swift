@@ -274,32 +274,6 @@ extension UIViewController {
         return truncUserFirst
     }
     
-    func setupNavBar(){
-        let logo = UIImage(named: "Kasam-logo")
-        let imageView = UIImageView(image:logo)
-        imageView.contentMode = .scaleAspectFit
-        self.navigationItem.titleView = imageView
-        
-        self.navigationController?.navigationBar.layer.shadowColor = UIColor.colorFive.cgColor
-        self.navigationController?.navigationBar.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
-        self.navigationController?.navigationBar.layer.shadowRadius = 1.0
-        self.navigationController?.navigationBar.layer.shadowOpacity = 0.5
-        self.navigationController?.navigationBar.layer.masksToBounds = false
-    }
-    
-    func getBlockVideo (url: String){
-        guard let videoURL = URL(string: url) else {
-            return
-        }
-        let player = AVPlayer(url: videoURL)
-        let controller = AVPlayerViewController()
-        controller.player = player
-        
-        present(controller, animated: true) {
-            controller.player!.play()
-        }
-    }
-    
     // A percent of 0.0 gives the "from" color
     // A percent of 1.0 gives the "to" color
     // Any other percent gives an appropriate color in between the two
@@ -445,10 +419,6 @@ extension UIViewController {
             // Hide views if scrolled super fast
             headerView.layer.zPosition = 0
             headerLabel.isHidden = true
-            
-            if let navBar = self.navigationController?.navigationBar {
-                navBar.tintColor = UIColor.white                //makes the back button white
-            }
         }
         // SCROLL UP/DOWN ------------
         else {
@@ -486,15 +456,6 @@ extension UIViewController {
     
     func twitterParallaxHeaderSetup(headerBlurImageView: UIImageView?, headerImageView: UIImageView, headerView: UIView, headerLabel: UILabel) -> UIImageView? {
         var headerBlurImageView = headerBlurImageView
-        
-        if let navBar = self.navigationController?.navigationBar {
-            extendedLayoutIncludesOpaqueBars = true
-            navBar.isTranslucent = true
-            navBar.backgroundColor = UIColor.white.withAlphaComponent(0)
-            navBar.setBackgroundImage(UIImage(), for: .default)
-            navBar.shadowImage = UIImage()         //remove bottom border on navigation bar
-            navBar.tintColor = UIColor.colorFive   //change back arrow to gold
-        }
         
         //align header image to top
         headerImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -552,6 +513,72 @@ extension UIViewController {
         DispatchQueue.main.async {
             self.present(alertController, animated: true, completion: nil)
         }
+    }
+    
+    func setupNavBar(clean: Bool?){
+        if clean == false {
+            let logo = UIImage(named: "Kasam-logo")
+            let imageView = UIImageView(image:logo)
+            imageView.contentMode = .scaleAspectFit
+            self.navigationItem.titleView = imageView
+            
+            self.navigationController?.navigationBar.layer.shadowColor = UIColor.colorFive.cgColor
+            self.navigationController?.navigationBar.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
+            self.navigationController?.navigationBar.layer.shadowRadius = 1.0
+            self.navigationController?.navigationBar.layer.shadowOpacity = 0.5
+            self.navigationController?.navigationBar.layer.masksToBounds = false
+        }
+        
+        //Right Button
+        let rightButton = UIButton()
+        rightButton.setIcon(icon: .fontAwesomeSolid(.bars), iconSize: 20, color: UIColor.darkGray, backgroundColor: .clear, forState: .normal)
+        rightButton.restorationIdentifier = "rightButton"
+        rightButton.addTarget(self, action: #selector(showUserOptions), for: .touchUpInside)
+        self.navigationController?.navigationBar.addSubview(rightButton)
+        rightButton.tag = 1
+        let targetView = self.navigationController?.navigationBar
+        let trailingContraint = NSLayoutConstraint(item: rightButton, attribute: .trailingMargin, relatedBy: .equal, toItem: targetView, attribute: .trailingMargin, multiplier: 1.0, constant: -20)
+        let yConstraint = NSLayoutConstraint(item: rightButton, attribute: .centerY, relatedBy: .equal, toItem: targetView, attribute: .centerY, multiplier: 1, constant: 0)
+        rightButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([trailingContraint, yConstraint])
+    }
+    
+    @objc func showUserOptions(button: UIButton){
+         showBottomPopup(type: "userOptions")
+    }
+    
+    func getBlockVideo (url: String){
+        guard let videoURL = URL(string: url) else { return }
+        let player = AVPlayer(url: videoURL)
+        let controller = AVPlayerViewController()
+        controller.player = player
+        present(controller, animated: true) {
+            controller.player!.play()
+        }
+    }
+}
+
+extension UINavigationItem {
+    override open func awakeFromNib() {
+        super.awakeFromNib()
+        
+    //Customize the back button
+        let backImage = UIImage(named: "back-button")
+        // move the pic by 10, change it to the num you want
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: (backImage?.size.width ?? 0.0) + 20, height: backImage?.size.height ?? 0.0), _: false, _: 0)
+        backImage?.draw(at: CGPoint(x: 20, y: 0))
+        let finalImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        UINavigationBar.appearance().backIndicatorImage = finalImage
+        UINavigationBar.appearance().backIndicatorTransitionMaskImage = finalImage
+        UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: .normal)
+        UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: UIControl.State.highlighted)
+        
+    //Set the navigation bar title to gold and text color to white
+        let navigationFont = UIFont.systemFont(ofSize: 20, weight: .semibold)
+        UINavigationBar.appearance().isTranslucent = false
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.init(hex: 0x4b3b00), NSAttributedString.Key.font: navigationFont]
+        UINavigationBar.appearance().barTintColor = UIColor.white
     }
 }
 
@@ -861,44 +888,6 @@ extension String {
     }
 }
 
-extension UINavigationItem {
-    override open func awakeFromNib() {
-        super.awakeFromNib()
-        //customize the back button
-        let backImage = UIImage(named: "back-button")
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: (backImage?.size.width ?? 0.0) + 20, height: backImage?.size.height ?? 0.0), _: false, _: 0) // move the pic by 10, change it to the num you want
-        backImage?.draw(at: CGPoint(x: 20, y: 0))
-        let finalImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        if #available(iOS 13.0, *) {
-            let app = UINavigationBarAppearance()
-            app.configureWithOpaqueBackground()
-            app.setBackIndicatorImage(finalImage, transitionMaskImage: finalImage)
-            
-            let buttonAppearance = UIBarButtonItemAppearance(style: .plain)
-            buttonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
-            app.buttonAppearance = buttonAppearance
-            
-            UINavigationBar.appearance().standardAppearance = app
-            UINavigationBar.appearance().scrollEdgeAppearance = app
-            UINavigationBar.appearance().compactAppearance = app
-        } else {
-            //Remove the standard tints
-            UINavigationBar.appearance().backIndicatorImage = finalImage
-            UINavigationBar.appearance().backIndicatorTransitionMaskImage = finalImage
-            UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: .normal)
-            UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.clear], for: UIControl.State.highlighted)
-        }
-        
-        //Set the navigation bar title to gold and text color to white        
-        let navigationFont = UIFont.systemFont(ofSize: 20, weight: .semibold)
-        UINavigationBar.appearance().isTranslucent = false
-        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.init(hex: 0x4b3b00), NSAttributedString.Key.font: navigationFont]
-        UINavigationBar.appearance().barTintColor = UIColor.white
-    }
-}
-
 extension UIImage {
     func resizeTopAlignedToFill(newWidth: CGFloat) -> UIImage? {
         let newHeight = size.height
@@ -1007,10 +996,12 @@ extension Int {
         }
     }
     
-    func nearestElement(array : [String]) -> (value: Int, level: Int) {
-        var n = 0
-        while Int(array[n]) ?? 1 < self {n+=1}
-        return (Int(array[n]) ?? 1, n)
+    func nearestElement(dictionary : [String:String]) -> (String) {
+        var key = ""
+        for value in dictionary {
+            if self >= Int(value.key)! {key = value.key}
+        }
+        return key
     }
 }
 

@@ -191,7 +191,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
                 startCheck = true
             }
             let remainingTimeInSeconds = totalTimeInSeconds - currentTimeInSeconds
-            if currentTimeInSeconds == totalTimeInSeconds {
+            if currentTimeInSeconds >= (0.95 * totalTimeInSeconds) {
                 playPauseButton.setIcon(icon: .fontAwesomeSolid(.redo), iconSize: 40, color: UIColor.colorFour, forState: .normal)
                 completeButton.setTitle("Save & Close", for: .normal)
             }
@@ -224,7 +224,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
             //RESTART the kasam video
             self.player?.seek(to: CMTimeMakeWithSeconds(0, preferredTimescale: player.currentItem!.duration.timescale))
             self.player?.play()
-            completeButton.setTitle("Complete", for: .normal)
+            completeButton.setTitle("Mark Complete", for: .normal)
             playPauseButton.setIcon(icon: .fontAwesomeSolid(.pauseCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
         } else {
             if !player.isPlaying {
@@ -239,7 +239,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
     }
     
     @IBAction func completedButtonPressed(_ sender: Any) {
-        if currentTimeInSeconds == totalTimeInSeconds {
+        if currentTimeInSeconds >= (0.95 * totalTimeInSeconds) {
             delegate?.updateControllers()
             delegate?.dismissViewController()
         } else {
@@ -256,7 +256,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         player?.seek(to: seekTime)
         guard let player = player else { return }
         if completeButton.titleLabel?.text == "Save & Close" {
-            completeButton.setTitle("Complete", for: .normal)
+            completeButton.setTitle("Mark Complete", for: .normal)
         }
         if !player.isPlaying {
             playPauseButton.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: 60, color: UIColor.colorFour, forState: .normal)
