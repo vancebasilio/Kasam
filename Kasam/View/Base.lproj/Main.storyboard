@@ -1591,8 +1591,6 @@
                         <outlet property="weekStatsCollectionView" destination="MXs-rj-2JI" id="oFo-WL-1BE"/>
                         <segue destination="CPy-n1-J8i" kind="show" identifier="goToStats" id="O4S-Ya-Dpo"/>
                         <segue destination="OZP-fg-bwZ" kind="show" identifier="goToEditKasam" id="mxq-HQ-QCj"/>
-                        <segue destination="OZP-fg-bwZ" kind="show" identifier="goToCreateKasam" id="fWe-8n-PsA"/>
-                        <segue destination="tlL-Y6-LbR" kind="presentation" identifier="goToNotifications" id="298-vF-GDK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wom-Oj-NlC" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1604,11 +1602,11 @@
             <objects>
                 <viewController storyboardIdentifier="Discover" id="1ds-W5-IlG" userLabel="Discover" customClass="DiscoverViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="uyQ-Kr-07J">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="807"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="796"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5dE-Zw-BsL">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="796"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="807"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="554" translatesAutoresizingMaskIntoConstraints="NO" id="mQc-IV-PSO" userLabel="Content View">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="687"/>
@@ -3580,6 +3578,8 @@
                         <outlet property="todaySublabel" destination="CJv-P4-0ES" id="3Is-t6-PlL"/>
                         <segue destination="ejW-bE-e0v" kind="presentation" identifier="goToKasamActivityViewer" modalPresentationStyle="overFullScreen" id="Viy-yT-bOU"/>
                         <segue destination="uNf-cn-sv8" kind="show" identifier="goToKasamHolder" id="b1h-nV-uzD"/>
+                        <segue destination="tlL-Y6-LbR" kind="presentation" identifier="goToNotifications" id="L4l-Iq-ZJc"/>
+                        <segue destination="OZP-fg-bwZ" kind="show" identifier="goToCreateKasam" id="tYc-vl-75r"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sZG-Y6-k6N" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -3591,11 +3591,11 @@
             <objects>
                 <viewController extendedLayoutIncludesOpaqueBars="YES" id="ejW-bE-e0v" userLabel="Kasam Viewer" customClass="KasamActivityViewer" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="9HA-Q5-L0t">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="VWi-QP-tmS">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="hBB-mK-Yrw">
                                     <size key="itemSize" width="375" height="667"/>
@@ -3605,7 +3605,7 @@
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="KasamViewerCell" id="TKu-Q0-8wu" customClass="KasamViewerCell" customModule="Kasam" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                        <rect key="frame" x="0.0" y="-10" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
@@ -4190,7 +4190,7 @@
             <objects>
                 <viewController storyboardIdentifier="CoachHolder" useStoryboardIdentifierAsRestorationIdentifier="YES" id="8Un-c2-rIU" userLabel="Coach Details View" customClass="CoachHolder" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="76g-ws-Z6u">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="618"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="607"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="G3I-ZV-gXq" userLabel="White BG">
@@ -5277,7 +5277,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="375" height="170"/>
                                                                             <subviews>
                                                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xST-dz-BoM" customClass="SkyFloatingLabelTextField" customModule="SkyFloatingLabelTextField">
-                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="55"/>
+                                                                                    <rect key="frame" x="20" y="0.0" width="335" height="68"/>
                                                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
                                                                                     <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
                                                                                     <userDefinedRuntimeAttributes>
@@ -5316,7 +5316,7 @@
                                                                                     </userDefinedRuntimeAttributes>
                                                                                 </textField>
                                                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Af2-Gf-WJf">
-                                                                                    <rect key="frame" x="50" y="60" width="275" height="37.5"/>
+                                                                                    <rect key="frame" x="50" y="73" width="275" height="37.5"/>
                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
@@ -6316,8 +6316,8 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="fWe-8n-PsA"/>
-        <segue reference="Viy-yT-bOU"/>
+        <segue reference="tYc-vl-75r"/>
+        <segue reference="wnm-Aa-p59"/>
         <segue reference="YHX-Ee-lpe"/>
         <segue reference="b1h-nV-uzD"/>
     </inferredMetricsTieBreakers>

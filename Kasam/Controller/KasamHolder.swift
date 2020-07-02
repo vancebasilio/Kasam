@@ -227,7 +227,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 headerBadgeIcon.animation = Animations.kasamBadges[1]
             } else {
                 //OPTION 2 - Kasam ongoing currently
-                if SavedData.kasamDict[kasamID]?.sequence == "Streak" {
+                if SavedData.kasamDict[kasamID]?.sequence == "streak" {
                     daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.currentStreakCompleteProgress ?? 0)
                 }
                 ratio = (daysCompleted / Double(SavedData.kasamDict[kasamID]!.badgeThresholds))
@@ -246,7 +246,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             extendHolder.isHidden = true
             self.headerImageView.alpha = 1.0
         }
-        gradientLayer.locations = [NSNumber(value: 0.0), NSNumber(value: 1 - ratio - 0.07), NSNumber(value: 1 - ratio - 0.07), NSNumber(value: 1.0)]
+        gradientLayer.locations = [NSNumber(value: 0.0), NSNumber(value: 1.1 - ratio), NSNumber(value: 1.1 - ratio), NSNumber(value: 1.0)]
     }
     
     func badgesAchieved(){

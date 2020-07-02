@@ -37,6 +37,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     var dayToLoadGlobal: Int?
     var viewOnlyGlobal = false
     var setupCheck = 0
+    var newKasamType = "basic"
     
     //Get Preferences Variables
     var kasamOrder = 0
@@ -107,12 +108,28 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
 
         let resetTodayChallenges = NSNotification.Name("ResetTodayChallenges")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.resetTodayChallenges), name: resetTodayChallenges, object: nil)
+        
+        let goToCreateKasam = NSNotification.Name("GoToCreateKasam")
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
+               
+       let goToNotifications = NSNotification.Name("GoToNotifications")
+       NotificationCenter.default.addObserver(self, selector: #selector(TodayBlocksViewController.goToNotifications), name: goToNotifications, object: nil)
+    }
+    
+    @objc func goToCreateKasam(_ notification: NSNotification?) {
+        NewKasam.resetKasam()
+        newKasamType = notification?.userInfo?["type"] as! String
+        performSegue(withIdentifier: "goToCreateKasam", sender: nil)
+    }
+    
+    @objc func goToNotifications(){
+        performSegue(withIdentifier: "goToNotifications", sender: nil)
     }
     
     //Table Resizing----------------------------------------------------------------------------------------
     
     func updateContentTableHeight(){
-        //set the table row height, based on the screen size
+        //Set the table row height, based on the screen size
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = ((view.frame.width - 30) / (2.7)) + 25
         
@@ -325,7 +342,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     //STEP 4
     func saveKasamBlocks(value: Dictionary<String,Any>, todayKasamCount: Int, dayOrder: Int, kasam: KasamSavedFormat, repeatMultiple: Bool, specificKasam: String?, dayCount: Int?){
         print("step 4 save kasam Blocks hell6")
-        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, dayCount: dayCount)
+        let kasamImage = value["Image"] as! String
+        SavedData.kasamDict[kasam.kasamID]?.image = kasamImage
+        let block = TodayBlockFormat(kasamOrder: kasam.kasamOrder, kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, dayCount: dayCount)
         
         if repeatMultiple == true {
             SavedData.kasamBlocks.append(block)
@@ -718,6 +737,11 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         } else if segue.identifier == "goToKasamHolder" {
             let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDforHolder
+        } else if segue.identifier == "goToCreateKasam" {
+            let segueTransferHolder = segue.destination as! NewKasamPageController
+            segueTransferHolder.kasamType = newKasamType
+        } else if segue.identifier == "goToNotifications" {
+            //No variables to set
         }
     }
 }

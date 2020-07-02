@@ -55,7 +55,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     let animationView = AnimationView()
     var userKasamDBHandle: DatabaseHandle!
     var saveStorageRef = Storage.storage().reference()
-    var newKasamType = "basic"
     
     //Kasam Following
     var kasamIDGlobal: String = ""
@@ -123,24 +122,8 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         let kasamStatsUpdate = NSNotification.Name("KasamStatsUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.getDetailedStats), name: kasamStatsUpdate, object: nil)
         
-        let goToCreateKasam = NSNotification.Name("GoToCreateKasam")
-        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
-        
-        let goToNotifications = NSNotification.Name("GoToNotifications")
-        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.goToNotifications), name: goToNotifications, object: nil)
-        
         let showCompletionAnimation = NSNotification.Name("ShowCompletionAnimation")
                NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.showCompletionAnimation), name: showCompletionAnimation, object: nil)
-    }
-    
-    @objc func goToCreateKasam(_ notification: NSNotification?) {
-        NewKasam.resetKasam()
-        newKasamType = notification?.userInfo?["type"] as! String
-        performSegue(withIdentifier: "goToCreateKasam", sender: nil)
-    }
-    
-    @objc func goToNotifications(){
-        performSegue(withIdentifier: "goToNotifications", sender: nil)
     }
     
     @objc func showCompletionAnimation(){
@@ -382,10 +365,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         } else if segue.identifier == "goToEditKasam" {
             NewKasam.editKasamCheck = true
             NewKasam.kasamID = kasamIDGlobal
-        } else if segue.identifier == "goToCreateKasam" {
-            let segueTransferHolder = segue.destination as! NewKasamPageController
-            segueTransferHolder.kasamType = newKasamType
-        } else if segue.identifier == "goToNotifications" {
         }
     }
     

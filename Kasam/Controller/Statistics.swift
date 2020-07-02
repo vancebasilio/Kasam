@@ -211,6 +211,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                     var avgMetric = 0
                     avgMetric = (metricTotal) / (dayNo)
                     self.avgMetric.text = "\(avgMetric)% Avg."
+            //OPTION 4 - VIDEO
                 } else if metricType == "Video" {
                     self.avgMetric.text = "\(metricTotal) Total mins"
                 }

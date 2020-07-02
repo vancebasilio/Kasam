@@ -77,6 +77,7 @@ extension NotificationsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NotificationsCell") as! NotificationsCell
         let block = SavedData.kasamDict[SavedData.todayKasamList[indexPath.row]]!
+        print("hell9 \(block.image)")
         cell.kasamImage.sd_setImage(with: URL(string: block.image))
         cell.kasamName.text = block.kasamName
         cell.kasamID = block.kasamID
