@@ -35,7 +35,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     var dataEntries: [ChartDataEntry] = []
     var userHistoryTransfer: CompletedKasamFormat?                  //transfered in value if viewing full history
     var currentKasam = false
-    var metricArray: [Int:Int] = [:]
+    var metricArray: [Int:Double] = [:]
     var kasamBlocks: [kasamFollowingFormat] = []
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRefHandle: DatabaseHandle!
@@ -151,6 +151,8 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                     if metricType == "Time" {
                         timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
                         indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
+                    } else if metricType == "Video" {
+                        indieMetric = (indieMetric / 60.0).rounded(toPlaces: 2)
                     }
                     if SavedData.kasamDict[kasamID]?.timeline != nil {
                         blockName = value["Block Name"] as? String ?? ""
@@ -159,7 +161,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                     //Kasam is only Checkmark
                     indieMetric = Double(value * 100)
                 }
-                self.metricArray[dayNo] = Int(indieMetric)
+                self.metricArray[dayNo] = indieMetric
                 metricTotal += Int(indieMetric)
                 
                 var metric = ""
@@ -209,6 +211,8 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                     var avgMetric = 0
                     avgMetric = (metricTotal) / (dayNo)
                     self.avgMetric.text = "\(avgMetric)% Avg."
+                } else if metricType == "Video" {
+                    self.avgMetric.text = "\(metricTotal) Total mins"
                 }
                 if self.metricArray[kasamDay] == nil {self.metricArray[kasamDay] = 0}
                 self.historyTableView.reloadData()
@@ -225,7 +229,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     
     //CHART--------------------------------------------------------------------------------------------------------
     
-    func setChart(values: [Int:Int]) {
+    func setChart(values: [Int:Double]) {
         mChart.noDataText = "No data available!"
         let dayUpperBound = ((values.keys.sorted().last.map({ ($0, values[$0]!) }))?.0) ?? 0
         for i in 1...dayUpperBound {
@@ -253,6 +257,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
         
         for set in mChart.data!.dataSets {set.drawValuesEnabled = !set.drawValuesEnabled}      //removes the titles above each datapoint
         mChart.leftAxis.axisMinimum = 1.0
+        mChart.xAxis.axisMaximum = Double(dayUpperBound) - 1.0
         mChart.xAxis.axisMinimum = 1.0
         dataEntries.removeAll()
     }
