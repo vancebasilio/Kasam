@@ -44,7 +44,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let discoverCriteria = snap.value as? String
             Assets.discoverCriteria = discoverCriteria?.components(separatedBy: ";") ?? ["Fitness", "Health", "User"]
         })
+        profileInfo()
+        
         return true
+    }
+    
+    func profileInfo() {
+        if Auth.auth().currentUser != nil {
+            DBRef.currentUser.child("Type").observeSingleEvent(of: .value, with:{(snap) in
+                SavedData.userType = snap.value as? String ?? "Basic"
+            })
+        }
     }
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {

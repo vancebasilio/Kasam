@@ -164,7 +164,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                 } else {
                     //user doesn't exist, so create a new profile for them
                     let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
-                    let userDictionary = ["Name": authResult?.user.displayName!, "History" : "", "UserID": Auth.auth().currentUser?.uid, "Type": "User", "Blocks": "7"]
+                    let userDictionary = ["Name": authResult?.user.displayName!, "UserID": Auth.auth().currentUser?.uid, "Type": "Basic"]
                     
                     newUser.setValue(userDictionary) {
                         (error, reference) in

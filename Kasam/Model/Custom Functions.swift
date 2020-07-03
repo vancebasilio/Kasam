@@ -86,7 +86,7 @@ extension UIViewController {
                                    "KasamID": kasamID.key!,
                                    "CreatorID": Auth.auth().currentUser!.uid as String,
                                    "CreatorName": Auth.auth().currentUser!.displayName!,
-                                   "Type": "User",
+                                   "Type": "Basic",
                                    "Rating": "5",
                                    "Blocks": "blocks",
                                    "Sequence": "Streak",

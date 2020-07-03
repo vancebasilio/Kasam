@@ -31,7 +31,7 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
     override func viewWillAppear(_ animated: Bool){
         self.tabBarController?.tabBar.isHidden = true
         self.tabBarController?.tabBar.isTranslucent = true
-        UIView.transition(with: tabBarController!.view, duration: 0.35, options: .transitionCrossDissolve, animations: nil)
+//        UIView.transition(with: tabBarController!.view, duration: 0.35, options: .transitionCrossDissolve, animations: nil)
         self.navigationController?.navigationBar.isTranslucent = true
         self.navigationController?.navigationBar.backgroundColor = UIColor.white.withAlphaComponent(0)
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
@@ -67,23 +67,24 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
         }
         configurePageControl()
         
-        // This sets up the first view that will show up on our page control
+        //This sets up the first view that will show up on our page control
         if let firstViewController = orderedViewControllers.first {
             setViewControllers([firstViewController], direction: .forward, animated: true, completion: nil)
         }
         if let thirdViewController = orderedViewControllers.last as? KasamHolder {
             thirdViewController.reviewOnly = true
         }
-        //customize action of back button
-        let newBackButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(NewKasamPageController.back(sender:)))
-        newBackButton.image = UIImage(named: "back-button")
-        self.navigationItem.leftBarButtonItem = newBackButton
+        //Customize action of back button
+        let newBackButton = UIBarButtonItem(title: "", style: .plain, target: self, action: #selector(NewKasamPageController.back(sender:)))
+        newBackButton.image = UIImage.init(icon: .fontAwesomeSolid(.timesCircle), size: CGSize(width: 30, height: 30))
+        newBackButton.imageInsets = UIEdgeInsets(top: 0, left: -13.7, bottom: 0, right: 0)
+        self.navigationItem.rightBarButtonItem = newBackButton
         
-        //next button
+        //Next button
         let goToNext = NSNotification.Name("GoToNext")
         NotificationCenter.default.addObserver(self, selector: #selector(NewKasamPageController.goToNext), name: goToNext, object: nil)
         
-        //back button
+        //Back button
         let goToBack = NSNotification.Name("GoToBack")
         NotificationCenter.default.addObserver(self, selector: #selector(NewKasamPageController.back(sender:)), name: goToBack, object: nil)
     }
@@ -91,7 +92,7 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
     @objc func back(sender: UIBarButtonItem) {
         if kasamType == "complex" {
             if self.pageControl.currentPage == 0 {
-                navigationController?.popToRootViewController(animated: true)
+                dismiss(animated: true, completion: nil)
             } else if self.pageControl.currentPage == 1 {
                  if let firstViewController = orderedViewControllers.first {
                     setViewControllers([firstViewController], direction: .reverse, animated: true, completion: nil)

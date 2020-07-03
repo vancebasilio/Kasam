@@ -182,7 +182,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             saveKasamPopup(level: level) {(result) in
                 if result == 0 {DispatchQueue.main.async {self.saveBasicKasam()}}                   //saveButton
                 else if result == 1 {}                                                              //keepEditing
-                else {self.navigationController?.popToRootViewController(animated: true)}           //discard
+                else {self.dismiss(animated: true, completion: nil)}                                //discard
             }
         }
     }

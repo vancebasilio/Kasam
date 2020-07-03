@@ -43,7 +43,7 @@ class DiscoverViewController: UIViewController {
     }
     
     @objc func getUserKasams(){
-        getDiscoverKasams(criteria: "User")
+        getDiscoverKasams(criteria: "Basic")
     }
     
     //Puts the nav bars back
@@ -139,7 +139,7 @@ class DiscoverViewController: UIViewController {
                 let imageURL = URL(string: value["Image"] as? String ?? "")
                 let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
                 if let index = Assets.discoverCriteria.index(of: criteria) {
-                    if value["Title"] as? String ?? "" != "User" {
+                    if value["Title"] as? String ?? "" != "Basic" {
                         tempArray.append(kasam)
                         self.discoverKasamArray[index] = tempArray
                         self.updateContentTableHeight()
@@ -157,7 +157,7 @@ class DiscoverViewController: UIViewController {
                 if let value = snapshot.value as? [String: Any] {
                     let imageURL = URL(string: value["Image"] as? String ?? "")
                     let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
-                    if let index = Assets.discoverCriteria.index(of: "User") {
+                    if let index = Assets.discoverCriteria.index(of: "Basic") {
                         tempArray.append(kasam)
                         self.discoverKasamArray[index] = tempArray
                         self.updateContentTableHeight()
@@ -178,7 +178,7 @@ extension DiscoverViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DiscoverKasamCell") as! DiscoverKasamCell
-        if Assets.discoverCriteria[indexPath.row] == "User" {
+        if Assets.discoverCriteria[indexPath.row] == "Basic" {
             cell.DiscoverCategoryTitle.text = "My Kasams"
         } else {
             cell.DiscoverCategoryTitle.text = Assets.discoverCriteria[indexPath.row]
@@ -206,7 +206,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
             expertPageControl.isHidden = !(count > 1)
             return featuredKasamArray.count
         } else {
-            if Assets.discoverCriteria[collectionView.tag] == "User" {
+            if Assets.discoverCriteria[collectionView.tag] == "Basic" {
                 return discoverKasamArray[collectionView.tag]?.count ?? 1
             } else {
                 return discoverKasamArray[collectionView.tag]?.count ?? 0
@@ -245,7 +245,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
             kasamIDGlobal = kasamID
             self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
         } else {
-            if Assets.discoverCriteria[collectionView.tag] == "User" && discoverKasamArray[collectionView.tag] == nil {
+            if Assets.discoverCriteria[collectionView.tag] == "Basic" && discoverKasamArray[collectionView.tag] == nil {
                 self.performSegue(withIdentifier: "goToNewKasam", sender: indexPath)
             } else {
                 let kasamID = discoverKasamArray[collectionView.tag]?[indexPath.row].kasamID

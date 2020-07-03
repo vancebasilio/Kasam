@@ -109,7 +109,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     func viewSetup(){
-        profileImage.showAnimatedSkeleton()
         levelLineBack.layer.cornerRadius = 4
         levelLineBack.clipsToBounds = true
         levelLine.layer.cornerRadius = 4

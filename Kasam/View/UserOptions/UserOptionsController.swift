@@ -20,12 +20,17 @@ class UserOptionsController: UIViewController {
     
     var popupType = "userOptions"
     var categoryChosen = ""
+    var selectColor = UIColor.black
     
     override func viewDidLoad() {
         super.viewDidLoad()
         slidingHandle.layer.cornerRadius = 3
         slidingHandle.clipsToBounds = true
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "GenericCell")
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if SavedData.userType == "Basic" {selectColor = UIColor.lightGray}
     }
 }
 
@@ -44,7 +49,7 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
         if popupType == "userOptions" {
             switch indexPath.row {
                 case 0: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.gift), postfixText: "  Create a Basic Kasam", size: 20)
-                case 1: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.cubes), postfixText: "  Create a Complex Kasam", size: 20)
+                case 1: cell.textLabel?.setIcon(prefixText: "  ", prefixTextColor: selectColor, icon: .fontAwesomeSolid(.cubes), iconColor: selectColor, postfixText: "  Create a Complex Kasam", postfixTextColor: selectColor, size: 20, iconSize: 20)
                 case 2: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.bell), postfixText: "  Notifications", size: 20)
                 case 3: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.signOutAlt), postfixText: "  Log Out", size: 20)
                 default: cell.textLabel?.text = ""
@@ -71,11 +76,11 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
                 case 0:
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "basic"])
                     SwiftEntryKit.dismiss()
-                
                 case 1:
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "complex"])
+                    if SavedData.userType == "Pro" {
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "complex"])
+                    }
                     SwiftEntryKit.dismiss()
-                
                 case 2:
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNotifications"), object: self)
                     SwiftEntryKit.dismiss()

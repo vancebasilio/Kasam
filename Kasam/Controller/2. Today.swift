@@ -311,7 +311,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                                     if let value = snapshot.value as? [String:String] {
                                         dayToShow = blockDayToLoad
                                         if blockDayToLoad > value.count {
-                                            blockDayToLoad = blockDayToLoad % value.count
+                                            blockDayToLoad = (blockDayToLoad % value.count) + 1
                                         }
                                         DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"]!).observeSingleEvent(of: .value) {(snapshot) in
                                             todayKasamCount += 1
@@ -738,8 +738,8 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDforHolder
         } else if segue.identifier == "goToCreateKasam" {
-            let segueTransferHolder = segue.destination as! NewKasamPageController
-            segueTransferHolder.kasamType = newKasamType
+//            let segueTransferHolder = segue.destination as! NewKasamPageController
+//            segueTransferHolder.kasamType = newKasamType
         } else if segue.identifier == "goToNotifications" {
             //No variables to set
         }
@@ -923,7 +923,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                 if SavedData.kasamDict[kasamID]?.timeline != nil {
                     //OPTION 1A - Day in past, so find the correct block to show
                     if day! <= blockCount {blockOrder = day!}
-                    else {blockOrder = day! % blockCount}
+                    else {blockOrder = (day! % blockCount) + 1}
                     DBRef.coachKasams.child(kasamID).child("Timeline").observe(.value, with: {(snapshot) in
                         if let value = snapshot.value as? [String:String] {
                             self.blockIDGlobal = value["D\(blockOrder)"]!
