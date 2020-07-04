@@ -164,7 +164,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         }
         
         @objc func badgesAchievedPopup() {
-            showCenterPopup(kasamID: kasamID)
+            showBadgesPopup(kasamID: kasamID)
         }
     
     //KASAM BADGE------------------------------------------------------------------------------------

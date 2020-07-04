@@ -146,7 +146,7 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-    func showCenterPopup(kasamID: String?) {
+    func showBadgesPopup(kasamID: String?) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light
@@ -180,6 +180,33 @@ import Firebase
         let viewController = BadgesAchieved()
         viewController.kasamID = kasamID
         SwiftEntryKit.display(entry: viewController, using: attributes)
+    }
+
+    func showOptionsPopup(title: String, text: String, type: String, button: String) {
+        var attributes: EKAttributes
+        attributes = .centerFloat
+        attributes.displayMode = .light
+        attributes.displayDuration = .infinity
+        attributes.hapticFeedbackType = .none
+        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
+        attributes.entryBackground = .color(color: .white)
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
+        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
+        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
+        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
+        attributes.roundCorners = .all(radius: 20)
+        var height = 400
+        if type == "logout" {height = 300}
+        
+        attributes.positionConstraints.size = .init(width: .ratio(value: 0.8), height: .constant(value: CGFloat(height)))
+        attributes.positionConstraints.safeArea = .overridden
+        attributes.statusBar = .dark
+        
+        let vc = OptionsPopupController()
+        vc.transfer = (title, text, type, button)
+        SwiftEntryKit.display(entry: vc, using: attributes)
     }
 
     func showProcessingNote() {

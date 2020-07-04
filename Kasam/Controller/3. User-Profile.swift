@@ -308,7 +308,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     @objc func badgesAchievedPopup() {
-        showCenterPopup(kasamID: nil)
+        showBadgesPopup(kasamID: nil)
     }
     
     @objc func profileUpdate() {

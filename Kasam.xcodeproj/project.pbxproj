@@ -34,6 +34,8 @@
 		BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC3AAA1F227D46BA00D098E1 /* TabBar.swift */; };
 		BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */; };
 		BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC45558C2321F6D300F1227B /* KasamViewerCell.swift */; };
+		BC4DE60524B0241A00763B32 /* OptionsPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC4DE60324B0241A00763B32 /* OptionsPopup.swift */; };
+		BC4DE60624B0241A00763B32 /* OptionsPopupController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC4DE60424B0241A00763B32 /* OptionsPopupController.xib */; };
 		BC520BBB227413E100553C6B /* Transitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC520BBA227413E100553C6B /* Transitions.swift */; };
 		BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD1226D6EF900D707CC /* 1. Discover.swift */; };
 		BC554BD6226D8BDB00D707CC /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD5226D8BDB00D707CC /* UIColor.swift */; };
@@ -65,6 +67,7 @@
 		BC9C2424226FD6FF00E7B64B /* -NewKasam.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */; };
 		BC9C7841228CD2DB000C8D0A /* 2. Today.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C7840228CD2DB000C8D0A /* 2. Today.swift */; };
 		BC9EC1D92390DD0400637C94 /* CompletedKasamCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */; };
+		BCA1571A24B0380A000FF187 /* crownBG.json in Resources */ = {isa = PBXBuildFile; fileRef = BCA1571924B0380A000FF187 /* crownBG.json */; };
 		BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06122A9D22E008C5A7D /* AppContainer.swift */; };
 		BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06322A9D2AB008C5A7D /* AppManager.swift */; };
 		BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */ = {isa = PBXBuildFile; fileRef = BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */; };
@@ -128,6 +131,8 @@
 		BC3AAA1F227D46BA00D098E1 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
 		BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewBlockCell.swift; sourceTree = "<group>"; };
 		BC45558C2321F6D300F1227B /* KasamViewerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewerCell.swift; sourceTree = "<group>"; };
+		BC4DE60324B0241A00763B32 /* OptionsPopup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsPopup.swift; sourceTree = "<group>"; };
+		BC4DE60424B0241A00763B32 /* OptionsPopupController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OptionsPopupController.xib; sourceTree = "<group>"; };
 		BC520BBA227413E100553C6B /* Transitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transitions.swift; sourceTree = "<group>"; };
 		BC554BD1226D6EF900D707CC /* 1. Discover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "1. Discover.swift"; sourceTree = "<group>"; };
 		BC554BD5226D8BDB00D707CC /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
@@ -159,6 +164,7 @@
 		BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-NewKasam.swift"; sourceTree = "<group>"; };
 		BC9C7840228CD2DB000C8D0A /* 2. Today.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "2. Today.swift"; sourceTree = "<group>"; };
 		BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedKasamCell.swift; sourceTree = "<group>"; };
+		BCA1571924B0380A000FF187 /* crownBG.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = crownBG.json; sourceTree = "<group>"; };
 		BCA9A06122A9D22E008C5A7D /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		BCA9A06322A9D2AB008C5A7D /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
 		BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fireworks-loading.json"; path = "Supporting Files/Lottie Animations/fireworks-loading.json"; sourceTree = SOURCE_ROOT; };
@@ -278,6 +284,15 @@
 			path = Kasam;
 			sourceTree = "<group>";
 		};
+		BC4DE60224B023E400763B32 /* OptionsPopup */ = {
+			isa = PBXGroup;
+			children = (
+				BC4DE60424B0241A00763B32 /* OptionsPopupController.xib */,
+				BC4DE60324B0241A00763B32 /* OptionsPopup.swift */,
+			);
+			path = OptionsPopup;
+			sourceTree = "<group>";
+		};
 		BC554BD9226E0F2700D707CC /* User Kasams Table */ = {
 			isa = PBXGroup;
 			children = (
@@ -294,6 +309,7 @@
 				BCD213662460CEE10096A365 /* flagmountainBG.json */,
 				BC679ECA2439290800441F6E /* badge.json */,
 				BC8348492445034A001819DC /* crown.json */,
+				BCA1571924B0380A000FF187 /* crownBG.json */,
 				BC83484B24450403001819DC /* crownSmooth.json */,
 				BC228CB124401C3D00BA665C /* crownMedal.json */,
 				BC8348452445027A001819DC /* goldCup.json */,
@@ -380,6 +396,7 @@
 				BC1FAF352269FAFA006A9245 /* LaunchScreen.storyboard */,
 				BCC07F4D2466F357000E2D81 /* UserOptions */,
 				BCF8A2FF246436140030C323 /* BadgesAchieved */,
+				BC4DE60224B023E400763B32 /* OptionsPopup */,
 				BCC07F4E24670A11000E2D81 /* AddKasam */,
 				BC1C8412248B531400797A20 /* Notifications */,
 			);
@@ -514,6 +531,7 @@
 				BCD213672460CEE10096A365 /* flagmountainBG.json in Resources */,
 				BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */,
 				BC1FAF372269FAFA006A9245 /* LaunchScreen.storyboard in Resources */,
+				BCA1571A24B0380A000FF187 /* crownBG.json in Resources */,
 				BC1092A723A0553400575EDB /* AddKasamController.xib in Resources */,
 				BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */,
 				BC83484C24450403001819DC /* crownSmooth.json in Resources */,
@@ -522,6 +540,7 @@
 				BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */,
 				BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */,
 				BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */,
+				BC4DE60624B0241A00763B32 /* OptionsPopupController.xib in Resources */,
 				BC2B4C8123A70437005F2255 /* rocket-fast.json in Resources */,
 				BCD824D323D7C0B40051C499 /* success.json in Resources */,
 				BC01664722D5790B0073186D /* UIImageViewAligned in Resources */,
@@ -732,6 +751,7 @@
 				BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */,
 				BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */,
 				BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */,
+				BC4DE60524B0241A00763B32 /* OptionsPopup.swift in Sources */,
 				BC554BD8226E079100D707CC /* 3. User-Profile.swift in Sources */,
 				BCE0232D23B092E2007B25A0 /* MetricTypeCell.swift in Sources */,
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
