@@ -231,7 +231,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 else if repeatDuration == 0 {order = challengeOrder}
             }
             
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timeline: value["Timeline"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:0, currentStreakCompleteProgress:0, daysWithAnyProgress:0, daysWithCompleteProgress:0, longestStreak:0, longestStreakDay:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: 30, badgeList: value["Badges"] as? [String:Int], dayTrackerArray: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timeline: value["Timeline"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:0, currentStreakCompleteProgress:0, daysWithAnyProgress:0, daysWithCompleteProgress:0, longestStreak:0, longestStreakDay:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeThresholds: 30, badgeList: value["Badges"] as? [String:Int], benefitsThresholds: nil, dayTrackerArray: nil)
             if currentStatus == "active" {
                 if repeatDuration > 0 {kasamOrder += 1}
                 else if repeatDuration == 0 {challengeOrder += 1}
@@ -608,7 +608,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                     var dayCount = 0
                     if SavedData.kasamDict[kasamID]?.timeline != nil {
                         if let day = notification.userInfo?["day"] {
-                            dayOrder = day as! Int
+                            dayOrder = day as? Int ?? 0
                         }
                     } else {
                         dayOrder = (Calendar.current.dateComponents([.day], from: SavedData.kasamDict[kasamID]!.joinedDate, to: kasamDate)).day! + 1
@@ -696,14 +696,18 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     
     //PART 1
     func badgeThresholds(){
-        SavedData.badgesCount = 0
         for kasam in SavedData.kasamDict {
-            //STEP 1 - GET THE BADGE THRESHOLDS
+            //STEP 1 - GET THE BADGE THRESHOLD IF IT'S NOT 30
             DBRef.coachKasams.child(kasam.value.kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                if snap.exists() {
-                    SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds = snap.value as? Int ?? 30
-                }
+                if snap.exists() {SavedData.kasamDict[kasam.value.kasamID]?.badgeThresholds = snap.value as? Int ?? 30}
                 self.badgesAchieved(kasam:kasam)
+            }
+            DBRef.coachKasams.child(kasam.value.kasamID).child("Thresholds").observeSingleEvent(of: .value) {(snap) in
+                if let dict = snap.value as? [String:String] {
+                    SavedData.kasamDict[kasam.value.kasamID]!.benefitsThresholds = [(Int, String)]()
+                    for value in dict {SavedData.kasamDict[kasam.value.kasamID]!.benefitsThresholds!.append((Int(value.key)!, value.value))}
+                }
+                SavedData.kasamDict[kasam.value.kasamID]!.benefitsThresholds = SavedData.kasamDict[kasam.value.kasamID]!.benefitsThresholds?.sorted(by: {$0.0 < $1.0})
             }
         }
     }
@@ -829,8 +833,11 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                         progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
                     }
                 }
-                let dayNo = SavedData.kasamDict[kasamID]!.repeatDuration + SavedData.kasamDict[kasamID]!.currentDay - progressAchieved
-                return dayNo
+                if SavedData.kasamDict[kasamID]!.repeatDuration - progressAchieved == 1 {
+                    return SavedData.kasamDict[kasamID]!.repeatDuration
+                } else {
+                    return SavedData.kasamDict[kasamID]!.repeatDuration + SavedData.kasamDict[kasamID]!.currentDay - progressAchieved
+                }
             } else {
                 return 10
             }

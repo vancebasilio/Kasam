@@ -35,7 +35,8 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var statsShadow: UIView!
     @IBOutlet weak var streakShadow: UIView!
     @IBOutlet weak var yesButton: UIButton!
-    @IBOutlet weak var checkHolder: UIView!
+    @IBOutlet weak var extendButtonView: UIView!
+    @IBOutlet weak var extendButton: UIButton!
     @IBOutlet weak var progressBar: UIView!
     @IBOutlet weak var percentComplete: UILabel!
     @IBOutlet weak var dayTrackerCollectionView: UICollectionView!
@@ -54,6 +55,7 @@ class TodayBlockCell: UITableViewCell {
     let iconSize = CGFloat(35)
     var kasamID = ""
     var benefits = [Int:String]()
+    var currentDayStat = 0
     
     func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
         dayTrackerCollectionView.delegate = dataSourceDelegate
@@ -117,6 +119,18 @@ class TodayBlockCell: UITableViewCell {
         
         let centerCollectionView = NSNotification.Name("CenterCollectionView")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(showBenefit))
+        blockImage.addGestureRecognizer(tap)
+    }
+    
+    @objc func showBenefit(){
+        if SavedData.kasamDict[kasamID]?.benefitsThresholds != nil {
+            let benefit = currentDayStat.nearestElement(dictionary: (SavedData.kasamDict[kasamID]?.benefitsThresholds)!)
+            showOptionsPopup(title: "Day \(benefit!.0)", text: benefit?.1, type: "benefit", button: "Awesome!")
+        } else {
+            showOptionsPopup(title: "Day \(currentDayStat)", text: nil, type: "benefit", button: "Awesome!")
+        }
     }
     
     func collectionCoverUpdate(){
@@ -198,53 +212,49 @@ class TodayBlockCell: UITableViewCell {
     
     func statusUpdate(_ day: String?){
         if tempBlock != nil {
-        //STEP 1 - SET THE BLOCK STATUS
-        if tempBlock!.dayOrder >= SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
-            //OPTION 1 - COMPLETE KASAMS
-            streakShadow.backgroundColor = UIColor.orange.darker
-            if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {
-                currentDayStreak.text = String(describing: SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress)
-            }
-            statsShadow.layer.shadowColor = UIColor.orange.darker.cgColor
-            statsShadow.layer.shadowOpacity = 0.8
-            
-            if tempBlock!.dayOrder > SavedData.kasamDict[tempBlock!.kasamID]!.repeatDuration {
-                //Completed kasam
-                yesButton.setIcon(icon: .fontAwesomeRegular(.arrowAltCircleRight), iconSize: iconSize, color: UIColor.darkGray, forState: .normal)
-            } else {
-                checkmarkAndPercentageUpdate()
-            }
-        } else {
-            //OPTION 2 - ACTIVE KASAMS
-            var stat = 0
+           //STEP 1 - DAY COUNTER
             if SavedData.kasamDict[kasamID]?.sequence == "streak" {
-                stat = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
+                currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
             } else {
-                stat = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
+                currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
             }
-            currentDayStreak.text = String(describing: stat)
+            currentDayStreak.text = String(describing: currentDayStat)
             statsShadow.layer.shadowColor = UIColor.black.cgColor
             statsShadow.layer.shadowOpacity = 0.2
             
             //Update Percentage complete and Checkmark
             checkmarkAndPercentageUpdate()
-        }
-        if SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress == 1 {
-            streakPostText.text = "day completed"
-        }
-        
-        //STEP 2 - SET THE BADGE
-        DispatchQueue.global(qos: .background).sync {
-            if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
-                DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                    if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = snap.value as! Int}
-                    else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = 30}
-                    self.blockBadge(day)
-                }
-            } else {
-                blockBadge(day)
+            
+            //STEP 2 - COMPLETE KASAMS
+            if SavedData.kasamDict[(kasamID)]!.repeatDuration - currentDayStat == 1 {
+                //ONE DAY LEFT
+                streakShadow.backgroundColor = UIColor.orange.darker
+                statsShadow.layer.shadowColor = UIColor.orange.darker.cgColor
+                statsShadow.layer.shadowOpacity = 0.8
+                checkmarkAndPercentageUpdate()
+                
+            } else if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration{
+                //COMPLETED!
+                streakShadow.backgroundColor = UIColor.dayYesColor.darker.darker
+                statsShadow.layer.shadowColor = UIColor.dayYesColor.darker.darker.cgColor
+                statsShadow.layer.shadowOpacity = 0.8
+                yesButton.setIcon(icon: .fontAwesomeRegular(.arrowAltCircleRight), iconSize: iconSize, color: UIColor.darkGray, forState: .normal)
             }
-        }
+            
+            if SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress == 1 {streakPostText.text = "day completed"}
+        
+            //STEP 2 - SET THE BADGE
+            DispatchQueue.global(qos: .background).sync {
+                if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
+                    DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
+                        if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = snap.value as! Int}
+                        else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = 30}
+                        self.blockBadge(day)
+                    }
+                } else {
+                    blockBadge(day)
+                }
+            }
         }
         dayTrackerCollectionView.fadeIn()
         blockImage.fadeIn()

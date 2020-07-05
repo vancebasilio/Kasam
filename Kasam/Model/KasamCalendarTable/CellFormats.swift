@@ -122,9 +122,10 @@ class KasamSavedFormat {
     var percentComplete: Double
     var badgeThresholds: Int
     var badgeList: [String:Int]?
+    var benefitsThresholds: [(Int,String)]?
     var dayTrackerArray: [Int:(date: Date, progress: Double)]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, timeline: Int?, currentStatus: String, pastKasamJoinDates: [String:Int]?, sequence: String?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeThresholds: Int, badgeList: [String:Int]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, timeline: Int?, currentStatus: String, pastKasamJoinDates: [String:Int]?, sequence: String?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeThresholds: Int, badgeList: [String:Int]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
@@ -143,6 +144,7 @@ class KasamSavedFormat {
         self.percentComplete = percentComplete
         self.badgeThresholds = badgeThresholds
         self.badgeList = badgeList
+        self.benefitsThresholds = benefitsThresholds
         self.dayTrackerArray = dayTrackerArray
     }
 }

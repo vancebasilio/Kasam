@@ -997,12 +997,13 @@ extension Int {
         }
     }
     
-    func nearestElement(dictionary : [String:String]) -> (String) {
-        var key = ""
+    func nearestElement(dictionary : [(Int,String)]) -> (Int,String)? {
+        var result = ""
         for value in dictionary {
-            if self >= Int(value.key)! {key = value.key}
+            if value.0 > self {break}
+            result = value.1
         }
-        return key
+        return (self, result)
     }
 }
 
@@ -1035,6 +1036,17 @@ extension UIPageViewController {
                 setViewControllers([nextPage], direction: .forward, animated: animated, completion: completion)
             }
         }
+    }
+}
+
+extension UILabel {
+    func calculateMaxLines() -> Int {
+        let maxSize = CGSize(width: frame.size.width, height: CGFloat(Float.infinity))
+        let charSize = font.lineHeight
+        let text = (self.text ?? "") as NSString
+        let textSize = text.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
+        let linesRoundedUp = Int(ceil(textSize.height/charSize))
+        return linesRoundedUp
     }
 }
 

@@ -67,7 +67,6 @@
 		BC9C2424226FD6FF00E7B64B /* -NewKasam.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */; };
 		BC9C7841228CD2DB000C8D0A /* 2. Today.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C7840228CD2DB000C8D0A /* 2. Today.swift */; };
 		BC9EC1D92390DD0400637C94 /* CompletedKasamCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */; };
-		BCA1571A24B0380A000FF187 /* crownBG.json in Resources */ = {isa = PBXBuildFile; fileRef = BCA1571924B0380A000FF187 /* crownBG.json */; };
 		BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06122A9D22E008C5A7D /* AppContainer.swift */; };
 		BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06322A9D2AB008C5A7D /* AppManager.swift */; };
 		BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */ = {isa = PBXBuildFile; fileRef = BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */; };
@@ -93,6 +92,7 @@
 		BCF8A303246436140030C323 /* BadgesAchievedCellTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A300246436140030C323 /* BadgesAchievedCellTableViewCell.swift */; };
 		BCF8A304246436140030C323 /* BadgesAchievedCellTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCF8A301246436140030C323 /* BadgesAchievedCellTableViewCell.xib */; };
 		BCF8A305246436140030C323 /* BadgesAchieved.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCF8A302246436140030C323 /* BadgesAchieved.xib */; };
+		BCF8A9AF24B1690F00751CC9 /* diamond.json in Resources */ = {isa = PBXBuildFile; fileRef = BCF8A9AE24B1690F00751CC9 /* diamond.json */; };
 		BCFCB43522AF02C900DC2DD7 /* DiscoverCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFCB43422AF02C800DC2DD7 /* DiscoverCollectionCell.swift */; };
 		BCFCB43722AF04EA00DC2DD7 /* DiscoverCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */; };
 /* End PBXBuildFile section */
@@ -164,7 +164,6 @@
 		BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-NewKasam.swift"; sourceTree = "<group>"; };
 		BC9C7840228CD2DB000C8D0A /* 2. Today.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "2. Today.swift"; sourceTree = "<group>"; };
 		BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedKasamCell.swift; sourceTree = "<group>"; };
-		BCA1571924B0380A000FF187 /* crownBG.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = crownBG.json; sourceTree = "<group>"; };
 		BCA9A06122A9D22E008C5A7D /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		BCA9A06322A9D2AB008C5A7D /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
 		BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fireworks-loading.json"; path = "Supporting Files/Lottie Animations/fireworks-loading.json"; sourceTree = SOURCE_ROOT; };
@@ -193,6 +192,7 @@
 		BCF8A300246436140030C323 /* BadgesAchievedCellTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BadgesAchievedCellTableViewCell.swift; sourceTree = "<group>"; };
 		BCF8A301246436140030C323 /* BadgesAchievedCellTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BadgesAchievedCellTableViewCell.xib; sourceTree = "<group>"; };
 		BCF8A302246436140030C323 /* BadgesAchieved.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BadgesAchieved.xib; sourceTree = "<group>"; };
+		BCF8A9AE24B1690F00751CC9 /* diamond.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = diamond.json; path = ../../../../Badges/diamond.json; sourceTree = "<group>"; };
 		BCFCB43422AF02C800DC2DD7 /* DiscoverCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverCollectionCell.swift; sourceTree = "<group>"; };
 		BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverCategoryCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -307,9 +307,9 @@
 			children = (
 				BCD213642460CAC70096A365 /* flagmountain.json */,
 				BCD213662460CEE10096A365 /* flagmountainBG.json */,
+				BCF8A9AE24B1690F00751CC9 /* diamond.json */,
 				BC679ECA2439290800441F6E /* badge.json */,
 				BC8348492445034A001819DC /* crown.json */,
-				BCA1571924B0380A000FF187 /* crownBG.json */,
 				BC83484B24450403001819DC /* crownSmooth.json */,
 				BC228CB124401C3D00BA665C /* crownMedal.json */,
 				BC8348452445027A001819DC /* goldCup.json */,
@@ -531,7 +531,6 @@
 				BCD213672460CEE10096A365 /* flagmountainBG.json in Resources */,
 				BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */,
 				BC1FAF372269FAFA006A9245 /* LaunchScreen.storyboard in Resources */,
-				BCA1571A24B0380A000FF187 /* crownBG.json in Resources */,
 				BC1092A723A0553400575EDB /* AddKasamController.xib in Resources */,
 				BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */,
 				BC83484C24450403001819DC /* crownSmooth.json in Resources */,
@@ -541,6 +540,7 @@
 				BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */,
 				BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */,
 				BC4DE60624B0241A00763B32 /* OptionsPopupController.xib in Resources */,
+				BCF8A9AF24B1690F00751CC9 /* diamond.json in Resources */,
 				BC2B4C8123A70437005F2255 /* rocket-fast.json in Resources */,
 				BCD824D323D7C0B40051C499 /* success.json in Resources */,
 				BC01664722D5790B0073186D /* UIImageViewAligned in Resources */,

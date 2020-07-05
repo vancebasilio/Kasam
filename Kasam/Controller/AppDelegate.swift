@@ -42,7 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         })
         Database.database().reference().child("Assets").child("DiscoverCriteria").observeSingleEvent(of: .value, with:{(snap) in
             let discoverCriteria = snap.value as? String
-            Assets.discoverCriteria = discoverCriteria?.components(separatedBy: ";") ?? ["Fitness", "Health", "User"]
+            Assets.discoverCriteria = discoverCriteria?.components(separatedBy: ";") ?? ["Fitness", "Health", "Basic"]
         })
         profileInfo()
         
