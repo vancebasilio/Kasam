@@ -109,32 +109,18 @@ class TodayChallengesCell: UICollectionViewCell {
             percentComplete.backgroundColor = UIColor.colorFour
             statusIcon?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
         }
-        
-        //STEP 2 - SET THE BADGE
-        DispatchQueue.global(qos: .background).sync {
-            if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
-                DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                    if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = snap.value as! Int}
-                    else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = 30}
-                    self.blockBadge()
-                }
-            } else {
-                blockBadge()
-            }
-        }
+        blockBadge()
     }
     
     func blockBadge(){
-        if SavedData.kasamDict[kasamID]?.badgeThresholds != nil {
-            if Int(SavedData.kasamDict[kasamID]?.percentComplete ?? 0) == SavedData.kasamDict[kasamID]!.badgeThresholds {
-                //Will only set the badge if the threshold is reached
-                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(SavedData.kasamDict[kasamID]!.badgeThresholds)
-            } else {
-                DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(nil)
-            }
-            DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in
-                SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String: Int]
-            })
+        if Int(SavedData.kasamDict[kasamID]?.percentComplete ?? 0) == SavedData.kasamDict[kasamID]!.repeatDuration {
+            //Will only set the badge if the threshold is reached
+            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(SavedData.kasamDict[kasamID]!.repeatDuration)
+        } else {
+            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(nil)
         }
+        DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in
+            SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String: Int]
+        })
     }
 }

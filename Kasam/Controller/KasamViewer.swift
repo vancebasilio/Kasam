@@ -255,13 +255,6 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         if self.summedTotalMetric > 0 {
             transferAvg = sum / Double(self.summedTotalMetric)
         }
-        if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
-            DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = snap.value as! Int} else {
-                    SavedData.kasamDict[self.kasamID]?.badgeThresholds = 30
-                }
-            }
-        }
         if transferAvg > 0.0 {
             DBRef.userHistory.child(kasamID).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
         } else {

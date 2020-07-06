@@ -40,13 +40,12 @@ class AddKasamController: UIViewController {
     
     var kasamID = ""                        //loaded in value
     var timelineDuration: Int?              //loaded in value
-    var badgeThresholds = 30                //loaded in value
     var fullView = true                     //loaded in value
     var new: Bool?
     
     var formattedDate = ""                  //loaded out value
     var formattedTime = ""                  //loaded out value
-    var repeatDuration = 1                  //loaded out value
+    var repeatDuration = 30                 //loaded out value
     var currentDay: Int?                    //loaded out value
     var notificationCheck = true
     
@@ -70,7 +69,7 @@ class AddKasamController: UIViewController {
         dayGoalOutline.layer.cornerRadius = 25
         dayGoalOutline.layer.borderColor = UIColor.init(hex: 0x66A058).cgColor
         dayGoalOutline.layer.borderWidth = 3.0
-        dayGoaldayLabel.text = "\(badgeThresholds) days"
+        dayGoaldayLabel.text = "\(repeatDuration) days"
         dayGoalImage.setIcon(icon: .fontAwesomeSolid(.calendarAlt), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
         
         justForFunBG.layer.cornerRadius = 20
@@ -107,7 +106,6 @@ class AddKasamController: UIViewController {
         justForFunLabel.textColor = .darkGray
         dayGoalBG.backgroundColor = UIColor.init(hex: 0x6EA960)
         justForFunBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
-        repeatDuration = badgeThresholds
     }
     
     @objc func justForFunSelected(){

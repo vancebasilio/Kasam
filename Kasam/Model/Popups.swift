@@ -281,7 +281,7 @@ import Firebase
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
-    func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?, badgeThresholds: Int, fullView: Bool) {
+    func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?, duration: Int, fullView: Bool) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -306,7 +306,7 @@ import Firebase
         attributes.statusBar = .dark
         let vC = AddKasamController()
         vC.kasamID = kasamID
-        vC.badgeThresholds = badgeThresholds
+        vC.repeatDuration = duration
         vC.new = new
         vC.fullView = fullView
         vC.timelineDuration = timelineDuration

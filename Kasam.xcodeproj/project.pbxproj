@@ -32,6 +32,7 @@
 		BC339E9223772D6F00E1D038 /* RegisterViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC339E9123772D6F00E1D038 /* RegisterViewCell.swift */; };
 		BC38419C24037DE6005D929A /* TodayDayTrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC38419B24037DE6005D929A /* TodayDayTrackerCell.swift */; };
 		BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC3AAA1F227D46BA00D098E1 /* TabBar.swift */; };
+		BC40365A24B3DAB100661E7B /* Unused_Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC40365924B3DAB100661E7B /* Unused_Functions.swift */; };
 		BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */; };
 		BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC45558C2321F6D300F1227B /* KasamViewerCell.swift */; };
 		BC4DE60524B0241A00763B32 /* OptionsPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC4DE60324B0241A00763B32 /* OptionsPopup.swift */; };
@@ -129,6 +130,7 @@
 		BC339E9123772D6F00E1D038 /* RegisterViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewCell.swift; sourceTree = "<group>"; };
 		BC38419B24037DE6005D929A /* TodayDayTrackerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayDayTrackerCell.swift; sourceTree = "<group>"; };
 		BC3AAA1F227D46BA00D098E1 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
+		BC40365924B3DAB100661E7B /* Unused_Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Unused_Functions.swift; sourceTree = "<group>"; };
 		BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewBlockCell.swift; sourceTree = "<group>"; };
 		BC45558C2321F6D300F1227B /* KasamViewerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewerCell.swift; sourceTree = "<group>"; };
 		BC4DE60324B0241A00763B32 /* OptionsPopup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsPopup.swift; sourceTree = "<group>"; };
@@ -385,6 +387,7 @@
 				BCE50BE322D04B26000F2534 /* Kasam-Bridging-Header.h */,
 				BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */,
 				BC554BD9226E0F2700D707CC /* User Kasams Table */,
+				BC40365924B3DAB100661E7B /* Unused_Functions.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -705,6 +708,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC06DDA423523C7D00162A8C /* Structs.swift in Sources */,
+				BC40365A24B3DAB100661E7B /* Unused_Functions.swift in Sources */,
 				BC1FAF2F2269FAFA006A9245 /* LogIn.swift in Sources */,
 				BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */,
 				BC12F1EE233FC17100D93227 /* Statistics.swift in Sources */,

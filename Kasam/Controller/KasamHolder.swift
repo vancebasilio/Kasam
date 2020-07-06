@@ -70,7 +70,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var chosenTime = ""
     var chosenTimeHour = 0
     var chosenTimeMin = 0
-    var chosenRepeat = 1
+    var chosenRepeat = 30
     var startDate = ""
     var notificationCheck = true
     
@@ -221,8 +221,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             if SavedData.kasamDict[kasamID]!.currentDay >= SavedData.kasamDict[kasamID]!.repeatDuration {
                 //OPTION 1 - Kasam completed, but not closed out or extended
                 if SavedData.kasamDict[kasamID]?.repeatDuration == 0 {daysCompleted = Double(SavedData.kasamDict[kasamID]?.percentComplete ?? 0)}
-                ratio = (daysCompleted / Double(SavedData.kasamDict[kasamID]!.badgeThresholds))
-                self.badgeInfo.text = "  \(SavedData.kasamDict[kasamID]!.badgeThresholds) day trophy  "
+                ratio = (daysCompleted / Double(SavedData.kasamDict[kasamID]!.repeatDuration))
+                self.badgeInfo.text = "  \(SavedData.kasamDict[kasamID]!.repeatDuration) day trophy  "
                 self.badgeCompletion.text = "\(Int(ratio * 100))%"
                 headerBadgeIcon.animation = Animations.kasamBadges[1]
             } else {
@@ -230,8 +230,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 if SavedData.kasamDict[kasamID]?.sequence == "streak" {
                     daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.currentStreakCompleteProgress ?? 0)
                 }
-                ratio = (daysCompleted / Double(SavedData.kasamDict[kasamID]!.badgeThresholds))
-                self.badgeInfo.text = "  \(SavedData.kasamDict[kasamID]!.badgeThresholds) day trophy  "
+                ratio = (daysCompleted / Double(SavedData.kasamDict[kasamID]!.repeatDuration))
+                self.badgeInfo.text = "  \(SavedData.kasamDict[kasamID]!.repeatDuration) day trophy  "
                 self.badgeCompletion.text = "\(Int(ratio * 100))%"
                 headerBadgeIcon.animation = Animations.kasamBadges[1]
                 if setupCheck == true {
@@ -348,7 +348,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamLevel.text! = Assets.levelsArray[value["Level"] as? Int ?? 1]
                 self.benefitsArray = (value["Benefits"] as? String ?? "").components(separatedBy: ";")
                 self.kasamMetric = value["Metric"] as? String ?? "Checkmark"
-                self.badgeThresholds = (value["Badges"] as? Int ?? 30)
+                self.chosenRepeat = (value["Duration"] as? Int ?? 30)
                 if self.kasamMetric == "Checkmark" {self.tableView.allowsSelection = false; self.tableView.reloadData()}
                 if let duration = value["Duration"] as? Int {self.timelineDuration = duration}
                 
@@ -398,10 +398,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //OPENS THE POPUP TO ENTER PREFERENCES
         if registerCheck == 0 || reset == true {
             //Adding new Kasam
-            addKasamPopup(kasamID: kasamID, new: true, timelineDuration: timelineDuration, badgeThresholds: badgeThresholds, fullView: true)
+            addKasamPopup(kasamID: kasamID, new: true, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: true)
         } else {
             //Existing Kasam prefernces being updated
-            addKasamPopup(kasamID: kasamID, new: false, timelineDuration: timelineDuration, badgeThresholds: badgeThresholds, fullView: true)
+            addKasamPopup(kasamID: kasamID, new: false, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: true)
         }
         //If the user presses save:
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in

@@ -14,14 +14,13 @@ import Lottie
 protocol TableCellDelegate : class {
     func updateKasamDayButtonPressed(kasamOrder: Int, day: Int, challenge: Bool)
     func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?)
-    func goToKasamHolder(_ sender: UIButton, kasamOrder: Int)
+    func goToKasamHolder(kasamOrder: Int)
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
 }
 
 class TodayBlockCell: UITableViewCell {
-    @IBOutlet weak var kasamName: UIButton!
+    @IBOutlet weak var kasamName: UILabel!
     @IBOutlet weak var blockSubtitle: UILabel!
-    @IBOutlet weak var dayNumberHeight: NSLayoutConstraint!
     @IBOutlet weak var levelLineBack: UIView!
     @IBOutlet weak var levelLine: UIView!
     @IBOutlet weak var levelLineProgress: NSLayoutConstraint!
@@ -36,7 +35,7 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var streakShadow: UIView!
     @IBOutlet weak var yesButton: UIButton!
     @IBOutlet weak var extendButtonView: UIView!
-    @IBOutlet weak var extendButton: UIButton!
+    @IBOutlet weak var trophyIcon: AnimationView!
     @IBOutlet weak var progressBar: UIView!
     @IBOutlet weak var percentComplete: UILabel!
     @IBOutlet weak var dayTrackerCollectionView: UICollectionView!
@@ -55,6 +54,7 @@ class TodayBlockCell: UITableViewCell {
     let iconSize = CGFloat(35)
     var kasamID = ""
     var benefits = [Int:String]()
+    var statusDate = ""
     var currentDayStat = 0
     
     func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
@@ -66,19 +66,20 @@ class TodayBlockCell: UITableViewCell {
     func setBlock(block: TodayBlockFormat) {
         kasamID = block.kasamID
         tempBlock = block
-        kasamName.setTitle(SavedData.kasamDict[kasamID]?.kasamName, for: .normal)
+        kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
+        kasamName.numberOfLines = kasamName.calculateMaxLines()
         print("step 6A \(String(describing: SavedData.kasamDict[kasamID]?.kasamName)) hell2")
         
         //For timeline kasams only
         if block.dayCount != nil {today = block.dayCount!}
         else {today = Int(block.dayOrder)}
         
-        //Set the block subtite
-        if block.dayOrder > SavedData.kasamDict[kasamID]?.repeatDuration ?? 0 {blockSubtitle.text = "Complete!"}
-        else if SavedData.kasamDict[kasamID]?.timeline != nil {
+        //Show the block subtite if it's a timeline kasam
+        if SavedData.kasamDict[kasamID]?.timeline != nil {
             blockSubtitle.text = "\(block.blockTitle)"
             blockSubtitle.font = blockSubtitle.font.withSize(16)
-        } else {dayNumberHeight.constant = 0}
+        //Hide the block subtitle
+        } else {blockSubtitle.frame.size.height = 0}
         
         kasamImage.sd_setImage(with: block.image)
         if SavedData.kasamDict[kasamID]!.metricType == "Checkmark" && block.dayOrder < SavedData.kasamDict[kasamID]?.repeatDuration ?? 0{
@@ -88,9 +89,7 @@ class TodayBlockCell: UITableViewCell {
             if snap.exists() {SavedData.kasamDict[self.kasamID]?.sequence = (snap.value as? String)!}
         }
         levelLineBack.layer.cornerRadius = 4
-        levelLineBack.clipsToBounds = true
         levelLine.layer.cornerRadius = 4
-        levelLine.clipsToBounds = true
     }
     
     override func awakeFromNib() {
@@ -119,9 +118,14 @@ class TodayBlockCell: UITableViewCell {
         
         let centerCollectionView = NSNotification.Name("CenterCollectionView")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(showBenefit))
-        blockImage.addGestureRecognizer(tap)
+    
+        blockImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
+        levelLine.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
+        kasamName.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(kasamNamePressed)))
+    }
+    
+    @objc func kasamNamePressed(){
+        cellDelegate?.goToKasamHolder(kasamOrder: row)
     }
     
     @objc func showBenefit(){
@@ -152,7 +156,7 @@ class TodayBlockCell: UITableViewCell {
     @IBAction func yesButtonPressed(_ sender: UIButton) {
         if tempBlock!.dayOrder > SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
             //Extend Button after kasam is completed
-            cellDelegate?.goToKasamHolder(sender, kasamOrder: row)
+            cellDelegate?.goToKasamHolder(kasamOrder: row)
         } else {
             if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
                 cellDelegate?.updateKasamDayButtonPressed(kasamOrder: row, day: tempBlock?.dayOrder ?? 1, challenge: false)
@@ -179,7 +183,7 @@ class TodayBlockCell: UITableViewCell {
     
     @IBAction func restartButtonPressed(_ sender: Any) {
         var saveTimeObserver: NSObjectProtocol?
-        addKasamPopup(kasamID: kasamID, new: true, timelineDuration: SavedData.kasamDict[kasamID]?.timeline, badgeThresholds: SavedData.kasamDict[kasamID]!.badgeThresholds, fullView: true)
+        addKasamPopup(kasamID: kasamID, new: true, timelineDuration: SavedData.kasamDict[kasamID]?.timeline, duration: SavedData.kasamDict[kasamID]!.repeatDuration, fullView: true)
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
@@ -189,10 +193,6 @@ class TodayBlockCell: UITableViewCell {
                 NotificationCenter.default.removeObserver(saveTimeObserver as Any)
             }
         }
-    }
-    
-    @IBAction func kasamNamePressed(_ sender: UIButton) {
-        cellDelegate?.goToKasamHolder(sender, kasamOrder: row)
     }
     
     @objc func centerCollectionView() {
@@ -217,6 +217,7 @@ class TodayBlockCell: UITableViewCell {
                 currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
             } else {
                 currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
+                statusDate = day ?? Date().dateToString()
             }
             currentDayStreak.text = String(describing: currentDayStat)
             statsShadow.layer.shadowColor = UIColor.black.cgColor
@@ -232,56 +233,43 @@ class TodayBlockCell: UITableViewCell {
                 statsShadow.layer.shadowColor = UIColor.orange.darker.cgColor
                 statsShadow.layer.shadowOpacity = 0.8
                 checkmarkAndPercentageUpdate()
-                
+                extendButtonView.isHidden = true
+                if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0}
             } else if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration{
                 //COMPLETED!
+                blockSubtitle.frame.size.height = 20
+                blockSubtitle.text = "Complete!"
                 streakShadow.backgroundColor = UIColor.dayYesColor.darker.darker
                 statsShadow.layer.shadowColor = UIColor.dayYesColor.darker.darker.cgColor
                 statsShadow.layer.shadowOpacity = 0.8
-                yesButton.setIcon(icon: .fontAwesomeRegular(.arrowAltCircleRight), iconSize: iconSize, color: UIColor.darkGray, forState: .normal)
+                extendButtonView.isHidden = false
+                trophyIcon.animation = Animations.kasamBadges[1]
+                trophyIcon.play()
+            } else {
+                extendButtonView.isHidden = true
+                statsContent.backgroundColor = UIColor.white
+                hideDayTrackerView.backgroundColor = UIColor.white
+                if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0}
             }
             
             if SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress == 1 {streakPostText.text = "day completed"}
-        
-            //STEP 2 - SET THE BADGE
-            DispatchQueue.global(qos: .background).sync {
-                if SavedData.kasamDict[kasamID]?.badgeThresholds == nil {
-                    DBRef.coachKasams.child(kasamID).child("Badges").observeSingleEvent(of: .value) {(snap) in
-                        if snap.exists() {SavedData.kasamDict[self.kasamID]?.badgeThresholds = snap.value as! Int}
-                        else {SavedData.kasamDict[self.kasamID]?.badgeThresholds = 30}
-                        self.blockBadge(day)
-                    }
-                } else {
-                    blockBadge(day)
-                }
-            }
+            
+            //Set level line progress
+            let ratio = Double(currentDayStat) / Double(SavedData.kasamDict[kasamID]!.repeatDuration)
+            self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(ratio)
+            levelLinePercent.text = "\(Int(ratio * 100))%"
+            
+            setFirebaseBadge()
         }
         dayTrackerCollectionView.fadeIn()
         blockImage.fadeIn()
         progressBar.fadeIn()
     }
     
-    func blockBadge(_ day:String?){
-        var progressAchieved = 0
-        var statusDate = ""
-        if SavedData.kasamDict[kasamID]?.sequence == "streak" {
-            if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak != nil {
-                progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
-                statusDate = (Calendar.current.date(byAdding: .day, value: SavedData.kasamDict[kasamID]!.streakInfo.longestStreakDay, to: SavedData.kasamDict[kasamID]!.joinedDate) ?? Date()).dateToString()
-            }
-        } else {
-            if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {
-                progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
-                statusDate = day ?? Date().dateToString()
-            }
-        }
-        let ratio = Double(progressAchieved) / Double(SavedData.kasamDict[kasamID]!.badgeThresholds)
-        self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(ratio)
-        levelLinePercent.text = "\(Int(ratio * 100))%"
-        
-        if progressAchieved == SavedData.kasamDict[kasamID]!.badgeThresholds {
+    func setFirebaseBadge(){
+        if currentDayStat == SavedData.kasamDict[kasamID]!.repeatDuration {
             //Will only set the badge if the threshold is reached
-            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(SavedData.kasamDict[kasamID]!.badgeThresholds)
+            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(SavedData.kasamDict[kasamID]!.repeatDuration)
         } else {
             DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(nil)
         }
