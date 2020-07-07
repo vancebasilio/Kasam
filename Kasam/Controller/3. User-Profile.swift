@@ -207,7 +207,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         let kasam = SavedData.kasamDict[kasamID]!
         var daysLeft = 0
         if kasam.sequence == "streak" {
-            daysLeft = kasam.repeatDuration - kasam.streakInfo.currentStreakCompleteProgress
+            daysLeft = kasam.repeatDuration - kasam.streakInfo.currentStreak.value
         } else {
             daysLeft = kasam.repeatDuration - kasam.streakInfo.daysWithAnyProgress
         }
@@ -322,6 +322,14 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 self.kasamFollowingNo.text = String(kasamcount)
         }
         if kasamcount == 1 {kasamFollowingLabel.text = "kasam"}
+        badgeCount()
+    }
+    
+    func badgeCount(){
+        SavedData.badgesCount = 0
+        for badge in SavedData.badgesAchieved {
+            SavedData.badgesCount += 1
+        }
         badgeNo.text = String(describing: SavedData.badgesCount)
         if SavedData.badgesCount == 1 {badgeLabel.text = "trophy"}
     }

@@ -164,7 +164,11 @@ import Firebase
         var height = CGFloat(40)        //Badges Title height
         if kasamID == nil {
             //For Profile View page (lists all trophies)
-            height += CGFloat((SavedData.badgeSubCatCount + 1) * 40)
+            if SavedData.badgesAchieved.count != 0 {
+                height += CGFloat((SavedData.badgesCount + SavedData.badgesAchieved.count + 1) * 40)
+            } else {
+                height += CGFloat(80)
+            }
         } else {
             //For specific Kasam
             if SavedData.kasamDict[kasamID!] != nil {

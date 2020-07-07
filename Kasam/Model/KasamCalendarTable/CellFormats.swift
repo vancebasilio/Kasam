@@ -103,7 +103,7 @@ class TodayBlockFormat {
 }
 
 class KasamSavedFormat {
-    typealias streakInfo = (currentStreak:Int, currentStreakCompleteProgress:Int, daysWithAnyProgress:Int, daysWithCompleteProgress:Int, longestStreak:Int, longestStreakDay:Int)
+    typealias streakInfo = (currentStreak:(value:Int, date:Date?), daysWithAnyProgress:Int, longestStreak:Int)
     var kasamID: String
     var kasamName: String
     var joinedDate: Date
@@ -120,11 +120,11 @@ class KasamSavedFormat {
     var streakInfo: streakInfo
     var displayStatus: String
     var percentComplete: Double
-    var badgeList: [String:Int]?
+    var badgeList: [String:[String:String]]?
     var benefitsThresholds: [(Int,String)]?
     var dayTrackerArray: [Int:(date: Date, progress: Double)]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, timeline: Int?, currentStatus: String, pastKasamJoinDates: [String:Int]?, sequence: String?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:Int]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, timeline: Int?, currentStatus: String, pastKasamJoinDates: [String:Int]?, sequence: String?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate

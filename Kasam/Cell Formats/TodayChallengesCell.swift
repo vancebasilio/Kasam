@@ -120,7 +120,7 @@ class TodayChallengesCell: UICollectionViewCell {
             DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(nil)
         }
         DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in
-            SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String: Int]
+//            SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String: Int]
         })
     }
 }

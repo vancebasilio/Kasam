@@ -887,6 +887,20 @@ extension String {
         center.add(request) {(error : Error?) in        // Add the notification request
         }
     }
+    
+    func badgesAchieved() {
+        let kasamName = SavedData.kasamDict[self]!.kasamName
+        if SavedData.kasamDict[self]?.badgeList != nil {
+            SavedData.badgesAchieved[kasamName] = []
+            for badgeJoinDate in SavedData.kasamDict[self]!.badgeList! {
+                for badgeList in badgeJoinDate.value {
+                        SavedData.badgesAchieved[kasamName]!.append((badgeList.value, Int(badgeList.key)!))
+                }
+            }
+        } else {
+            SavedData.badgesAchieved[kasamName] = nil
+        }
+    }
 }
 
 extension UIImage {

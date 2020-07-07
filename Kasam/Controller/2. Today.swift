@@ -230,7 +230,9 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 else if repeatDuration == 0 {order = challengeOrder}
             }
             
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timeline: value["Timeline"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:0, currentStreakCompleteProgress:0, daysWithAnyProgress:0, daysWithCompleteProgress:0, longestStreak:0, longestStreakDay:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: value["Badges"] as? [String:Int], benefitsThresholds: nil, dayTrackerArray: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timeline: value["Timeline"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: value["Badges"] as? [String:[String:String]], benefitsThresholds: nil, dayTrackerArray: nil)
+            
+            DispatchQueue.main.async {snapshot.key.badgesAchieved()}
             
             print("step 2 inside get preferences hell6 \(preference.kasamName)")
             
@@ -251,7 +253,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 //update the user profile page
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                 DBRef.userKasamFollowing.removeObserver(withHandle: self.kasamFollowingRefHandle)
-                DispatchQueue.main.async {self.badgeThresholds()}
             } else if kasamID != nil && new == false {
                 self.retrieveKasams(kasamID: kasamID)
             } else if kasamID != nil && new == true {
@@ -505,48 +506,39 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     }
     
     //STEP 5B
-    func currentStreak(kasamID: String, dictionary: [Int:(Date, Double)], currentDay: Int) -> (currentStreak:Int, currentStreakCompleteProgress:Int, daysWithAnyProgress:Int, daysWithCompleteProgress:Int, longestStreak:Int, longestStreakDay:Int) {
+    func currentStreak(kasamID: String, dictionary: [Int:(Date, Double)], currentDay: Int) -> (currentStreak:(value:Int, date:Date?), daysWithAnyProgress:Int, longestStreak:Int) {
         var daysWithAnyProgress = 0
-        var daysWithCompleteProgress = 0
         var currentStreak = 0
-        var currentStreakCompleteProgress = 0
+        var currentStreakDate: Date?
         var anyProgressCheck = 0
-        var completeProgressCheck = 0
         var longestStreak = 0
-        var longestStreakDay = 0
         var streak = [0]
         var streakEndDate = [0]
         for day in stride(from: currentDay, through: 1, by: -1) {
             if dictionary[day] != nil {
                 streak[streak.count - 1] += 1
-                if dictionary[day]!.1 == 1.0 {
-                    daysWithCompleteProgress += 1                                   //all days with 100% progress
+                if dictionary[day]!.1 >= 0.0 {
+                    daysWithAnyProgress += 1                                        //all days with some progress
                     if streakEndDate.count != streak.count {streakEndDate[streakEndDate.count - 1] = day}
-                } else if completeProgressCheck == 0 {
-                    currentStreakCompleteProgress = daysWithCompleteProgress        //current streak days with 100% progress
-                    completeProgressCheck = 1
+                } else {
+                    currentStreak = daysWithAnyProgress                             //current streak days with some progress
                 }
             } else if day != currentDay {
                 streak += [0]
                 streakEndDate += [0]
                 if anyProgressCheck == 0 {
-                    currentStreakCompleteProgress = daysWithCompleteProgress        //current streak days with 100% progress
+                    currentStreak = daysWithAnyProgress                             //current streak days with some progress
                 }
                 anyProgressCheck = 1
             }
         }
         longestStreak = streak.max() ?? 0
-        if let index = streak.index(of: longestStreak) {
-            longestStreakDay = streakEndDate[index]
-        }
         daysWithAnyProgress = streak.reduce(0, +)
         if anyProgressCheck == 0 {                                                  //in case all days have some progress
             currentStreak = daysWithAnyProgress
-            if currentStreakCompleteProgress == 0 {
-                currentStreakCompleteProgress = daysWithCompleteProgress
-            }
         }
-        return (currentStreak, currentStreakCompleteProgress, daysWithAnyProgress, daysWithCompleteProgress, longestStreak, longestStreakDay)
+        currentStreakDate = dictionary[30]?.0
+        return ((currentStreak,currentStreakDate), daysWithAnyProgress, longestStreak)
     }
     
     @objc func removeTodayKasam(_ notification: NSNotification){
@@ -697,37 +689,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         return .lightContent
     }
     
-    //PART 1
-    func badgeThresholds(){
-        for kasam in SavedData.kasamDict {
-            //STEP 1 - GET THE BADGE THRESHOLD IF IT'S NOT 30
-            DBRef.coachKasams.child(kasam.value.kasamID).child("Thresholds").observeSingleEvent(of: .value) {(snap) in
-                if let dict = snap.value as? [String:String] {
-                    SavedData.kasamDict[kasam.value.kasamID]!.benefitsThresholds = [(Int, String)]()
-                    for value in dict {SavedData.kasamDict[kasam.value.kasamID]!.benefitsThresholds!.append((Int(value.key)!, value.value))}
-                }
-                SavedData.kasamDict[kasam.value.kasamID]!.benefitsThresholds = SavedData.kasamDict[kasam.value.kasamID]!.benefitsThresholds?.sorted(by: {$0.0 < $1.0})
-            }
-        }
-    }
-    
-    //PART 2
-    func badgesAchieved(kasam: Dictionary<String, KasamSavedFormat>.Element) {
-        //STEP 2 - GET THE BADGES
-        SavedData.badgesCount += kasam.value.badgeList?.count ?? 0
-        if kasam.value.badgeList != nil {
-            for badge in kasam.value.badgeList! {
-                if SavedData.badgesAchieved[kasam.value.kasamName] == nil {
-                    SavedData.badgesAchieved[kasam.value.kasamName] = [((badge.key, badge.value))]
-                } else {
-                    SavedData.badgesAchieved[kasam.value.kasamName]!.append((badge.key, badge.value))
-                }
-            }
-            SavedData.badgesCount = (SavedData.badgesAchieved.values.map { $0.count }).reduce(0, { $0 + $1 })
-            SavedData.badgeSubCatCount = SavedData.badgesCount + SavedData.badgesAchieved.count
-        }
-    }
-    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToKasamActivityViewer" {
             let kasamViewer = segue.destination as! KasamActivityViewer
@@ -825,7 +786,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                 var progressAchieved = 0
                 if SavedData.kasamDict[kasamID]?.sequence == "streak" {
                     if SavedData.kasamDict[kasamID]?.streakInfo.longestStreak != nil {
-                        progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
+                        progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.currentStreak.value
                     }
                 } else {
                     if SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress != nil {

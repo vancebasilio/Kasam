@@ -228,7 +228,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             } else {
                 //OPTION 2 - Kasam ongoing currently
                 if SavedData.kasamDict[kasamID]?.sequence == "streak" {
-                    daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.currentStreakCompleteProgress ?? 0)
+                    daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.currentStreak.value ?? 0)
                 }
                 ratio = (daysCompleted / Double(SavedData.kasamDict[kasamID]!.repeatDuration))
                 self.badgeInfo.text = "  \(SavedData.kasamDict[kasamID]!.repeatDuration) day trophy  "

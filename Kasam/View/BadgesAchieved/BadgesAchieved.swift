@@ -27,7 +27,11 @@ class BadgesAchieved: UIViewController {
             if SavedData.kasamDict[kasamID!] != nil {
                 badgeNameArray = [SavedData.kasamDict[kasamID!]!.kasamName]
             } else {
-                badgeNameArray = [""]
+                badgeNameArray = [""]               //to show "no badges achieved" message in badge popup (for specifc kasams)
+            }
+        } else {
+            if badgeNameArray.count == 0 {
+                badgeNameArray = [""]               //to show "no badges achieved" message in badge popup (for user profile page)
             }
         }
         let nib = UINib(nibName: "BadgesAchievedCellTableViewCell", bundle: nil)
@@ -80,10 +84,13 @@ extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
                 newlabel.text = "No badges achieved"
             }
         } else {
-            newlabel.text = badgeNameArray[section]
+            if badgeNameArray != [""] {
+                newlabel.text = badgeNameArray[section]
+            } else {
+                newlabel.text = "No badges achieved"
+            }
         }
         
-
         headerView.addSubview(newlabel)
         newlabel.translatesAutoresizingMaskIntoConstraints = false
         headerView.addConstraint(NSLayoutConstraint(item: newlabel, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: 20.0))

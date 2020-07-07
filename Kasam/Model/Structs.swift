@@ -22,8 +22,7 @@ struct SavedData {
     static func addKasam(kasam: KasamSavedFormat) {self.kasamDict[kasam.kasamID] = kasam}
     
     static var badgesAchieved: [String: [(completedDate: String, badgeThreshold: Int)]] = [:]
-    static var badgesCount = 0
-    static var badgeSubCatCount = 0
+    static var badgesCount = 0          //all badges achieved only
     static var userType = "Basic"
 }
 

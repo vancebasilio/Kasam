@@ -214,7 +214,7 @@ class TodayBlockCell: UITableViewCell {
         if tempBlock != nil {
            //STEP 1 - DAY COUNTER
             if SavedData.kasamDict[kasamID]?.sequence == "streak" {
-                currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.currentStreakCompleteProgress
+                currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.currentStreak.value
             } else {
                 currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
                 statusDate = day ?? Date().dateToString()
@@ -234,7 +234,7 @@ class TodayBlockCell: UITableViewCell {
                 statsShadow.layer.shadowOpacity = 0.8
                 checkmarkAndPercentageUpdate()
                 extendButtonView.isHidden = true
-                if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0}
+                if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
             } else if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration{
                 //COMPLETED!
                 blockSubtitle.frame.size.height = 20
@@ -249,7 +249,7 @@ class TodayBlockCell: UITableViewCell {
                 extendButtonView.isHidden = true
                 statsContent.backgroundColor = UIColor.white
                 hideDayTrackerView.backgroundColor = UIColor.white
-                if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0}
+                if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
             }
             
             if SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress == 1 {streakPostText.text = "day completed"}
@@ -267,15 +267,17 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func setFirebaseBadge(){
-        if currentDayStat == SavedData.kasamDict[kasamID]!.repeatDuration {
+        if currentDayStat >= SavedData.kasamDict[kasamID]!.repeatDuration {
             //Will only set the badge if the threshold is reached
-            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(SavedData.kasamDict[kasamID]!.repeatDuration)
+            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(SavedData.kasamDict[kasamID]!.joinedDate.dateToString()).child(String(describing:SavedData.kasamDict[kasamID]!.repeatDuration)).setValue(SavedData.kasamDict[kasamID]!.streakInfo.currentStreak.date?.dateToString() ?? Date().dateToString())
         } else {
-            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(statusDate).setValue(nil)
+            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(SavedData.kasamDict[kasamID]!.joinedDate.dateToString()).child(String(describing:SavedData.kasamDict[kasamID]!.repeatDuration)).setValue(nil)
         }
         //Update the badges the user has achieved after update to the today block
         DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in
-            SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String: Int]
+            SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String:[String: String]]
+            self.kasamID.badgesAchieved()
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
         })
     }
     
