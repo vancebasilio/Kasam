@@ -122,18 +122,25 @@ class TodayBlockCell: UITableViewCell {
         blockImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
         levelLine.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
         kasamName.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(kasamNamePressed)))
+        extendButtonView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(extendButtonPressed)))
     }
     
     @objc func kasamNamePressed(){
         cellDelegate?.goToKasamHolder(kasamOrder: row)
     }
     
+    @objc func extendButtonPressed(){
+        showOptionsPopup(title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Congrats on completing the kasam. \nGo another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Extend' or close off the kasam by pressing 'Finish'", type: "extend", button: "Extend")
+    }
+    
     @objc func showBenefit(){
-        if SavedData.kasamDict[kasamID]?.benefitsThresholds != nil {
-            let benefit = currentDayStat.nearestElement(dictionary: (SavedData.kasamDict[kasamID]?.benefitsThresholds)!)
-            showOptionsPopup(title: "Day \(benefit!.0)", text: benefit?.1, type: "benefit", button: "Awesome!")
+        if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration {
+            extendButtonPressed()
+        } else if SavedData.kasamDict[kasamID]?.benefitsThresholds != nil {
+            let benefit = currentDayStat.nearestElement(array: (SavedData.kasamDict[kasamID]?.benefitsThresholds)!)
+            showOptionsPopup(title: "Day \(benefit!.0)", subtitle: nil, text: benefit?.1, type: "benefit", button: "Awesome!")
         } else {
-            showOptionsPopup(title: "Day \(currentDayStat)", text: nil, type: "benefit", button: "Awesome!")
+            showOptionsPopup(title: "Day \(currentDayStat)", subtitle: nil, text: nil, type: "benefit", button: "Awesome!")
         }
     }
     
@@ -235,7 +242,7 @@ class TodayBlockCell: UITableViewCell {
                 checkmarkAndPercentageUpdate()
                 extendButtonView.isHidden = true
                 if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
-            } else if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration{
+            } else if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration {
                 //COMPLETED!
                 blockSubtitle.frame.size.height = 20
                 blockSubtitle.text = "Complete!"

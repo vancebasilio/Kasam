@@ -901,6 +901,18 @@ extension String {
             SavedData.badgesAchieved[kasamName] = nil
         }
     }
+    
+    func benefitThresholds() {
+        DBRef.coachKasams.child(self).child("Thresholds").observeSingleEvent(of: .value) {(snap) in
+            if let value = snap.value as? [String:String] {
+                SavedData.kasamDict[self]?.benefitsThresholds = []
+                for benefit in value {
+                    SavedData.kasamDict[self]?.benefitsThresholds?.append((Int(benefit.key)!, benefit.value))
+                }
+                SavedData.kasamDict[self]?.benefitsThresholds = SavedData.kasamDict[self]?.benefitsThresholds!.sorted(by: { $0.0 < $1.0 })
+            }
+        }
+    }
 }
 
 extension UIImage {
@@ -1011,9 +1023,9 @@ extension Int {
         }
     }
     
-    func nearestElement(dictionary : [(Int,String)]) -> (Int,String)? {
+    func nearestElement(array : [(Int,String)]) -> (Int,String)? {
         var result = ""
-        for value in dictionary {
+        for value in array {
             if value.0 > self {break}
             result = value.1
         }

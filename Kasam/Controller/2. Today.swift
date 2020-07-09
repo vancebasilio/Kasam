@@ -232,7 +232,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             
             let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timeline: value["Timeline"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: value["Badges"] as? [String:[String:String]], benefitsThresholds: nil, dayTrackerArray: nil)
             
-            DispatchQueue.main.async {snapshot.key.badgesAchieved()}
+            DispatchQueue.main.async {
+                snapshot.key.badgesAchieved()
+                snapshot.key.benefitThresholds()
+            }
             
             print("step 2 inside get preferences hell6 \(preference.kasamName)")
             

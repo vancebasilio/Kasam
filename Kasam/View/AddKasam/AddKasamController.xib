@@ -300,7 +300,7 @@
                             <subviews>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yYI-gH-vwg">
                                     <rect key="frame" x="0.0" y="0.0" width="170" height="40"/>
-                                    <color key="backgroundColor" cyan="0.043095771223306656" magenta="0.31524351239204407" yellow="0.9819527268409729" black="0.0" alpha="1" colorSpace="custom" customColorSpace="genericCMYKColorSpace"/>
+                                    <color key="backgroundColor" red="0.88235294117647056" green="0.61960784313725492" blue="0.14509803921568626" alpha="1" colorSpace="calibratedRGB"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="40" id="yqB-02-f93"/>
                                     </constraints>

@@ -186,7 +186,7 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-    func showOptionsPopup(title: String?, text: String?, type: String, button: String) {
+func showOptionsPopup(title: String?, subtitle: String?, text: String?, type: String, button: String) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light
@@ -207,7 +207,7 @@ import Firebase
         attributes.statusBar = .dark
         
         let vc = OptionsPopupController()
-        vc.transfer = (title, text, type, button)
+        vc.transfer = (title, subtitle, text, type, button)
         SwiftEntryKit.display(entry: vc, using: attributes)
     }
 
