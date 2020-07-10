@@ -186,7 +186,7 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-func showOptionsPopup(title: String?, subtitle: String?, text: String?, type: String, button: String) {
+func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text: String?, type: String, button: String) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light
@@ -207,7 +207,7 @@ func showOptionsPopup(title: String?, subtitle: String?, text: String?, type: St
         attributes.statusBar = .dark
         
         let vc = OptionsPopupController()
-        vc.transfer = (title, subtitle, text, type, button)
+        vc.transfer = (kasamID, title, subtitle, text, type, button)
         SwiftEntryKit.display(entry: vc, using: attributes)
     }
 
@@ -285,7 +285,7 @@ func showOptionsPopup(title: String?, subtitle: String?, text: String?, type: St
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
-    func addKasamPopup(kasamID: String, new: Bool, timelineDuration: Int?, duration: Int, fullView: Bool) {
+    func addKasamPopup(kasamID: String, percentComplete: Double?, new: Bool, timelineDuration: Int?, duration: Int, fullView: Bool) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -312,6 +312,7 @@ func showOptionsPopup(title: String?, subtitle: String?, text: String?, type: St
         vC.kasamID = kasamID
         vC.repeatDuration = duration
         vC.new = new
+        vC.percentComplete = percentComplete ?? 0.0
         vC.fullView = fullView
         vC.timelineDuration = timelineDuration
         SwiftEntryKit.display(entry: vC, using: attributes)

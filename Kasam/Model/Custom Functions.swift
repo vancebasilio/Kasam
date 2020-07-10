@@ -480,7 +480,7 @@ extension UIViewController {
     
     func finishKasamPress (kasamID: String, completion: @escaping (Bool) -> ()) {
         let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
-        showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
+        showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam.\nYour past progress and badges will be saved.", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
             
             //STEP 1 - Remove notification
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])

@@ -212,7 +212,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         //Get Kasams from user following + their preference for each kasam
         if let value = snapshot.value as? [String: Any] {
             let currentStatus = value["Status"] as? String ?? "active"
-            let repeatDuration = value["Repeat"] as? Int ?? 1
+            let repeatDuration = value["Repeat"] as? Int ?? 30
     
             var order = 0
             if kasamID != nil && new == false {

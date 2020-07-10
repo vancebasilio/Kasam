@@ -41,11 +41,12 @@ class AddKasamController: UIViewController {
     var kasamID = ""                        //loaded in value
     var timelineDuration: Int?              //loaded in value
     var fullView = true                     //loaded in value
+    var repeatDuration = 30                 //loaded in value
+    var percentComplete = 0.0               //loaded in value
     var new: Bool?
     
     var formattedDate = ""                  //loaded out value
     var formattedTime = ""                  //loaded out value
-    var repeatDuration = 30                 //loaded out value
     var currentDay: Int?                    //loaded out value
     var notificationCheck = true
     
@@ -69,7 +70,6 @@ class AddKasamController: UIViewController {
         dayGoalOutline.layer.cornerRadius = 25
         dayGoalOutline.layer.borderColor = UIColor.init(hex: 0x66A058).cgColor
         dayGoalOutline.layer.borderWidth = 3.0
-        dayGoaldayLabel.text = "\(repeatDuration) days"
         dayGoalImage.setIcon(icon: .fontAwesomeSolid(.calendarAlt), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
         
         justForFunBG.layer.cornerRadius = 20
@@ -78,10 +78,8 @@ class AddKasamController: UIViewController {
         justForFunOutilne.layer.borderWidth = 3.0
         justForFunImage.setIcon(icon: .fontAwesomeSolid(.footballBall), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
         
-        let dayGoalTap = UITapGestureRecognizer(target: self, action: #selector(dayChallengeSelected))
-        dayGoalButton.addGestureRecognizer(dayGoalTap)
-        let funTap = UITapGestureRecognizer(target: self, action: #selector(justForFunSelected))
-        justForFunButton.addGestureRecognizer(funTap)
+        dayGoalButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dayChallengeSelected)))
+        justForFunButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(justForFunSelected)))
         
         reminderTimeSwitch.onTintColor = .colorFour
         reminderTimeSwitch.tintColor = .gray
@@ -135,12 +133,20 @@ class AddKasamController: UIViewController {
         if new == false {
             formattedDate = (SavedData.kasamDict[kasamID]?.joinedDate ?? Date()).dateToString()
             formattedTime = SavedData.kasamDict[kasamID]!.startTime
-            repeatDuration = SavedData.kasamDict[kasamID]!.repeatDuration
             currentDay = SavedData.kasamDict[kasamID]?.currentDay
+            
+            if percentComplete >= 1.0 {
+                repeatDuration = Int(ceil(percentComplete)) * SavedData.kasamDict[kasamID]!.repeatDuration
+                dayGoaldayLabel.text = "Extend to\n\(repeatDuration * Int(ceil(percentComplete))) days"
+            } else {
+                repeatDuration = SavedData.kasamDict[kasamID]!.repeatDuration
+                dayGoaldayLabel.text = "\(repeatDuration) days"
+            }
             
             //Load in chosen Kasam preferences
             startDateTimeLabel.text = "Edit Preferences"
-            if repeatDuration > 0 && (currentDay ?? 1 < repeatDuration) {
+            if repeatDuration > 0 {
+                startDayPicker.isUserInteractionEnabled = false
                 dayChallengeSelected()
             } else {
                 justForFunSelected()
@@ -174,6 +180,10 @@ class AddKasamController: UIViewController {
        
         //OPTION 2 - ADDING NEW KASAM, SET DEFAULT DATE AND TIME
         } else {
+            DBRef.coachKasams.child(kasamID).child("Duration").observeSingleEvent(of: .value) {(snap) in
+                self.repeatDuration = snap.value as? Int ?? 30
+                self.dayGoaldayLabel.text = "\(self.repeatDuration) days"
+            }
             cancelButton.isHidden = true
             
             //If restarting a kasam
@@ -283,6 +293,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
         label.font = UIFont.systemFont(ofSize: 23, weight: .regular)
         label.textAlignment = .center
         if pickerView == startDayPicker {
+            if percentComplete >= 1.0 {label.textColor = .lightGray}
             if baseDate == nil {
                 if row == 0 {label.text = "Today"}
                 else if row == 1 {label.text = "Tomorrow"}

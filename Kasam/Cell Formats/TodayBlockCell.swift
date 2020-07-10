@@ -130,7 +130,7 @@ class TodayBlockCell: UITableViewCell {
     }
     
     @objc func extendButtonPressed(){
-        showOptionsPopup(title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Congrats on completing the kasam. \nGo another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Extend' or close off the kasam by pressing 'Finish'", type: "extend", button: "Extend")
+        showOptionsPopup(kasamID: kasamID, title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Congrats on completing the kasam. \nGo another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Extend' or close off the kasam by pressing 'Finish'", type: "extend", button: "Extend")
     }
     
     @objc func showBenefit(){
@@ -138,9 +138,9 @@ class TodayBlockCell: UITableViewCell {
             extendButtonPressed()
         } else if SavedData.kasamDict[kasamID]?.benefitsThresholds != nil {
             let benefit = currentDayStat.nearestElement(array: (SavedData.kasamDict[kasamID]?.benefitsThresholds)!)
-            showOptionsPopup(title: "Day \(benefit!.0)", subtitle: nil, text: benefit?.1, type: "benefit", button: "Awesome!")
+            showOptionsPopup(kasamID: kasamID, title: "Day \(benefit!.0)", subtitle: nil, text: benefit?.1, type: "benefit", button: "Awesome!")
         } else {
-            showOptionsPopup(title: "Day \(currentDayStat)", subtitle: nil, text: nil, type: "benefit", button: "Awesome!")
+            showOptionsPopup(kasamID: kasamID, title: "Day \(currentDayStat)", subtitle: nil, text: nil, type: "benefit", button: "Done")
         }
     }
     
@@ -190,7 +190,7 @@ class TodayBlockCell: UITableViewCell {
     
     @IBAction func restartButtonPressed(_ sender: Any) {
         var saveTimeObserver: NSObjectProtocol?
-        addKasamPopup(kasamID: kasamID, new: true, timelineDuration: SavedData.kasamDict[kasamID]?.timeline, duration: SavedData.kasamDict[kasamID]!.repeatDuration, fullView: true)
+        addKasamPopup(kasamID: kasamID, percentComplete: nil, new: true, timelineDuration: SavedData.kasamDict[kasamID]?.timeline, duration: SavedData.kasamDict[kasamID]!.repeatDuration, fullView: true)
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
@@ -236,19 +236,20 @@ class TodayBlockCell: UITableViewCell {
             //STEP 2 - COMPLETE KASAMS
             if SavedData.kasamDict[(kasamID)]!.repeatDuration - currentDayStat == 1 {
                 //ONE DAY LEFT
-                streakShadow.backgroundColor = UIColor.orange.darker
-                statsShadow.layer.shadowColor = UIColor.orange.darker.cgColor
-                statsShadow.layer.shadowOpacity = 0.8
+                blockSubtitle.frame.size.height = 20
+                blockSubtitle.text = "One day left!"
+                streakShadow.backgroundColor = UIColor.dayYesColor
+                statsShadow.layer.shadowColor = UIColor.dayYesColor.cgColor
+                statsShadow.layer.shadowOpacity = 0.4
                 checkmarkAndPercentageUpdate()
                 extendButtonView.isHidden = true
-                if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
             } else if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration {
                 //COMPLETED!
                 blockSubtitle.frame.size.height = 20
                 blockSubtitle.text = "Complete!"
                 streakShadow.backgroundColor = UIColor.dayYesColor.darker.darker
                 statsShadow.layer.shadowColor = UIColor.dayYesColor.darker.darker.cgColor
-                statsShadow.layer.shadowOpacity = 0.8
+                statsShadow.layer.shadowOpacity = 1
                 extendButtonView.isHidden = false
                 trophyIcon.animation = Animations.kasamBadges[1]
                 trophyIcon.play()

@@ -398,10 +398,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //OPENS THE POPUP TO ENTER PREFERENCES
         if registerCheck == 0 || reset == true {
             //Adding new Kasam
-            addKasamPopup(kasamID: kasamID, new: true, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: true)
+            addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: true, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: true)
         } else {
             //Existing Kasam prefernces being updated
-            addKasamPopup(kasamID: kasamID, new: false, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: true)
+            addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: false, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: true)
         }
         //If the user presses save:
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
@@ -480,6 +480,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
         
     func addUserPreferncestoKasam(restart: Bool){
+        print("hell9 \(self.chosenRepeat)")
         DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Status": "active", "Duration": timelineDuration as Any]) {(error, reference) in
           Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
             //OPTION 1 - Add new kasam to the today page
