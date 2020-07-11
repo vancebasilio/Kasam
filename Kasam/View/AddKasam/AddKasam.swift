@@ -137,7 +137,7 @@ class AddKasamController: UIViewController {
             
             if percentComplete >= 1.0 {
                 repeatDuration = Int(ceil(percentComplete)) * SavedData.kasamDict[kasamID]!.repeatDuration
-                dayGoaldayLabel.text = "Extend to\n\(repeatDuration * Int(ceil(percentComplete))) days"
+                dayGoaldayLabel.text = "Extend to\n\(repeatDuration) days"
             } else {
                 repeatDuration = SavedData.kasamDict[kasamID]!.repeatDuration
                 dayGoaldayLabel.text = "\(repeatDuration) days"

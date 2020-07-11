@@ -39,21 +39,18 @@ extension UIViewController {
     
     //STEP 1 - Saves Kasam Text Data
     func createKasam(existingKasamID: String?, basicKasam: Bool, completion: @escaping (Bool) -> ()) {
-        print("1. creating kasam")
+        print("1. creating kasam hell1")
         //all fields filled, so can create the Kasam now
         let semaphore = DispatchSemaphore(value: 0)
         self.view.isUserInteractionEnabled = false
         var kasamID = DatabaseReference()
-        if existingKasamID != nil {
-            kasamID = DBRef.coachKasams.child(existingKasamID!)
-        } else {
-            kasamID = DBRef.coachKasams.childByAutoId()             //creating a new Kasam, so assign a new KasamID
-        }
+        if existingKasamID != "" {kasamID = DBRef.userKasams.child(existingKasamID!)}      //editing existing kasam
+        else {kasamID = DBRef.userKasams.childByAutoId()}                                   //creating a new Kasam, so assign a new KasamID
         var imageURL = ""
         
         let dispatchQueue = DispatchQueue.global(qos: .background)
         dispatchQueue.async {
-            if NewKasam.kasamImageToSave != NewKasam.loadedInKasamImage {
+            if NewKasam.kasamImageToSave != UIImage() {
                 //CASE 1 - user has uploaded a new image, so save it
                 self.saveImage(image: NewKasam.kasamImageToSave, location: "kasam/\(kasamID.key!)/kasam_header", completion: {uploadedImageURL in
                     if uploadedImageURL != nil {
@@ -62,12 +59,11 @@ extension UIViewController {
                         print("Case 1")
                     }
                 })
-            } else if NewKasam.kasamImageToSave == UIImage() {
-                //CASE 2 - no image added, so use the default one
+            } else if NewKasam.loadedInKasamImage == UIImage() && NewKasam.kasamImageToSave == UIImage() {
+                //CASE 2 - no image added
                 print("Case 2")
                 semaphore.signal()
-                imageURL = PlaceHolders.kasamHeaderPlaceholderURL
-            } else {
+            } else if NewKasam.loadedInKasamImage != UIImage() && NewKasam.kasamImageToSave == UIImage() {
                 //CASE 3 - user editing a kasam and using same kasam image, so no need to save image
                 print("Case 3")
                 semaphore.signal()
@@ -76,8 +72,7 @@ extension UIViewController {
             semaphore.wait()
             
             //STEP 3 - Register Kasam Data in Firebase Database
-            print("3. registering kasam")
-            let kasamDB = DBRef.userCreator.child((Auth.auth().currentUser?.uid)!).child("Kasams").child(kasamID.key!)
+            print("3. registering kasam hell1")
             let kasamDictionary = ["Title": NewKasam.kasamName,
                                    "Benefits": NewKasam.benefits,
                                    "Genre": NewKasam.chosenGenre,
@@ -96,17 +91,15 @@ extension UIViewController {
             if NewKasam.kasamID != "" {
                 //updating existing kasam
                 kasamID.updateChildValues(kasamDictionary as [AnyHashable : Any]) {(error, reference) in
-                //kasam successfully created
-                kasamDB.setValue(NewKasam.kasamName)
-                if basicKasam == false {self.saveBlocks(kasamID: kasamID, imageURL: imageURL)}
-                else {completion(true)}
+                    //kasam successfully created
+                    if basicKasam == false {self.saveBlocks(kasamID: kasamID, imageURL: imageURL)}
+                    else {completion(true)}
                 }
             } else {
                 //creating new kasam
                 kasamID.setValue(kasamDictionary) {(error, reference) in
                     if error == nil {
-                        //kasam successfully created
-                        kasamDB.setValue(NewKasam.kasamName)
+                        //Kasam successfully created
                         if basicKasam == false {self.saveBlocks(kasamID: kasamID, imageURL: imageURL)}
                         else {completion(true)}
                     }
@@ -117,7 +110,7 @@ extension UIViewController {
     
     //STEP 2 - Save Kasam Image
     func saveImage(image: UIImage?, location: String, completion: @escaping (String?)->()) {
-        print("2. saving image")
+        print("2. saving image hell1")
         //Saves Kasam Image in Firebase Storage
         let imageData = image?.jpegData(compressionQuality: 0.6)
         let metaData = StorageMetadata()
@@ -136,7 +129,7 @@ extension UIViewController {
     
     //STEP 4 - Save block info under Kasam
     func saveBlocks(kasamID: DatabaseReference, imageURL: String){
-        print("4. saving blocks")
+        print("4. saving blocks hell1")
         let newBlockDB = DBRef.coachKasams.child(kasamID.key!).child("Blocks")
         print(newBlockDB)
         var successBlockCount = 0

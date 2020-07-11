@@ -41,10 +41,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     @IBOutlet weak var completedKasamTableHeight: NSLayoutConstraint!
     @IBOutlet weak var completedLabel: UILabel!
     
-    @IBOutlet weak var editKasamLabel: UILabel!
-    @IBOutlet weak var editKasamsCollectionView: UICollectionView!
-    @IBOutlet weak var editKasamsHeight: NSLayoutConstraint!
-    
     var weeklyStats: [weekStatsFormat] = []
     var detailedStats: [UserStatsFormat] = []
     var myKasamsArray: [EditMyKasamFormat] = []
@@ -89,11 +85,9 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
         
     //STEP 1 - Titles
-        var multiplier = 0
-        if myKasamsArray.count != 0 {multiplier += 1}
-        let titleHeights = 52.5 + (57.5 * (Double(multiplier)))
+        let titleHeights = 57.5
     //STEP 2 - CollectionViews
-        collectionViewHeight.constant = kasamStatsHeight.constant + editKasamsHeight.constant + CGFloat(titleHeights)
+        collectionViewHeight.constant = kasamStatsHeight.constant + CGFloat(titleHeights)
     //STEP 3 - TableView
         if completedStats.count > 0 {
             tableViewHeight = completedKasamTableHeight.constant + 42.5                //42.5 is the completed label height
@@ -258,10 +252,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             if count == 0 {
                 //not following any kasams
                 self.noUserKasams = true
-                self.editKasamsHeight.constant = 0
-            } else {
-                let cellWidth = ((self.view.frame.size.width - (15 * 4)) / 3)
-                self.editKasamsHeight.constant = cellWidth + 40
             }
             self.userKasamDBHandle = DBRef.userKasams.observe(.childAdded, with: {(snapshot) in
                 Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: {(snapshot) in
@@ -269,11 +259,8 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                         let imageURL = URL(string: value["Image"] as? String ?? "")
                         let myKasamsBlock = EditMyKasamFormat(kasamID: value["KasamID"] as? String ?? "", kasamTitle: value["Title"] as? String ?? "", imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
                         self.myKasamsArray.append(myKasamsBlock)
-                        self.editKasamsCollectionView.reloadData()
-                        self.editKasamLabel.isHidden = false
-                        self.editKasamsCollectionView.isHidden = false
                     }
-                    //remove observer
+                    //Remove observer
                     Database.database().reference().child("Coach-Kasams").child(snapshot.key).removeAllObservers()
                 })
             })
@@ -327,7 +314,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
     func badgeCount(){
         SavedData.badgesCount = 0
-        for badge in SavedData.badgesAchieved {
+        for _ in SavedData.badgesAchieved {
             SavedData.badgesCount += 1
         }
         badgeNo.text = String(describing: SavedData.badgesCount)
@@ -397,8 +384,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             } else {
                 return weeklyStats.count                                     //user following active kasams
             }
-        } else if collectionView == editKasamsCollectionView {
-            return myKasamsArray.count
         } else {
             if detailedStats.count == 0 {
                 return 1
@@ -422,11 +407,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 cell.setBlock(cell: stat)                                                 //user following active kasams
             }
             return cell
-        } else if collectionView == editKasamsCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditKasamCell", for: indexPath) as! KasamFollowingCell
-            let block = myKasamsArray[indexPath.row]
-            cell.setMyKasamBlock(cell: block)
-            return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamStatsCell", for: indexPath) as! KasamFollowingCell
             if detailedStats.count == 0 {
@@ -443,11 +423,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
         if collectionView == weekStatsCollectionView {
             kasamStatsHeight.constant = (view.bounds.size.width * (2/5))
             return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
-        } else if collectionView == editKasamsCollectionView {
-            //for edit kasams -- which has a longer width
-            let cellWidth = ((view.frame.size.width - (15 * 4)) / 3)
-            editKasamsHeight.constant = cellWidth + 40
-            return CGSize(width: cellWidth, height: cellWidth + 40)
         } else {
             //for active kasam stats + completed kasam stats
             let cellWidth = ((view.frame.size.width - (15 * 4)) / 3)
@@ -475,10 +450,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
                 }
                 self.performSegue(withIdentifier: "goToStats", sender: indexPath)
             }
-        } else if collectionView == editKasamsCollectionView {
-            kasamIDGlobal = myKasamsArray[indexPath.row].kasamID
-            kasamImageGlobal = myKasamsArray[indexPath.row].imageURL
-            self.performSegue(withIdentifier: "goToEditKasam", sender: indexPath)
         }
     }
 }

@@ -7,15 +7,18 @@
 //
 
 import UIKit
+import SwiftIcons
 
 class TabBar: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
+        tabBar.items?[0].setIcon(icon: .fontAwesomeSolid(.seedling), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
+        tabBar.items?[1].setIcon(icon: .fontAwesomeSolid(.user), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
+        tabBar.items?[2].setIcon(icon: .fontAwesomeSolid(.userFriends), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
+        tabBar.items?[3].setIcon(icon: .fontAwesomeSolid(.featherAlt), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
         self.delegate = self
     }
 }
-
-
 
 extension TabBar: UITabBarControllerDelegate  {
     //clicking to switch

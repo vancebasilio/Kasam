@@ -27,11 +27,11 @@ class BadgesAchieved: UIViewController {
             if SavedData.kasamDict[kasamID!] != nil {
                 badgeNameArray = [SavedData.kasamDict[kasamID!]!.kasamName]
             } else {
-                badgeNameArray = [""]               //to show "no badges achieved" message in badge popup (for specifc kasams)
+                badgeNameArray = [""]               //to show "no trophies achieved" message in badge popup (for specifc kasams)
             }
         } else {
             if badgeNameArray.count == 0 {
-                badgeNameArray = [""]               //to show "no badges achieved" message in badge popup (for user profile page)
+                badgeNameArray = [""]               //to show "no trophies achieved" message in badge popup (for user profile page)
             }
         }
         let nib = UINib(nibName: "BadgesAchievedCellTableViewCell", bundle: nil)
@@ -78,16 +78,16 @@ extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
                 if SavedData.badgesAchieved[SavedData.kasamDict[kasamID!]!.kasamName]?.count != nil {
                     newlabel.text = badgeNameArray[section]
                 } else {
-                    newlabel.text = "No badges achieved"
+                    newlabel.text = "No trophies achieved"
                 }
             } else {
-                newlabel.text = "No badges achieved"
+                newlabel.text = "No trophies achieved"
             }
         } else {
             if badgeNameArray != [""] {
                 newlabel.text = badgeNameArray[section]
             } else {
-                newlabel.text = "No badges achieved"
+                newlabel.text = "No trophies achieved"
             }
         }
         

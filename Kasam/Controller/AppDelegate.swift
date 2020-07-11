@@ -27,22 +27,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // first launch
-        // this method is called only on first launch when app was closed / killed
+        // First launch - This method is called only on first launch when app was closed / killed
         ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         IQKeyboardManager.shared.enable = true
-        Database.database().reference().child("Assets").child("Levels").observeSingleEvent(of: .value, with:{(snap) in
-            let levelsString = snap.value as? String
-            Assets.levelsArray = levelsString?.components(separatedBy: ";") ?? ["Easy","Medium","Hard"]
-        })
-        Database.database().reference().child("Assets").child("Featured").observeSingleEvent(of: .value, with:{(snap) in
-            let featuredString = snap.value as? String
-            Assets.featuredKasams = featuredString?.components(separatedBy: ";") ?? ["-LqRRHDQuwf2tJmoNoaa"]
-        })
-        Database.database().reference().child("Assets").child("DiscoverCriteria").observeSingleEvent(of: .value, with:{(snap) in
-            let discoverCriteria = snap.value as? String
-            Assets.discoverCriteria = discoverCriteria?.components(separatedBy: ";") ?? ["Fitness", "Health", "Basic"]
+        Database.database().reference().child("Assets").observeSingleEvent(of: .value, with:{(snap) in
+            if let value = snap.value as? [String:Any] {
+                Assets.levelsArray = (value["Levels"] as? String)?.components(separatedBy: ";") ?? ["Easy","Medium","Hard"]
+                Assets.featuredKasams = (value["Featured"] as? String)?.components(separatedBy: ";") ?? ["-LqRRHDQuwf2tJmoNoaa"]
+                Assets.discoverCriteria = (value["DiscoverCriteria"] as? String)?.components(separatedBy: ";") ?? ["Fitness", "Health", "Basic"]
+                PlaceHolders.kasamHeaderPlaceholderURL = value["Placeholder-header"] as! String
+                let kasamPlaceholderImage = UIImageView()
+                kasamPlaceholderImage.sd_setImage(with: URL(string: PlaceHolders.kasamHeaderPlaceholderURL)) { (image, error, cache, URL) in
+                    PlaceHolders.kasamHeaderPlaceholderImage = kasamPlaceholderImage.image ?? UIImage(named: "placeholder")!
+                }
+            }
         })
         profileInfo()
         

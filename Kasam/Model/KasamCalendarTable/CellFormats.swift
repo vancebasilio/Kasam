@@ -11,8 +11,8 @@ import UIKit
 import Firebase
 
 class discoverKasamFormat {
-    var image: URL
     var title: String
+    var image: URL
     var rating: String
     var creator: String?
     var kasamID: String

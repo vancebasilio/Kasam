@@ -77,7 +77,6 @@ class TodayBlockCell: UITableViewCell {
         //Show the block subtite if it's a timeline kasam
         if SavedData.kasamDict[kasamID]?.timeline != nil {
             blockSubtitle.text = "\(block.blockTitle)"
-            blockSubtitle.font = blockSubtitle.font.withSize(16)
         //Hide the block subtitle
         } else {blockSubtitle.frame.size.height = 0}
         
@@ -120,9 +119,9 @@ class TodayBlockCell: UITableViewCell {
         NotificationCenter.default.addObserver(self, selector: #selector(TodayBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
     
         blockImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
-        levelLine.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
         kasamName.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(kasamNamePressed)))
         extendButtonView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(extendButtonPressed)))
+        progressBar.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
     }
     
     @objc func kasamNamePressed(){
@@ -240,8 +239,7 @@ class TodayBlockCell: UITableViewCell {
                 blockSubtitle.text = "One day left!"
                 streakShadow.backgroundColor = UIColor.dayYesColor
                 statsShadow.layer.shadowColor = UIColor.dayYesColor.cgColor
-                statsShadow.layer.shadowOpacity = 0.4
-                checkmarkAndPercentageUpdate()
+                statsShadow.layer.shadowOpacity = 1
                 extendButtonView.isHidden = true
             } else if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration {
                 //COMPLETED!
@@ -259,12 +257,12 @@ class TodayBlockCell: UITableViewCell {
                 hideDayTrackerView.backgroundColor = UIColor.white
                 if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
             }
-            
             if SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress == 1 {streakPostText.text = "day completed"}
             
             //Set level line progress
             let ratio = Double(currentDayStat) / Double(SavedData.kasamDict[kasamID]!.repeatDuration)
-            self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(ratio)
+            if ratio <= 1 {self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(ratio)}
+            else {self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(1)}
             levelLinePercent.text = "\(Int(ratio * 100))%"
             
             setFirebaseBadge()

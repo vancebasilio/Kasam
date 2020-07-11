@@ -246,7 +246,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             extendHolder.isHidden = true
             self.headerImageView.alpha = 1.0
         }
-        gradientLayer.locations = [NSNumber(value: 0.0), NSNumber(value: 1.1 - ratio), NSNumber(value: 1.1 - ratio), NSNumber(value: 1.0)]
+        let ratioAdjust = 0.95 - ratio
+        gradientLayer.locations = [NSNumber(value: 0.15), NSNumber(value: ratioAdjust), NSNumber(value: ratioAdjust), NSNumber(value: 1.0)]
     }
     
     func badgesAchieved(){
@@ -551,8 +552,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             blockImage = NewKasam.kasamImageToSave
         } else if NewKasam.kasamImageToSave == UIImage() && NewKasam.loadedInKasamImage == UIImage() {
         //CASE 2 - creating new kasam, and hasn't uploaded an image
-           headerImageView.image = PlaceHolders.kasamHeaderPlaceholderImage
-           blockImage = PlaceHolders.kasamHeaderPlaceholderImage!
+            headerImageView.image = PlaceHolders.kasamHeaderPlaceholderImage
+            blockImage = PlaceHolders.kasamHeaderPlaceholderImage
         } else if NewKasam.kasamImageToSave != UIImage() && NewKasam.loadedInKasamImage != UIImage() {
         //CASE 3 - editing existing Kasam, and user is using a new image, so save new image
             headerImageView.image = NewKasam.kasamImageToSave

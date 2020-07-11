@@ -97,8 +97,10 @@ struct NewKasam {
 }
 
 struct PlaceHolders {
-    static var kasamHeaderPlaceholderImage = UIImage(named: "image-add-placeholder")
-    static var kasamHeaderPlaceholderURL =  "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fimage-add-placeholder.jpg?alt=media&token=491fdb83-2612-4423-9d2e-cdd44ab8157e"
+    static var kasamHeaderPlaceholderURL =  "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/placeholders%2Fkasam-header-placehodler.jpg?alt=media&token=be102264-4a50-4a36-b1fd-2191840a23e3"
+    
+    static var kasamHeaderPlaceholderImage = UIImage()
+    
     static var kasamActivityPlaceholderURL = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fgiphy%20(1).gif?alt=media&token=e91fd36a-1e2a-43db-b211-396b4b8d65e1"
     
     static var kasamLoadingImageURL = "https://firebasestorage.googleapis.com/v0/b/kasam-coach.appspot.com/o/kasam%2Fplaceholder.jpg?alt=media&token=580f119e-b022-4782-9bfd-0464a5b55c7e"

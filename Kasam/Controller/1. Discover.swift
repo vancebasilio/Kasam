@@ -19,9 +19,7 @@ class DiscoverViewController: UIViewController {
     @IBOutlet weak var expertHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
-    let discoverTitlesArray = ["Popular Kasams, My Kasams"]
     var discoverKasamArray = [Int:[discoverKasamFormat]]()
-    
     var featuredKasamArray: [discoverKasamFormat] = []
     var kasamIDGlobal: String = ""
     var kasamTitleGlobal: String = ""
@@ -36,14 +34,10 @@ class DiscoverViewController: UIViewController {
         setupNavBar(clean: false)
         self.view.showAnimatedSkeleton()
         let getUserKasams = NSNotification.Name("GetUserKasams")
-        NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.getUserKasams), name: getUserKasams, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.getMyKasams), name: getUserKasams, object: nil)
         DispatchQueue.main.async {
             self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
         }
-    }
-    
-    @objc func getUserKasams(){
-        getDiscoverKasams(criteria: "Basic")
     }
     
     //Puts the nav bars back
@@ -137,7 +131,7 @@ class DiscoverViewController: UIViewController {
         DBRef.coachKasams.queryOrdered(byChild: "Genre").queryEqual(toValue: criteria).observe(.childAdded) {(snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 let imageURL = URL(string: value["Image"] as? String ?? "")
-                let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
+                let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
                 if let index = Assets.discoverCriteria.index(of: criteria) {
                     if value["Title"] as? String ?? "" != "Basic" {
                         tempArray.append(kasam)
@@ -150,22 +144,22 @@ class DiscoverViewController: UIViewController {
         }
     }
     
-    func getMyKasams() {
+    @objc func getMyKasams() {
         var tempArray = [discoverKasamFormat]()
-        DBRef.userKasams.observe(.childAdded) {(snap) in
-            DBRef.coachKasams.child(snap.key).observe(.value) {(snapshot) in
-                if let value = snapshot.value as? [String: Any] {
+        DBRef.userKasams.observeSingleEvent(of: .value, with:{(snapshot) in
+            DBRef.userKasams.observe(.childAdded) {(snap) in
+                if let value = snap.value as? [String: Any] {
                     let imageURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
-                    if let index = Assets.discoverCriteria.index(of: "Basic") {
-                        tempArray.append(kasam)
-                        self.discoverKasamArray[index] = tempArray
+                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: imageURL!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
+                    tempArray.append(kasam)
+                    self.discoverKasamArray[self.discoverKasamArray.count] = tempArray
+                    if tempArray.count == snapshot.childrenCount {
                         self.updateContentTableHeight()
                         self.discoverTableView.reloadData()
                     }
                 }
             }
-        }
+        })
     }
 }
 
@@ -173,12 +167,12 @@ class DiscoverViewController: UIViewController {
 
 extension DiscoverViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Assets.discoverCriteria.count
+        return Assets.discoverCriteria.count + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DiscoverKasamCell") as! DiscoverKasamCell
-        if Assets.discoverCriteria[indexPath.row] == "Basic" {
+        if indexPath.row >= Assets.discoverCriteria.count {
             cell.DiscoverCategoryTitle.text = "My Kasams"
         } else {
             cell.DiscoverCategoryTitle.text = Assets.discoverCriteria[indexPath.row]
@@ -206,7 +200,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
             expertPageControl.isHidden = !(count > 1)
             return featuredKasamArray.count
         } else {
-            if Assets.discoverCriteria[collectionView.tag] == "Basic" {
+            if collectionView.tag >= Assets.discoverCriteria.count  {
                 return discoverKasamArray[collectionView.tag]?.count ?? 1
             } else {
                 return discoverKasamArray[collectionView.tag]?.count ?? 0
@@ -245,8 +239,8 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
             kasamIDGlobal = kasamID
             self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
         } else {
-            if Assets.discoverCriteria[collectionView.tag] == "Basic" && discoverKasamArray[collectionView.tag] == nil {
-                self.performSegue(withIdentifier: "goToNewKasam", sender: indexPath)
+            if collectionView.tag >= Assets.discoverCriteria.count && discoverKasamArray[collectionView.tag] == nil {
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "basic"])
             } else {
                 let kasamID = discoverKasamArray[collectionView.tag]?[indexPath.row].kasamID
                 let kasamName = discoverKasamArray[collectionView.tag]?[indexPath.row].title

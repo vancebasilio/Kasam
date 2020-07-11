@@ -224,13 +224,15 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             NewKasam.chosenGenre = self.newCategoryChosenLabel.text!
             NewKasam.kasamDescription = newKasamDescription.text
             NewKasam.chosenMetric = "Checkmark"
-            NewKasam.kasamImageToSave = self.headerImageView.image!
+            if self.headerImageView.image != PlaceHolders.kasamHeaderPlaceholderImage {
+                NewKasam.kasamImageToSave = self.headerImageView.image!
+            }
             self.animationView.loadingAnimation(view: view, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
             createKasam(existingKasamID: NewKasam.kasamID, basicKasam: true) {(success) in
                 if success == true {
                     self.animationView.removeFromSuperview()
                     self.animationOverlay.removeFromSuperview()
-                    self.navigationController?.popToRootViewController(animated: true)
+                    self.dismiss(animated: true, completion: nil)
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
                 }
             }
@@ -374,7 +376,8 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 self.newCategoryChosenLabel.textColor = .darkGray
                 self.newCategoryIcon = self.newCategoryIcon.setKasamTypeIcon(kasamType: self.newCategoryChosenLabel.text!, button: self.newCategoryIcon, location: "options")
                 
-                NewKasam.loadedInKasamImage = self.headerImageView.image!
+//                NewKasam.loadedInKasamImage = self.headerImageView.image!
+//                NewKasam.kasamImageToSave = self.headerImageView.image!
                 NewKasam.loadedInKasamImageURL = URL(string: value["Image"] as? String ?? "")
                 NewKasam.kasamDescription = self.newKasamDescription.text!
                 

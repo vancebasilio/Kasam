@@ -19,7 +19,7 @@ class DiscoverHorizontalCell: UICollectionViewCell {
     @IBOutlet weak var kasamType: UIButton!
     
     func setBlock(cell: discoverKasamFormat) {
-        topImage.sd_setImage(with: cell.image, placeholderImage: PlaceHolders.kasamLoadingImage)
+        topImage.sd_setImage(with: cell.image, placeholderImage: PlaceHolders.kasamHeaderPlaceholderImage)
         kasamTitle.text = cell.title
         let rating = Double(cell.rating)
         kasamRating.rating = rating ?? 0
