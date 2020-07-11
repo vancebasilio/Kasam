@@ -675,17 +675,19 @@ class BulletedTextView: UITextView {
     @objc func textViewDidChange(notification: Notification) {
         var lines: [String] = []
         for (_, line) in text.components(separatedBy: .newlines).enumerated() {
-            if !line.hasPrefix("\u{2022}") && !line.trimmingCharacters(in: .whitespaces).isEmpty {
-                lines.append("\u{2022} " + line)
-            } else {
+            if !line.hasPrefix("\u{2022} ") && !line.trimmingCharacters(in: .whitespaces).isEmpty {
+                if line.hasPrefix("\u{2022}") {
+                    //To prevent user from removing space after bullet point
+                } else {
+                    lines.append("\u{2022} " + line)
+                }
+            }
+            else {
                 lines.append(line)
             }
         }
         text = lines.joined(separator: "\n")
-        // this prevents two empty lines at the bottom
-        if text.hasSuffix("\n\n") {
-            text = String(text.dropLast())
-        }
+        if text.hasSuffix("\n\n") {text = String(text.dropLast())}      // This prevents two empty lines at the bottom
     }
 }
 

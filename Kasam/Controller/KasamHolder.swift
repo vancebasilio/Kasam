@@ -64,6 +64,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var headerBlurImageView: UIImageView!
     var saveTimeObserver: NSObjectProtocol?
     var unfollowObserver: NSObjectProtocol?
+    var userKasam = false
     
     var initialRepeat: Int?             //used to compare against new repeatDuration; if user switching from one-time to repeat
     
@@ -337,7 +338,13 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     //Retrieves Kasam Data using Kasam ID selected
     func getKasamData(){
-        DBRef.coachKasams.child(kasamID).observe(.value, with: {(snapshot) in
+        var kasamDB = DatabaseReference()
+        if userKasam == true {
+            kasamDB = DBRef.userKasams.child(kasamID)
+        } else {
+            kasamDB = DBRef.coachKasams.child(kasamID)
+        }
+        kasamDB.observe(.value, with: {(snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 self.kasamGTitle = value["Title"] as? String ?? ""
                 self.headerLabel.text! = self.kasamGTitle
@@ -360,7 +367,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 let headerURL = URL(string: value["Image"] as? String ?? "")
                 self.previewLink = value["Preview"] as? String ?? ""
                 if self.previewLink != "" {self.previewButton.isHidden = false}
-                self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: PlaceHolders.kasamLoadingImage)
+                self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: PlaceHolders.kasamHeaderPlaceholderImage)
                 DispatchQueue.main.asyncAfter(deadline: .now()) {
                     self.setupKasamBadge()
                 }

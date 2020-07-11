@@ -40,13 +40,14 @@
 		BC520BBB227413E100553C6B /* Transitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC520BBA227413E100553C6B /* Transitions.swift */; };
 		BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD1226D6EF900D707CC /* 1. Discover.swift */; };
 		BC554BD6226D8BDB00D707CC /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD5226D8BDB00D707CC /* UIColor.swift */; };
-		BC554BD8226E079100D707CC /* 3. User-Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD7226E079100D707CC /* 3. User-Profile.swift */; };
+		BC554BD8226E079100D707CC /* 4. User-Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD7226E079100D707CC /* 4. User-Profile.swift */; };
 		BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BDA226E0FBE00D707CC /* TableViewCell.swift */; };
 		BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC554BDB226E0FBE00D707CC /* KasamCell.xib */; };
 		BC55BFD722AEEF6200D77337 /* Custom Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55BFD622AEEF6200D77337 /* Custom Functions.swift */; };
 		BC55CC69232B4552003C87F6 /* WeeklyStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55CC68232B4552003C87F6 /* WeeklyStatsCell.swift */; };
 		BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C3C79234D60E800C68238 /* PopupForm.swift */; };
 		BC5C499C228122BB00EC0EA8 /* KasamSquareCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */; };
+		BC5D1B0224BA1D4700A5E9A7 /* 3. Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5D1B0124BA1D4700A5E9A7 /* 3. Group.swift */; };
 		BC651491238DAD4600510971 /* Popups.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC651490238DAD4600510971 /* Popups.swift */; };
 		BC679ECB2439290800441F6E /* badge.json in Resources */ = {isa = PBXBuildFile; fileRef = BC679ECA2439290800441F6E /* badge.json */; };
 		BC68BC5F22838A8800240CE9 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC68BC5E22838A8800240CE9 /* ImageService.swift */; };
@@ -138,13 +139,14 @@
 		BC520BBA227413E100553C6B /* Transitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transitions.swift; sourceTree = "<group>"; };
 		BC554BD1226D6EF900D707CC /* 1. Discover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "1. Discover.swift"; sourceTree = "<group>"; };
 		BC554BD5226D8BDB00D707CC /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
-		BC554BD7226E079100D707CC /* 3. User-Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "3. User-Profile.swift"; sourceTree = "<group>"; };
+		BC554BD7226E079100D707CC /* 4. User-Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "4. User-Profile.swift"; sourceTree = "<group>"; };
 		BC554BDA226E0FBE00D707CC /* TableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
 		BC554BDB226E0FBE00D707CC /* KasamCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KasamCell.xib; sourceTree = "<group>"; };
 		BC55BFD622AEEF6200D77337 /* Custom Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Custom Functions.swift"; sourceTree = "<group>"; };
 		BC55CC68232B4552003C87F6 /* WeeklyStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyStatsCell.swift; sourceTree = "<group>"; };
 		BC5C3C79234D60E800C68238 /* PopupForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupForm.swift; sourceTree = "<group>"; };
 		BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamSquareCell.swift; sourceTree = "<group>"; };
+		BC5D1B0124BA1D4700A5E9A7 /* 3. Group.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "3. Group.swift"; sourceTree = "<group>"; };
 		BC651490238DAD4600510971 /* Popups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Popups.swift; sourceTree = "<group>"; };
 		BC679ECA2439290800441F6E /* badge.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = badge.json; sourceTree = "<group>"; };
 		BC68BC5E22838A8800240CE9 /* ImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
@@ -414,7 +416,8 @@
 				BC01664422D53E970073186D /* CoachHolder.swift */,
 				BC554BD1226D6EF900D707CC /* 1. Discover.swift */,
 				BC9C7840228CD2DB000C8D0A /* 2. Today.swift */,
-				BC554BD7226E079100D707CC /* 3. User-Profile.swift */,
+				BC5D1B0124BA1D4700A5E9A7 /* 3. Group.swift */,
+				BC554BD7226E079100D707CC /* 4. User-Profile.swift */,
 				BC12F1ED233FC17100D93227 /* Statistics.swift */,
 				BCE50BDC22D0497B000F2534 /* KasamHolder.swift */,
 				BC6E97842321DF7800698EB9 /* KasamViewer.swift */,
@@ -725,6 +728,7 @@
 				BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */,
 				BC38419C24037DE6005D929A /* TodayDayTrackerCell.swift in Sources */,
 				BC9EC1D92390DD0400637C94 /* CompletedKasamCell.swift in Sources */,
+				BC5D1B0224BA1D4700A5E9A7 /* 3. Group.swift in Sources */,
 				BC651491238DAD4600510971 /* Popups.swift in Sources */,
 				BC55BFD722AEEF6200D77337 /* Custom Functions.swift in Sources */,
 				BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */,
@@ -756,7 +760,7 @@
 				BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */,
 				BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */,
 				BC4DE60524B0241A00763B32 /* OptionsPopup.swift in Sources */,
-				BC554BD8226E079100D707CC /* 3. User-Profile.swift in Sources */,
+				BC554BD8226E079100D707CC /* 4. User-Profile.swift in Sources */,
 				BCE0232D23B092E2007B25A0 /* MetricTypeCell.swift in Sources */,
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
 				BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */,

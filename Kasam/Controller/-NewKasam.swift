@@ -220,7 +220,13 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             missingFieldsPopup(title: "Missing Fields:", description: description, image: popupImage, buttonText: "Got it")
         } else {
             NewKasam.kasamName = newKasamTitle.text ?? ""
-            NewKasam.benefits = benefitsTextView.text
+            let tempArray = benefitsTextView.text.components(separatedBy: "\n")
+            var benefitsArray = [String]()
+            for benefits in tempArray {
+                benefitsArray.append(benefits.replacingOccurrences(of: "\u{2022} ", with: "", options: NSString.CompareOptions.literal, range: nil))
+            }
+            NewKasam.benefits = benefitsArray.joined(separator:";")
+            
             NewKasam.chosenGenre = self.newCategoryChosenLabel.text!
             NewKasam.kasamDescription = newKasamDescription.text
             NewKasam.chosenMetric = "Checkmark"
@@ -275,6 +281,9 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             benefitsTextView.text = nil
             benefitsTextView.textColor = UIColor.darkGray
         }
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
@@ -376,8 +385,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 self.newCategoryChosenLabel.textColor = .darkGray
                 self.newCategoryIcon = self.newCategoryIcon.setKasamTypeIcon(kasamType: self.newCategoryChosenLabel.text!, button: self.newCategoryIcon, location: "options")
                 
-//                NewKasam.loadedInKasamImage = self.headerImageView.image!
-//                NewKasam.kasamImageToSave = self.headerImageView.image!
                 NewKasam.loadedInKasamImageURL = URL(string: value["Image"] as? String ?? "")
                 NewKasam.kasamDescription = self.newKasamDescription.text!
                 
