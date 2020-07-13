@@ -240,6 +240,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                     self.animationOverlay.removeFromSuperview()
                     self.dismiss(animated: true, completion: nil)
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GetUserKasams"), object: self)
                 }
             }
         }

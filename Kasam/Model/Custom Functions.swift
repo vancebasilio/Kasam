@@ -91,7 +91,7 @@ extension UIViewController {
             if NewKasam.kasamID != "" {
                 //updating existing kasam
                 kasamID.updateChildValues(kasamDictionary as [AnyHashable : Any]) {(error, reference) in
-                    //kasam successfully created
+                    //kasam successfully updated
                     if basicKasam == false {self.saveBlocks(kasamID: kasamID, imageURL: imageURL)}
                     else {completion(true)}
                 }
