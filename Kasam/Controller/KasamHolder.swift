@@ -212,7 +212,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func headerBadge(){
-        if SavedData.kasamDict[kasamID]!.repeatDuration >= 0 && SavedData.kasamDict[kasamID]?.currentStatus == "active" {
+        if SavedData.kasamDict[kasamID]!.repeatDuration > 0 && SavedData.kasamDict[kasamID]?.currentStatus == "active" {
             self.headerImageView.alpha = 0.7
             var daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress ?? 0)
             finishIcon.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 35, color: UIColor.colorFive.lighter, forState: .normal)
@@ -224,6 +224,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 if SavedData.kasamDict[kasamID]?.repeatDuration == 0 {daysCompleted = Double(SavedData.kasamDict[kasamID]?.percentComplete ?? 0)}
                 ratio = (daysCompleted / Double(SavedData.kasamDict[kasamID]!.repeatDuration))
                 self.badgeInfo.text = "  \(SavedData.kasamDict[kasamID]!.repeatDuration) day trophy  "
+                if ratio.isNaN {ratio = 0}
                 self.badgeCompletion.text = "\(Int(ratio * 100))%"
                 headerBadgeIcon.animation = Animations.kasamBadges[1]
             } else {
@@ -240,6 +241,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     self.headerBadgeIcon.play()
                 }
             }
+        } else if SavedData.kasamDict[kasamID]!.repeatDuration == 0 {
+            ratio = 1
+            self.badgeCompletion.isHidden = true
+            headerBadgeMask.isHidden = true
+            self.badgeInfo.isHidden = true
         } else {
             //Not following or previously completed Kasam, so don't show any header badge
             self.kasamBadgeHolder.isHidden = true

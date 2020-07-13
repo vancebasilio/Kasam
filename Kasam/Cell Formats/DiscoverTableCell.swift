@@ -25,6 +25,9 @@ class DiscoverKasamCell: UITableViewCell {
         discoverCollectionView.tag = row
         discoverCollectionView.reloadData()
     }
+    
+    func disableSwiping(){discoverCollectionView.isScrollEnabled = false}
+    func enableSwiping(){discoverCollectionView.isScrollEnabled = true}
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)

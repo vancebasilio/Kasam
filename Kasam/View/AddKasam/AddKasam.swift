@@ -20,6 +20,12 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var dayGoaldayLabel: UILabel!
     @IBOutlet weak var dayGoalImage: UIImageView!
     
+    @IBOutlet weak var groupButton: UIView!
+    @IBOutlet weak var groupOutline: UIView!
+    @IBOutlet weak var groupBG: UIView!
+    @IBOutlet weak var groupLabel: UILabel!
+    @IBOutlet weak var groupImage: UIImageView!
+    
     @IBOutlet weak var justForFunButton: UIView!
     @IBOutlet weak var justForFunOutilne: UIView!
     @IBOutlet weak var justForFunBG: UIView!
@@ -30,6 +36,7 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var startDayView: UIStackView!
     @IBOutlet weak var startDayPicker: UIPickerView!
     @IBOutlet weak var startTimePicker: UIPickerView!
+    @IBOutlet weak var durationPicker: UIPickerView!
     @IBOutlet weak var reminderTimeSwitch: UISwitch!
     
     @IBOutlet weak var goalStackView: UIStackView!
@@ -70,7 +77,13 @@ class AddKasamController: UIViewController {
         dayGoalOutline.layer.cornerRadius = 25
         dayGoalOutline.layer.borderColor = UIColor.init(hex: 0x66A058).cgColor
         dayGoalOutline.layer.borderWidth = 3.0
-        dayGoalImage.setIcon(icon: .fontAwesomeSolid(.calendarAlt), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
+        dayGoalImage.setIcon(icon: .fontAwesomeSolid(.user), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
+        
+        groupBG.layer.cornerRadius = 20
+        groupOutline.layer.cornerRadius = 25
+        groupOutline.layer.borderColor = UIColor.init(hex: 0x66A058).cgColor
+        groupOutline.layer.borderWidth = 3.0
+        groupImage.setIcon(icon: .fontAwesomeSolid(.userFriends), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
         
         justForFunBG.layer.cornerRadius = 20
         justForFunOutilne.layer.cornerRadius = 25
@@ -78,7 +91,8 @@ class AddKasamController: UIViewController {
         justForFunOutilne.layer.borderWidth = 3.0
         justForFunImage.setIcon(icon: .fontAwesomeSolid(.footballBall), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
         
-        dayGoalButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dayChallengeSelected)))
+        dayGoalButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(personalChallengeSelected)))
+        groupButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(groupChallengeSelected)))
         justForFunButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(justForFunSelected)))
         
         reminderTimeSwitch.onTintColor = .colorFour
@@ -97,21 +111,42 @@ class AddKasamController: UIViewController {
         }
     }
     
-    @objc func dayChallengeSelected(){
-        dayGoalOutline.isHidden = false
+    @objc func personalChallengeSelected(){
+        groupOutline.isHidden = true
         justForFunOutilne.isHidden = true
-        dayGoaldayLabel.textColor = .white
+        groupLabel.textColor = .darkGray
         justForFunLabel.textColor = .darkGray
-        dayGoalBG.backgroundColor = UIColor.init(hex: 0x6EA960)
+        groupBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
         justForFunBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
+        
+        dayGoalOutline.isHidden = false
+        dayGoaldayLabel.textColor = .white
+        dayGoalBG.backgroundColor = UIColor.init(hex: 0x6EA960)
+    }
+    
+    @objc func groupChallengeSelected(){
+        justForFunOutilne.isHidden = true
+        dayGoalOutline.isHidden = true
+        justForFunLabel.textColor = .darkGray
+        dayGoaldayLabel.textColor = .darkGray
+        justForFunBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
+        dayGoalBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
+        
+        groupOutline.isHidden = false
+        groupLabel.textColor = .white
+        groupBG.backgroundColor = UIColor.init(hex: 0x6EA960)
     }
     
     @objc func justForFunSelected(){
         dayGoalOutline.isHidden = true
-        justForFunOutilne.isHidden = false
+        groupOutline.isHidden = true
         dayGoaldayLabel.textColor = .darkGray
-        justForFunLabel.textColor = .white
+        groupLabel.textColor = .darkGray
         dayGoalBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
+        groupBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
+        
+        justForFunOutilne.isHidden = false
+        justForFunLabel.textColor = .white
         justForFunBG.backgroundColor = UIColor.init(hex: 0x6EA960)
         repeatDuration = 0
     }
@@ -135,19 +170,20 @@ class AddKasamController: UIViewController {
             formattedTime = SavedData.kasamDict[kasamID]!.startTime
             currentDay = SavedData.kasamDict[kasamID]?.currentDay
             
-            if percentComplete >= 1.0 {
-                repeatDuration = Int(ceil(percentComplete)) * SavedData.kasamDict[kasamID]!.repeatDuration
-                dayGoaldayLabel.text = "Extend to\n\(repeatDuration) days"
-            } else {
+            //Extend kasam functionality
+//            if percentComplete >= 1.0 {
+//                repeatDuration = Int(ceil(percentComplete)) * SavedData.kasamDict[kasamID]!.repeatDuration
+//                dayGoaldayLabel.text = "Extend to\n\(repeatDuration) days"
+//            } else {
+//            }
                 repeatDuration = SavedData.kasamDict[kasamID]!.repeatDuration
-                dayGoaldayLabel.text = "\(repeatDuration) days"
-            }
+//                dayGoaldayLabel.text = "\(repeatDuration) days"
             
             //Load in chosen Kasam preferences
             startDateTimeLabel.text = "Edit Preferences"
             if repeatDuration > 0 {
                 startDayPicker.isUserInteractionEnabled = false
-                dayChallengeSelected()
+                personalChallengeSelected()
             } else {
                 justForFunSelected()
             }
@@ -182,7 +218,7 @@ class AddKasamController: UIViewController {
         } else {
             DBRef.coachKasams.child(kasamID).child("Duration").observeSingleEvent(of: .value) {(snap) in
                 self.repeatDuration = snap.value as? Int ?? 30
-                self.dayGoaldayLabel.text = "\(self.repeatDuration) days"
+//                self.dayGoaldayLabel.text = "\(self.repeatDuration) days"
             }
             cancelButton.isHidden = true
             
@@ -190,10 +226,10 @@ class AddKasamController: UIViewController {
             if SavedData.kasamDict[kasamID]?.repeatDuration != nil {
                 repeatDuration = SavedData.kasamDict[kasamID]!.repeatDuration
                 if repeatDuration > 1 && (currentDay ?? 1 < repeatDuration) {
-                    startDateTimeLabel.text = "Restart Kasam"
+//                    startDateTimeLabel.text = "Restart Kasam"
                     //Restarting a kasam, so load in the previous duration
                     if timelineDuration == nil {
-                        dayChallengeSelected()
+                        personalChallengeSelected()
                     }
                 }
             }
@@ -274,6 +310,8 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
             } else {
                 return 30
             }
+        } else if pickerView == durationPicker {
+            return 1
         } else {
             if component == 0 {
                 return 12
@@ -314,6 +352,8 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
             } else {
                 label.text = timeUnitArray[row]
             }
+        } else if pickerView == durationPicker {
+            label.text = "\(repeatDuration) days"
         }
         return label
     }

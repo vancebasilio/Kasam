@@ -301,7 +301,7 @@ func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text:
         attributes.shadow = .active(with: .init(color: EKColor(UIColor.colorFour), opacity: 0.6, radius: 6))
         attributes.roundCorners = .all(radius: 20)
         if fullView == true {
-            attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 420))
+            attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 500))
         } else {
             attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 300))
         }
