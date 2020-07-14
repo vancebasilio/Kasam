@@ -117,6 +117,14 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         
         let showCompletionAnimation = NSNotification.Name("ShowCompletionAnimation")
                NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.showCompletionAnimation), name: showCompletionAnimation, object: nil)
+        
+        userFirstName.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(changeDisplayName)))
+    }
+    
+    @objc func changeDisplayName(){
+        changeDisplayNamePopup() {(success) in
+            self.userFirstName.text =  Auth.auth().currentUser?.displayName
+        }
     }
     
     @objc func showCompletionAnimation(){
@@ -285,8 +293,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     func profileSetup(){
         self.profileImage.layer.cornerRadius = self.profileImage.frame.width / 2
         self.profileImage.clipsToBounds = true
-        let userName = Auth.auth().currentUser?.displayName
-        userFirstName.text = userName
+        userFirstName.text =  Auth.auth().currentUser?.displayName
         if let truncUserFirst = Auth.auth().currentUser?.displayName?.split(separator: " ").first.map(String.init), let truncUserLast = Auth.auth().currentUser?.displayName?.split(separator: " ").last.map(String.init) {
             userFirstName.text = truncUserFirst + " " + truncUserLast
         }

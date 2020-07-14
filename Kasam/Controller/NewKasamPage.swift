@@ -12,9 +12,11 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
 
     var pageControl = UIPageControl()
     var kasamType = ""
+    var kasamHolderKasamEdit = false
     lazy var orderedViewControllers: [UIViewController] = {
         let firstVC = self.newVc(viewController: "NewKasam") as! NewKasamController
         firstVC.basicKasam = true
+        firstVC.kasamHolderKasamEdit = kasamHolderKasamEdit
         return [firstVC]
     }()
     
@@ -31,7 +33,9 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
     override func viewWillAppear(_ animated: Bool){
         self.tabBarController?.tabBar.isHidden = true
         self.tabBarController?.tabBar.isTranslucent = true
-//        UIView.transition(with: tabBarController!.view, duration: 0.35, options: .transitionCrossDissolve, animations: nil)
+        if tabBarController != nil {
+            UIView.transition(with: tabBarController!.view, duration: 0.35, options: .transitionCrossDissolve, animations: nil)
+        }
         self.navigationController?.navigationBar.isTranslucent = true
         self.navigationController?.navigationBar.backgroundColor = UIColor.white.withAlphaComponent(0)
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
@@ -47,8 +51,10 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
         self.tabBarController?.tabBar.isHidden = false
         self.tabBarController?.tabBar.isTranslucent = false
         self.navigationController?.navigationBar.isTranslucent = false
-        for subview in self.navigationController!.navigationBar.subviews {
-            if subview.restorationIdentifier == "rightButton" {subview.isHidden = false}
+        if self.navigationController?.navigationBar.subviews != nil {
+            for subview in self.navigationController!.navigationBar.subviews {
+                if subview.restorationIdentifier == "rightButton" {subview.isHidden = false}
+            }
         }
     }
     
@@ -74,11 +80,14 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
         if let thirdViewController = orderedViewControllers.last as? KasamHolder {
             thirdViewController.reviewOnly = true
         }
-        //Customize action of back button
-        let newBackButton = UIBarButtonItem(title: "", style: .plain, target: self, action: #selector(NewKasamPageController.back(sender:)))
-        newBackButton.image = UIImage.init(icon: .fontAwesomeSolid(.timesCircle), size: CGSize(width: 30, height: 30))
-        newBackButton.imageInsets = UIEdgeInsets(top: 0, left: -13.7, bottom: 0, right: 0)
-        self.navigationItem.rightBarButtonItem = newBackButton
+        
+        if kasamHolderKasamEdit == false {
+            //Create navbar close button
+            let newBackButton = UIBarButtonItem(title: "", style: .plain, target: self, action: #selector(NewKasamPageController.back(sender:)))
+            newBackButton.image = UIImage.init(icon: .fontAwesomeSolid(.timesCircle), size: CGSize(width: 30, height: 30))
+            newBackButton.imageInsets = UIEdgeInsets(top: 0, left: -13.7, bottom: 0, right: 0)
+            self.navigationItem.rightBarButtonItem = newBackButton
+        }
         
         //Next button
         let goToNext = NSNotification.Name("GoToNext")

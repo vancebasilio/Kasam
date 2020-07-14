@@ -49,12 +49,14 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     let animationOverlay = UIView()
     
     //edit Kasam
-    var kasamDatabase = Database.database().reference().child("Coach-Kasams")
+    var kasamDatabase = DBRef.userKasams
     var kasamDatabaseHandle: DatabaseHandle!
-    var kasamBlocksDatabase = Database.database().reference().child("Coach-Kasams")
+    var kasamBlocksDatabase = DBRef.userKasams
     var kasamBlocksDatabaseHandle: DatabaseHandle!
     var blockDuration = [Int:String]()
-    var basicKasam = false
+    var basicKasam = false                  //loaded in
+    var userKasam = true                    //change in the future to load in for professional kasams
+    var kasamHolderKasamEdit = false        //loaded in
     
     let categoryDefault = "Category (tap to select)"
     let benefitsDefault = "\u{2022} E.g. Improved Endurance"
@@ -84,6 +86,13 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     }
     
     func setupLoad(){
+        if userKasam == false {
+            kasamDatabase = DBRef.coachKasams
+            kasamBlocksDatabase = DBRef.coachKasams
+        } else {
+            kasamDatabase = DBRef.userKasams
+            kasamBlocksDatabase = DBRef.coachKasams
+        }
         let backButtonBasicKasam = NSNotification.Name("BackButtonBasicKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(NewKasamController.backButtonBasicKasam), name: backButtonBasicKasam, object: nil)
         
@@ -238,7 +247,8 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 if success == true {
                     self.animationView.removeFromSuperview()
                     self.animationOverlay.removeFromSuperview()
-                    self.dismiss(animated: true, completion: nil)
+                    if self.kasamHolderKasamEdit == false {self.dismiss(animated: true, completion: nil)}
+                    else {self.navigationController?.popViewController(animated: true)}
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "GetUserKasams"), object: self)
                 }
@@ -247,7 +257,26 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     }
     
     @IBAction func deleteKasamButtonPressed(_ sender: Any) {
-        deleteUserKasam()
+        deleteUserKasam {(success) in
+            if success == true {
+                if self.kasamHolderKasamEdit == false {self.dismiss(animated: true, completion: nil)}
+                else {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GetUserKasams"), object: self)
+                    //Go back two view controllers
+                    self.tabBarController?.tabBar.isHidden = false
+                    self.tabBarController?.tabBar.isTranslucent = false
+                    self.navigationController?.navigationBar.isTranslucent = false
+                    if self.navigationController?.navigationBar.subviews != nil {
+                        for subview in self.navigationController!.navigationBar.subviews {
+                            if subview.restorationIdentifier == "rightButton" {subview.isHidden = false}
+                        }
+                    }
+                    let viewControllers: [UIViewController] = self.navigationController!.viewControllers as [UIViewController]
+                    self.navigationController!.popToViewController(viewControllers[viewControllers.count - 3], animated: true)
+                }
+            }
+        }
     }
     
     //Prevents more than xx characters and return button
@@ -282,9 +311,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             benefitsTextView.text = nil
             benefitsTextView.textColor = UIColor.darkGray
         }
-    }
-    
-    func textViewDidChange(_ textView: UITextView) {
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
@@ -354,8 +380,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     
     //Retrieves Kasam Data using Kasam ID selected
     func loadKasam(){
-        kasamDatabase = Database.database().reference().child("Coach-Kasams").child(NewKasam.kasamID)
-        kasamDatabaseHandle = kasamDatabase.observe(.value, with: {(snapshot) in
+        kasamDatabaseHandle = kasamDatabase.child(NewKasam.kasamID).observe(.value, with: {(snapshot) in
             //STEP 1 - Load Kasam information
             if let value = snapshot.value as? [String: Any] {
                 //load kasam information
@@ -367,7 +392,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 NewKasam.kasamDescription = self.newKasamDescription.text ?? ""
                 self.newKasamDescription.textColor = UIColor.darkGray
                 
-                self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: PlaceHolders.kasamLoadingImage)
+                self.headerImageView?.sd_setImage(with: URL(string: value["Image"] as? String ?? ""), placeholderImage: PlaceHolders.kasamHeaderPlaceholderImage)
                 
                 let benefitsArray = (value["Benefits"] as? String ?? "").components(separatedBy: ";")
                 var benefitsText = ""
@@ -408,7 +433,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             self.numberOfBlocks = blockArray.count
             for blockNo in 1...blockArray.count {
                 //Gets the blockdata after the block is decided on
-                self.kasamDatabase.child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : String(blockNo)).observeSingleEvent(of: .childAdded, with: { snapshot in
+                self.kasamDatabase.child(NewKasam.kasamID).child("Blocks").queryOrdered(byChild: "Order").queryEqual(toValue : String(blockNo)).observeSingleEvent(of: .childAdded, with: { snapshot in
 
                     let block = snapshot.value as! Dictionary<String,Any>
                     let blockID = block["BlockID"] as? String ?? ""
@@ -433,7 +458,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     
     //STEP 3 - Load Activity Information
     func loadActivities(blockNo: Int, blockID: String) {
-        self.kasamBlocksDatabase = self.kasamDatabase.child("Blocks").child(blockID).child("Activity")
+        self.kasamBlocksDatabase = self.kasamDatabase.child(NewKasam.kasamID).child("Blocks").child(blockID).child("Activity")
         self.kasamBlocksDatabaseHandle = self.kasamBlocksDatabase.observe(.childAdded) {(snapshot) in
         if let value = snapshot.value as? [String: Any] {
             var reps = 0

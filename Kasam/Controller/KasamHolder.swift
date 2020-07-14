@@ -22,6 +22,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var headerBadgeMask: UIView!
     @IBOutlet weak var badgeInfo: UILabel!
     @IBOutlet weak var badgeCompletion: UILabel!
+    @IBOutlet weak var editKasamButton: UIButton!
     
     @IBOutlet var profileView : UIView!
     @IBOutlet weak var profileViewRadius: UIView!
@@ -160,8 +161,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             deleteKasamButton.layer.cornerRadius = 20.0
             deleteKasamButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.trashAlt), iconColor: UIColor.white, postfixText: "  Delete Kasam", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.init(hex: 0xDB482D), forState: .normal, iconSize: 15)
             }
-            let tap = UITapGestureRecognizer(target: self, action: #selector(badgesAchievedPopup))
-            trophiesView.addGestureRecognizer(tap)
+            trophiesView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(badgesAchievedPopup)))
         }
         
         @objc func badgesAchievedPopup() {
@@ -316,6 +316,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 kasamActivityHolder.reviewOnly = true
                 kasamActivityHolder.blockID = blockIDGlobal     //this is the block No that gets transferred
             }
+        } else if segue.identifier == "goToEditKasam" {
+            let transferHolder = segue.destination as! NewKasamPageController
+            transferHolder.kasamHolderKasamEdit = true
+            NewKasam.editKasamCheck = true
+            NewKasam.kasamID = kasamID
         }
     }
     
@@ -358,6 +363,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamDescription.text! = value["Description"] as? String ?? ""
                 self.coachName.setTitle(value["CreatorName"] as? String ?? "", for: .normal)  //in the future, get this from the userdatabase, so it's the most uptodate name
                 self.coachIDGlobal = value["CreatorID"] as! String
+                if self.coachIDGlobal == Auth.auth().currentUser?.uid {
+                    self.editKasamButton.layer.cornerRadius = self.editKasamButton.frame.height / 2
+                    self.editKasamButton.fadeIn()
+                }
                 self.kasamGenre.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = Assets.levelsArray[value["Level"] as? Int ?? 1]
                 self.benefitsArray = (value["Benefits"] as? String ?? "").components(separatedBy: ";")
@@ -494,7 +503,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
         
     func addUserPreferncestoKasam(restart: Bool){
-        print("hell9 \(self.chosenRepeat)")
         DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Status": "active", "Duration": timelineDuration as Any]) {(error, reference) in
           Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
             //OPTION 1 - Add new kasam to the today page
@@ -544,6 +552,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
             }
         })
+    }
+    
+    @IBAction func editKasamButtonPressed(_ sender: Any) {
+        performSegue(withIdentifier: "goToEditKasam", sender: nil)
     }
     
     //REVIEW ONLY-------------------------------------------------------------------------------------------
@@ -625,7 +637,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func deleteKasamButtonPressed(_ sender: Any) {
-        deleteUserKasam()
+        deleteUserKasam {(success) in
+            self.navigationController?.popViewController(animated: true)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "GetUserKasams"), object: self)
+        }
     }
     
     func completeCheck(completion:@escaping (Bool) -> ()) {

@@ -317,3 +317,23 @@ func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text:
         vC.timelineDuration = timelineDuration
         SwiftEntryKit.display(entry: vC, using: attributes)
     }
+
+    func changeDisplayNamePopup(completion:@escaping (Bool) -> ()) {
+        let style: FormStyle = .light
+        var attributes = FormFieldPresetFactory.attributes()
+        attributes.entryBackground = .color(color: EKColor(UIColor.white))
+        let titleStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 18, weight: .semibold), color: EKColor(UIColor.darkGray), alignment: .center, displayMode: .light)
+        let title = EKProperty.LabelContent(text: "Change Display Name", style: titleStyle)
+        let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
+        let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
+            let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
+            changeRequest?.displayName = textFields[0].textContent
+            changeRequest?.commitChanges {(error) in
+              completion(true)
+            }
+            DBRef.currentUser.child("Name").setValue(textFields[0].textContent)
+            SwiftEntryKit.dismiss()
+        }
+        let contentView = EKFormMessageView(with: title, textFieldsContent: textFields, buttonContent: button)
+        SwiftEntryKit.display(entry: contentView, using: attributes)
+    }

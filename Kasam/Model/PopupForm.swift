@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Firebase
 import SwiftEntryKit
 
 final class FormFieldPresetFactory {
@@ -95,16 +96,15 @@ final class FormFieldPresetFactory {
                      accessibilityIdentifier: "nameTextField")
     }
     
-    class func motivation(placeholderStyle: EKProperty.LabelStyle, textStyle: EKProperty.LabelStyle, separatorColor: EKColor, style: FormStyle) -> EKProperty.TextFieldContent {
-        let motivationPlaceholder = EKProperty.LabelContent(text: "Motivation Text", style: placeholderStyle)
+    class func motivation(separatorColor: EKColor, style: FormStyle) -> EKProperty.TextFieldContent {
         return .init(keyboardType: .default,
-                     placeholder: motivationPlaceholder,
+                     placeholder: EKProperty.LabelContent(text: Auth.auth().currentUser?.displayName ?? "", style: EKProperty.LabelStyle(font: .systemFont(ofSize: 16), color: EKColor(.lightGray))),
                      tintColor: style.textColor,
                      displayMode: displayMode,
-                     textStyle: textStyle,
-                     leadingImage: UIImage(named: "ic_coffee_light")!.withRenderingMode(.alwaysTemplate),
+                     textStyle: EKProperty.LabelStyle(font: .systemFont(ofSize: 16, weight: .medium), color: EKColor(.black)),
+                     leadingImage: UIImage.init(icon: .fontAwesomeSolid(.highlighter), size: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysTemplate),
                      bottomBorderColor: separatorColor,
-                     accessibilityIdentifier: "motivationTextField")
+                     accessibilityIdentifier: "changeDisplayNameTextField")
     }
     
     class func mobile(placeholderStyle: EKProperty.LabelStyle,
@@ -157,9 +157,7 @@ final class FormFieldPresetFactory {
         let textStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15), color: .standardContent, displayMode: displayMode)
         let separatorColor = style.separator
         if set.contains(.motivation) {
-            array.append(motivation(placeholderStyle: placeholderStyle,
-                                    textStyle: textStyle,
-                                    separatorColor: separatorColor,
+            array.append(motivation(separatorColor: separatorColor,
                                     style: style))
         }
         if set.contains(.fullName) {
