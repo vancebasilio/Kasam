@@ -13,7 +13,6 @@ import SDWebImage
 import SwiftEntryKit
 import SkeletonView
 import Lottie
-import SystemConfiguration
 
 class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, CollectionCellDelegate {
 
@@ -24,8 +23,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     @IBOutlet weak var challengesColletionView: UICollectionView!
     @IBOutlet weak var challengesCollectionHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
-    
-    let reachability = try! Reachability()
     
     var blockURLGlobal = ""
     var dateSelected = ""
@@ -56,33 +53,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         self.getKasamFollowing(nil)
         setupNavBar(clean: false)                   //global function
         setupNotifications()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        setReachabilityNotifier()
-    }
-    
-    private func setReachabilityNotifier() {
-        reachability.whenReachable = { reachability in
-            if reachability.connection == .wifi {print("Reachable via WiFi")}
-            else {print("Reachable via Cellular")}
-            SwiftEntryKit.dismiss()
-        }
-        reachability.whenUnreachable = { _ in
-            print("Not reachable")
-            self.updateContentTableHeight()
-            showProcessingNote()
-        }
-        do {try reachability.startNotifier()}
-        catch {print("Unable to start notifier")}
-    }
-    
-    func isNetworkReachable (with flags: SCNetworkReachabilityFlags) -> Bool {
-        let isReachable = flags.contains (.reachable)
-        let needsConnection = flags.contains (.connectionRequired)
-        let canConnectAutomatically = flags.contains(.connectionOnDemand) || flags.contains(.connectionOnTraffic)
-        let canConnectWithoutUserInteraction = canConnectAutomatically && !flags.contains (.interventionRequired)
-        return isReachable && (!needsConnection || canConnectWithoutUserInteraction)
     }
     
     //Center the day Tracker to today
@@ -141,6 +111,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         
         //elongates the entire scrollview, based on the tableview height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
+        print("hell9 \(frame.height)")
         challengeCellWidth = ((frame.size.width - CGFloat(30)) * 0.6)             //CHANGE THIS VALUE FOR COLLECTIONVIEWCELL WIDTH
         if challengeOrder != 0 {challengesCollectionHeight.constant = (challengeCellWidth * 1.3)}
         else {challengesCollectionHeight.constant = 0}
@@ -166,7 +137,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
     
     @objc func addKasamToToday(_ notification: NSNotification?){
         if let kasamID = notification?.userInfo?["kasamID"] as? String {
-            DBRef.userKasamFollowing.child(kasamID).observe(.value) {(snapshot) in
+            DBRef.userPersonalFollowing.child(kasamID).observe(.value) {(snapshot) in
                 self.getPreferences(snapshot: snapshot, kasamID: kasamID, new: true)
             }
         }
@@ -182,7 +153,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         let kasamID = notification?.userInfo?["kasamID"] as? String
         if kasamID != nil {
             //OPTION 1 - Loading details of specific kasam
-            DBRef.userKasamFollowing.child(kasamID!).observe(.value) {(snapshot) in
+            DBRef.userPersonalFollowing.child(kasamID!).observe(.value) {(snapshot) in
                 self.count = 1
                 self.getPreferences(snapshot: snapshot, kasamID: kasamID, new: false)
             }
@@ -191,7 +162,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             SavedData.challengeBlocks.removeAll()
             SavedData.kasamBlocks.removeAll()
             SavedData.todayKasamList.removeAll()
-            DBRef.userKasamFollowing.observeSingleEvent(of: .value, with:{(snap) in
+            DBRef.userPersonalFollowing.observeSingleEvent(of: .value, with:{(snap) in
                 self.count = Int(snap.childrenCount)                 //counts number of Kasams that the user is following
                 if self.count == 0 {
                     //not following any kasams
@@ -199,7 +170,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                     self.tableView.reloadData()
                     self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
                 }
-                self.kasamFollowingRefHandle = DBRef.userKasamFollowing.observe(.childAdded) {(snapshot) in
+                self.kasamFollowingRefHandle = DBRef.userPersonalFollowing.observe(.childAdded) {(snapshot) in
                     self.getPreferences(snapshot: snapshot, kasamID: nil, new: false)
                 }
             })
@@ -211,7 +182,6 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
         var image: String?
         //Get Kasams from user following + their preference for each kasam
         if let value = snapshot.value as? [String: Any] {
-            let currentStatus = value["Status"] as? String ?? "active"
             let repeatDuration = value["Repeat"] as? Int ?? 30
     
             var order = 0
@@ -230,7 +200,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 else if repeatDuration == 0 {order = challengeOrder}
             }
             
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, metricType: value["Metric"] as? String ?? "Checkmark", timeline: value["Timeline"] as? Int, currentStatus: currentStatus, pastKasamJoinDates: value["Past Join Dates"] as? [String:Int], sequence: nil, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: value["Badges"] as? [String:[String:String]], benefitsThresholds: nil, dayTrackerArray: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: repeatDuration, kasamOrder: order, image: image, joinType: "personal", metricType: value["Metric"] as? String ?? "Checkmark", timeline: value["Timeline"] as? Int, sequence: nil, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: value["Badges"] as? [String:[String:String]], benefitsThresholds: nil, dayTrackerArray: nil)
             
             DispatchQueue.main.async {
                 snapshot.key.badgesAchieved()
@@ -239,14 +209,10 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             
             print("step 2 inside get preferences hell6 \(preference.kasamName)")
             
-            if currentStatus == "active" {
-                if repeatDuration > 0 {kasamOrder += 1}
-                else if repeatDuration == 0 {challengeOrder += 1}
-                if (kasamID == nil && new == false) || (kasamID != nil && new == true) {
-                    SavedData.todayKasamList.append(preference.kasamID)
-                }
-            } else {
-                count -= 1
+            if repeatDuration > 0 {kasamOrder += 1}
+            else if repeatDuration == 0 {challengeOrder += 1}
+            if (kasamID == nil && new == false) || (kasamID != nil && new == true) {
+                SavedData.todayKasamList.append(preference.kasamID)
             }
             SavedData.addKasam(kasam: preference)                   //adds all kasams that the user is following
             if SavedData.todayKasamList.count == count {
@@ -255,7 +221,7 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
                 else {self.challengesTitle.isHidden = false}
                 //update the user profile page
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
-                DBRef.userKasamFollowing.removeObserver(withHandle: self.kasamFollowingRefHandle)
+                DBRef.userPersonalFollowing.removeObserver(withHandle: self.kasamFollowingRefHandle)
             } else if kasamID != nil && new == false {
                 self.retrieveKasams(kasamID: kasamID)
             } else if kasamID != nil && new == true {
@@ -297,50 +263,46 @@ class TodayBlocksViewController: UIViewController, UIGestureRecognizerDelegate, 
             let kasam = SavedData.kasamDict[kasamIDBlock]!
             var dayOrder = 0
             //Seeing which blocks are needed for the day
-            if kasam.currentStatus == "inactive" || kasam.currentStatus == "completed" {
-                todayKasamCount += 1
-            } else if kasam.currentStatus == "active" {
-                dayOrder = ((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
-                SavedData.kasamDict[kasam.kasamID]?.currentDay = dayOrder
-                
-                //OPTION 1 - Load blocks based on last completed (TIMELINE KASAMS) e.g. Insanity
-                if kasam.timeline != nil {
-                    var blockDayToLoad = 1
-                    var dayToShow = 1
-                    for date in Date.dates(from: kasam.joinedDate, to: Date()) {
-                        let dateString = date.dateToString()
-                        DBRef.userHistory.child(kasam.kasamID).child(dateString).observeSingleEvent(of: .value) {(snapCount) in
-                            if dateString != Dates.getCurrentDate() && snapCount.exists() {
-                                blockDayToLoad += 1               //the user has completed xx number of blocks in the past (excludes today's block)
-                            } else if dateString == Dates.getCurrentDate() {
-                                DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observe(.value, with: {(snapshot) in
-                                    if let value = snapshot.value as? [String:String] {
-                                        dayToShow = blockDayToLoad
-                                        if blockDayToLoad > value.count {
-                                            blockDayToLoad = (blockDayToLoad % value.count) + 1
-                                        }
-                                        DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"]!).observeSingleEvent(of: .value) {(snapshot) in
-                                            todayKasamCount += 1
-                                            self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 0, specificKasam: kasamID, dayCount: dayToShow)
-                                        }
+            dayOrder = ((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
+            SavedData.kasamDict[kasam.kasamID]?.currentDay = dayOrder
+            
+            //OPTION 1 - Load blocks based on last completed (TIMELINE KASAMS) e.g. Insanity
+            if kasam.timeline != nil {
+                var blockDayToLoad = 1
+                var dayToShow = 1
+                for date in Date.dates(from: kasam.joinedDate, to: Date()) {
+                    let dateString = date.dateToString()
+                    DBRef.userHistory.child(kasam.kasamID).child(dateString).observeSingleEvent(of: .value) {(snapCount) in
+                        if dateString != Dates.getCurrentDate() && snapCount.exists() {
+                            blockDayToLoad += 1               //the user has completed xx number of blocks in the past (excludes today's block)
+                        } else if dateString == Dates.getCurrentDate() {
+                            DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observe(.value, with: {(snapshot) in
+                                if let value = snapshot.value as? [String:String] {
+                                    dayToShow = blockDayToLoad
+                                    if blockDayToLoad > value.count {
+                                        blockDayToLoad = (blockDayToLoad % value.count) + 1
                                     }
-                                })
-                            }
+                                    DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"]!).observeSingleEvent(of: .value) {(snapshot) in
+                                        todayKasamCount += 1
+                                        self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 0, specificKasam: kasamID, dayCount: dayToShow)
+                                    }
+                                }
+                            })
                         }
                     }
-                //OPTION 2 - Load Kasam as Block (BASIC KASAMS)
-                } else if kasam.metricType == "Checkmark" {
-                    DBRef.coachKasams.child(kasam.kasamID).observe(.value) {(snapshot) in
-                        todayKasamCount += 1
-                        self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 0, specificKasam: kasamID, dayCount: nil)
-                    }
-                //OPTION 3 - Load single repeated block (CHALLENGE KASAMS) e.g. 200 Push-ups
-                } else {
-                    DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in
-                        todayKasamCount += 1
-                        self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 0, specificKasam: kasamID, dayCount: nil)
-                    })
                 }
+            //OPTION 2 - Load Kasam as Block (BASIC KASAMS)
+            } else if kasam.metricType == "Checkmark" {
+                DBRef.coachKasams.child(kasam.kasamID).observe(.value) {(snapshot) in
+                    todayKasamCount += 1
+                    self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 0, specificKasam: kasamID, dayCount: nil)
+                }
+            //OPTION 3 - Load single repeated block (CHALLENGE KASAMS) e.g. 200 Push-ups
+            } else {
+                DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in
+                    todayKasamCount += 1
+                    self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, todayKasamCount: todayKasamCount, dayOrder: dayOrder, kasam: kasam, repeatMultiple: kasam.repeatDuration > 0, specificKasam: kasamID, dayCount: nil)
+                })
             }
         }
     }
@@ -757,9 +719,7 @@ extension TodayBlocksViewController: SkeletonTableViewDataSource, UITableViewDat
         let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
         showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
             let kasamID = SavedData.kasamBlocks[kasamOrder].kasamID
-            let kasamJoinDate = (SavedData.kasamDict[kasamID]?.joinedDate ?? Date()).dateToString()
-            DBRef.userKasamFollowing.child(kasamID).child("Past Join Dates").child(kasamJoinDate).setValue(SavedData.kasamDict[kasamID]?.repeatDuration)
-            DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("completed")
+            DBRef.userPersonalFollowing.child(kasamID).child("Status").setValue("completed")
             self.getKasamFollowing(nil)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
         })
@@ -796,11 +756,7 @@ extension TodayBlocksViewController: UICollectionViewDelegate, UICollectionViewD
                         progressAchieved = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
                     }
                 }
-                if SavedData.kasamDict[kasamID]!.currentDay > SavedData.kasamDict[kasamID]!.repeatDuration {    //when nearing the end of a kasam
-                    return SavedData.kasamDict[kasamID]!.currentDay
-                } else {
-                    return SavedData.kasamDict[kasamID]!.repeatDuration + SavedData.kasamDict[kasamID]!.currentDay - progressAchieved
-                }
+                return SavedData.kasamDict[kasamID]!.repeatDuration
             } else {
                 return 10
             }

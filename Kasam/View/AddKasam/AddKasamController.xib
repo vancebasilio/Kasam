@@ -17,6 +17,7 @@
                 <outlet property="dayGoalOutline" destination="57a-sO-ILN" id="0RW-9o-DkS"/>
                 <outlet property="dayGoaldayLabel" destination="MWU-rm-LhY" id="Urx-Tq-tvn"/>
                 <outlet property="durationPicker" destination="Mhc-uz-AK2" id="0l4-Ic-lz1"/>
+                <outlet property="durationView" destination="ulZ-vF-uIO" id="umv-iP-0AS"/>
                 <outlet property="fillerStackView" destination="BM1-fi-aIF" id="kJn-6J-a03"/>
                 <outlet property="fillerStackViewTop" destination="GwF-vD-HQV" id="bWz-pB-MOW"/>
                 <outlet property="goalStackView" destination="yJd-LL-whv" id="NZO-Vf-MRg"/>
@@ -48,7 +49,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Asv-AG-Loh">
-                    <rect key="frame" x="0.0" y="16.5" width="414" height="454.5"/>
+                    <rect key="frame" x="0.0" y="21.5" width="414" height="449.5"/>
                     <subviews>
                         <view clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EXQ-6a-70W" userLabel="SlidingHandle">
                             <rect key="frame" x="192" y="0.0" width="30" height="5"/>
@@ -69,7 +70,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="uCW-IF-dnj" userLabel="Vertical View">
-                            <rect key="frame" x="30" y="75" width="354" height="294.5"/>
+                            <rect key="frame" x="30" y="70" width="354" height="294.5"/>
                             <subviews>
                                 <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GwF-vD-HQV">
                                     <rect key="frame" x="0.0" y="-16.5" width="354" height="16.5"/>
@@ -93,7 +94,7 @@
                                                                 <constraint firstAttribute="width" secondItem="0hu-Iz-LkM" secondAttribute="height" multiplier="1:1" id="5bd-0u-LcS"/>
                                                             </constraints>
                                                         </imageView>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Personal Challenge" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MWU-rm-LhY">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Personal Kasam" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MWU-rm-LhY">
                                                             <rect key="frame" x="5" y="43" width="98" height="34"/>
                                                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
                                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -140,7 +141,7 @@
                                                                 <constraint firstAttribute="width" secondItem="kI8-Cq-YNm" secondAttribute="height" multiplier="1:1" id="NFU-0K-ScY"/>
                                                             </constraints>
                                                         </imageView>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Group Challenge" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="178-Io-qzV">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Group Kasam" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="178-Io-qzV">
                                                             <rect key="frame" x="5" y="43" width="98" height="34"/>
                                                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
                                                             <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -375,7 +376,7 @@
                             </constraints>
                         </stackView>
                         <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="0FN-tA-R4b" userLabel="Buttons">
-                            <rect key="frame" x="27" y="399.5" width="360" height="40"/>
+                            <rect key="frame" x="27" y="394.5" width="360" height="40"/>
                             <subviews>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yYI-gH-vwg">
                                     <rect key="frame" x="0.0" y="0.0" width="170" height="40"/>
@@ -384,7 +385,7 @@
                                         <constraint firstAttribute="height" constant="40" id="yqB-02-f93"/>
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
-                                    <state key="normal" title="Unfollow">
+                                    <state key="normal" title="End Kasam">
                                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </state>
                                     <connections>
@@ -434,7 +435,7 @@
                         <constraint firstItem="a64-8D-jWN" firstAttribute="leading" secondItem="Asv-AG-Loh" secondAttribute="leading" constant="10" id="mZ0-Hf-JQW"/>
                         <constraint firstAttribute="bottom" secondItem="0FN-tA-R4b" secondAttribute="bottom" constant="15" id="tkJ-t4-Bta"/>
                         <constraint firstItem="EXQ-6a-70W" firstAttribute="top" secondItem="Asv-AG-Loh" secondAttribute="top" id="uwO-I5-vjw"/>
-                        <constraint firstItem="uCW-IF-dnj" firstAttribute="top" secondItem="a64-8D-jWN" secondAttribute="bottom" constant="15" id="znB-xD-bvy"/>
+                        <constraint firstItem="uCW-IF-dnj" firstAttribute="top" secondItem="a64-8D-jWN" secondAttribute="bottom" constant="10" id="znB-xD-bvy"/>
                         <constraint firstItem="0FN-tA-R4b" firstAttribute="top" secondItem="uCW-IF-dnj" secondAttribute="bottom" constant="30" id="zxX-bv-drT"/>
                     </constraints>
                 </view>

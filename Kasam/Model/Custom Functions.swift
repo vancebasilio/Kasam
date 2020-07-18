@@ -475,12 +475,8 @@ extension UIViewController {
             //STEP 1 - Remove notification
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
             
-            //STEP 2 - ADD DATE TO PAST JOIN DATE
-            let kasamJoinDate = (SavedData.kasamDict[kasamID]?.joinedDate ?? Date()).dateToString()
-            DBRef.userKasamFollowing.child(kasamID).child("Past Join Dates").child(kasamJoinDate).setValue(SavedData.kasamDict[kasamID]?.repeatDuration)
-            
-            //STEP 3 - MARK KASAM AS COMPLETED
-            DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("completed") {(error, reference) in
+            //STEP 2 - MARK KASAM AS COMPLETED
+            DBRef.userPersonalFollowing.child(kasamID).child("Status").setValue("completed") {(error, reference) in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
@@ -587,6 +583,7 @@ extension AnimationView {
             }
         }
         view.addSubview(animationView)
+        animationView.backgroundBehavior = .pauseAndRestore
         animationView.translatesAutoresizingMaskIntoConstraints = false
         animationView.centerXAnchor.constraint(lessThanOrEqualTo: view.centerXAnchor).isActive = true
         animationView.centerYAnchor.constraint(lessThanOrEqualTo: view.centerYAnchor).isActive = true
@@ -596,7 +593,7 @@ extension AnimationView {
         animationView.play()
         if loop == true {
             animationView.loopMode = .loop
-        } else {
+        } else if completion != nil {
             animationView.play{(finished) in
                 completion!()
             }

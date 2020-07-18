@@ -37,6 +37,7 @@
 		BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC45558C2321F6D300F1227B /* KasamViewerCell.swift */; };
 		BC4DE60524B0241A00763B32 /* OptionsPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC4DE60324B0241A00763B32 /* OptionsPopup.swift */; };
 		BC4DE60624B0241A00763B32 /* OptionsPopupController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC4DE60424B0241A00763B32 /* OptionsPopupController.xib */; };
+		BC51EB4324C14F50003771E0 /* crownSeptors.json in Resources */ = {isa = PBXBuildFile; fileRef = BC51EB4224C14F50003771E0 /* crownSeptors.json */; };
 		BC520BBB227413E100553C6B /* Transitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC520BBA227413E100553C6B /* Transitions.swift */; };
 		BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD1226D6EF900D707CC /* 1. Discover.swift */; };
 		BC554BD6226D8BDB00D707CC /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD5226D8BDB00D707CC /* UIColor.swift */; };
@@ -58,6 +59,7 @@
 		BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74E1F22336748E00653381 /* CountdownTimer.swift */; };
 		BC791A21234BF93600A9D25A /* TodayMotivationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */; };
 		BC7BF3E524A67BF40094A5C1 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7BF3E424A67BF40094A5C1 /* Reachability.swift */; };
+		BC7CBA9724BFC9E30042E89D /* levitate-meditate.json in Resources */ = {isa = PBXBuildFile; fileRef = BC7CBA9624BFC9E30042E89D /* levitate-meditate.json */; };
 		BC8348462445027A001819DC /* goldCup.json in Resources */ = {isa = PBXBuildFile; fileRef = BC8348452445027A001819DC /* goldCup.json */; };
 		BC834848244502B0001819DC /* oneMedal.json in Resources */ = {isa = PBXBuildFile; fileRef = BC834847244502AF001819DC /* oneMedal.json */; };
 		BC83484A2445034A001819DC /* crown.json in Resources */ = {isa = PBXBuildFile; fileRef = BC8348492445034A001819DC /* crown.json */; };
@@ -136,6 +138,7 @@
 		BC45558C2321F6D300F1227B /* KasamViewerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewerCell.swift; sourceTree = "<group>"; };
 		BC4DE60324B0241A00763B32 /* OptionsPopup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsPopup.swift; sourceTree = "<group>"; };
 		BC4DE60424B0241A00763B32 /* OptionsPopupController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OptionsPopupController.xib; sourceTree = "<group>"; };
+		BC51EB4224C14F50003771E0 /* crownSeptors.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = crownSeptors.json; sourceTree = "<group>"; };
 		BC520BBA227413E100553C6B /* Transitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transitions.swift; sourceTree = "<group>"; };
 		BC554BD1226D6EF900D707CC /* 1. Discover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "1. Discover.swift"; sourceTree = "<group>"; };
 		BC554BD5226D8BDB00D707CC /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
@@ -157,6 +160,7 @@
 		BC74E1F22336748E00653381 /* CountdownTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayMotivationCell.swift; sourceTree = "<group>"; };
 		BC7BF3E424A67BF40094A5C1 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		BC7CBA9624BFC9E30042E89D /* levitate-meditate.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "levitate-meditate.json"; path = "Supporting Files/levitate-meditate.json"; sourceTree = SOURCE_ROOT; };
 		BC8348452445027A001819DC /* goldCup.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = goldCup.json; sourceTree = "<group>"; };
 		BC834847244502AF001819DC /* oneMedal.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = oneMedal.json; sourceTree = "<group>"; };
 		BC8348492445034A001819DC /* crown.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = crown.json; sourceTree = "<group>"; };
@@ -235,6 +239,7 @@
 		BC1C678023D5558300E44DEE /* Lottie Animations */ = {
 			isa = PBXGroup;
 			children = (
+				BC7CBA9624BFC9E30042E89D /* levitate-meditate.json */,
 				BC83484D24450468001819DC /* Badges */,
 				BC16A20323292ABD00FDF70C /* loading.json */,
 				BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */,
@@ -311,6 +316,7 @@
 			children = (
 				BCD213642460CAC70096A365 /* flagmountain.json */,
 				BCD213662460CEE10096A365 /* flagmountainBG.json */,
+				BC51EB4224C14F50003771E0 /* crownSeptors.json */,
 				BCF8A9AE24B1690F00751CC9 /* diamond.json */,
 				BC679ECA2439290800441F6E /* badge.json */,
 				BC8348492445034A001819DC /* crown.json */,
@@ -533,6 +539,7 @@
 			files = (
 				BC8348462445027A001819DC /* goldCup.json in Resources */,
 				BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */,
+				BC51EB4324C14F50003771E0 /* crownSeptors.json in Resources */,
 				BC16A20423292ABD00FDF70C /* loading.json in Resources */,
 				BCD213672460CEE10096A365 /* flagmountainBG.json in Resources */,
 				BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */,
@@ -554,6 +561,7 @@
 				BCF8A304246436140030C323 /* BadgesAchievedCellTableViewCell.xib in Resources */,
 				BC834848244502B0001819DC /* oneMedal.json in Resources */,
 				BCF8A305246436140030C323 /* BadgesAchieved.xib in Resources */,
+				BC7CBA9724BFC9E30042E89D /* levitate-meditate.json in Resources */,
 				BC228CB224401C3D00BA665C /* crownMedal.json in Resources */,
 				BC679ECB2439290800441F6E /* badge.json in Resources */,
 				BCD213652460CAC80096A365 /* flagmountain.json in Resources */,

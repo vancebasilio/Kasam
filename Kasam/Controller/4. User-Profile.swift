@@ -93,7 +93,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             tableViewHeight = completedKasamTableHeight.constant + 42.5                //42.5 is the completed label height
             completedStatsHeight.constant = completedKasamTableHeight.constant
         }
-        let contentViewHeight = topViewHeight.constant + collectionViewHeight.constant + tableViewHeight
+        let contentViewHeight = topViewHeight.constant + collectionViewHeight.constant + tableViewHeight + 10
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {
@@ -153,11 +153,11 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 
                 DBRef.userHistory.child(kasam.kasamID).observeSingleEvent(of: .value, with:{(snap) in
                 //PART 1 - Weekly Stats for Current Kasams
-                    if kasam.currentStatus == "active" {
+                    if SavedData.kasamDict[kasam.kasamID] != nil {
                         self.getWeeklyStats(kasamID: kasam.kasamID, snap: snap)
                     }
                 //PART 2 - Completed Stats Table
-                    if Int(snap.childrenCount) == 0 && kasam.currentStatus == "inactive" {
+                    if Int(snap.childrenCount) == 0 && SavedData.kasamDict[kasam.kasamID] == nil {
                         count += 1
                     } else {
                         let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: Int(snap.childrenCount), imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
@@ -173,7 +173,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 })
                 
                 //PART 3 - Current Stats CollectionView
-                if kasam.currentStatus == "active" {
+                if SavedData.kasamDict[kasam.kasamID] != nil {
                     let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
                     let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
                     self.detailedStats.append(userStats)
@@ -310,7 +310,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         var kasamcount = 0
 //        var followingcount: [String: String] = [:]
         kasamFollowingNo.text = String(kasamcount)
-            self.kasamUserFollowRefHandle = DBRef.userKasamFollowing.observe(.childAdded) {(snapshot) in
+            self.kasamUserFollowRefHandle = DBRef.userPersonalFollowing.observe(.childAdded) {(snapshot) in
                 kasamcount += 1
 //                followingcount = [snapshot.key: "1"]                    //this shows no of coaches the user is following
                 self.kasamFollowingNo.text = String(kasamcount)

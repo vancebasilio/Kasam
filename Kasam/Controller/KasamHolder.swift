@@ -73,6 +73,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var chosenTimeHour = 0
     var chosenTimeMin = 0
     var chosenRepeat = 30
+    var joinType = "personal"
     var startDate = ""
     var notificationCheck = true
     
@@ -122,6 +123,46 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             countFollowers()
             registeredCheck()
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.navigationBar.isTranslucent = true
+        self.navigationController?.navigationBar.backgroundColor = UIColor.white.withAlphaComponent(0)
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()         //remove bottom border on navigation bar
+        self.navigationController?.navigationBar.tintColor = UIColor.white       //makes the back button white
+        for subview in self.navigationController!.navigationBar.subviews {
+            if subview.restorationIdentifier == "rightButton" {subview.isHidden = true}
+        }
+        if reviewOnly == true {
+            self.navigationController?.setNavigationBarHidden(false, animated: true)
+            self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+            self.navigationController?.navigationBar.shadowImage = UIImage()
+            self.navigationController?.navigationBar.isTranslucent = true
+            self.navigationController?.navigationBar.backgroundColor = UIColor.clear            //set navigation bar color to clear
+        } else {
+            self.navigationItem.backBarButtonItem?.title = ""
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        self.navigationController?.navigationBar.isTranslucent = false
+        for subview in self.navigationController!.navigationBar.subviews {
+            if subview.restorationIdentifier == "rightButton" {subview.isHidden = false}
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if reviewOnly == true {
+            setupReviewOnly()
+            self.navigationController?.navigationBar.tintColor = UIColor.white                  //change back arrow color to white
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
+        NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
+        NotificationCenter.default.removeObserver(self.refreshBadge as Any)
     }
     
     func notificationCenter(){
@@ -192,7 +233,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             headerBadge()
             
             //STEP 3 - PREP TO SHOW
-            if SavedData.kasamDict[kasamID]?.currentStatus == "active" && self.setupCheck == false {
+            if SavedData.kasamDict[kasamID] != nil && self.setupCheck == false {
                 DispatchQueue.main.async {                      //Only unhide the badge when everything is done loading
                     self.headerBadgeIcon.frame = self.headerBadgeMask.bounds
                     self.headerBadgeMask.backgroundColor = UIColor.colorFive.lighter
@@ -212,7 +253,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func headerBadge(){
-        if SavedData.kasamDict[kasamID]!.repeatDuration > 0 && SavedData.kasamDict[kasamID]?.currentStatus == "active" {
+        if SavedData.kasamDict[kasamID]!.repeatDuration > 0 && SavedData.kasamDict[kasamID] != nil {
             self.headerImageView.alpha = 0.7
             var daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress ?? 0)
             finishIcon.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 35, color: UIColor.colorFive.lighter, forState: .normal)
@@ -350,22 +391,24 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     //Retrieves Kasam Data using Kasam ID selected
     func getKasamData(){
         var kasamDB = DatabaseReference()
-        if userKasam == true {
-            kasamDB = DBRef.userKasams.child(kasamID)
-        } else {
-            kasamDB = DBRef.coachKasams.child(kasamID)
-        }
+        if userKasam == true {kasamDB = DBRef.userKasams.child(kasamID)}
+        else {kasamDB = DBRef.coachKasams.child(kasamID)}
         kasamDB.observe(.value, with: {(snapshot) in
             if let value = snapshot.value as? [String: Any] {
-                self.kasamGTitle = value["Title"] as? String ?? ""
+                self.kasamGTitle = value["Title"] as? String ?? "Kasam"
                 self.headerLabel.text! = self.kasamGTitle
                 self.kasamTitle.text! = self.kasamGTitle
                 self.kasamDescription.text! = value["Description"] as? String ?? ""
-                self.coachName.setTitle(value["CreatorName"] as? String ?? "", for: .normal)  //in the future, get this from the userdatabase, so it's the most uptodate name
                 self.coachIDGlobal = value["CreatorID"] as! String
+                DBRef.userCreator.child(self.coachIDGlobal).child("Name").observeSingleEvent(of: .value) {(creator) in
+                    self.coachName.setTitle(creator.value as? String ?? "Coach", for: .normal)
+                }
+                
                 if self.coachIDGlobal == Auth.auth().currentUser?.uid {
                     self.editKasamButton.layer.cornerRadius = self.editKasamButton.frame.height / 2
-                    self.editKasamButton.fadeIn()
+                    self.editKasamButton.isHidden = false
+                } else {
+                    self.editKasamButton.isHidden = true
                 }
                 self.kasamGenre.text! = value["Genre"] as? String ?? ""
                 self.kasamLevel.text! = Assets.levelsArray[value["Level"] as? Int ?? 1]
@@ -424,7 +467,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: true, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: true)
         } else {
             //Existing Kasam prefernces being updated
-            addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: false, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: true)
+            addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: false, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: false)
         }
         //If the user presses save:
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
@@ -434,6 +477,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             self.chosenTimeMin = timeVC.min
             self.startDate = timeVC.formattedDate
             self.chosenRepeat = timeVC.repeatDuration
+            self.joinType = timeVC.joinType
             self.notificationCheck = timeVC.notificationCheck
             
             if self.registerCheck == 0 {
@@ -449,7 +493,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         }
         //If the user presses unfollow:
         unfollowObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "UnfollowKasam\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
-            showPopupConfirmation(title: "You sure?", description: "Your past progress will be saved.", image: UIImage.init(icon: .fontAwesomeSolid(.heartbeat), size: CGSize(width: 35, height: 35), textColor: .white), buttonText: "Unfollow") {(success) in
+            showPopupConfirmation(title: "You sure?", description: "Your past progress will be saved.", image: UIImage.init(icon: .fontAwesomeSolid(.heartbeat), size: CGSize(width: 35, height: 35), textColor: .white), buttonText: "End Kasam") {(success) in
                 SavedData.kasamDict[self.kasamID] = nil
                 self.unregisterUseFromKasam()
             }
@@ -493,7 +537,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
         
         //Removes the kasam from the user's following list
-        DBRef.userKasamFollowing.child(kasamID).child("Status").setValue("inactive") {(error, reference) in
+        DBRef.userPersonalFollowing.child(kasamID).child("Status").setValue("inactive") {(error, reference) in
             Analytics.logEvent("unfollowing_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
@@ -503,8 +547,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
         
     func addUserPreferncestoKasam(restart: Bool){
-        DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Status": "active", "Duration": timelineDuration as Any]) {(error, reference) in
-          Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
+        var DBlocation = DBRef.userPersonalFollowing
+        var status = "active"
+        if joinType == "group" {DBlocation = DBRef.userGroupFollowing; status = "initiated"}
+        DBlocation.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": status, "Metric": kasamMetric, "Duration": timelineDuration as Any]) {(error, reference) in
+            Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
             //OPTION 1 - Add new kasam to the today page
             if self.initialRepeat == nil {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "AddKasamToday"), object: self, userInfo: ["kasamID": self.kasamID])
@@ -518,7 +565,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             } else {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
                 if restart == true {
-                    DBRef.userKasamFollowing.child(self.kasamID).child("Past Join Dates").child(( SavedData.kasamDict[self.kasamID]!.joinedDate).dateToString()).setValue(SavedData.kasamDict[self.kasamID]?.repeatDuration)
+                    //
                 }
             }
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
@@ -535,23 +582,20 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func registeredCheck(){
         self.addButton.setImage(UIImage(named:"kasam-add"), for: .normal)
-        DBRef.userKasamFollowing.child(kasamID).child("Status").observeSingleEvent(of: .value, with:{(snap) in
-            let kasamStatus = snap.value as? String
-            if kasamStatus == "completed" || kasamStatus == "inactive" {
-                //OPTION 1 - User compeleted kasam in past, and may now want to rejoin
-                self.registerCheck = 0
-                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
-            } else if kasamStatus == "active" {
-                //OPTION 2 - User registered to kasam (GEAR ICON)
-                self.registerCheck = 1
-                self.initialRepeat = SavedData.kasamDict[self.kasamID]?.repeatDuration
-                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.cog), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
-            } else if kasamStatus == nil {
-                //OPTION 3 - User not registered to kasam (PLUS ICON)
-                self.registerCheck = 0
-                self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
-            }
-        })
+        if SavedData.todayKasamList.contains(kasamID) || SavedData.groupKasmList.contains(kasamID) {
+            //OPTION 2 - User registered to kasam (GEAR ICON)
+            self.registerCheck = 1
+            self.initialRepeat = SavedData.kasamDict[self.kasamID]?.repeatDuration
+            self.addButtonText.setIcon(icon: .fontAwesomeSolid(.cog), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
+        } else if SavedData.todayCompletedlist.contains(kasamID) || SavedData.groupCompletedList.contains(kasamID) {
+            //OPTION 2 - User compeleted kasam in past, and may now want to rejoin
+            self.registerCheck = 0
+            self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
+        } else {
+            //OPTION 3 - User not registered to kasam (PLUS ICON)
+            self.registerCheck = 0
+            self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
+        }
     }
     
     @IBAction func editKasamButtonPressed(_ sender: Any) {
@@ -656,46 +700,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         } else {
             completion(false)
         }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        self.navigationController?.navigationBar.isTranslucent = true
-        self.navigationController?.navigationBar.backgroundColor = UIColor.white.withAlphaComponent(0)
-        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        self.navigationController?.navigationBar.shadowImage = UIImage()         //remove bottom border on navigation bar
-        self.navigationController?.navigationBar.tintColor = UIColor.white       //makes the back button white
-        for subview in self.navigationController!.navigationBar.subviews {
-            if subview.restorationIdentifier == "rightButton" {subview.isHidden = true}
-        }
-        if reviewOnly == true {
-            self.navigationController?.setNavigationBarHidden(false, animated: true)
-            self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
-            self.navigationController?.navigationBar.shadowImage = UIImage()
-            self.navigationController?.navigationBar.isTranslucent = true
-            self.navigationController?.navigationBar.backgroundColor = UIColor.clear            //set navigation bar color to clear
-        } else {
-            self.navigationItem.backBarButtonItem?.title = ""
-        }
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        self.navigationController?.navigationBar.isTranslucent = false
-        for subview in self.navigationController!.navigationBar.subviews {
-            if subview.restorationIdentifier == "rightButton" {subview.isHidden = false}
-        }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        if reviewOnly == true {
-            setupReviewOnly()
-            self.navigationController?.navigationBar.tintColor = UIColor.white                  //change back arrow color to white
-        }
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        NotificationCenter.default.removeObserver(self.unfollowObserver as Any)
-        NotificationCenter.default.removeObserver(self.saveTimeObserver as Any)
-        NotificationCenter.default.removeObserver(self.refreshBadge as Any)
     }
 }
 

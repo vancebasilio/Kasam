@@ -115,11 +115,11 @@ class TodayChallengesCell: UICollectionViewCell {
     func blockBadge(){
         if Int(SavedData.kasamDict[kasamID]?.percentComplete ?? 0) == SavedData.kasamDict[kasamID]!.repeatDuration {
             //Will only set the badge if the threshold is reached
-            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(SavedData.kasamDict[kasamID]!.repeatDuration)
+            DBRef.userPersonalFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(SavedData.kasamDict[kasamID]!.repeatDuration)
         } else {
-            DBRef.userKasamFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(nil)
+            DBRef.userPersonalFollowing.child(kasamID).child("Badges").child(Dates.getCurrentDate()).setValue(nil)
         }
-        DBRef.userKasamFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in
+        DBRef.userPersonalFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in
 //            SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String: Int]
         })
     }

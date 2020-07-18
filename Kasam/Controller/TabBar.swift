@@ -8,15 +8,50 @@
 
 import UIKit
 import SwiftIcons
+import SwiftEntryKit
+import SystemConfiguration
 
 class TabBar: UITabBarController {
+    
+    let reachability = try! Reachability()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        setReachabilityNotifier()
+        DBRef.userGroupFollowing.observeSingleEvent(of: .value, with:{(snap) in
+            if snap.exists() {
+                self.selectedIndex = 2
+            } else {
+                self.selectedIndex = 1
+            }
+        })
         tabBar.items?[0].setIcon(icon: .fontAwesomeSolid(.seedling), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
         tabBar.items?[1].setIcon(icon: .fontAwesomeSolid(.user), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
         tabBar.items?[2].setIcon(icon: .fontAwesomeSolid(.userFriends), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
         tabBar.items?[3].setIcon(icon: .fontAwesomeSolid(.featherAlt), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
         self.delegate = self
+    }
+    
+    private func setReachabilityNotifier() {
+        reachability.whenReachable = { reachability in
+            if reachability.connection == .wifi {print("Reachable via WiFi")}
+            else {print("Reachable via Cellular")}
+            SwiftEntryKit.dismiss()
+        }
+        reachability.whenUnreachable = { _ in
+            print("Not reachable")
+            showProcessingNote()
+        }
+        do {try reachability.startNotifier()}
+        catch {print("Unable to start notifier")}
+    }
+    
+    func isNetworkReachable (with flags: SCNetworkReachabilityFlags) -> Bool {
+        let isReachable = flags.contains (.reachable)
+        let needsConnection = flags.contains (.connectionRequired)
+        let canConnectAutomatically = flags.contains(.connectionOnDemand) || flags.contains(.connectionOnTraffic)
+        let canConnectWithoutUserInteraction = canConnectAutomatically && !flags.contains (.interventionRequired)
+        return isReachable && (!needsConnection || canConnectWithoutUserInteraction)
     }
 }
 

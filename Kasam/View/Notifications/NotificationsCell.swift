@@ -59,7 +59,7 @@ class NotificationsCell: UITableViewCell {
             }
             self.kasamID.setupNotifications(kasamName: kasam!.kasamName, startDate: Date(), endDate: endDate, chosenTime: timeVC.formattedTime)
             
-            DBRef.userKasamFollowing.child(self.kasamID).updateChildValues(["Time": timeVC.formattedTime]) {(error, reference) in
+            DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Time": timeVC.formattedTime]) {(error, reference) in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ReloadNotifications"), object: self, userInfo: ["order": self.order])
                 NotificationCenter.default.removeObserver(saveTimeObserver as Any)

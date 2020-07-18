@@ -15,7 +15,10 @@ import SwiftEntryKit
 struct SavedData {
     static var kasamBlocks: [TodayBlockFormat] = []
     static var challengeBlocks: [TodayBlockFormat] = []
-    static var todayKasamList: [String] = []                        //A list of all the kasams the user is actively following by KasamID
+    static var todayKasamList: [String] = []                        //A list of all the Personal kasams the user is actively following by KasamID
+    static var groupKasmList: [String] = []                        //A list of all the Group kasams the user is actively following by KasamID
+    static var todayCompletedlist: [String] = []
+    static var groupCompletedList: [String] = []
     
     static var kasamDict: [String:KasamSavedFormat] = [:]           //KasamDict is used to update kasams when progress is made
 
@@ -27,11 +30,14 @@ struct SavedData {
 }
 
 struct DBRef {
-    static let userKasamFollowing = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
+    static let userPersonalFollowing = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
+    static let userGroupFollowing = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Group-Following")
+    
     static let coachKasams = Database.database().reference().child("Coach-Kasams")
     static let userCreator = Database.database().reference().child("Users")
     static let currentUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
     static let motivationImages = Database.database().reference().child("Assets").child("Motivation Images")
+    
     static let userHistory = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     static let userKasams = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
     

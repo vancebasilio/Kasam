@@ -112,10 +112,9 @@ class KasamSavedFormat {
     var repeatDuration: Int
     var kasamOrder: Int
     var image: String
+    var joinType: String
     var metricType: String
     var timeline: Int?
-    var currentStatus: String
-    var pastKasamJoinDates: [String:Int]?
     var sequence: String?
     var streakInfo: streakInfo
     var displayStatus: String
@@ -124,7 +123,7 @@ class KasamSavedFormat {
     var benefitsThresholds: [(Int,String)]?
     var dayTrackerArray: [Int:(date: Date, progress: Double)]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, metricType: String?, timeline: Int?, currentStatus: String, pastKasamJoinDates: [String:Int]?, sequence: String?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, joinType: String, metricType: String?, timeline: Int?, sequence: String?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
@@ -133,10 +132,9 @@ class KasamSavedFormat {
         self.repeatDuration = repeatDuration
         self.kasamOrder = kasamOrder
         self.image = image ?? ""
+        self.joinType = joinType
         self.metricType = metricType ?? ""
         self.timeline = timeline
-        self.currentStatus = currentStatus
-        self.pastKasamJoinDates = pastKasamJoinDates
         self.sequence = sequence
         self.streakInfo = streakInfo
         self.displayStatus = displayStatus
