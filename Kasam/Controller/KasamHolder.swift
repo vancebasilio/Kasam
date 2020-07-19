@@ -581,7 +581,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func registeredCheck(){
         self.addButton.setImage(UIImage(named:"kasam-add"), for: .normal)
-        if SavedData.personalKasamList.contains(kasamID) || SavedData.groupKasmList.contains(kasamID) {
+        if SavedData.personalKasamList.contains(kasamID) || SavedData.groupKasamList.contains(kasamID) {
             //OPTION 2 - User registered to kasam (GEAR ICON)
             self.registerCheck = 1
             self.initialRepeat = SavedData.kasamDict[self.kasamID]?.repeatDuration

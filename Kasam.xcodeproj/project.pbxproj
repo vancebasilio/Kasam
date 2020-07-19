@@ -68,7 +68,7 @@
 		BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */; };
 		BC96F8482292085200E161FC /* TodayBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC96F8462292085200E161FC /* TodayBlockCell.swift */; };
 		BC9C2424226FD6FF00E7B64B /* -NewKasam.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */; };
-		BC9C7841228CD2DB000C8D0A /* 2. Today.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C7840228CD2DB000C8D0A /* 2. Today.swift */; };
+		BC9C7841228CD2DB000C8D0A /* 2. Personal.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C7840228CD2DB000C8D0A /* 2. Personal.swift */; };
 		BC9EC1D92390DD0400637C94 /* CompletedKasamCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */; };
 		BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06122A9D22E008C5A7D /* AppContainer.swift */; };
 		BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06322A9D2AB008C5A7D /* AppManager.swift */; };
@@ -168,7 +168,7 @@
 		BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+constraints.swift"; sourceTree = "<group>"; };
 		BC96F8462292085200E161FC /* TodayBlockCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayBlockCell.swift; sourceTree = "<group>"; };
 		BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-NewKasam.swift"; sourceTree = "<group>"; };
-		BC9C7840228CD2DB000C8D0A /* 2. Today.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "2. Today.swift"; sourceTree = "<group>"; };
+		BC9C7840228CD2DB000C8D0A /* 2. Personal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "2. Personal.swift"; sourceTree = "<group>"; };
 		BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedKasamCell.swift; sourceTree = "<group>"; };
 		BCA9A06122A9D22E008C5A7D /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		BCA9A06322A9D2AB008C5A7D /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
@@ -418,7 +418,7 @@
 				BCA9A06122A9D22E008C5A7D /* AppContainer.swift */,
 				BC01664422D53E970073186D /* CoachHolder.swift */,
 				BC554BD1226D6EF900D707CC /* 1. Discover.swift */,
-				BC9C7840228CD2DB000C8D0A /* 2. Today.swift */,
+				BC9C7840228CD2DB000C8D0A /* 2. Personal.swift */,
 				BC5D1B0124BA1D4700A5E9A7 /* 3. Group.swift */,
 				BC554BD7226E079100D707CC /* 4. User-Profile.swift */,
 				BC12F1ED233FC17100D93227 /* Statistics.swift */,
@@ -725,7 +725,7 @@
 				BCF8A303246436140030C323 /* BadgesAchievedCellTableViewCell.swift in Sources */,
 				BC339E8E2376EB6D00E1D038 /* CustomSegmentedControl.swift in Sources */,
 				BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */,
-				BC9C7841228CD2DB000C8D0A /* 2. Today.swift in Sources */,
+				BC9C7841228CD2DB000C8D0A /* 2. Personal.swift in Sources */,
 				BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */,
 				BCB7FFCE248BCF4900E41913 /* NotificationsController.swift in Sources */,
 				BCE4B4BB23666E2800C75480 /* UserOptionsController.swift in Sources */,

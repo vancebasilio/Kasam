@@ -37,7 +37,8 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
     var count = 0
     var challengeCellWidth = CGFloat(0.0)
     
-    var kasamFollowingRefHandle: DatabaseHandle!
+    var personalFollowingRefHandle: DatabaseHandle!
+    var groupFollowingRefHandle: DatabaseHandle!
     var motivationRefHandle: DatabaseHandle!
     var dayTrackerRefHandle: DatabaseHandle!
     let animationView = AnimationView()
@@ -45,6 +46,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
     override func viewDidLoad() {
         super.viewDidLoad()
         self.getPersonalFollowing(nil)
+        self.getGroupFollowing()
         setupNavBar(clean: false)                   //global function
         setupNotifications()
     }
@@ -132,7 +134,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
     
     //STEP 1
     @objc func getPersonalFollowing(_ notification: NSNotification?){
-        print("step 1 inside get following hell6")
+        print("Step 1 get personal following hell6")
         kasamOrder = 0
         let kasamID = notification?.userInfo?["kasamID"] as? String
         if kasamID != nil {
@@ -152,27 +154,19 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
                     self.tableView.reloadData()
                     self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
                 }
-                self.kasamFollowingRefHandle = DBRef.userPersonalFollowing.observe(.childAdded) {(snapshot) in
+                self.personalFollowingRefHandle = DBRef.userPersonalFollowing.observe(.childAdded) {(snapshot) in
                     self.getPreferences(snapshot: snapshot, kasamID: nil, new: false)
                 }
             })
         }
     }
     
-    func getGroupFollowing(_ notification: NSNotification?){
-        SavedData.personalKasamBlocks.removeAll()
-        SavedData.personalKasamList.removeAll()
-        DBRef.userPersonalFollowing.observeSingleEvent(of: .value, with:{(snap) in
-            self.count = Int(snap.childrenCount)                 //counts number of Kasams that the user is following
-            if self.count == 0 {
-                //not following any kasams
-                self.tableView.reloadData()
-                self.tableView.hideSkeleton(transition: .crossDissolve(0.25))
-            }
-            self.kasamFollowingRefHandle = DBRef.userPersonalFollowing.observe(.childAdded) {(snapshot) in
-                self.getPreferences(snapshot: snapshot, kasamID: nil, new: false)
-            }
-        })
+    func getGroupFollowing(){
+        SavedData.groupKasamBlocks.removeAll()
+        SavedData.groupKasamList.removeAll()
+        self.groupFollowingRefHandle = DBRef.userGroupFollowing.observe(.childAdded) {(snapshot) in
+            SavedData.groupKasamList.append(snapshot.key)
+        }
     }
     
     //STEP 2
@@ -214,7 +208,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
                 self.retrieveKasams(kasamID: nil)
                 //update the user profile page
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
-                DBRef.userPersonalFollowing.removeObserver(withHandle: self.kasamFollowingRefHandle)
+                DBRef.userPersonalFollowing.removeObserver(withHandle: self.personalFollowingRefHandle)
             } else if kasamID != nil && new == false {
                 self.retrieveKasams(kasamID: kasamID)
             } else if kasamID != nil && new == true {

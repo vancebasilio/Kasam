@@ -14,10 +14,11 @@ import SwiftEntryKit
 
 struct SavedData {
     static var personalKasamBlocks: [PersonalBlockFormat] = []
-    
     static var personalKasamList: [String] = []                        //A list of all the Personal kasams the user is actively following by KasamID
-    static var groupKasmList: [String] = []                        //A list of all the Group kasams the user is actively following by KasamID
     static var personalCompletedList: [String] = []
+    
+    static var groupKasamBlocks: [PersonalBlockFormat] = []
+    static var groupKasamList: [String] = []                        //A list of all the Group kasams the user is actively following by KasamID
     static var groupCompletedList: [String] = []
     
     static var kasamDict: [String:KasamSavedFormat] = [:]           //KasamDict is used to update kasams when progress is made
