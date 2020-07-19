@@ -36,8 +36,8 @@ class NewBlockController: UIViewController, UIScrollViewDelegate {
     //edit Kasam
     var kasamDatabase = Database.database().reference().child("Coach-Kasams")
     var kasamDatabaseHandle: DatabaseHandle!
-    var kasamBlocksDatabase = Database.database().reference().child("Coach-Kasams")
-    var kasamBlocksDatabaseHandle: DatabaseHandle!
+    var personalKasamBlocksDatabase = Database.database().reference().child("Coach-Kasams")
+    var personalKasamBlocksDatabaseHandle: DatabaseHandle!
     var blockDuration = [Int:String]()
     var tempBlockNoSelected = 1
 

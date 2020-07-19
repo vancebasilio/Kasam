@@ -51,8 +51,8 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     //edit Kasam
     var kasamDatabase = DBRef.userKasams
     var kasamDatabaseHandle: DatabaseHandle!
-    var kasamBlocksDatabase = DBRef.userKasams
-    var kasamBlocksDatabaseHandle: DatabaseHandle!
+    var personalKasamBlocksDatabase = DBRef.userKasams
+    var personalKasamBlocksDatabaseHandle: DatabaseHandle!
     var blockDuration = [Int:String]()
     var basicKasam = false                  //loaded in
     var userKasam = true                    //change in the future to load in for professional kasams
@@ -88,10 +88,10 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     func setupLoad(){
         if userKasam == false {
             kasamDatabase = DBRef.coachKasams
-            kasamBlocksDatabase = DBRef.coachKasams
+            personalKasamBlocksDatabase = DBRef.coachKasams
         } else {
             kasamDatabase = DBRef.userKasams
-            kasamBlocksDatabase = DBRef.coachKasams
+            personalKasamBlocksDatabase = DBRef.coachKasams
         }
         let backButtonBasicKasam = NSNotification.Name("BackButtonBasicKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(NewKasamController.backButtonBasicKasam), name: backButtonBasicKasam, object: nil)
@@ -458,8 +458,8 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     
     //STEP 3 - Load Activity Information
     func loadActivities(blockNo: Int, blockID: String) {
-        self.kasamBlocksDatabase = self.kasamDatabase.child(NewKasam.kasamID).child("Blocks").child(blockID).child("Activity")
-        self.kasamBlocksDatabaseHandle = self.kasamBlocksDatabase.observe(.childAdded) {(snapshot) in
+        self.personalKasamBlocksDatabase = self.kasamDatabase.child(NewKasam.kasamID).child("Blocks").child(blockID).child("Activity")
+        self.personalKasamBlocksDatabaseHandle = self.personalKasamBlocksDatabase.observe(.childAdded) {(snapshot) in
         if let value = snapshot.value as? [String: Any] {
             var reps = 0
             var interval = 1
@@ -480,7 +480,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             let activity = [0: newActivityFormat(title: value["Title"] as? String, description: value["Description"] as? String, imageToLoad: URL(string:value["Image"] as! String), imageToSave: nil, reps: reps, interval: interval, hour: hours, min: mins, sec: secs)]
             NewKasam.fullActivityMatrix[blockNo] = activity
             }
-            self.kasamBlocksDatabase.removeObserver(withHandle: self.kasamBlocksDatabaseHandle)
+            self.personalKasamBlocksDatabase.removeObserver(withHandle: self.personalKasamBlocksDatabaseHandle)
         }
     }
 }

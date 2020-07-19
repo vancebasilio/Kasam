@@ -18,7 +18,7 @@ protocol TableCellDelegate : class {
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
 }
 
-class TodayBlockCell: UITableViewCell {
+class PersonalBlockCell: UITableViewCell {
     @IBOutlet weak var kasamName: UILabel!
     @IBOutlet weak var blockSubtitle: UILabel!
     @IBOutlet weak var levelLineBack: UIView!
@@ -48,7 +48,7 @@ class TodayBlockCell: UITableViewCell {
     
     var cellDelegate: TableCellDelegate?
     var row = 0
-    var tempBlock: TodayBlockFormat?
+    var tempBlock: PersonalBlockFormat?
     var today: Int?
     let progress = Progress(totalUnitCount: 30)
     var hideDayTrackerDates = true
@@ -64,7 +64,7 @@ class TodayBlockCell: UITableViewCell {
         dayTrackerCollectionView.tag = row
     }
     
-    func setBlock(block: TodayBlockFormat) {
+    func setBlock(block: PersonalBlockFormat) {
         kasamID = block.kasamID
         tempBlock = block
         kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
@@ -117,7 +117,7 @@ class TodayBlockCell: UITableViewCell {
         restartButton.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 15, color: UIColor.colorFour, forState: .normal)
         
         let centerCollectionView = NSNotification.Name("CenterCollectionView")
-        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(PersonalBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
     
         blockImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
         kasamName.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(kasamNamePressed)))
@@ -194,7 +194,7 @@ class TodayBlockCell: UITableViewCell {
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self, userInfo: ["kasamID": self.kasamID])
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                 NotificationCenter.default.removeObserver(saveTimeObserver as Any)
             }
@@ -248,6 +248,8 @@ class TodayBlockCell: UITableViewCell {
                 streakShadow.backgroundColor = UIColor.dayYesColor.darker.darker
                 statsShadow.layer.shadowColor = UIColor.dayYesColor.darker.darker.cgColor
                 statsShadow.layer.shadowOpacity = 1
+                statsContent.backgroundColor = UIColor.init(hex: 0xf0f6e6)
+                hideDayTrackerView.backgroundColor = UIColor.init(hex: 0xf0f6e6)
                 trophyIconView.isHidden = false
                 trophyIcon.animation = Animations.kasamBadges[1]
                 trophyIcon.backgroundBehavior = .pauseAndRestore

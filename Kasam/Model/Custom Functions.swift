@@ -477,7 +477,7 @@ extension UIViewController {
             
             //STEP 2 - MARK KASAM AS COMPLETED
             DBRef.userPersonalFollowing.child(kasamID).child("Status").setValue("completed") {(error, reference) in
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                 completion(success)

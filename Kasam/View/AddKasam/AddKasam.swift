@@ -26,12 +26,6 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var groupLabel: UILabel!
     @IBOutlet weak var groupImage: UIImageView!
     
-    @IBOutlet weak var justForFunButton: UIView!
-    @IBOutlet weak var justForFunOutilne: UIView!
-    @IBOutlet weak var justForFunBG: UIView!
-    @IBOutlet weak var justForFunLabel: UILabel!
-    @IBOutlet weak var justForFunImage: UIImageView!
-    
     @IBOutlet weak var startDateTimeLabel: UILabel!
     @IBOutlet weak var startDayView: UIStackView!
     @IBOutlet weak var startDayPicker: UIPickerView!
@@ -87,16 +81,9 @@ class AddKasamController: UIViewController {
         groupOutline.layer.borderWidth = 3.0
         groupImage.setIcon(icon: .fontAwesomeSolid(.userFriends), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
         
-        justForFunBG.layer.cornerRadius = 20
-        justForFunOutilne.layer.cornerRadius = 25
-        justForFunOutilne.layer.borderColor = UIColor.init(hex: 0x66A058).cgColor
-        justForFunOutilne.layer.borderWidth = 3.0
-        justForFunImage.setIcon(icon: .fontAwesomeSolid(.footballBall), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
-        
         if new == true {
             dayGoalButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(personalChallengeSelected)))
             groupButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(groupChallengeSelected)))
-            justForFunButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(justForFunSelected)))
         }
         
         reminderTimeSwitch.onTintColor = .colorFour
@@ -120,11 +107,8 @@ class AddKasamController: UIViewController {
     @objc func personalChallengeSelected(){
         joinType = "personal"
         groupOutline.isHidden = true
-        justForFunOutilne.isHidden = true
         groupLabel.textColor = .darkGray
-        justForFunLabel.textColor = .darkGray
         groupBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
-        justForFunBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
         
         dayGoalOutline.isHidden = false
         dayGoaldayLabel.textColor = .white
@@ -133,11 +117,8 @@ class AddKasamController: UIViewController {
     
     @objc func groupChallengeSelected(){
         joinType = "group"
-        justForFunOutilne.isHidden = true
         dayGoalOutline.isHidden = true
-        justForFunLabel.textColor = .darkGray
         dayGoaldayLabel.textColor = .darkGray
-        justForFunBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
         dayGoalBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
         
         groupOutline.isHidden = false
@@ -153,10 +134,6 @@ class AddKasamController: UIViewController {
         groupLabel.textColor = .darkGray
         dayGoalBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
         groupBG.backgroundColor = UIColor.init(hex:0xCCCCCC)
-        
-        justForFunOutilne.isHidden = false
-        justForFunLabel.textColor = .white
-        justForFunBG.backgroundColor = UIColor.init(hex: 0x6EA960)
         repeatDuration = 0
     }
     

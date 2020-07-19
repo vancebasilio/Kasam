@@ -475,7 +475,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         if viewOnlyCheck == false {
             if timerOrCountdown == "Checkmark" {
                 delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 0.0, text: textField.text ?? "")
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdateTodayBlockStatus"), object: self, userInfo: kasamIDTransfer)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdatePersonalBlockStatus"), object: self, userInfo: kasamIDTransfer)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
                 delegate?.dismissViewController()

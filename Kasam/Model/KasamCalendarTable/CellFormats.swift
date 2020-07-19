@@ -80,7 +80,7 @@ class SquareKasamFormat {
     }
 }
 
-class TodayBlockFormat {
+class PersonalBlockFormat {
     var kasamOrder: Int
     var kasamID: String
     var blockID: String

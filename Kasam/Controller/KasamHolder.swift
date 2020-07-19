@@ -78,7 +78,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var notificationCheck = true
     
     var previewLink = ""
-    var kasamBlocks: [BlockFormat] = []
+    var personalKasamBlocks: [BlockFormat] = []
     var followerCountGlobal = 0
     var kasamID: String = ""            //transfered in values from previous vc
     var kasamGTitle: String = ""        //transfered in values from previous vc
@@ -444,7 +444,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     let blockURL = URL(string: value["Image"] as? String ?? "")
                     let block = BlockFormat(blockID: blockID, title: value["Title"] as? String ?? "", order: String(dayNumber), duration: value["Duration"] as? String ?? "", imageURL: blockURL ?? URL(string:PlaceHolders.kasamLoadingImageURL), image: nil)
                     dayNumber += 1
-                    self.kasamBlocks.append(block)
+                    self.personalKasamBlocks.append(block)
                     self.tableView.reloadData()
                     self.tableView.beginUpdates()
                     self.tableView.endUpdates()
@@ -484,7 +484,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.registerUserToKasam()                          //only gets executed once user presses save
             } else {
                 self.addUserPreferncestoKasam(restart: reset)         //updating kasam that user is already following
-                //manually change values below so if the user opens this window again, the values are updated. Can't rely on the todaykasamreload, since it takes too long and if the user opens this window earlier, it'll show old values
+                //manually change values below so if the user opens this window again, the values are updated. Can't rely on the personalKasamReload, since it takes too long and if the user opens this window earlier, it'll show old values
                 SavedData.kasamDict[self.kasamID]?.repeatDuration = self.chosenRepeat
                 SavedData.kasamDict[self.kasamID]?.startTime = self.chosenTime
             }
@@ -539,7 +539,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //Removes the kasam from the user's following list
         DBRef.userPersonalFollowing.child(kasamID).child("Status").setValue("inactive") {(error, reference) in
             Analytics.logEvent("unfollowing_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
         }
@@ -548,22 +548,21 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         
     func addUserPreferncestoKasam(restart: Bool){
         var DBlocation = DBRef.userPersonalFollowing
-        var status = "active"
-        if joinType == "group" {DBlocation = DBRef.userGroupFollowing; status = "initiated"}
-        DBlocation.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": status, "Metric": kasamMetric, "Duration": timelineDuration as Any]) {(error, reference) in
+        if joinType == "group" {DBlocation = DBRef.userGroupFollowing}
+        DBlocation.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": "initiated", "Metric": kasamMetric, "Duration": timelineDuration as Any]) {(error, reference) in
             Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-            //OPTION 1 - Add new kasam to the today page
+            //OPTION 1 - Add new kasam to the personal page
             if self.initialRepeat == nil {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "AddKasamToday"), object: self, userInfo: ["kasamID": self.kasamID])
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "AddKasamToPersonal"), object: self, userInfo: ["kasamID": self.kasamID])
             //OPTION 2 - Switching from FUN kasam to Tracked kasam
             } else if self.initialRepeat == 0 && self.chosenRepeat > 0 {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self)
             //OPTION 3 - Switching from Tracked kasam to FUN Kasam
             } else if self.initialRepeat! > 0 && self.chosenRepeat == 0 {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self)
             //OPTION 4 - Updating existing kasam, keeping FUN and Tracked status same
             } else {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetTodayKasam"), object: self, userInfo: ["kasamID": self.kasamID])
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self, userInfo: ["kasamID": self.kasamID])
                 if restart == true {
                     //
                 }
@@ -582,12 +581,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func registeredCheck(){
         self.addButton.setImage(UIImage(named:"kasam-add"), for: .normal)
-        if SavedData.todayKasamList.contains(kasamID) || SavedData.groupKasmList.contains(kasamID) {
+        if SavedData.personalKasamList.contains(kasamID) || SavedData.groupKasmList.contains(kasamID) {
             //OPTION 2 - User registered to kasam (GEAR ICON)
             self.registerCheck = 1
             self.initialRepeat = SavedData.kasamDict[self.kasamID]?.repeatDuration
             self.addButtonText.setIcon(icon: .fontAwesomeSolid(.cog), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
-        } else if SavedData.todayCompletedlist.contains(kasamID) || SavedData.groupCompletedList.contains(kasamID) {
+        } else if SavedData.personalCompletedList.contains(kasamID) || SavedData.groupCompletedList.contains(kasamID) {
             //OPTION 2 - User compeleted kasam in past, and may now want to rejoin
             self.registerCheck = 0
             self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
@@ -606,7 +605,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func setupReviewOnly(){
         //load in values from add Kasam pages
-        self.kasamBlocks.removeAll()
+        self.personalKasamBlocks.removeAll()
         coachName.isEnabled = false
         coachName.setTitle(Auth.auth().currentUser?.displayName, for: .normal)
         kasamTitle.text = NewKasam.kasamName
@@ -638,7 +637,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 let duration = NewKasam.kasamTransferArray[blockNo]?.duration
                 let durationMetric = NewKasam.kasamTransferArray[blockNo]?.durationMetric
                 let block = BlockFormat(blockID: String(blockNo), title: NewKasam.kasamTransferArray[blockNo]?.blockTitle ?? "", order: String(day * blockNo), duration: "\(duration ?? 15) \(durationMetric ?? "secs")", imageURL: nil, image: blockImage)
-                self.kasamBlocks.append(block)
+                self.personalKasamBlocks.append(block)
             }
             if day == ratio {
                 self.tableView.reloadData()
@@ -710,7 +709,7 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
         if kasamMetric == "Checkmark" {
             return 1
         } else {
-            return kasamBlocks.count
+            return personalKasamBlocks.count
         }
     }
     
@@ -721,7 +720,7 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
             cell.benefitsArray = benefitsArray
             cell.setBasicKasamBenefits()
         } else {
-            let block = kasamBlocks[indexPath.row]
+            let block = personalKasamBlocks[indexPath.row]
             if singleBlock == true {
                 cell.benefitsArray = benefitsArray
                 cell.setBlock(block: block, single: true)
@@ -736,7 +735,7 @@ extension KasamHolder: UITableViewDataSource, UITableViewDelegate {
         if kasamMetric == "Checkmark" {
             //do nothing
         } else {
-            blockIDGlobal = kasamBlocks[indexPath.row].blockID
+            blockIDGlobal = personalKasamBlocks[indexPath.row].blockID
             performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
             tableView.deselectRow(at: indexPath, animated: true)
         }

@@ -59,7 +59,6 @@
 		BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74E1F22336748E00653381 /* CountdownTimer.swift */; };
 		BC791A21234BF93600A9D25A /* TodayMotivationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */; };
 		BC7BF3E524A67BF40094A5C1 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7BF3E424A67BF40094A5C1 /* Reachability.swift */; };
-		BC7CBA9724BFC9E30042E89D /* levitate-meditate.json in Resources */ = {isa = PBXBuildFile; fileRef = BC7CBA9624BFC9E30042E89D /* levitate-meditate.json */; };
 		BC8348462445027A001819DC /* goldCup.json in Resources */ = {isa = PBXBuildFile; fileRef = BC8348452445027A001819DC /* goldCup.json */; };
 		BC834848244502B0001819DC /* oneMedal.json in Resources */ = {isa = PBXBuildFile; fileRef = BC834847244502AF001819DC /* oneMedal.json */; };
 		BC83484A2445034A001819DC /* crown.json in Resources */ = {isa = PBXBuildFile; fileRef = BC8348492445034A001819DC /* crown.json */; };
@@ -160,7 +159,6 @@
 		BC74E1F22336748E00653381 /* CountdownTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		BC791A20234BF93600A9D25A /* TodayMotivationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayMotivationCell.swift; sourceTree = "<group>"; };
 		BC7BF3E424A67BF40094A5C1 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
-		BC7CBA9624BFC9E30042E89D /* levitate-meditate.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "levitate-meditate.json"; path = "Supporting Files/levitate-meditate.json"; sourceTree = SOURCE_ROOT; };
 		BC8348452445027A001819DC /* goldCup.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = goldCup.json; sourceTree = "<group>"; };
 		BC834847244502AF001819DC /* oneMedal.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = oneMedal.json; sourceTree = "<group>"; };
 		BC8348492445034A001819DC /* crown.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = crown.json; sourceTree = "<group>"; };
@@ -239,7 +237,6 @@
 		BC1C678023D5558300E44DEE /* Lottie Animations */ = {
 			isa = PBXGroup;
 			children = (
-				BC7CBA9624BFC9E30042E89D /* levitate-meditate.json */,
 				BC83484D24450468001819DC /* Badges */,
 				BC16A20323292ABD00FDF70C /* loading.json */,
 				BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */,
@@ -561,7 +558,6 @@
 				BCF8A304246436140030C323 /* BadgesAchievedCellTableViewCell.xib in Resources */,
 				BC834848244502B0001819DC /* oneMedal.json in Resources */,
 				BCF8A305246436140030C323 /* BadgesAchieved.xib in Resources */,
-				BC7CBA9724BFC9E30042E89D /* levitate-meditate.json in Resources */,
 				BC228CB224401C3D00BA665C /* crownMedal.json in Resources */,
 				BC679ECB2439290800441F6E /* badge.json in Resources */,
 				BCD213652460CAC80096A365 /* flagmountain.json in Resources */,

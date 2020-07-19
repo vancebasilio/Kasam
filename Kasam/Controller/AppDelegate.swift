@@ -44,7 +44,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         })
         profileInfo()
-        
         return true
     }
     

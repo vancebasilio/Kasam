@@ -43,7 +43,6 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLayoutSubviews(){
         //elongates the entire scrollview, based on the tableview height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        print("hell9 \(frame.height)")
         let contentHeightToSet = CGFloat(0)
         if contentHeightToSet > frame.height {
             contentViewHeight.constant = contentHeightToSet

@@ -159,7 +159,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                 //if the user exists, don't add data
                 if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {
                     //user already exists in Firebase, so just sign them in
-                    self.dismiss(animated: true, completion: nil)               //this takes them to the Today page
+                    self.dismiss(animated: true, completion: nil)               //this takes them to the Personal page
                     return
                 } else {
                     //user doesn't exist, so create a new profile for them
@@ -181,7 +181,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                             print(error!)
                         } else {
                             print ("Username update successful!")
-                            self.dismiss(animated: true, completion: nil)               //this takes them to the Today page
+                            self.dismiss(animated: true, completion: nil)               //this takes them to the Personal page
                         }
                     }
                 }

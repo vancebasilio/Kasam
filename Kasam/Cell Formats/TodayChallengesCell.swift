@@ -11,11 +11,10 @@ import SDWebImage
 
 protocol CollectionCellDelegate : class {
     func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?)
-    func goToChallengeKasamHolder(_ sender: UIButton, kasamOrder: Int)
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
 }
 
-class TodayChallengesCell: UICollectionViewCell {
+class PersonalChallengesCell: UICollectionViewCell {
 
     @IBOutlet weak var BGOutline: UIView!
     @IBOutlet weak var kasamImage: UIImageView!
@@ -31,10 +30,10 @@ class TodayChallengesCell: UICollectionViewCell {
     
     var cellDelegate: CollectionCellDelegate?
     var row = 0
-    var tempBlock: TodayBlockFormat?
+    var tempBlock: PersonalBlockFormat?
     var kasamID = ""
     
-    func setBlock(challenge: TodayBlockFormat) {
+    func setBlock(challenge: PersonalBlockFormat) {
         print("step 6b challenge hell2  \(SavedData.kasamDict[challenge.kasamID]?.kasamName)")
         tempBlock = challenge
         kasamID = challenge.kasamID
@@ -46,7 +45,7 @@ class TodayChallengesCell: UICollectionViewCell {
     }
     
     @IBAction func kasamTitleSelected(_ sender: UIButton) {
-        cellDelegate?.goToChallengeKasamHolder(sender, kasamOrder: row)
+//        cellDelegate?.goToChallengeKasamHolder(sender, kasamOrder: row)
     }
     
     override func awakeFromNib() {

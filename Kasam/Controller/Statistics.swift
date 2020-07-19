@@ -36,7 +36,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     var userHistoryTransfer: CompletedKasamFormat?                  //transfered in value if viewing full history
     var currentKasam = false
     var metricArray: [Int:Double] = [:]
-    var kasamBlocks: [kasamFollowingFormat] = []
+    var personalKasamBlocks: [kasamFollowingFormat] = []
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRefHandle: DatabaseHandle!
     var dayTrackerRefHandle: DatabaseHandle!
@@ -110,7 +110,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     }
     
     @objc func getKasamStats(){
-        self.kasamBlocks.removeAll()
+        self.personalKasamBlocks.removeAll()
         let enumerator = userHistoryTransfer!.userHistorySnap!.children
         var historyArray = [DataSnapshot]()
         if userHistoryTransfer != nil {
@@ -193,8 +193,8 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                     metric = self.convertLongDateToShort(date: snap.key)
                 }
                 self.block = kasamFollowingFormat(day: self.dayNo, shortDate: shortDate, fullDate: snap.key, metric: metric, text: textField)
-                self.kasamBlocks.append(self.block!)
-                self.kasamBlocks = self.kasamBlocks.sorted(by: { $0.day < $1.day })
+                self.personalKasamBlocks.append(self.block!)
+                self.personalKasamBlocks = self.personalKasamBlocks.sorted(by: { $0.day < $1.day })
             }
             
         //STEP 2 - IF ALL DAYS ACCOUNTED FOR, UPDATE TABLE AND CHART
@@ -306,13 +306,13 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
 extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return kasamBlocks.count
+        return personalKasamBlocks.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "KasamStatsCell") as! KasamHistoryTableCell
         cell.delegate = self
-        let block = kasamBlocks[indexPath.row]
+        let block = personalKasamBlocks[indexPath.row]
         cell.setBlock(block: block)
         return cell
     }
@@ -323,10 +323,10 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
         } else {
             let delete = SwipeAction(style: .destructive, title: nil) { action, indexPath in
                 let popupImage = UIImage.init(icon: .fontAwesomeSolid(.eraser), size: CGSize(width: 30, height: 30), textColor: .white)
-                showPopupConfirmation(title: "Sure you want to delete your progress on \(self.kasamBlocks[indexPath.row].shortDate)?", description: "", image: popupImage, buttonText: "Delete") {(success) in
-                    DBRef.userHistory.child(self.kasamID).child(self.kasamBlocks[indexPath.row].fullDate).setValue(nil)
+                showPopupConfirmation(title: "Sure you want to delete your progress on \(self.personalKasamBlocks[indexPath.row].shortDate)?", description: "", image: popupImage, buttonText: "Delete") {(success) in
+                    DBRef.userHistory.child(self.kasamID).child(self.personalKasamBlocks[indexPath.row].fullDate).setValue(nil)
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
-                    self.kasamBlocks.remove(at: indexPath.row)
+                    self.personalKasamBlocks.remove(at: indexPath.row)
                     self.historyTableView.reloadData()
                     self.updateViewConstraints()
                     SwiftEntryKit.dismiss()
@@ -335,7 +335,7 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
             configure(action: delete, with: .trash)
             
             let edit = SwipeAction(style: .default, title: nil) { action, indexPath in
-                self.dateToLoadGlobal = self.kasamBlocks[indexPath.row].fullDate.stringToDate()
+                self.dateToLoadGlobal = self.personalKasamBlocks[indexPath.row].fullDate.stringToDate()
                 self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
             }
             configure(action: edit, with: .edit)
