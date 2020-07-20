@@ -60,11 +60,8 @@ class KasamActivityViewer: UIViewController {
         
         //TIMELINE KASAMS - Update the dayTracker using skipped day (e.g. 2nd day might show as 5th day if 3 days skipped)
         if SavedData.kasamDict[kasamID]?.timeline != nil {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdatePersonalBlockStatus"), object: self, userInfo: ["kasamID": kasamID, "date": dateToLoad?.dateToString() ?? Date().dateToString, "day": dayToLoad as Any])
         //OTHER KASAMS - Update the dayTracker using linear day (.e.g 5th day will show as 5th day because days skipped shows as grey)
-        } else {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "UpdatePersonalBlockStatus"), object: self, userInfo: ["kasamID":kasamID, "date":statusDate])
-        }
+        } 
         NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)

@@ -50,9 +50,8 @@ class weekStatsFormat {
     var metricType: String
     var avgMetric: Int
     var metricDictionary = [Int:Double]()
-    var order: Int
     
-    init(kasamID: String, kasamTitle: String, imageURL: URL, daysLeft: Int, metricType: String, metricDictionary: [Int: Double], avgMetric: Int, order: Int){
+    init(kasamID: String, kasamTitle: String, imageURL: URL, daysLeft: Int, metricType: String, metricDictionary: [Int: Double], avgMetric: Int){
         self.kasamID = kasamID
         self.kasamTitle = kasamTitle
         self.imageURL = imageURL
@@ -60,7 +59,6 @@ class weekStatsFormat {
         self.metricType = metricType
         self.avgMetric = avgMetric
         self.metricDictionary = metricDictionary
-        self.order = order
     }
 }
 
@@ -81,7 +79,6 @@ class SquareKasamFormat {
 }
 
 class PersonalBlockFormat {
-    var kasamOrder: Int
     var kasamID: String
     var blockID: String
     var image: URL
@@ -90,8 +87,7 @@ class PersonalBlockFormat {
     var duration: String?
     var dayCount: Int?
     
-    init(kasamOrder: Int, kasamID: String, blockID: String, blockTitle: String, dayOrder: Int, duration: String?, image: URL, dayCount: Int?){
-        self.kasamOrder = kasamOrder
+    init(kasamID: String, blockID: String, blockTitle: String, dayOrder: Int, duration: String?, image: URL, dayCount: Int?){
         self.kasamID = kasamID
         self.blockID = blockID
         self.dayOrder = dayOrder
@@ -110,7 +106,6 @@ class KasamSavedFormat {
     var startTime: String
     var currentDay: Int
     var repeatDuration: Int
-    var kasamOrder: Int
     var image: String
     var joinType: String
     var metricType: String
@@ -123,14 +118,13 @@ class KasamSavedFormat {
     var benefitsThresholds: [(Int,String)]?
     var dayTrackerArray: [Int:(date: Date, progress: Double)]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, kasamOrder: Int, image: String?, joinType: String, metricType: String?, timeline: Int?, sequence: String?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, image: String?, joinType: String, metricType: String?, timeline: Int?, sequence: String?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
         self.startTime = startTime
         self.currentDay = currentDay
         self.repeatDuration = repeatDuration
-        self.kasamOrder = kasamOrder
         self.image = image ?? ""
         self.joinType = joinType
         self.metricType = metricType ?? ""
@@ -316,16 +310,14 @@ class UserStatsFormat {
     var joinedDate: Date
     var endDate: Date?
     var metricType: String
-    var order: Int
     
-    init(kasamID: String, kasamTitle: String, imageURL: URL, joinedDate: Date, endDate: Date?, metricType: String, order: Int){
+    init(kasamID: String, kasamTitle: String, imageURL: URL, joinedDate: Date, endDate: Date?, metricType: String){
         self.kasamID = kasamID
         self.kasamTitle = kasamTitle
         self.imageURL = imageURL
         self.joinedDate = joinedDate
         self.endDate = endDate
         self.metricType = metricType
-        self.order = order
     }
 }
 

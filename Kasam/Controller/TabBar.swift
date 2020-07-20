@@ -18,13 +18,6 @@ class TabBar: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setReachabilityNotifier()
-        DBRef.userGroupFollowing.observeSingleEvent(of: .value, with:{(snap) in
-            if snap.exists() {
-                self.selectedIndex = 2
-            } else {
-                self.selectedIndex = 1
-            }
-        })
         tabBar.items?[0].setIcon(icon: .fontAwesomeSolid(.seedling), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
         tabBar.items?[1].setIcon(icon: .fontAwesomeSolid(.user), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
         tabBar.items?[2].setIcon(icon: .fontAwesomeSolid(.userFriends), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)

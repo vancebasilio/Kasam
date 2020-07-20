@@ -175,7 +175,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 //PART 3 - Current Stats CollectionView
                 if SavedData.kasamDict[kasam.kasamID] != nil {
                     let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
-                    let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType, order: kasam.kasamOrder)
+                    let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType)
                     self.detailedStats.append(userStats)
                     self.weekStatsCollectionView.reloadData()
                 }
@@ -198,7 +198,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 })
                 DispatchQueue.main.async {
                     //Orders the array as kasams with no history will always show up first, even though they were loaded later
-                    self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })
+//                    self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })
                 }
             }
         }
@@ -244,11 +244,11 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                     //For Complex Kasams, show total for the weeks
                     avgMetric = (metricMatrix)
                 }
-                self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysLeft, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric, order: kasam.kasamOrder))
+                self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysLeft, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric))
                 
                 //Orders the array as kasams with no history will always show up first, even though they were loaded later
-                self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
-                self.weekStatsCollectionView.reloadData()
+//                self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
+//                self.weekStatsCollectionView.reloadData()
             }
         }
     }

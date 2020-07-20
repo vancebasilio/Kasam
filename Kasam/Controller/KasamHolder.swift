@@ -228,7 +228,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //STEP 1 - BADGES ACHIEVED
         badgesAchieved()
         
-        if SavedData.kasamDict[kasamID]?.currentDay != nil && SavedData.kasamDict[kasamID]?.repeatDuration != nil  {
+        if SavedData.personalKasamList.contains(kasamID) || SavedData.groupKasamList.contains(kasamID)  {
             //STEP 2 - Header Badge & Info (if Kasam is being followed and is a repeat Kasam)
             headerBadge()
             
@@ -537,9 +537,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
         
         //Removes the kasam from the user's following list
-        DBRef.userPersonalFollowing.child(kasamID).child("Status").setValue("inactive") {(error, reference) in
+        DBRef.userPersonalFollowing.child(kasamID).setValue(nil) {(error, reference) in
+            self.registeredCheck()
+            self.headerImageView.alpha = 1.0
+            self.kasamBadgeHolder.isHidden = true
             Analytics.logEvent("unfollowing_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
         }
@@ -551,22 +553,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         if joinType == "group" {DBlocation = DBRef.userGroupFollowing}
         DBlocation.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": "initiated", "Metric": kasamMetric, "Duration": timelineDuration as Any]) {(error, reference) in
             Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-            //OPTION 1 - Add new kasam to the personal page
-            if self.initialRepeat == nil {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "AddKasamToPersonal"), object: self, userInfo: ["kasamID": self.kasamID])
-            //OPTION 2 - Switching from FUN kasam to Tracked kasam
-            } else if self.initialRepeat == 0 && self.chosenRepeat > 0 {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self)
-            //OPTION 3 - Switching from Tracked kasam to FUN Kasam
-            } else if self.initialRepeat! > 0 && self.chosenRepeat == 0 {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self)
-            //OPTION 4 - Updating existing kasam, keeping FUN and Tracked status same
-            } else {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self, userInfo: ["kasamID": self.kasamID])
-                if restart == true {
-                    //
-                }
-            }
+            self.refreshBadge()
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
         }
     }

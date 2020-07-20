@@ -69,7 +69,6 @@ class PersonalBlockCell: UITableViewCell {
         tempBlock = block
         kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
         kasamName.numberOfLines = kasamName.calculateMaxLines()
-        print("step 6A \(String(describing: SavedData.kasamDict[kasamID]?.kasamName)) hell2")
         
         //For timeline kasams only
         if block.dayCount != nil {today = block.dayCount!}
@@ -202,7 +201,7 @@ class PersonalBlockCell: UITableViewCell {
     }
     
     @objc func centerCollectionView() {
-        if today != nil && tempBlock != nil {
+        if today != nil && tempBlock != nil && SavedData.kasamDict[(tempBlock!.kasamID)]?.repeatDuration != nil {
             if tempBlock!.dayOrder < SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
                 let indexPath = IndexPath(item: self.today! - 1, section: 0)
                 self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
