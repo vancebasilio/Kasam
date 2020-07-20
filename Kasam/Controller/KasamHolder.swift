@@ -228,7 +228,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //STEP 1 - BADGES ACHIEVED
         badgesAchieved()
         
-        if SavedData.personalKasamList.contains(kasamID) || SavedData.groupKasamList.contains(kasamID)  {
+        if SavedData.personalKasamBlocks.contains(where: {$0.kasamID == kasamID}) || SavedData.groupKasamBlocks.contains(where: {$0.kasamID == kasamID})  {
             //STEP 2 - Header Badge & Info (if Kasam is being followed and is a repeat Kasam)
             headerBadge()
             
@@ -313,6 +313,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         }
     }
     
+    //BUTTON PRESSES----------------------------------------------------------------------
+    
     @IBAction func finishButtonPressed(_ sender: Any) {
         finishKasamPress(kasamID: kasamID, completion: {(success) -> Void in})
     }
@@ -320,8 +322,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     @IBAction func extendButtonPressed(_ sender: Any) {
         addButtonPress(reset:false)
     }
-    
-    //BUTTON PRESSES----------------------------------------------------------------------
     
     @IBAction func coachNamePress(_ sender: Any) {
         if reviewOnly == false {
@@ -568,7 +568,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func registeredCheck(){
         self.addButton.setImage(UIImage(named:"kasam-add"), for: .normal)
-        if SavedData.personalKasamList.contains(kasamID) || SavedData.groupKasamList.contains(kasamID) {
+        if SavedData.personalKasamBlocks.contains(where: {$0.kasamID == kasamID}) || SavedData.groupKasamBlocks.contains(where: {$0.kasamID == kasamID}) {
             //OPTION 2 - User registered to kasam (GEAR ICON)
             self.registerCheck = 1
             self.initialRepeat = SavedData.kasamDict[self.kasamID]?.repeatDuration

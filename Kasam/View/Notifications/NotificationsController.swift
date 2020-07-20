@@ -35,7 +35,7 @@ class NotificationsController: UIViewController {
     
     override func updateViewConstraints() {
         super.updateViewConstraints()
-        tableViewHeight.constant = CGFloat(100 * SavedData.personalKasamList.count)
+        tableViewHeight.constant = CGFloat(100 * SavedData.personalKasamBlocks.count)
         contentViewHeight.constant = 380 + (tableViewHeight.constant)
     }
      
@@ -43,7 +43,7 @@ class NotificationsController: UIViewController {
 //        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         UNUserNotificationCenter.current().getPendingNotificationRequests {(notifications) in
             for item in notifications {
-                if let index = SavedData.personalKasamList.index(of:item.identifier) {
+                if let index = SavedData.personalKasamBlocks.index(where: {$0.kasamID == item.identifier}) {
                     self.notificationArray[index] = item
                     let localTrigger = item.trigger as! UNCalendarNotificationTrigger
                     let format = DateFormatter()
@@ -71,12 +71,12 @@ class NotificationsController: UIViewController {
 
 extension NotificationsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return SavedData.personalKasamList.count
+        return SavedData.personalKasamBlocks.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NotificationsCell") as! NotificationsCell
-        let block = SavedData.kasamDict[SavedData.personalKasamList[indexPath.row]]!
+        let block = SavedData.kasamDict[SavedData.personalKasamBlocks[indexPath.row].kasamID]!
         cell.kasamImage.sd_setImage(with: URL(string: block.image))
         cell.kasamName.text = block.kasamName
         cell.kasamID = block.kasamID

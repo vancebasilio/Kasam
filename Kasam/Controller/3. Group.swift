@@ -29,12 +29,12 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
      }
     
     func setupLoad(){
-        if SavedData.groupKasamList.count == 0 {
+        if SavedData.groupKasamBlocks.count == 0 {
             groupFollowingLabel.text = "You're not in any group kasams"
             groupAnimationIcon.loadingAnimation(view: contentView, animation: "crownSeptors", height: 200, overlayView: nil, loop: false, completion: nil)
             groupAnimationIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(iconTapped)))
         } else {
-            groupFollowingLabel.text = "You're in \(SavedData.groupKasamList.count.pluralUnit(unit: "group kasam"))"
+            groupFollowingLabel.text = "You're in \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "group kasam"))"
         }
     }
     
