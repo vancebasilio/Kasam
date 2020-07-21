@@ -217,6 +217,7 @@ class PersonalBlockCell: UITableViewCell {
     
     func statusUpdate(_ day: String?){
         if tempBlock != nil {
+            print("step 5 STATUS UPDATE")
            //STEP 1 - DAY COUNTER
             if SavedData.kasamDict[kasamID]?.sequence == "streak" {
                 currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.currentStreak.value
@@ -264,6 +265,7 @@ class PersonalBlockCell: UITableViewCell {
             if tempBlock?.dayOrder ?? 0 > SavedData.kasamDict[(kasamID)]!.repeatDuration {yesButtonView.isHidden = true}
             else {yesButtonView.isHidden = false}
             if SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress == 1 {streakPostText.text = "day completed"}
+            else {streakPostText.text = "days completed"}
             
             //Set level line progress
             let ratio = Double(currentDayStat) / Double(SavedData.kasamDict[kasamID]!.repeatDuration)
@@ -294,6 +296,7 @@ class PersonalBlockCell: UITableViewCell {
     }
     
     func checkmarkAndPercentageUpdate(){
+        print("step 5 status update")
         if SavedData.kasamDict[tempBlock!.kasamID]!.metricType != "Checkmark" {
             percentComplete.isHidden = false
             if SavedData.kasamDict[kasamID]?.percentComplete == nil {percentComplete.text = "0%"}

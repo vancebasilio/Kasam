@@ -10,7 +10,6 @@ import UIKit
 import Firebase
 import FBSDKLoginKit
 import SwiftEntryKit
-import SkeletonView
 import GoogleSignIn
 import Lottie
 
@@ -352,7 +351,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             if url != nil {
                 //Get the image from Firebase
                 self.profileImage?.sd_setImage(with: url, placeholderImage: PlaceHolders.kasamLoadingImage, options: [], completed: { (image, error, cache, url) in
-                    self.profileImage.hideSkeleton()
                 })
             }
         }
@@ -524,7 +522,6 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
                 animationView.loadingAnimation(view: view, animation: "success", height: 100, overlayView: nil, loop: false) {
                     self.animationView.removeFromSuperview()
                 }
-                profileImage.hideSkeleton()
                 saveImage(image: self.profileImage!.image!, location: "users/"+Auth.auth().currentUser!.uid+"/manual_profile_pic.jpg", completion: {uploadedProfileImageURL in
                     if uploadedProfileImageURL != nil {
                         DBRef.currentUser.child("ProfilePic").setValue(uploadedProfileImageURL)
@@ -537,7 +534,6 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
                     animationView.loadingAnimation(view: view, animation: "success", height: 100, overlayView: nil, loop: false) {
                     self.animationView.removeFromSuperview()
                 }
-                profileImage.hideSkeleton()
                 saveImage(image: self.profileImage!.image!, location: "users/"+Auth.auth().currentUser!.uid+"/manual_profile_pic.jpg", completion: {uploadedProfileImageURL in
                     if uploadedProfileImageURL != nil {
                         DBRef.currentUser.child("ProfilePic").setValue(uploadedProfileImageURL)

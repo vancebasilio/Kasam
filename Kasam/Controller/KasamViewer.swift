@@ -108,11 +108,11 @@ class KasamActivityViewer: UIViewController {
                     count += 1
                     var currentMetric = "0"
                     var currentText = ""
-                    DBRef.userHistory.child(self.kasamID).child(self.statusDate).child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                    DBRef.userHistory.child(self.kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(self.statusDate).child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
                         if snap.exists() && self.viewingOnlyCheck == false {
                             currentMetric = snap.value as! String               //gets the metric for the activity
                         }
-                        DBRef.userHistory.child(self.kasamID).child(self.statusDate).child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                        DBRef.userHistory.child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(self.kasamID).child(self.statusDate).child("Text Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
                             if snap.exists() {
                                 currentText = snap.value as! String             //gets the text for the activity
                             }
@@ -253,10 +253,10 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
             transferAvg = sum / Double(self.summedTotalMetric)
         }
         if transferAvg > 0.0 {
-            DBRef.userHistory.child(kasamID).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
+            DBRef.userHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix, "Text Breakdown": transferTextFieldMatrix])
         } else {
             //removes the dayTracker for today if kasam is set to zero
-            DBRef.userHistory.child(kasamID).child(statusDate).setValue(nil)
+            DBRef.userHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate).setValue(nil)
         }
     }
 }

@@ -8,7 +8,6 @@
 
 import UIKit
 import Firebase
-import SkeletonView
 
 class DiscoverViewController: UIViewController {
     
@@ -37,7 +36,6 @@ class DiscoverViewController: UIViewController {
         getDiscoverKasams()
         getMyKasams()
         setupNavBar(clean: false)
-        self.view.showAnimatedSkeleton()
         DispatchQueue.main.async {
             self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
         }
@@ -133,7 +131,6 @@ class DiscoverViewController: UIViewController {
                     let kasam = discoverKasamFormat(title: value?["Title"] as? String ?? "", image: URL(string: value?["Image"] as? String ?? "") ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value?["Rating"] as? String ?? "5", creator: value?["CreatorName"] as? String ?? "", kasamID: value?["KasamID"] as? String ?? "", genre: value?["Genre"] as? String ?? "Fitness")
                     self.featuredKasamArray.append(kasam)
                     self.categoryCollection.reloadData()
-                    self.categoryCollection.hideSkeleton(transition: .crossDissolve(0.25))
                 }
             }
         }
@@ -291,14 +288,5 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
                 return CGSize(width: view.bounds.size.width / 2, height: view.bounds.size.width / 2.3)
             }
         }
-    }
-    
-    //Skeleton View
-    func collectionSkeletonView(_ skeletonView: UICollectionView, cellIdentifierForItemAt indexPath: IndexPath) -> ReusableCellIdentifier {
-        return "ExpertKasamCell"
-    }
-    
-    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
     }
 }

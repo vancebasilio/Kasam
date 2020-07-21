@@ -13,7 +13,7 @@ import SDWebImage
 import SwiftEntryKit
 import Lottie
 
-class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, CollectionCellDelegate {
+class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var todaySublabel: UILabel!
@@ -65,8 +65,8 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
         let goToCreateKasam = NSNotification.Name("GoToCreateKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
                
-       let goToNotifications = NSNotification.Name("GoToNotifications")
-       NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToNotifications), name: goToNotifications, object: nil)
+        let goToNotifications = NSNotification.Name("GoToNotifications")
+        NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToNotifications), name: goToNotifications, object: nil)
     }
     
     @objc func goToCreateKasam(_ notification: NSNotification?) {
@@ -132,11 +132,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "PopDiscoverToRoot"), object: self)
             }
         }
-        //User updates their kasam progress
-        self.personalHistoryChangedHandle = DBRef.userHistory.observe(.childChanged) {(snapshot) in
-            print("hell9 \(snapshot.key)")
-            self.getDayTracker(kasamID: snapshot.key)
-        }
     }
     
     func getGroupFollowing(){
@@ -177,7 +172,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
             var dayToShow = 1
             for date in Date.dates(from: kasam.joinedDate, to: Date()) {
                 let dateString = date.dateToString()
-                DBRef.userHistory.child(kasam.kasamID).child(dateString).observeSingleEvent(of: .value) {(snapCount) in
+                DBRef.userHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).child(dateString).observeSingleEvent(of: .value) {(snapCount) in
                     if dateString != Dates.getCurrentDate() && snapCount.exists() {
                         blockDayToLoad += 1               //the user has completed xx number of blocks in the past (excludes today's block)
                     } else if dateString == Dates.getCurrentDate() {
@@ -236,67 +231,69 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
     func getDayTracker(kasamID: String) {
         //for the active Kasams on the Personal page
         var displayStatus = "Checkmark"
-        //OPTION 1 - PERSONAL DAY TRACKER
         if let kasam = SavedData.kasamDict[kasamID] {
             print("Step 5 - Day Tracker hell6 \(kasam.kasamName)")
             var dayCount = 0
             var percentComplete = 0.0
             var order = 0
             //Checks if there's kasam history
-            DBRef.userHistory.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snap) in
-            if snap.exists() {
-                dayCount = Int(snap.childrenCount)
-                var dayTrackerArrayInternal = [Int:(Date,Double)]()
-                var dayPercent = 1.0
-                var dayCounter = 0
-                //Gets the DayTracker info - only goes into this loop if the user has kasam history
-                self.dayTrackerRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with: {(snap) in
-                    let kasamDate = snap.key.stringToDate()
-                    if kasamDate >= kasam.joinedDate {
-                        dayCounter += 1
-                        if SavedData.kasamDict[(kasam.kasamID)]?.timeline == nil {
-                            //Use for no gaps for days missed
-                            order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                        } else {
-                            order += 1
-                        }
-                        dayPercent = self.statusPercentCalc(snapshot: snap).0
-                        
-                        //DayTrackerDateArray is correct
-                        dayTrackerArrayInternal[order] = (kasamDate, dayPercent)
-                    } else {
-                        dayCount -= 1
-                    }
-                    //Status for Current day
-                    if snap.key == Dates.getCurrentDate() {
-                        percentComplete = dayPercent
-                        if dayPercent == 1 {displayStatus = "Check"}
-                        else if dayPercent < 1 && dayPercent > 0 {displayStatus = "Progress"}
-                    }
-                    //Daycount is the number of days the kasam has been active for the user
-                    //DayTrackerArrayInternal adds the status of each day
-                    if dayTrackerArrayInternal.count == dayCount && dayCount >= 0 {
-                        SavedData.kasamDict[(kasam.kasamID)]?.displayStatus = displayStatus
-                        //Percent complete only captured for PERSONAL to show for complex Kasams
-                        SavedData.kasamDict[(kasam.kasamID)]?.percentComplete = percentComplete
-                        SavedData.kasamDict[kasam.kasamID]?.dayTrackerArray = dayTrackerArrayInternal
-                        
-                        if let index = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
-                            let streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: SavedData.personalKasamBlocks[index].data.dayOrder)
+            DBRef.userHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).observe(.value, with: {(snap) in
+                //OPTION 1 - There's history for this kasam
+                if snap.exists() {
+                    dayCount = Int(snap.childrenCount)
+                    var dayTrackerArrayInternal = [Int:(Date,Double)]()
+                    var dayPercent = 1.0
+                    var dayCounter = 0
+                    //Gets the DayTracker info - only goes into this loop if the user has kasam history
+                    self.dayTrackerRefHandle = DBRef.userHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).observe(.childAdded, with: {(snap) in
+                        let kasamDate = snap.key.stringToDate()
+                        if kasamDate >= kasam.joinedDate {
+                            dayCounter += 1
+                            if SavedData.kasamDict[(kasam.kasamID)]?.timeline == nil {
+                                //Use for no gaps for days missed
+                                order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
+                            } else {
+                                order += 1
+                            }
+                            dayPercent = self.statusPercentCalc(snapshot: snap).0
                             
-                            SavedData.kasamDict[kasam.kasamID]?.streakInfo = streakInfo
-                            DBRef.userHistory.child(kasam.kasamID).removeAllObservers()
-                            NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
-                            //Updating a single kasam after a preference change OR adding a new kasam
-                            self.singleKasamUpdate(kasamOrder: index)
+                            //DayTrackerDateArray is correct
+                            dayTrackerArrayInternal[order] = (kasamDate, dayPercent)
+                        } else {
+                            dayCount -= 1
                         }
-                    }
-                })
-            //No history recorded in Firebase
-            } else {
-                //OPTION 2 - Updating a single kasam after a preference change OR adding a new kasam
-                if let index = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
-                    self.singleKasamUpdate(kasamOrder: index)
+                        //Status for Current day
+                        if snap.key == Dates.getCurrentDate() {
+                            percentComplete = dayPercent
+                            if dayPercent == 1 {displayStatus = "Check"}
+                            else if dayPercent < 1 && dayPercent > 0 {displayStatus = "Progress"}
+                        }
+                        //Daycount is the number of days the kasam has been active for the user
+                        //DayTrackerArrayInternal adds the status of each day
+                        if dayTrackerArrayInternal.count == dayCount && dayCount >= 0 {
+                            SavedData.kasamDict[(kasam.kasamID)]?.displayStatus = displayStatus
+                            //Percent complete only captured for PERSONAL to show for complex Kasams
+                            SavedData.kasamDict[(kasam.kasamID)]?.percentComplete = percentComplete
+                            SavedData.kasamDict[kasam.kasamID]?.dayTrackerArray = dayTrackerArrayInternal
+                            
+                            if let index = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
+                                SavedData.kasamDict[kasam.kasamID]?.streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: SavedData.personalKasamBlocks[index].data.dayOrder)
+                                DBRef.userHistory.child(kasam.kasamID).removeAllObservers()
+                                NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
+                                //Updating a single kasam after a preference change OR adding a new kasam
+                                self.singleKasamUpdate(kasamOrder: index)
+                            }
+                        }
+                        DBRef.userHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).removeObserver(withHandle: self.dayTrackerRefHandle)
+                    })
+                //OPTION 2 - No history recorded in Firebase
+                } else {
+                    SavedData.kasamDict[kasam.kasamID]?.dayTrackerArray = nil
+                    SavedData.kasamDict[(kasam.kasamID)]?.displayStatus = "Checkmark"
+                    SavedData.kasamDict[kasam.kasamID]?.streakInfo = (currentStreak:(value:0, date:nil), daysWithAnyProgress:0, longestStreak:0)
+                    SavedData.kasamDict[(kasam.kasamID)]?.percentComplete = 0
+                    if let index = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
+                        self.singleKasamUpdate(kasamOrder: index)
                     }
                 }
             })
@@ -356,7 +353,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
     
     //---------------------------------------------------------------------------------------------------------
     
-    //PART 1 - BASIC KASAM UPDATE
     func updateKasamDayButtonPressed(kasamOrder: Int, day: Int){
         let block = SavedData.personalKasamBlocks[kasamOrder].data
         
@@ -365,14 +361,11 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate, Col
         let statusDate = (Calendar.current.date(byAdding: .day, value: day - block.dayOrder, to: Date())!).dateToString()
         if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day] != nil {
             if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.1 == 1.0 {
-                print("hell6 set to 0")
-                DBRef.userHistory.child(kasamID).child(statusDate).setValue(nil)
+                DBRef.userHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(nil)
             }
         } else {
-            print("hell6 set to 1")
-            DBRef.userHistory.child(kasamID).child(statusDate).setValue(1)
+            DBRef.userHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(1)
         }
-        
         NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)        //Detailed Stats Update
     }
     

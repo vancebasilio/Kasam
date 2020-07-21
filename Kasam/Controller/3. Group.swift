@@ -11,7 +11,6 @@ import Foundation
 import Firebase
 import SDWebImage
 import SwiftEntryKit
-import SkeletonView
 import Lottie
 
 class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
