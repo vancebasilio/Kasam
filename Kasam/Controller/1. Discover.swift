@@ -38,11 +38,21 @@ class DiscoverViewController: UIViewController {
         getMyKasams()
         setupNavBar(clean: false)
         self.view.showAnimatedSkeleton()
-        let getUserKasams = NSNotification.Name("GetUserKasams")
-        NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.getMyKasams), name: getUserKasams, object: nil)
         DispatchQueue.main.async {
             self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
         }
+    }
+    
+    func notificationsSetup(){
+        let getUserKasams = NSNotification.Name("GetUserKasams")
+        NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.getMyKasams), name: getUserKasams, object: nil)
+        
+        let popDiscoverToRoot = Notification.Name("PopDiscoverToRoot")
+        NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.resetToTopView), name: popDiscoverToRoot, object: nil)
+    }
+    
+    @objc func resetToTopView(){
+        _ = navigationController?.popToViewController(self, animated: true)
     }
     
     //Puts the nav bars back
@@ -168,7 +178,6 @@ class DiscoverViewController: UIViewController {
                     }
                 }
             } else {
-                print("hell9 reload")
                 //Incase there was a user kasam, that's now being deleted, so this view needs to be reloaded
                 self.updateContentTableHeight()
                 self.discoverTableView.reloadRows(at: [IndexPath(item: Assets.discoverCriteria.count - 1, section: 0)], with: .fade)

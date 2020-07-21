@@ -1518,11 +1518,11 @@
             <objects>
                 <viewController storyboardIdentifier="Discover" id="1ds-W5-IlG" userLabel="Discover" customClass="DiscoverViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="uyQ-Kr-07J">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="807"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="796"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5dE-Zw-BsL">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="807"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="796"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="554" translatesAutoresizingMaskIntoConstraints="NO" id="mQc-IV-PSO" userLabel="Content View">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="687"/>
@@ -1687,7 +1687,7 @@
                                             </pageControl>
                                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Cj9-jq-fuz">
                                                 <rect key="frame" x="0.0" y="281" width="375" height="500"/>
-                                                <color key="backgroundColor" red="0.8980392157" green="0.73333333329999995" blue="0.34509803919999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="500" id="Ml0-8d-13J"/>
                                                 </constraints>
@@ -6633,7 +6633,7 @@
         <segue reference="TgI-4x-mSS"/>
         <segue reference="wnm-Aa-p59"/>
         <segue reference="YHX-Ee-lpe"/>
-        <segue reference="b1h-nV-uzD"/>
+        <segue reference="HXx-lS-OGQ"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="EmailBox" width="900" height="147"/>

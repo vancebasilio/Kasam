@@ -12,7 +12,7 @@ import SwiftIcons
 import Lottie
 
 protocol TableCellDelegate : class {
-    func updateKasamDayButtonPressed(kasamOrder: Int, day: Int, challenge: Bool)
+    func updateKasamDayButtonPressed(kasamOrder: Int, day: Int)
     func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?)
     func goToKasamHolder(kasamOrder: Int)
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
@@ -165,7 +165,7 @@ class PersonalBlockCell: UITableViewCell {
             cellDelegate?.goToKasamHolder(kasamOrder: row)
         } else {
             if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
-                cellDelegate?.updateKasamDayButtonPressed(kasamOrder: row, day: tempBlock?.dayOrder ?? 1, challenge: false)
+                cellDelegate?.updateKasamDayButtonPressed(kasamOrder: row, day: tempBlock?.dayOrder ?? 1)
             } else {
                 cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil, date: nil, viewOnly: false)
             }
