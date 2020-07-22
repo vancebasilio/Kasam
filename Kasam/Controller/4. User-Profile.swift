@@ -44,7 +44,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     var detailedStats: [UserStatsFormat] = []
     var myKasamsArray: [EditMyKasamFormat] = []
     var completedStats: [CompletedKasamFormat] = []
-    var daysCompletedDict: [String:Int] = [:]
+    var totalKasamDays = 0
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
     let animationView = AnimationView()
@@ -70,7 +70,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         profilePicture()
         setupDateDictionary()
         getDetailedStats()
-        getMyKasams()
         viewSetup()
         setupImageHolders()
         setupNavBar(clean: true)
@@ -127,7 +126,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     @objc func showCompletionAnimation(){
-        getMyKasams()
         animationView.loadingAnimation(view: view, animation: "checkmark", height: 400, overlayView: nil, loop: false){
             self.animationView.removeFromSuperview()
         }
@@ -144,6 +142,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         var count = 0
         //Loops through all kasams that user is following and get kasamID
         for kasam in SavedData.kasamDict.values {
+            var historyCount = 0
             DBRef.coachKasams.child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
                 let snapshot = snap.value as! Dictionary<String,Any>
                 let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
@@ -151,55 +150,54 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
                 
                 DBRef.userHistory.child(kasam.kasamID).observeSingleEvent(of: .value, with:{(snap) in
-                //PART 1 - Weekly Stats for Current Kasams
+                //STEP 1 - Weekly Stats for Current Kasams
                     if SavedData.kasamDict[kasam.kasamID] != nil {
                         self.getWeeklyStats(kasamID: kasam.kasamID, snap: snap)
                     }
-                //PART 2 - Completed Stats Table
+                //STEP 2 - Completed Stats Table
                     if Int(snap.childrenCount) == 0 && SavedData.kasamDict[kasam.kasamID] == nil {
                         count += 1
                     } else {
-                        let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: Int(snap.childrenCount), imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
+                        if let value = snap.value as? [String:[String:Any]] {
+                            historyCount = value.values.flatMap{$0}.count
+                        }
+                        let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: historyCount, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
+                        self.totalKasamDays += historyCount
                         self.completedStats.append(stats)
                         count += 1
                         //Order the table by #days completed
                         DispatchQueue.main.async {
                             if count == SavedData.kasamDict.count {
                                 self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
+                                self.setKasamLevel()
                             }
                         }
                     }
                 })
                 
-                //PART 3 - Current Stats CollectionView
+                //STEP 3 - Load the data into the Tableview
                 if SavedData.kasamDict[kasam.kasamID] != nil {
                     let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
                     let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType)
                     self.detailedStats.append(userStats)
                     self.weekStatsCollectionView.reloadData()
                 }
-                    
-                //Kasam Level
-                self.kasamHistoryRefHandle = DBRef.userHistory.child(kasam.kasamID).observe(.childAdded, with:{(snapshot) in
-                    self.daysCompletedDict[snapshot.key] = 1
-                    let total = self.daysCompletedDict.count
-                    self.totalDays.text = total.pluralUnit(unit: "Kasam Day")
-                    if total <= 30 {
-                        self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeSolid(.leaf), iconColor: self.startLevel.textColor, postfixText: " Beginner", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
-                        self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 30.0)
-                    } else if total > 30 && total <= 90 {
-                        self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeBrands(.pagelines), iconColor: self.startLevel.textColor, postfixText: " Intermediate", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
-                        self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 90.0)
-                    } else if total > 90 && total <= 360 {
-                        self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeSolid(.tree), iconColor: self.startLevel.textColor, postfixText: " Pro", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
-                        self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(total) / 360.0)
-                    }
-                })
-                DispatchQueue.main.async {
-                    //Orders the array as kasams with no history will always show up first, even though they were loaded later
-//                    self.detailedStats = self.detailedStats.sorted(by: { $0.order < $1.order })
-                }
             }
+        }
+    }
+    
+    func setKasamLevel(){
+        //Kasam Level
+        self.totalDays.text = self.totalKasamDays.pluralUnit(unit: "Kasam Day")
+        if self.totalKasamDays <= 30 {
+            self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeSolid(.leaf), iconColor: self.startLevel.textColor, postfixText: " Beginner", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
+            self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(self.totalKasamDays) / 30.0)
+        } else if self.totalKasamDays > 30 && self.totalKasamDays <= 90 {
+            self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeBrands(.pagelines), iconColor: self.startLevel.textColor, postfixText: " Intermediate", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
+            self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(self.totalKasamDays) / 90.0)
+        } else if self.totalKasamDays > 90 && self.totalKasamDays <= 360 {
+            self.startLevel.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), prefixTextColor: self.startLevel.textColor, icon: .fontAwesomeSolid(.tree), iconColor: self.startLevel.textColor, postfixText: " Pro", postfixTextFont: UIFont.systemFont(ofSize: 12, weight:.semibold), postfixTextColor: self.startLevel.textColor, iconSize: 15)
+            self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(Double(self.totalKasamDays) / 360.0)
         }
     }
     
@@ -250,28 +248,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
 //                self.weekStatsCollectionView.reloadData()
             }
         }
-    }
-    
-    @objc func getMyKasams(){
-        myKasamsArray.removeAll()
-        DBRef.userKasams.observeSingleEvent(of: .value, with:{(snap) in
-            let count = Int(snap.childrenCount)
-            if count == 0 {
-                //not following any kasams
-                self.noUserKasams = true
-            }
-            self.userKasamDBHandle = DBRef.userKasams.observe(.childAdded, with: {(snapshot) in
-                Database.database().reference().child("Coach-Kasams").child(snapshot.key).observe(.value, with: {(snapshot) in
-                    if let value = snapshot.value as? [String: Any] {
-                        let imageURL = URL(string: value["Image"] as? String ?? "")
-                        let myKasamsBlock = EditMyKasamFormat(kasamID: value["KasamID"] as? String ?? "", kasamTitle: value["Title"] as? String ?? "", imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
-                        self.myKasamsArray.append(myKasamsBlock)
-                    }
-                    //Remove observer
-                    Database.database().reference().child("Coach-Kasams").child(snapshot.key).removeAllObservers()
-                })
-            })
-        })
     }
     
     func setupDateDictionary(){
