@@ -36,6 +36,7 @@ class DiscoverViewController: UIViewController {
         getDiscoverKasams()
         getMyKasams()
         setupNavBar(clean: false)
+        notificationsSetup()
         DispatchQueue.main.async {
             self.timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(self.changeImage), userInfo: nil, repeats: true)
         }

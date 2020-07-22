@@ -19,6 +19,8 @@ struct SavedData {
     static var groupKasamBlocks: [(kasamID: String, data: PersonalBlockFormat)] = []
     static var groupCompletedList: [String] = []
     
+    static var badgesList: [String:[String:String]] = [:]
+    
     static var kasamDict: [String:KasamSavedFormat] = [:]           //KasamDict is used to update kasams when progress is made
 
     static func addKasam(kasam: KasamSavedFormat) {self.kasamDict[kasam.kasamID] = kasam}
@@ -31,6 +33,8 @@ struct SavedData {
 struct DBRef {
     static let userPersonalFollowing = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
     static let userGroupFollowing = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Group-Following")
+    
+    static let userTrophies = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Trophies")
     
     static let coachKasams = Database.database().reference().child("Coach-Kasams")
     static let userCreator = Database.database().reference().child("Users")

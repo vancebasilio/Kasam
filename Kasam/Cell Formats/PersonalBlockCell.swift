@@ -156,7 +156,7 @@ class PersonalBlockCell: UITableViewCell {
     
     func updateDayTrackerCollection(){
         dayTrackerCollectionView.reloadData()
-        centerCollectionView()
+//        centerCollectionView()
     }
     
     @IBAction func yesButtonPressed(_ sender: UIButton) {
@@ -238,14 +238,14 @@ class PersonalBlockCell: UITableViewCell {
                 trophyIconView.isHidden = true
                 blockSubtitle.frame.size.height = 20
                 blockSubtitle.text = "One day left!"
-                streakShadow.backgroundColor = UIColor.dayYesColor
                 statsShadow.layer.shadowColor = UIColor.dayYesColor.cgColor
                 statsShadow.layer.shadowOpacity = 1
+                statsContent.backgroundColor = UIColor.white
+                hideDayTrackerView.backgroundColor = UIColor.white
             } else if currentDayStat == SavedData.kasamDict[(kasamID)]!.repeatDuration {
                 //COMPLETED!
                 blockSubtitle.frame.size.height = 20
                 blockSubtitle.text = "Complete!"
-                streakShadow.backgroundColor = UIColor.dayYesColor.darker.darker
                 statsShadow.layer.shadowColor = UIColor.dayYesColor.darker.darker.cgColor
                 statsShadow.layer.shadowOpacity = 1
                 statsContent.backgroundColor = UIColor.init(hex: 0xf0f6e6)
@@ -283,12 +283,12 @@ class PersonalBlockCell: UITableViewCell {
     func setFirebaseBadge(){
         if currentDayStat >= SavedData.kasamDict[kasamID]!.repeatDuration {
             //Will only set the badge if the threshold is reached
-            DBRef.userPersonalFollowing.child(kasamID).child("Badges").child(SavedData.kasamDict[kasamID]!.joinedDate.dateToString()).child(String(describing:SavedData.kasamDict[kasamID]!.repeatDuration)).setValue(SavedData.kasamDict[kasamID]!.streakInfo.currentStreak.date?.dateToString() ?? Date().dateToString())
+            DBRef.userTrophies.child(kasamID).child(SavedData.kasamDict[kasamID]!.joinedDate.dateToString()).child(String(describing:SavedData.kasamDict[kasamID]!.repeatDuration)).setValue(SavedData.kasamDict[kasamID]!.streakInfo.currentStreak.date?.dateToString() ?? Date().dateToString())
         } else {
-            DBRef.userPersonalFollowing.child(kasamID).child("Badges").child(SavedData.kasamDict[kasamID]!.joinedDate.dateToString()).child(String(describing:SavedData.kasamDict[kasamID]!.repeatDuration)).setValue(nil)
+            DBRef.userTrophies.child(kasamID).child(SavedData.kasamDict[kasamID]!.joinedDate.dateToString()).child(String(describing:SavedData.kasamDict[kasamID]!.repeatDuration)).setValue(nil)
         }
         //Update the badges the user has achieved after update to the today block
-        DBRef.userPersonalFollowing.child(kasamID).child("Badges").observeSingleEvent(of: .value, with: {(snap) in
+        DBRef.userTrophies.child(kasamID).observeSingleEvent(of: .value, with: {(snap) in
             SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String:[String: String]]
             self.kasamID.badgesAchieved()
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
