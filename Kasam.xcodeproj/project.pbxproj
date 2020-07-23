@@ -57,7 +57,6 @@
 		BC74AE97237DA10300676B10 /* -NewActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74AE96237DA10300676B10 /* -NewActivity.swift */; };
 		BC74AE99237DDCD100676B10 /* NewActivityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74AE98237DDCD100676B10 /* NewActivityCell.swift */; };
 		BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC74E1F22336748E00653381 /* CountdownTimer.swift */; };
-		BC791A21234BF93600A9D25A /* PersonalMotivationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC791A20234BF93600A9D25A /* PersonalMotivationCell.swift */; };
 		BC7BF3E524A67BF40094A5C1 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7BF3E424A67BF40094A5C1 /* Reachability.swift */; };
 		BC8348462445027A001819DC /* goldCup.json in Resources */ = {isa = PBXBuildFile; fileRef = BC8348452445027A001819DC /* goldCup.json */; };
 		BC834848244502B0001819DC /* oneMedal.json in Resources */ = {isa = PBXBuildFile; fileRef = BC834847244502AF001819DC /* oneMedal.json */; };
@@ -156,7 +155,6 @@
 		BC74AE96237DA10300676B10 /* -NewActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-NewActivity.swift"; sourceTree = "<group>"; };
 		BC74AE98237DDCD100676B10 /* NewActivityCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewActivityCell.swift; sourceTree = "<group>"; };
 		BC74E1F22336748E00653381 /* CountdownTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
-		BC791A20234BF93600A9D25A /* PersonalMotivationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersonalMotivationCell.swift; sourceTree = "<group>"; };
 		BC7BF3E424A67BF40094A5C1 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		BC8348452445027A001819DC /* goldCup.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = goldCup.json; sourceTree = "<group>"; };
 		BC834847244502AF001819DC /* oneMedal.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = oneMedal.json; sourceTree = "<group>"; };
@@ -332,7 +330,6 @@
 				BCFCB43422AF02C800DC2DD7 /* DiscoverCollectionCell.swift */,
 				BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */,
 				BC96F8462292085200E161FC /* PersonalBlockCell.swift */,
-				BC791A20234BF93600A9D25A /* PersonalMotivationCell.swift */,
 				BC38419B24037DE6005D929A /* PersonalDayTrackerCell.swift */,
 				BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */,
 				BC74AE98237DDCD100676B10 /* NewActivityCell.swift */,
@@ -727,7 +724,6 @@
 				BC554BD6226D8BDB00D707CC /* UIColor.swift in Sources */,
 				BC1414EB2493397F0073E577 /* SwipeTable.swift in Sources */,
 				BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */,
-				BC791A21234BF93600A9D25A /* PersonalMotivationCell.swift in Sources */,
 				BC96F8482292085200E161FC /* PersonalBlockCell.swift in Sources */,
 				BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */,
 				BC01664522D53E970073186D /* CoachHolder.swift in Sources */,

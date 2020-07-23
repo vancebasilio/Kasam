@@ -18,7 +18,8 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var todaySublabel: UILabel!
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
-    @IBOutlet weak var contentView: NSLayoutConstraint!
+    @IBOutlet weak var contentView: UIView!
+    @IBOutlet weak var contentViewHeight: NSLayoutConstraint!
     
     var blockURLGlobal = ""
     var dateSelected = ""
@@ -31,11 +32,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     var viewOnlyGlobal = false
     var newKasamType = "basic"
     
-    var personalFollowingAddedHandle: DatabaseHandle!
-    var personalHistoryChangedHandle: DatabaseHandle!
-    var personalFollowingRemovedHandle: DatabaseHandle!
-    
-    var groupFollowingRefHandle: DatabaseHandle!
+    let personalAnimationIcon = AnimationView()
     
     var personalKasamCount = 0
     var motivationRefHandle: DatabaseHandle!
@@ -45,14 +42,8 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.getPersonalFollowing()
-        self.getGroupFollowing()
         setupNavBar(clean: false)                   //global function
         setupNotifications()
-    }
-    
-    //Center the day Tracker to today
-    override func viewDidLayoutSubviews() {
-//        NotificationCenter.default.post(name: Notification.Name(rawValue: "CenterCollectionView"), object: self)
     }
     
     func setupNotifications(){
@@ -79,9 +70,10 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         performSegue(withIdentifier: "goToNotifications", sender: nil)
     }
     
-    //Table Resizing----------------------------------------------------------------------------------------
+    //ContentView Resizing----------------------------------------------------------------------------------------
     
-    func updateContentTableHeight(){
+    func updateContentViewHeight(){
+        print("hell2")
         //Set the table row height, based on the screen size
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = ((view.frame.width - 30) / (2.7)) + 25
@@ -94,23 +86,35 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         
         //elongates the entire scrollview, based on the tableview height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let contentViewHeight = 105.5 + tableViewHeight.constant + 50
-        if contentViewHeight > frame.height {
-            contentView.constant = contentViewHeight
-        } else if contentViewHeight <= frame.height {
-            let diff = frame.height - contentViewHeight
-            contentView.constant = contentViewHeight + diff + 1
+        let contentHeightToSet = 105.5 + tableViewHeight.constant + 50
+        if contentHeightToSet > frame.height {
+            contentViewHeight.constant = contentHeightToSet
+        } else if contentHeightToSet <= frame.height {
+            let diff = frame.height - contentHeightToSet
+            contentViewHeight.constant = contentHeightToSet + diff + 1
         }
     }
     
     //-------------------------------------------------------------------------------------------------------
-
-    deinit {
-        print("\(#function)")
-    }
     
     @objc func stopLoadingAnimation(){
         animationView.removeFromSuperview()
+    }
+    
+    @objc func iconTapped(){
+        personalAnimationIcon.play()
+    }
+    
+    func showIconCheck(){
+        DBRef.userPersonalFollowing.observeSingleEvent(of: .value) {(snap) in
+            if snap.exists() {} else {
+                self.personalAnimationIcon.isHidden = false
+                self.todaySublabel.text = "You're not in any group kasams"
+                self.personalAnimationIcon.loadingAnimation(view: self.contentView, animation: "flagmountainBG", height: 200, overlayView: nil, loop: false, completion: nil)
+                self.personalAnimationIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.iconTapped)))
+                self.updateContentViewHeight()
+            }
+        }
     }
     
     //STEP 1
@@ -118,33 +122,28 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         print("Step 1 - Get personal following hell6")
         personalKasamCount = 0
         SavedData.personalKasamBlocks.removeAll()
+        showIconCheck()
         //Kasam list loaded for first time + if new kasam is added
-        self.personalFollowingAddedHandle = DBRef.userPersonalFollowing.observe(.childAdded) {(snapshot) in
+        DBRef.userPersonalFollowing.observe(.childAdded) {(snapshot) in
+            self.personalAnimationIcon.isHidden = true
             self.getPreferences(snapshot: snapshot)
         }
         //If user unfollows a kasam
-        self.personalFollowingRemovedHandle = DBRef.userPersonalFollowing.observe(.childRemoved) {(snapshot) in
+        DBRef.userPersonalFollowing.observe(.childRemoved) {(snapshot) in
             if let index = SavedData.personalKasamBlocks.index(where: {($0.kasamID == snapshot.key)}) {
                 self.personalKasamCount -= 1
                 SavedData.personalKasamBlocks.remove(at: index)
                 self.tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
-                self.updateContentTableHeight()
+                self.updateContentViewHeight()
                 self.todaySublabel.text = "You have \(SavedData.personalKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "PopDiscoverToRoot"), object: self)
             }
+            self.showIconCheck()
         }
         DBRef.userTrophies.observe(.childChanged) {(snap) in
             if let value = snap.value as? [String: [String:String]] {
                 SavedData.badgesList = value
             }
-        }
-    }
-    
-    func getGroupFollowing(){
-        SavedData.groupKasamBlocks.removeAll()
-        self.groupFollowingRefHandle = DBRef.userGroupFollowing.observe(.childAdded) {(snapshot) in
-            self.tabBarController?.selectedIndex = 2
-//            SavedData.groupKasamList.append(snapshot.key)
         }
     }
     
@@ -231,7 +230,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             print("Step 4b - Reload Personal table with \(personalKasamCount) kasams hell6")
             self.todaySublabel.text = "You have \(SavedData.personalKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
             self.tableView.reloadData()
-            self.updateContentTableHeight()
+            self.updateContentViewHeight()
         }
     }
     
@@ -315,7 +314,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                 cell.setBlock(block: SavedData.personalKasamBlocks[kasamOrder].data)
                 cell.centerCollectionView()
                 cell.collectionCoverUpdate()
-                self.updateContentTableHeight()
             }
             cell.statusUpdate(nil)
             cell.dayTrackerCollectionView.reloadData()

@@ -24,22 +24,21 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavBar(clean: false)                   //global function
+        getGroupFollowing()
         setupLoad()
      }
     
     func setupLoad(){
         if SavedData.groupKasamBlocks.count == 0 {
-            groupFollowingLabel.text = "You're not in any group kasams"
-            groupAnimationIcon.loadingAnimation(view: contentView, animation: "crownSeptors", height: 200, overlayView: nil, loop: false, completion: nil)
-            groupAnimationIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(iconTapped)))
+            
         } else {
-            groupFollowingLabel.text = "You're in \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "group kasam"))"
+            
         }
     }
     
     //Table Resizing----------------------------------------------------------------------------------------
     
-    override func viewDidLayoutSubviews(){
+    func updateContentViewHeight(){
         //elongates the entire scrollview, based on the tableview height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
         let contentHeightToSet = CGFloat(0)
@@ -51,6 +50,23 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    func getGroupFollowing(){
+        SavedData.groupKasamBlocks.removeAll()
+        DBRef.userGroupFollowing.observeSingleEvent(of: .value) {(snap) in
+            if snap.exists() {} else {
+                self.groupFollowingLabel.text = "You're not in any group kasams"
+                self.groupAnimationIcon.loadingAnimation(view: self.contentView, animation: "crownSeptors", height: 200, overlayView: nil, loop: false, completion: nil)
+                self.groupAnimationIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.iconTapped)))
+                self.updateContentViewHeight()
+            }
+        }
+        
+        DBRef.userGroupFollowing.observe(.childAdded) {(snapshot) in
+            self.groupAnimationIcon.isHidden = true
+            self.groupFollowingLabel.text = "You're in \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "group kasam"))"
+        }
+    }
+
     @objc func iconTapped(){
         groupAnimationIcon.play()
     }

@@ -36,7 +36,6 @@ extension UICollectionViewCell {
 }
 
 extension UIViewController {
-    
     //STEP 1 - Saves Kasam Text Data
     func createKasam(existingKasamID: String?, basicKasam: Bool, completion: @escaping (Bool) -> ()) {
         print("1. creating kasam hell1")
@@ -476,10 +475,7 @@ extension UIViewController {
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
             
             //STEP 2 - MARK KASAM AS COMPLETED
-            DBRef.userPersonalFollowing.child(kasamID).child("Status").setValue("completed") {(error, reference) in
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
+            DBRef.userPersonalFollowing.child(kasamID).setValue(nil) {(error, reference) in
                 completion(success)
             }
         })

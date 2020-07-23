@@ -120,7 +120,6 @@ class PersonalBlockCell: UITableViewCell {
     
         blockImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
         kasamName.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(kasamNamePressed)))
-        trophyIconView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(extendButtonPressed)))
         progressBar.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
     }
     
@@ -128,13 +127,15 @@ class PersonalBlockCell: UITableViewCell {
         cellDelegate?.goToKasamHolder(kasamOrder: row)
     }
     
-    @objc func extendButtonPressed(){
-        showOptionsPopup(kasamID: kasamID, title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Congrats on completing the kasam. \nGo another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Restart' or close off the kasam by pressing 'Finish'", type: "extend", button: "Restart")
+    @objc func extendButtonPressed(_ complete: Bool){
+        var type = "complete"
+        if complete == true {type = "completeTrophy"}
+        showOptionsPopup(kasamID: kasamID, title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Congrats on completing the kasam. \nGo another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Restart' or close off the kasam by pressing 'Finish'", type: type, button: "Restart")
     }
     
     @objc func showBenefit(){
         if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration {
-            extendButtonPressed()
+            extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
         } else if SavedData.kasamDict[kasamID]?.benefitsThresholds != nil {
             let benefit = currentDayStat.nearestElement(array: (SavedData.kasamDict[kasamID]?.benefitsThresholds)!)
             showOptionsPopup(kasamID: kasamID, title: "Day \(benefit!.0)", subtitle: nil, text: benefit?.1, type: "benefit", button: "Awesome!")
@@ -156,13 +157,12 @@ class PersonalBlockCell: UITableViewCell {
     
     func updateDayTrackerCollection(){
         dayTrackerCollectionView.reloadData()
-//        centerCollectionView()
     }
     
     @IBAction func yesButtonPressed(_ sender: UIButton) {
-        if tempBlock!.dayOrder > SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
-            //Extend Button after kasam is completed
-            cellDelegate?.goToKasamHolder(kasamOrder: row)
+        if tempBlock!.dayOrder >= SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
+            //Completed Kasam
+            extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
         } else {
             if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
                 cellDelegate?.updateKasamDayButtonPressed(kasamOrder: row, day: tempBlock?.dayOrder ?? 1)
@@ -230,40 +230,41 @@ class PersonalBlockCell: UITableViewCell {
             statsShadow.layer.shadowOpacity = 0.2
             
             //Update Percentage complete and Checkmark
-            checkmarkAndPercentageUpdate()
             
-            //STEP 2 - COMPLETE KASAMS
-            if SavedData.kasamDict[(kasamID)]!.repeatDuration - currentDayStat == 1 {
-                //ONE DAY LEFT
-                trophyIconView.isHidden = true
-                blockSubtitle.frame.size.height = 20
-                blockSubtitle.text = "One day left!"
-                statsShadow.layer.shadowColor = UIColor.dayYesColor.cgColor
-                statsShadow.layer.shadowOpacity = 1
-                statsContent.backgroundColor = UIColor.white
-                hideDayTrackerView.backgroundColor = UIColor.white
-            } else if currentDayStat == SavedData.kasamDict[(kasamID)]!.repeatDuration {
-                //COMPLETED!
+            //STEP 2 - COMPLETED KASAMS
+            if tempBlock?.dayOrder ?? 0 >= SavedData.kasamDict[(kasamID)]!.repeatDuration {
+                yesButton?.setIcon(icon: .fontAwesomeSolid(.flagCheckered), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
                 blockSubtitle.frame.size.height = 20
                 blockSubtitle.text = "Complete!"
+                if currentDayStat == SavedData.kasamDict[(kasamID)]!.repeatDuration {
+                    streakShadow.backgroundColor = .dayYesColor
+                    trophyIconView.isHidden = false
+                    trophyIcon.animation = Animations.kasamBadges[1]
+                    trophyIcon.backgroundBehavior = .pauseAndRestore
+                    trophyIcon.play()
+                } else {
+                    streakShadow.backgroundColor = .colorFour
+                    trophyIconView.isHidden = true
+                }
                 statsShadow.layer.shadowColor = UIColor.dayYesColor.darker.darker.cgColor
                 statsShadow.layer.shadowOpacity = 1
                 statsContent.backgroundColor = UIColor.init(hex: 0xf0f6e6)
                 hideDayTrackerView.backgroundColor = UIColor.init(hex: 0xf0f6e6)
-                trophyIconView.isHidden = false
-                trophyIcon.animation = Animations.kasamBadges[1]
-                trophyIcon.backgroundBehavior = .pauseAndRestore
-                trophyIcon.play()
             } else {
+                //ONGOING KASAM
+                checkmarkAndPercentageUpdate()
                 trophyIconView.isHidden = true
+                blockSubtitle.frame.size.height = 20
+                if SavedData.kasamDict[(kasamID)]!.repeatDuration - tempBlock!.dayOrder == 1 {
+                    blockSubtitle.text = "One day left!"
+                    statsShadow.layer.shadowColor = UIColor.dayYesColor.cgColor
+                    statsShadow.layer.shadowOpacity = 1
+                }
                 statsContent.backgroundColor = UIColor.white
                 hideDayTrackerView.backgroundColor = UIColor.white
                 if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
             }
             
-            //Hide YesButton if kasam is completed
-            if tempBlock?.dayOrder ?? 0 > SavedData.kasamDict[(kasamID)]!.repeatDuration {yesButtonView.isHidden = true}
-            else {yesButtonView.isHidden = false}
             if SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress == 1 {streakPostText.text = "day completed"}
             else {streakPostText.text = "days completed"}
             
@@ -296,7 +297,7 @@ class PersonalBlockCell: UITableViewCell {
     }
     
     func checkmarkAndPercentageUpdate(){
-        print("step 5 status update")
+        print("step 5 checkmarkAndPercentage")
         if SavedData.kasamDict[tempBlock!.kasamID]!.metricType != "Checkmark" {
             percentComplete.isHidden = false
             if SavedData.kasamDict[kasamID]?.percentComplete == nil {percentComplete.text = "0%"}

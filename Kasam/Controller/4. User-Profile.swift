@@ -41,7 +41,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     @IBOutlet weak var completedLabel: UILabel!
     
     var weeklyStats: [weekStatsFormat] = []
-    var detailedStats: [UserStatsFormat] = []
     var myKasamsArray: [EditMyKasamFormat] = []
     var completedStats: [CompletedKasamFormat] = []
     var totalKasamDays = 0
@@ -75,23 +74,16 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         setupNavBar(clean: true)
     }
     
-    override func viewDidLayoutSubviews(){
-    //Table Resizing
-        completedKasamsTable.frame = CGRect(x: completedKasamsTable.frame.origin.x, y: completedKasamsTable.frame.origin.y, width: completedKasamsTable.frame.size.width, height: completedKasamsTable.contentSize.height)
+    func updateContentTableHeight(){
         self.completedKasamTableHeight.constant = self.completedKasamsTable.contentSize.height
-        completedKasamsTable.reloadData()
-        let frame = self.view.safeAreaLayoutGuide.layoutFrame
+        collectionViewHeight.constant = kasamStatsHeight.constant + CGFloat(57.5)       //57.5 is the collectionView Title height
         
-    //STEP 1 - Titles
-        let titleHeights = 57.5
-    //STEP 2 - CollectionViews
-        collectionViewHeight.constant = kasamStatsHeight.constant + CGFloat(titleHeights)
-    //STEP 3 - TableView
         if completedStats.count > 0 {
-            tableViewHeight = completedKasamTableHeight.constant + 42.5                //42.5 is the completed label height
+            tableViewHeight = completedKasamTableHeight.constant + 42.5                 //42.5 is the completed label height
             completedStatsHeight.constant = completedKasamTableHeight.constant
         }
         let contentViewHeight = topViewHeight.constant + collectionViewHeight.constant + tableViewHeight + 10
+        let frame = self.view.safeAreaLayoutGuide.layoutFrame
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
         } else if contentViewHeight <= frame.height {
@@ -135,55 +127,45 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
     //STEP 1
     @objc func getDetailedStats() {
-        detailedStats.removeAll()
         completedStats.removeAll()
         weeklyStats.removeAll()
         metricDictionary.removeAll()
-        var count = 0
-        //Loops through all kasams that user is following and get kasamID
-        for kasam in SavedData.kasamDict.values {
-            var historyCount = 0
-            DBRef.coachKasams.child(kasam.kasamID).observeSingleEvent(of: .value) {(snap) in
-                let snapshot = snap.value as! Dictionary<String,Any>
-                let imageURL = URL(string:snapshot["Image"]! as! String)        //getting the image and saving it to SavedData
-                kasam.image = snapshot["Image"]! as! String
-                kasam.metricType = snapshot["Metric"]! as! String               //getting the metricType and saving it to SavedData
-                
-                DBRef.userHistory.child(kasam.kasamID).observeSingleEvent(of: .value, with:{(snap) in
-                //STEP 1 - Weekly Stats for Current Kasams
-                    if SavedData.kasamDict[kasam.kasamID] != nil {
-                        self.getWeeklyStats(kasamID: kasam.kasamID, snap: snap)
+    
+        self.totalKasamDays = 0
+        DBRef.userHistory.observe(.childAdded, with:{(snap) in
+            let kasamID = snap.key
+            var kasamImage = URL(string: SavedData.kasamDict[kasamID]?.image ?? "")
+            var kasamName = SavedData.kasamDict[kasamID]?.kasamName
+            if SavedData.kasamDict[kasamID] == nil {
+                DBRef.coachKasams.child(kasamID).child("Image").observeSingleEvent(of: .value) {(image) in
+                    kasamImage = URL(string: image.value as! String)
+                    DBRef.coachKasams.child(kasamID).child("Title").observeSingleEvent(of: .value) {(name) in
+                        kasamName = name.value as? String
+                        self.loadCompletedTable(kasamID: kasamID, kasamName: kasamName ?? "Kasam", kasamImage: kasamImage ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, snap: snap)
                     }
-                //STEP 2 - Completed Stats Table
-                    if Int(snap.childrenCount) == 0 && SavedData.kasamDict[kasam.kasamID] == nil {
-                        count += 1
-                    } else {
-                        if let value = snap.value as? [String:[String:Any]] {
-                            historyCount = value.values.flatMap{$0}.count
-                        }
-                        let stats = CompletedKasamFormat(kasamID: kasam.kasamID, kasamName: kasam.kasamName, daysCompleted: historyCount, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, userHistorySnap: snap)
-                        self.totalKasamDays += historyCount
-                        self.completedStats.append(stats)
-                        count += 1
-                        //Order the table by #days completed
-                        DispatchQueue.main.async {
-                            if count == SavedData.kasamDict.count {
-                                self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
-                                self.setKasamLevel()
-                            }
-                        }
-                    }
-                })
-                
-                //STEP 3 - Load the data into the Tableview
-                if SavedData.kasamDict[kasam.kasamID] != nil {
-                    let endDate = Calendar.current.date(byAdding: .day, value: kasam.repeatDuration, to: kasam.joinedDate)
-                    let userStats = UserStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, joinedDate: kasam.joinedDate, endDate: endDate, metricType: kasam.metricType)
-                    self.detailedStats.append(userStats)
-                    self.weekStatsCollectionView.reloadData()
                 }
+        //STEP 1 - Weekly Stats for Current Kasams
+            } else {
+                self.getWeeklyStats(kasamID: kasamID, snap: snap)
+                self.loadCompletedTable(kasamID: kasamID, kasamName: kasamName ?? "Kasam", kasamImage: kasamImage ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, snap: snap)
             }
+        })
+    }
+    
+    func loadCompletedTable(kasamID: String, kasamName: String, kasamImage: URL, snap: DataSnapshot){
+        var historyCount = 0
+        if let value = snap.value as? [String:[String:Any]] {
+            historyCount = value.values.flatMap{$0}.count
         }
+        let completedStats = CompletedKasamFormat(kasamID: kasamID, kasamName: kasamName, daysCompleted: historyCount, imageURL: kasamImage, userHistorySnap: snap)
+        self.totalKasamDays += historyCount
+        self.completedStats.append(completedStats)
+        
+        //Order the table by #days completed
+        self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
+        self.completedKasamsTable.reloadData()
+        updateContentTableHeight()
+        self.setKasamLevel()
     }
     
     func setKasamLevel(){
@@ -242,6 +224,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                     avgMetric = (metricMatrix)
                 }
                 self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysLeft, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric))
+                weekStatsCollectionView.reloadData()
                 
                 //Orders the array as kasams with no history will always show up first, even though they were loaded later
 //                self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
@@ -357,80 +340,44 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
 
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == weekStatsCollectionView {
-            if detailedStats.count == 0 {
-                return 1                                                     //user not following any kasams
-            } else if detailedStats.count != 0 && weeklyStats.count == 0 {
-                return detailedStats.count                                   //user following kasams that aren't active yet
-            } else {
-                return weeklyStats.count                                     //user following active kasams
-            }
+        if weeklyStats.count == 0 {
+            return 1                                                     //user not following any kasams
         } else {
-            if detailedStats.count == 0 {
-                return 1
-            } else {
-                return detailedStats.count
-            }
+            return weeklyStats.count                                     //user following active kasams
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == weekStatsCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamStatsCell", for: indexPath) as! WeeklyStatsCell
-            cell.height = kasamStatsHeight.constant
-            if detailedStats.count == 0 {
-                cell.setPlaceholder()                                                     //user not following any kasams
-            } else if detailedStats.count != 0 && weeklyStats.count == 0 {
-                let blankStat = detailedStats[indexPath.row]
-                cell.setBlankBlock(cell: blankStat)                                       //user following kasams that aren't active yet
-            } else {
-                let stat = weeklyStats[indexPath.row]
-                cell.setBlock(cell: stat)                                                 //user following active kasams
-            }
-            return cell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamStatsCell", for: indexPath) as! WeeklyStatsCell
+        cell.height = kasamStatsHeight.constant
+        if weeklyStats.count == 0 {
+//                let blankStat = detailedStats[indexPath.row]
+//                cell.setBlankBlock(cell: blankStat)                                       //user following kasams that aren't active yet
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamStatsCell", for: indexPath) as! KasamFollowingCell
-            if detailedStats.count == 0 {
-                cell.setPlaceholder()
-            } else {
-                let kasam = detailedStats[indexPath.row]
-                cell.setBlock(cell: kasam)
-            }
-            return cell
+            let stat = weeklyStats[indexPath.row]
+            cell.setBlock(cell: stat)                                                 //user following active kasams
         }
+        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionView == weekStatsCollectionView {
-            kasamStatsHeight.constant = (view.bounds.size.width * (2/5))
-            return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
-        } else {
-            //for active kasam stats + completed kasam stats
-            let cellWidth = ((view.frame.size.width - (15 * 4)) / 3)
-            return CGSize(width: cellWidth, height: cellWidth + 40)
-        }
+        kasamStatsHeight.constant = (view.bounds.size.width * (2/5))
+        return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == weekStatsCollectionView {
         //OPTION 1 - User not following any kasams
-            if detailedStats.count == 0 {
-                //go to Discover Page when clicked
-                animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
-                self.tabBarController?.selectedIndex = 0
-        //OPTION 2 - User following kasams that aren't active yet
-            } else if detailedStats.count != 0 && weeklyStats.count == 0 {
-                if let index = completedStats.index(where: {($0.kasamID == detailedStats[indexPath.row].kasamID)}) {
-                    userHistoryTransfer = completedStats[index]; currentKasamTransfer = true
-                }
-                self.performSegue(withIdentifier: "goToStats", sender: indexPath)
-        //OPTION 3 - User following active kasam
-            } else {
-                if let index = completedStats.index(where: {($0.kasamID == detailedStats[indexPath.row].kasamID)}) {
-                    userHistoryTransfer = completedStats[index]; currentKasamTransfer = true
-                }
-                self.performSegue(withIdentifier: "goToStats", sender: indexPath)
-            }
+        if weeklyStats.count == 0 {
+//                if let index = completedStats.index(where: {($0.kasamID == detailedStats[indexPath.row].kasamID)}) {
+//                    userHistoryTransfer = completedStats[index]; currentKasamTransfer = true
+//                }
+//                self.performSegue(withIdentifier: "goToStats", sender: indexPath)
+    //OPTION 3 - User following active kasam
+        } else {
+//                if let index = completedStats.index(where: {($0.kasamID == detailedStats[indexPath.row].kasamID)}) {
+//                    userHistoryTransfer = completedStats[index]; currentKasamTransfer = true
+//                }
+//                self.performSegue(withIdentifier: "goToStats", sender: indexPath)
         }
     }
 }
