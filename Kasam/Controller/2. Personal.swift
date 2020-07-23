@@ -58,6 +58,9 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                
         let goToNotifications = NSNotification.Name("GoToNotifications")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToNotifications), name: goToNotifications, object: nil)
+        
+        let goToDiscover = NSNotification.Name("GoToDiscover")
+        NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToDiscover), name: goToDiscover, object: nil)
     }
     
     @objc func goToCreateKasam(_ notification: NSNotification?) {
@@ -73,7 +76,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     //ContentView Resizing----------------------------------------------------------------------------------------
     
     func updateContentViewHeight(){
-        print("hell2")
         //Set the table row height, based on the screen size
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = ((view.frame.width - 30) / (2.7)) + 25
@@ -105,12 +107,18 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         personalAnimationIcon.play()
     }
     
+    @objc func goToDiscover(){
+        animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
+        self.tabBarController?.selectedIndex = 0
+    }
+    
     func showIconCheck(){
         DBRef.userPersonalFollowing.observeSingleEvent(of: .value) {(snap) in
             if snap.exists() {} else {
                 self.personalAnimationIcon.isHidden = false
-                self.todaySublabel.text = "You're not in any group kasams"
+                self.todaySublabel.text = "You're not in any personal kasams"
                 self.personalAnimationIcon.loadingAnimation(view: self.contentView, animation: "flagmountainBG", height: 200, overlayView: nil, loop: false, completion: nil)
+                self.personalAnimationIcon.addBottomButton(buttonText: "Add a Kasam", view: self.contentView)
                 self.personalAnimationIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.iconTapped)))
                 self.updateContentViewHeight()
             }
@@ -140,11 +148,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             }
             self.showIconCheck()
         }
-        DBRef.userTrophies.observe(.childChanged) {(snap) in
-            if let value = snap.value as? [String: [String:String]] {
-                SavedData.badgesList = value
-            }
-        }
+        allTrophiesAchieved()
     }
     
     //STEP 2
@@ -153,7 +157,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             let kasamID = snapshot.key
             let preference = KasamSavedFormat(kasamID: kasamID, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, joinType: "personal", metricType: value["Metric"] as? String ?? "Checkmark", timeline: value["Timeline"] as? Int, sequence: nil, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil)
             
-            DispatchQueue.main.async {snapshot.key.badgesAchieved(); snapshot.key.benefitThresholds()}
+            DispatchQueue.main.async {snapshot.key.benefitThresholds()}
             print("Step 2 - Get preferences hell6 \(preference.kasamName)")
             SavedData.addKasam(kasam: preference)                   //Adds all kasams that the user is following
             self.getBlockDetails(kasamID: preference.kasamID)

@@ -83,16 +83,16 @@
 		BCD7315723B07A9B000A1AF8 /* -NewBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD7315623B07A9B000A1AF8 /* -NewBlock.swift */; };
 		BCD824D323D7C0B40051C499 /* success.json in Resources */ = {isa = PBXBuildFile; fileRef = BCD824D223D7C0B40051C499 /* success.json */; };
 		BCE0232D23B092E2007B25A0 /* MetricTypeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE0232C23B092E2007B25A0 /* MetricTypeCell.swift */; };
-		BCE09DEA2463B26E00A7A614 /* BadgesAchieved.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE09DE92463B26E00A7A614 /* BadgesAchieved.swift */; };
+		BCE09DEA2463B26E00A7A614 /* TrophiesAchieved.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE09DE92463B26E00A7A614 /* TrophiesAchieved.swift */; };
 		BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCE4B4B823666E0500C75480 /* UserOptionsController.xib */; };
 		BCE4B4BB23666E2800C75480 /* UserOptionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */; };
 		BCE50BDD22D0497B000F2534 /* KasamHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE50BDC22D0497B000F2534 /* KasamHolder.swift */; };
 		BCE50BE022D04A37000F2534 /* FXBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = BCE50BDE22D04A37000F2534 /* FXBlurView.m */; };
 		BCED0D87237285E80054E66B /* AlertService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCED0D86237285E80054E66B /* AlertService.swift */; };
 		BCF2A76B227F08F0009D2368 /* KasamBlocksCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF2A76A227F08F0009D2368 /* KasamBlocksCell.swift */; };
-		BCF8A303246436140030C323 /* BadgesAchievedCellTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A300246436140030C323 /* BadgesAchievedCellTableViewCell.swift */; };
-		BCF8A304246436140030C323 /* BadgesAchievedCellTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCF8A301246436140030C323 /* BadgesAchievedCellTableViewCell.xib */; };
-		BCF8A305246436140030C323 /* BadgesAchieved.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCF8A302246436140030C323 /* BadgesAchieved.xib */; };
+		BCF8A303246436140030C323 /* TrophiesAchievedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A300246436140030C323 /* TrophiesAchievedCell.swift */; };
+		BCF8A304246436140030C323 /* TrophiesAchievedCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCF8A301246436140030C323 /* TrophiesAchievedCell.xib */; };
+		BCF8A305246436140030C323 /* TrophiesAchieved.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCF8A302246436140030C323 /* TrophiesAchieved.xib */; };
 		BCF8A9AF24B1690F00751CC9 /* diamond.json in Resources */ = {isa = PBXBuildFile; fileRef = BCF8A9AE24B1690F00751CC9 /* diamond.json */; };
 		BCFCB43522AF02C900DC2DD7 /* DiscoverCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFCB43422AF02C800DC2DD7 /* DiscoverCollectionCell.swift */; };
 		BCFCB43722AF04EA00DC2DD7 /* DiscoverCategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */; };
@@ -181,7 +181,7 @@
 		BCD7315623B07A9B000A1AF8 /* -NewBlock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "-NewBlock.swift"; sourceTree = "<group>"; };
 		BCD824D223D7C0B40051C499 /* success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = success.json; sourceTree = "<group>"; };
 		BCE0232C23B092E2007B25A0 /* MetricTypeCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetricTypeCell.swift; sourceTree = "<group>"; };
-		BCE09DE92463B26E00A7A614 /* BadgesAchieved.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BadgesAchieved.swift; sourceTree = "<group>"; };
+		BCE09DE92463B26E00A7A614 /* TrophiesAchieved.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrophiesAchieved.swift; sourceTree = "<group>"; };
 		BCE4B4B823666E0500C75480 /* UserOptionsController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UserOptionsController.xib; sourceTree = "<group>"; };
 		BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserOptionsController.swift; sourceTree = "<group>"; };
 		BCE50BDC22D0497B000F2534 /* KasamHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamHolder.swift; sourceTree = "<group>"; };
@@ -191,9 +191,9 @@
 		BCED0D86237285E80054E66B /* AlertService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertService.swift; sourceTree = "<group>"; };
 		BCEE9D2123EF5F0500553BEB /* Kasam.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kasam.entitlements; sourceTree = "<group>"; };
 		BCF2A76A227F08F0009D2368 /* KasamBlocksCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamBlocksCell.swift; sourceTree = "<group>"; };
-		BCF8A300246436140030C323 /* BadgesAchievedCellTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BadgesAchievedCellTableViewCell.swift; sourceTree = "<group>"; };
-		BCF8A301246436140030C323 /* BadgesAchievedCellTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BadgesAchievedCellTableViewCell.xib; sourceTree = "<group>"; };
-		BCF8A302246436140030C323 /* BadgesAchieved.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BadgesAchieved.xib; sourceTree = "<group>"; };
+		BCF8A300246436140030C323 /* TrophiesAchievedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrophiesAchievedCell.swift; sourceTree = "<group>"; };
+		BCF8A301246436140030C323 /* TrophiesAchievedCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TrophiesAchievedCell.xib; sourceTree = "<group>"; };
+		BCF8A302246436140030C323 /* TrophiesAchieved.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TrophiesAchieved.xib; sourceTree = "<group>"; };
 		BCF8A9AE24B1690F00751CC9 /* diamond.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = diamond.json; path = ../../../../Badges/diamond.json; sourceTree = "<group>"; };
 		BCFCB43422AF02C800DC2DD7 /* DiscoverCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverCollectionCell.swift; sourceTree = "<group>"; };
 		BCFCB43622AF04EA00DC2DD7 /* DiscoverCategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverCategoryCell.swift; sourceTree = "<group>"; };
@@ -397,7 +397,7 @@
 				BC1FAF302269FAFA006A9245 /* Main.storyboard */,
 				BC1FAF352269FAFA006A9245 /* LaunchScreen.storyboard */,
 				BCC07F4D2466F357000E2D81 /* UserOptions */,
-				BCF8A2FF246436140030C323 /* BadgesAchieved */,
+				BCF8A2FF246436140030C323 /* TrophiesAchieved */,
 				BC4DE60224B023E400763B32 /* OptionsPopup */,
 				BCC07F4E24670A11000E2D81 /* AddKasam */,
 				BC1C8412248B531400797A20 /* Notifications */,
@@ -448,15 +448,15 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
-		BCF8A2FF246436140030C323 /* BadgesAchieved */ = {
+		BCF8A2FF246436140030C323 /* TrophiesAchieved */ = {
 			isa = PBXGroup;
 			children = (
-				BCF8A302246436140030C323 /* BadgesAchieved.xib */,
-				BCE09DE92463B26E00A7A614 /* BadgesAchieved.swift */,
-				BCF8A301246436140030C323 /* BadgesAchievedCellTableViewCell.xib */,
-				BCF8A300246436140030C323 /* BadgesAchievedCellTableViewCell.swift */,
+				BCF8A302246436140030C323 /* TrophiesAchieved.xib */,
+				BCE09DE92463B26E00A7A614 /* TrophiesAchieved.swift */,
+				BCF8A301246436140030C323 /* TrophiesAchievedCell.xib */,
+				BCF8A300246436140030C323 /* TrophiesAchievedCell.swift */,
 			);
-			path = BadgesAchieved;
+			path = TrophiesAchieved;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -549,9 +549,9 @@
 				BCD824D323D7C0B40051C499 /* success.json in Resources */,
 				BC01664722D5790B0073186D /* UIImageViewAligned in Resources */,
 				BC2B4C8223A70437005F2255 /* checkmark.json in Resources */,
-				BCF8A304246436140030C323 /* BadgesAchievedCellTableViewCell.xib in Resources */,
+				BCF8A304246436140030C323 /* TrophiesAchievedCell.xib in Resources */,
 				BC834848244502B0001819DC /* oneMedal.json in Resources */,
-				BCF8A305246436140030C323 /* BadgesAchieved.xib in Resources */,
+				BCF8A305246436140030C323 /* TrophiesAchieved.xib in Resources */,
 				BC228CB224401C3D00BA665C /* crownMedal.json in Resources */,
 				BC679ECB2439290800441F6E /* badge.json in Resources */,
 				BCD213652460CAC80096A365 /* flagmountain.json in Resources */,
@@ -706,7 +706,7 @@
 				BCFCB43522AF02C900DC2DD7 /* DiscoverCollectionCell.swift in Sources */,
 				BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */,
 				BCE50BE022D04A37000F2534 /* FXBlurView.m in Sources */,
-				BCF8A303246436140030C323 /* BadgesAchievedCellTableViewCell.swift in Sources */,
+				BCF8A303246436140030C323 /* TrophiesAchievedCell.swift in Sources */,
 				BC339E8E2376EB6D00E1D038 /* CustomSegmentedControl.swift in Sources */,
 				BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */,
 				BC9C7841228CD2DB000C8D0A /* 2. Personal.swift in Sources */,
@@ -752,7 +752,7 @@
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
 				BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */,
 				BCED0D87237285E80054E66B /* AlertService.swift in Sources */,
-				BCE09DEA2463B26E00A7A614 /* BadgesAchieved.swift in Sources */,
+				BCE09DEA2463B26E00A7A614 /* TrophiesAchieved.swift in Sources */,
 				BC55CC69232B4552003C87F6 /* WeeklyStatsCell.swift in Sources */,
 				BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */,
 				BC85E72C23B11EC500330F60 /* NewKasamPage.swift in Sources */,

@@ -19,14 +19,12 @@ struct SavedData {
     static var groupKasamBlocks: [(kasamID: String, data: PersonalBlockFormat)] = []
     static var groupCompletedList: [String] = []
     
-    static var badgesList: [String:[String:String]] = [:]
-    
     static var kasamDict: [String:KasamSavedFormat] = [:]           //KasamDict is used to update kasams when progress is made
 
     static func addKasam(kasam: KasamSavedFormat) {self.kasamDict[kasam.kasamID] = kasam}
     
-    static var badgesAchieved: [String: [(completedDate: String, badgeThreshold: Int)]] = [:]
-    static var badgesCount = 0          //all badges achieved only
+    static var trophiesAchieved: [String: (kasamName: String, kasamTrophies: [(completedDate: String, trophyThreshold: Int)])] = [:]
+    static var trophiesCount = 0          //all badges achieved only
     static var userType = "Basic"
 }
 

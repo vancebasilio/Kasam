@@ -1,5 +1,5 @@
 //
-//  BadgesAchievedCellTableViewCell.swift
+//  TrophiesAchievedCellTableViewCell.swift
 //  Kasam
 //
 //  Created by Vance Basilio on 2020-05-07.
@@ -9,9 +9,10 @@
 import UIKit
 import Lottie
 
-class BadgesAchievedCell: UITableViewCell {
+class TrophiesAchievedCell: UITableViewCell {
     
-    @IBOutlet weak var kasamName: UILabel!
-    @IBOutlet weak var badgeDate: UILabel!
+    @IBOutlet weak var badgeCompletionDate: UILabel!
+    @IBOutlet weak var badgeThreshold: UILabel!
     @IBOutlet weak var badgeImage: AnimationView!
+    
 }

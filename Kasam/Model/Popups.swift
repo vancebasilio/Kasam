@@ -146,7 +146,7 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-    func showBadgesPopup(kasamID: String?) {
+    func showTrophiesPopup(kasamID: String?) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light
@@ -164,15 +164,15 @@ import Firebase
         var height = CGFloat(40)        //Badges Title height
         if kasamID == nil {
             //For Profile View page (lists all trophies)
-            if SavedData.badgesAchieved.count != 0 {
-                height += CGFloat((SavedData.badgesCount + SavedData.badgesAchieved.count + 1) * 40)
+            if SavedData.trophiesAchieved.count != 0 {
+                height += CGFloat((SavedData.trophiesCount + SavedData.trophiesAchieved.count + 1) * 40)
             } else {
                 height += CGFloat(80)
             }
         } else {
             //For specific Kasam
-            if SavedData.kasamDict[kasamID!] != nil {
-                height += CGFloat((SavedData.badgesAchieved[SavedData.kasamDict[kasamID!]!.kasamName]?.count ?? 0) + 2) * 40
+            if SavedData.trophiesAchieved[kasamID!] != nil {
+                height += CGFloat((SavedData.trophiesAchieved[kasamID!]?.kasamTrophies.count ?? 0) + 2) * 40
             } else {
                 height += CGFloat(80)
             }
@@ -181,7 +181,7 @@ import Firebase
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark
         
-        let viewController = BadgesAchieved()
+        let viewController = TrophiesAchieved()
         viewController.kasamID = kasamID
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }

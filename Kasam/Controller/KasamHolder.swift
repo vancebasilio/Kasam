@@ -202,11 +202,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             deleteKasamButton.layer.cornerRadius = 20.0
             deleteKasamButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.trashAlt), iconColor: UIColor.white, postfixText: "  Delete Kasam", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.init(hex: 0xDB482D), forState: .normal, iconSize: 15)
             }
-            trophiesView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(badgesAchievedPopup)))
+            trophiesView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(kasamTrophiesPopup)))
         }
         
-        @objc func badgesAchievedPopup() {
-            showBadgesPopup(kasamID: kasamID)
+        @objc func kasamTrophiesPopup() {
+            showTrophiesPopup(kasamID: kasamID)
         }
     
     //KASAM BADGE------------------------------------------------------------------------------------
@@ -225,8 +225,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func getKasamBadgeInfo(){        //Only for active kasams
-        //STEP 1 - BADGES ACHIEVED
-        badgesAchieved()
+        //STEP 1 - TROPHIES ACHIEVED
+        kasamTrophiesAchieved()
         
         if SavedData.personalKasamBlocks.contains(where: {$0.kasamID == kasamID}) || SavedData.groupKasamBlocks.contains(where: {$0.kasamID == kasamID})  {
             //STEP 2 - Header Badge & Info (if Kasam is being followed and is a repeat Kasam)
@@ -298,15 +298,15 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         gradientLayer.locations = [NSNumber(value: 0.15), NSNumber(value: ratioAdjust), NSNumber(value: ratioAdjust), NSNumber(value: 1.0)]
     }
     
-    func badgesAchieved(){
+    func kasamTrophiesAchieved(){
         //Highlights trophies completed
-        if SavedData.kasamDict[kasamID]?.badgeList != nil {
-            if SavedData.kasamDict[kasamID]!.badgeList!.count == 1 {
+        if SavedData.trophiesAchieved[kasamID] != nil {
+            if SavedData.trophiesAchieved[kasamID]!.kasamTrophies.count == 1 {
                 self.trophyIcon.setIcon(icon: .fontAwesomeSolid(.trophy), iconSize: 18, color: .white, backgroundColor: .darkGray, forState: .normal)
-                noTrophiesAchieved.text = "\(String(describing: SavedData.kasamDict[kasamID]!.badgeList!.count)) trophy"
+                noTrophiesAchieved.text = "\(String(describing: SavedData.trophiesAchieved[kasamID]!.kasamTrophies.count)) trophy"
             } else {
                 self.trophyIcon.setIcon(icon: .fontAwesomeSolid(.trophy), iconSize: 18, color: .white, backgroundColor: .darkGray, forState: .normal)
-                noTrophiesAchieved.text = "\(String(describing: SavedData.kasamDict[kasamID]!.badgeList!.count)) trophies"
+                noTrophiesAchieved.text = "\(String(describing: SavedData.trophiesAchieved[kasamID]!.kasamTrophies.count)) trophies"
             }
         } else {
             self.trophyIcon.setIcon(icon: .fontAwesomeSolid(.trophy), iconSize: 18, color: .white, backgroundColor: .lightGray, forState: .normal)

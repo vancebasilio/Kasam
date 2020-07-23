@@ -56,6 +56,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
             if snap.exists() {} else {
                 self.groupFollowingLabel.text = "You're not in any group kasams"
                 self.groupAnimationIcon.loadingAnimation(view: self.contentView, animation: "crownSeptors", height: 200, overlayView: nil, loop: false, completion: nil)
+                self.groupAnimationIcon.addBottomButton(buttonText: "Add a Kasam", view: self.contentView)
                 self.groupAnimationIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.iconTapped)))
                 self.updateContentViewHeight()
             }

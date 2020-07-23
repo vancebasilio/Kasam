@@ -291,7 +291,6 @@ class PersonalBlockCell: UITableViewCell {
         //Update the badges the user has achieved after update to the today block
         DBRef.userTrophies.child(kasamID).observeSingleEvent(of: .value, with: {(snap) in
             SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String:[String: String]]
-            self.kasamID.badgesAchieved()
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
         })
     }

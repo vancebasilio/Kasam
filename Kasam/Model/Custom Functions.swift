@@ -540,6 +540,42 @@ extension UIViewController {
             controller.player!.play()
         }
     }
+    
+    func allTrophiesAchieved() {
+        DBRef.userTrophies.observe(.childAdded) {(trophySnap) in
+            let kasamID = trophySnap.key
+            var kasamName = ""
+            if SavedData.kasamDict[kasamID]?.kasamName != nil {
+                kasamName = SavedData.kasamDict[kasamID]!.kasamName
+                if let kasamIDTrophy = trophySnap.value as? [String: Any] {
+                    SavedData.trophiesAchieved[kasamID] = ("",[])
+                    SavedData.trophiesAchieved[kasamID]?.kasamName = kasamName
+                    for trophyStartDate in kasamIDTrophy {
+                        if let badge = trophyStartDate.value as? [String:String] {
+                            for badgeDeets in badge {
+                                SavedData.trophiesAchieved[kasamID]?.kasamTrophies.append((completedDate: badgeDeets.value, trophyThreshold: Int(badgeDeets.key)!))
+                            }
+                        }
+                    }
+                }
+            } else {
+                DBRef.coachKasams.child(kasamID).child("Title").observeSingleEvent(of: .value, with: {(kasamNameSnap) in
+                    kasamName = kasamNameSnap.value as! String
+                    if let kasamIDTrophy = trophySnap.value as? [String: Any] {
+                        SavedData.trophiesAchieved[kasamID] = ("",[])
+                        SavedData.trophiesAchieved[kasamID]?.kasamName = kasamName
+                        for trophyStartDate in kasamIDTrophy {
+                            if let badge = trophyStartDate.value as? [String:String] {
+                                for badgeDeets in badge {
+                                    SavedData.trophiesAchieved[kasamID]?.kasamTrophies.append((completedDate: badgeDeets.value, trophyThreshold: Int(badgeDeets.key)!))
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+        }
+    }
 }
 
 extension UINavigationItem {
@@ -594,6 +630,24 @@ extension AnimationView {
                 completion!()
             }
         }
+    }
+    
+    func addBottomButton(buttonText: String, view: UIView) {
+        let iconButton:UIButton = UIButton()
+        iconButton.backgroundColor = .colorFour
+        view.addSubview(iconButton)
+        iconButton.setTitle("    \(buttonText)    ", for: .normal)
+        iconButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        iconButton.translatesAutoresizingMaskIntoConstraints = false
+        iconButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        iconButton.layer.cornerRadius = 20
+        iconButton.topAnchor.constraint(equalTo: self.bottomAnchor, constant: 0).isActive = true
+        iconButton.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        iconButton.addTarget(self, action: #selector(goToDiscover), for: .touchUpInside)
+    }
+    
+    @objc func goToDiscover(){
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToDiscover"), object: self)
     }
 }
 
@@ -886,20 +940,6 @@ extension String {
         let uniqueID = "\(self)"        // Keep a record of this
         let request = UNNotificationRequest(identifier: uniqueID, content: content, trigger: trigger)
         center.add(request) {(error : Error?) in        // Add the notification request
-        }
-    }
-    
-    func badgesAchieved() {
-        let kasamName = SavedData.kasamDict[self]!.kasamName
-        if SavedData.kasamDict[self]?.badgeList != nil {
-            SavedData.badgesAchieved[kasamName] = []
-            for badgeJoinDate in SavedData.kasamDict[self]!.badgeList! {
-                for badgeList in badgeJoinDate.value {
-                        SavedData.badgesAchieved[kasamName]!.append((badgeList.value, Int(badgeList.key)!))
-                }
-            }
-        } else {
-            SavedData.badgesAchieved[kasamName] = nil
         }
     }
     

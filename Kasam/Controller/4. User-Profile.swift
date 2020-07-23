@@ -255,12 +255,12 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         if let truncUserFirst = Auth.auth().currentUser?.displayName?.split(separator: " ").first.map(String.init), let truncUserLast = Auth.auth().currentUser?.displayName?.split(separator: " ").last.map(String.init) {
             userFirstName.text = truncUserFirst + " " + truncUserLast
         }
-        let tap = UITapGestureRecognizer(target: self, action: #selector(badgesAchievedPopup))
+        let tap = UITapGestureRecognizer(target: self, action: #selector(allTrophiesPopup))
         badgesView.addGestureRecognizer(tap)
     }
     
-    @objc func badgesAchievedPopup() {
-        showBadgesPopup(kasamID: nil)
+    @objc func allTrophiesPopup() {
+        showTrophiesPopup(kasamID: nil)
     }
     
     @objc func profileUpdate() {
@@ -278,12 +278,12 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     func badgeCount(){
-        SavedData.badgesCount = 0
-        for _ in SavedData.badgesAchieved {
-            SavedData.badgesCount += 1
+        SavedData.trophiesCount = 0
+        for _ in SavedData.trophiesAchieved {
+            SavedData.trophiesCount += 1
         }
-        badgeNo.text = String(describing: SavedData.badgesCount)
-        if SavedData.badgesCount == 1 {badgeLabel.text = "trophy"}
+        badgeNo.text = String(describing: SavedData.trophiesCount)
+        if SavedData.trophiesCount == 1 {badgeLabel.text = "trophy"}
     }
     
     func profilePicture() {

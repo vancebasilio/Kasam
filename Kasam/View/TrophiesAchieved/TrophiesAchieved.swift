@@ -11,7 +11,7 @@ import FBSDKLoginKit
 import SwiftEntryKit
 import Lottie
 
-class BadgesAchieved: UIViewController {
+class TrophiesAchieved: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -19,23 +19,25 @@ class BadgesAchieved: UIViewController {
     required init?(coder aDecoder: NSCoder) {fatalError("init(coder:) has not been implemented")}
     
     var kasamID: String?
-    var badgeNameArray = Array(SavedData.badgesAchieved.keys).sorted()
+    var badgeNameArray = Array(SavedData.trophiesAchieved.keys)
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        //OPTION 1 - Show trophies for kasamID
         if kasamID != nil {
-            if SavedData.kasamDict[kasamID!] != nil {
-                badgeNameArray = [SavedData.kasamDict[kasamID!]!.kasamName]
+            if SavedData.trophiesAchieved[kasamID!] != nil {
+                badgeNameArray = [kasamID!]
             } else {
                 badgeNameArray = [""]               //to show "no trophies achieved" message in badge popup (for specifc kasams)
             }
+        //OPTION 2 - show all trophies
         } else {
             if badgeNameArray.count == 0 {
                 badgeNameArray = [""]               //to show "no trophies achieved" message in badge popup (for user profile page)
             }
         }
-        let nib = UINib(nibName: "BadgesAchievedCellTableViewCell", bundle: nil)
-        tableView.register(nib, forCellReuseIdentifier: "BadgesAchievedCell")
+        let nib = UINib(nibName: "TrophiesAchievedCell", bundle: nil)
+        tableView.register(nib, forCellReuseIdentifier: "TrophiesAchievedCell")
         DispatchQueue.main.async {
             self.loadBadges()
         }
@@ -45,9 +47,9 @@ class BadgesAchieved: UIViewController {
         var kasamCount = 0
         for kasamName in badgeNameArray {
             var badgeCount = 0
-            if SavedData.badgesAchieved[kasamName] != nil {
-                for _ in SavedData.badgesAchieved[kasamName]! {
-                    if let cell = self.tableView.cellForRow(at: IndexPath(item: badgeCount, section: kasamCount)) as? BadgesAchievedCell {
+            if SavedData.trophiesAchieved[kasamName] != nil {
+                for _ in SavedData.trophiesAchieved[kasamName]!.kasamTrophies {
+                    if let cell = self.tableView.cellForRow(at: IndexPath(item: badgeCount, section: kasamCount)) as? TrophiesAchievedCell {
                         cell.badgeImage.animation = Animations.kasamBadges[1]
                         cell.badgeImage.play()
                     }
@@ -59,7 +61,7 @@ class BadgesAchieved: UIViewController {
     }
 }
 
-extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
+extension TrophiesAchieved: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return badgeNameArray.count
@@ -74,18 +76,14 @@ extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
         newlabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         newlabel.adjustsFontSizeToFitWidth = true
         if kasamID != nil {
-            if SavedData.kasamDict[kasamID!] != nil {
-                if SavedData.badgesAchieved[SavedData.kasamDict[kasamID!]!.kasamName]?.count != nil {
-                    newlabel.text = badgeNameArray[section]
-                } else {
-                    newlabel.text = "No trophies achieved"
-                }
+            if SavedData.trophiesAchieved[kasamID!] != nil {
+                newlabel.text = SavedData.trophiesAchieved[kasamID!]?.kasamName
             } else {
                 newlabel.text = "No trophies achieved"
             }
         } else {
             if badgeNameArray != [""] {
-                newlabel.text = badgeNameArray[section]
+                newlabel.text = SavedData.trophiesAchieved[badgeNameArray[section]]?.kasamName
             } else {
                 newlabel.text = "No trophies achieved"
             }
@@ -105,21 +103,21 @@ extension BadgesAchieved: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if SavedData.badgesAchieved.count != 0 {
-            return SavedData.badgesAchieved[badgeNameArray[section]]?.count ?? 0
+        if SavedData.trophiesAchieved.count != 0 {
+            return SavedData.trophiesAchieved[badgeNameArray[section]]?.kasamTrophies.count ?? 0
         } else {
             return 1
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "BadgesAchievedCell") as! BadgesAchievedCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TrophiesAchievedCell") as! TrophiesAchievedCell
         let kasamName = badgeNameArray[indexPath.section]
-        let badge = SavedData.badgesAchieved[kasamName]?[indexPath.row]
+        let trophy = SavedData.trophiesAchieved[kasamName]?.kasamTrophies[indexPath.row]
         cell.selectionStyle = .none
-        if badge != nil {
-            cell.kasamName.text = convertLongDateToShortYear(date: badge!.completedDate)
-            cell.badgeDate.text = badge!.badgeThreshold.pluralUnit(unit: "day")
+        if trophy != nil {
+            cell.badgeCompletionDate.text = convertLongDateToShortYear(date: trophy!.completedDate)
+            cell.badgeThreshold.text = trophy!.trophyThreshold.pluralUnit(unit: "day")
         }
         cell.textLabel?.textAlignment = .left
         return cell
