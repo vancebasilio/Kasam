@@ -550,8 +550,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         
     func addUserPreferncestoKasam(restart: Bool){
         var DBlocation = DBRef.userPersonalFollowing
-        if joinType == "group" {DBlocation = DBRef.userGroupFollowing}
-        DBlocation.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": "initiated", "Metric": kasamMetric, "Duration": timelineDuration as Any]) {(error, reference) in
+        var status: String?
+        if joinType == "group" {
+            DBlocation = DBRef.userGroupFollowing
+            status = "initiated"
+        }
+        DBlocation.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": status as Any, "Metric": kasamMetric, "Duration": timelineDuration as Any]) {(error, reference) in
             Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
             self.refreshBadge()
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)

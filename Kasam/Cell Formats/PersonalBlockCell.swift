@@ -216,12 +216,12 @@ class PersonalBlockCell: UITableViewCell {
     }
     
     func statusUpdate(_ day: String?){
-        if tempBlock != nil {
-            print("step 5 STATUS UPDATE")
+        if tempBlock != nil && SavedData.kasamDict[kasamID] != nil {
+            print("Step 5 STATUS UPDATE")
            //STEP 1 - DAY COUNTER
-            if SavedData.kasamDict[kasamID]?.sequence == "streak" {
+            if SavedData.kasamDict[kasamID]?.sequence == "streak" && SavedData.kasamDict[kasamID] != nil {
                 currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.currentStreak.value
-            } else {
+            } else if SavedData.kasamDict[kasamID] != nil {
                 currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
                 statusDate = day ?? Date().dateToString()
             }
@@ -297,7 +297,7 @@ class PersonalBlockCell: UITableViewCell {
     
     func checkmarkAndPercentageUpdate(){
         print("step 5 checkmarkAndPercentage")
-        if SavedData.kasamDict[tempBlock!.kasamID]!.metricType != "Checkmark" {
+        if SavedData.kasamDict[tempBlock!.kasamID]?.metricType != "Checkmark" {
             percentComplete.isHidden = false
             if SavedData.kasamDict[kasamID]?.percentComplete == nil {percentComplete.text = "0%"}
             else {percentComplete.text = "\(Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100))%"}

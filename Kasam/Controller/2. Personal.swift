@@ -142,7 +142,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                 SavedData.personalKasamBlocks.remove(at: index)
                 self.tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
                 self.updateContentViewHeight()
-                self.showIconCheck()
                 self.todaySublabel.text = "You have \(SavedData.personalKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "PopDiscoverToRoot"), object: self)
             }
@@ -524,6 +523,7 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
     
     func updateKasamDayButtonPressed(kasamOrder: Int, day: Int){
         let kasamID = SavedData.personalKasamBlocks[kasamOrder].data.kasamID
+        print("hell2 \(kasamOrder, SavedData.personalKasamBlocks.count)")
         let statusDate = (Calendar.current.date(byAdding: .day, value: day - SavedData.personalKasamBlocks[kasamOrder].data.dayOrder, to: Date())!).dateToString()
         if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day] != nil {
             if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.1 == 1.0 {
@@ -538,6 +538,7 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
     func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?) {
         animationView.loadingAnimation(view: view, animation: "loading", width: 100, overlayView: nil, loop: true, buttonText: nil, completion: nil)
         UIApplication.shared.beginIgnoringInteractionEvents()
+        print("hell2 \(kasamOrder, SavedData.personalKasamBlocks.count)")
         let kasamID = SavedData.personalKasamBlocks[kasamOrder].kasamID
         kasamIDforViewer = kasamID
         blockIDGlobal = SavedData.personalKasamBlocks[kasamOrder].data.blockID
