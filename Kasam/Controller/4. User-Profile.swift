@@ -118,7 +118,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     @objc func showCompletionAnimation(){
-        animationView.loadingAnimation(view: view, animation: "checkmark", height: 400, overlayView: nil, loop: false){
+        animationView.loadingAnimation(view: view, animation: "checkmark", width: 400, overlayView: nil, loop: false, buttonText: nil){
             self.animationView.removeFromSuperview()
         }
     }
@@ -442,7 +442,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
         if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             self.profileImage.image = editedImage.withRenderingMode(.alwaysOriginal)
             if self.profileImage?.image != PlaceHolders.kasamHeaderPlaceholderImage {
-                animationView.loadingAnimation(view: view, animation: "success", height: 100, overlayView: nil, loop: false) {
+                animationView.loadingAnimation(view: view, animation: "success", width: 100, overlayView: nil, loop: false, buttonText: nil) {
                     self.animationView.removeFromSuperview()
                 }
                 saveImage(image: self.profileImage!.image!, location: "users/"+Auth.auth().currentUser!.uid+"/manual_profile_pic.jpg", completion: {uploadedProfileImageURL in
@@ -454,7 +454,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
         } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.profileImage?.image = originalImage.withRenderingMode(.alwaysOriginal)
             if self.profileImage?.image != PlaceHolders.kasamHeaderPlaceholderImage {
-                    animationView.loadingAnimation(view: view, animation: "success", height: 100, overlayView: nil, loop: false) {
+                animationView.loadingAnimation(view: view, animation: "success", width: 100, overlayView: nil, loop: false, buttonText: nil) {
                     self.animationView.removeFromSuperview()
                 }
                 saveImage(image: self.profileImage!.image!, location: "users/"+Auth.auth().currentUser!.uid+"/manual_profile_pic.jpg", completion: {uploadedProfileImageURL in

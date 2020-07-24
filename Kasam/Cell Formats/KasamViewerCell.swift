@@ -452,7 +452,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate {
         //User recording progress, so save it
         if (pickerViewIsScrolling){
             shouldSave = true
-            animationView.loadingAnimation(view: view, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
+            animationView.loadingAnimation(view: view, animation: "loading", width: 100, overlayView: nil, loop: true, buttonText: nil, completion: nil)
             return
         }
         delegate?.updateControllers()

@@ -242,7 +242,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             if self.headerImageView.image != PlaceHolders.kasamHeaderPlaceholderImage {
                 NewKasam.kasamImageToSave = self.headerImageView.image!
             }
-            self.animationView.loadingAnimation(view: view, animation: "rocket-fast", height: 200, overlayView: self.animationOverlay, loop: true, completion: nil)
+            self.animationView.loadingAnimation(view: view, animation: "rocket-fast", width: 200, overlayView: self.animationOverlay, loop: true, buttonText: nil, completion: nil)
             createKasam(existingKasamID: NewKasam.kasamID, basicKasam: true) {(success) in
                 if success == true {
                     self.animationView.removeFromSuperview()

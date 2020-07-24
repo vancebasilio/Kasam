@@ -117,8 +117,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             if snap.exists() {} else {
                 self.personalAnimationIcon.isHidden = false
                 self.todaySublabel.text = "You're not in any personal kasams"
-                self.personalAnimationIcon.loadingAnimation(view: self.contentView, animation: "flagmountainBG", height: 200, overlayView: nil, loop: false, completion: nil)
-                self.personalAnimationIcon.addBottomButton(buttonText: "Add a Kasam", view: self.contentView)
+                self.personalAnimationIcon.loadingAnimation(view: self.contentView, animation: "flagmountainBG", width: 200, overlayView: nil, loop: false, buttonText: "Add a Kasam", completion: nil)
                 self.personalAnimationIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.iconTapped)))
                 self.updateContentViewHeight()
             }
@@ -143,6 +142,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                 SavedData.personalKasamBlocks.remove(at: index)
                 self.tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
                 self.updateContentViewHeight()
+                self.showIconCheck()
                 self.todaySublabel.text = "You have \(SavedData.personalKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "PopDiscoverToRoot"), object: self)
             }
@@ -536,7 +536,7 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?) {
-        animationView.loadingAnimation(view: view, animation: "loading", height: 100, overlayView: nil, loop: true, completion: nil)
+        animationView.loadingAnimation(view: view, animation: "loading", width: 100, overlayView: nil, loop: true, buttonText: nil, completion: nil)
         UIApplication.shared.beginIgnoringInteractionEvents()
         let kasamID = SavedData.personalKasamBlocks[kasamOrder].kasamID
         kasamIDforViewer = kasamID

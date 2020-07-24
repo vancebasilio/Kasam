@@ -602,11 +602,13 @@ extension UINavigationItem {
 }
 
 extension AnimationView {
-    func loadingAnimation(view: UIView, animation: String, height: Int, overlayView: UIView?, loop: Bool, completion: (() -> Void)?){
+    func loadingAnimation(view: UIView, animation: String, width: Int, overlayView: UIView?, loop: Bool, buttonText: String?, completion: (() -> Void)?){
+        var height = width
         let animationView = self
         animationView.animation = Animation.named(animation)
         animationView.contentMode = .scaleAspectFit
         
+        //Overlay
         if overlayView != nil  {
             if let window = view.window {
                 overlayView?.frame = window.frame
@@ -619,10 +621,28 @@ extension AnimationView {
         animationView.translatesAutoresizingMaskIntoConstraints = false
         animationView.centerXAnchor.constraint(lessThanOrEqualTo: view.centerXAnchor).isActive = true
         animationView.centerYAnchor.constraint(lessThanOrEqualTo: view.centerYAnchor).isActive = true
-        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: CGFloat(height)).isActive = true
-        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: CGFloat(height)).isActive = true
+        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: CGFloat(width)).isActive = true
         animationView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
         animationView.play()
+        
+        //Bottom Button
+        if buttonText != nil {
+            let iconButton:UIButton = UIButton()
+            iconButton.backgroundColor = .colorFour
+            self.addSubview(iconButton)
+            iconButton.setTitle("    \(buttonText!)    ", for: .normal)
+            iconButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+            iconButton.translatesAutoresizingMaskIntoConstraints = false
+            iconButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+            iconButton.layer.cornerRadius = 20
+            iconButton.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0).isActive = true
+            iconButton.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+            iconButton.addTarget(self, action: #selector(goToDiscover), for: .touchUpInside)
+            height += 80
+        }
+        NSLayoutConstraint(item: animationView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: CGFloat(height)).isActive = true
+        
+        //Loop
         if loop == true {
             animationView.loopMode = .loop
         } else if completion != nil {
@@ -630,20 +650,6 @@ extension AnimationView {
                 completion!()
             }
         }
-    }
-    
-    func addBottomButton(buttonText: String, view: UIView) {
-        let iconButton:UIButton = UIButton()
-        iconButton.backgroundColor = .colorFour
-        view.addSubview(iconButton)
-        iconButton.setTitle("    \(buttonText)    ", for: .normal)
-        iconButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
-        iconButton.translatesAutoresizingMaskIntoConstraints = false
-        iconButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        iconButton.layer.cornerRadius = 20
-        iconButton.topAnchor.constraint(equalTo: self.bottomAnchor, constant: 0).isActive = true
-        iconButton.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        iconButton.addTarget(self, action: #selector(goToDiscover), for: .touchUpInside)
     }
     
     @objc func goToDiscover(){
