@@ -132,7 +132,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             if basicKasam == true {
                 createActivitiesLabel.text = "Update Kasam"
                 deleteKasamButton.layer.cornerRadius = deleteKasamButton.frame.height / 2
-                deleteKasamButton.setIcon(icon: .fontAwesomeSolid(.trashAlt), iconSize: 20, color: UIColor.white, backgroundColor: UIColor.init(hex: 0xDB482D), forState: .normal)
+                deleteKasamButton.setIcon(icon: .fontAwesomeSolid(.trashAlt), iconSize: 20, color: UIColor.white, backgroundColor: .cancelColor, forState: .normal)
                 deleteKasamButton.isHidden = false
             }
         } else {

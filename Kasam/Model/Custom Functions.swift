@@ -83,7 +83,6 @@ extension UIViewController {
                                    "Type": "Basic",
                                    "Rating": "5",
                                    "Blocks": "blocks",
-                                   "Sequence": "Streak",
                                    "Level": 0,
                                    "Metric": NewKasam.chosenMetric] as [String : Any]
         

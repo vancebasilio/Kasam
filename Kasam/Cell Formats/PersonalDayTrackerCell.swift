@@ -9,7 +9,7 @@
 import UIKit
 
 protocol DayTrackerCellDelegate : class {
-    func dayPressed(_ sender: UIButton, kasamOrder: Int, day: Int, date: Date?, metricType: String, viewOnly: Bool?)
+    func dayPressed(kasamID: String, day: Int, date: Date?, metricType: String, viewOnly: Bool?)
 }
 
 class PersonalDayTrackerCell: UICollectionViewCell {
@@ -20,33 +20,29 @@ class PersonalDayTrackerCell: UICollectionViewCell {
     
     var dayTrackerDelegate: DayTrackerCellDelegate?
     var dayInternal = 0
-    var kasamOrderInternal = 0
+    var kasamIDInternal = ""
     var metricTypeInternal = "Checkmark"
     var futureInternal: Bool?
     var dateInternal: Date?
     
-    func setBlock(kasamID: String, kasamOrder: Int, day: Int, status: Double, date: Date, today: Bool, future: Bool){
+    func setBlock(kasamID: String, day: Int, status: Double, date: Date, today: Bool, future: Bool){
         cellButton.layer.cornerRadius = 12
         if day == 0 {
             cellButton.setTitle("", for: .normal)
         } else {
             cellButton.setTitle("\(day)", for: .normal)
         }
-        if SavedData.kasamDict[kasamID]?.sequence == nil {
-            dayTrackerDate.text = date.dateToShortString()
+        if let sequenceDate = SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.0 {
+            dayTrackerDate.text = dateShortestFormat(date: sequenceDate)
         } else {
-            if let sequenceDate = SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.0 {
-                dayTrackerDate.text = dateShortestFormat(date: sequenceDate)
-            } else {
-                dayTrackerDate.text = date.dateToShortString()
-            }
+            dayTrackerDate.text = date.dateToShortString()
         }
         dayTrackerDate.textColor = UIColor.colorFive
         dayInternal = day
         dateInternal = date
         futureInternal = future
         metricTypeInternal = SavedData.kasamDict[kasamID]!.metricType
-        kasamOrderInternal = kasamOrder
+        kasamIDInternal = kasamID
         
         //Set Today Button
         if today == true {
@@ -89,7 +85,7 @@ class PersonalDayTrackerCell: UICollectionViewCell {
     
     @IBAction func dayPressed(_ sender: UIButton) {
         if futureInternal == false {
-            dayTrackerDelegate?.dayPressed(sender, kasamOrder: kasamOrderInternal, day: dayInternal, date: dateInternal, metricType: metricTypeInternal, viewOnly: futureInternal)
+            dayTrackerDelegate?.dayPressed(kasamID: kasamIDInternal, day: dayInternal, date: dateInternal, metricType: metricTypeInternal, viewOnly: futureInternal)
         }
     }
 }

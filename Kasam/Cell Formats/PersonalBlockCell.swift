@@ -13,7 +13,7 @@ import Lottie
 
 protocol TableCellDelegate : class {
     func updateKasamDayButtonPressed(kasamOrder: Int, day: Int)
-    func openKasamBlock(_ sender: UIButton, kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?)
+    func openKasamBlock(kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?)
     func goToKasamHolder(kasamOrder: Int)
     func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int)
 }
@@ -70,23 +70,17 @@ class PersonalBlockCell: UITableViewCell {
         kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
         kasamName.numberOfLines = kasamName.calculateMaxLines()
         
-        //For timeline kasams only
+        //For PROGRAM kasams only
         if block.dayCount != nil {today = block.dayCount!}
         else {today = Int(block.dayOrder)}
         
-        //Show the block subtite if it's a timeline kasam
-        if SavedData.kasamDict[kasamID]?.timeline != nil {
+        //Show the block subtite if it's a PROGRAM kasam
+        if SavedData.kasamDict[kasamID]?.programDuration != nil {
             blockSubtitle.text = "\(block.blockTitle)"
         //Hide the block subtitle
         } else {blockSubtitle.frame.size.height = 0}
         
         kasamImage.sd_setImage(with: block.image)
-        if SavedData.kasamDict[kasamID]!.metricType == "Checkmark" && block.dayOrder < SavedData.kasamDict[kasamID]?.repeatDuration ?? 0{
-            percentComplete.isHidden = true
-        }
-        DBRef.coachKasams.child(kasamID).child("Sequence").observeSingleEvent(of: .value) {(snap) in
-            if snap.exists() {SavedData.kasamDict[self.kasamID]?.sequence = (snap.value as? String)!}
-        }
         levelLineBack.layer.cornerRadius = 4
         levelLine.layer.cornerRadius = 4
     }
@@ -164,10 +158,12 @@ class PersonalBlockCell: UITableViewCell {
             //Completed Kasam
             extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
         } else {
-            if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
-                cellDelegate?.updateKasamDayButtonPressed(kasamOrder: row, day: tempBlock?.dayOrder ?? 1)
-            } else {
-                cellDelegate?.openKasamBlock(sender, kasamOrder: row, day: nil, date: nil, viewOnly: false)
+            if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
+                if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
+                    cellDelegate?.updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: tempBlock?.dayOrder ?? 1)
+                } else {
+                    cellDelegate?.openKasamBlock(kasamOrder: kasamOrder, day: nil, date: nil, viewOnly: false)
+                }
             }
         }
         centerCollectionView()
@@ -189,7 +185,7 @@ class PersonalBlockCell: UITableViewCell {
     
     @IBAction func restartButtonPressed(_ sender: Any) {
         var saveTimeObserver: NSObjectProtocol?
-        addKasamPopup(kasamID: kasamID, percentComplete: nil, new: true, timelineDuration: SavedData.kasamDict[kasamID]?.timeline, duration: SavedData.kasamDict[kasamID]!.repeatDuration, fullView: true)
+        addKasamPopup(kasamID: kasamID, percentComplete: nil, new: true, duration: SavedData.kasamDict[kasamID]!.repeatDuration, fullView: true)
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
@@ -219,10 +215,8 @@ class PersonalBlockCell: UITableViewCell {
         if tempBlock != nil && SavedData.kasamDict[kasamID] != nil {
             print("Step 5 STATUS UPDATE")
            //STEP 1 - DAY COUNTER
-            if SavedData.kasamDict[kasamID]?.sequence == "streak" && SavedData.kasamDict[kasamID] != nil {
+            if SavedData.kasamDict[kasamID] != nil {
                 currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.currentStreak.value
-            } else if SavedData.kasamDict[kasamID] != nil {
-                currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
                 statusDate = day ?? Date().dateToString()
             }
             currentDayStreak.text = String(describing: currentDayStat)
@@ -262,7 +256,7 @@ class PersonalBlockCell: UITableViewCell {
                 }
                 statsContent.backgroundColor = UIColor.white
                 hideDayTrackerView.backgroundColor = UIColor.white
-                if SavedData.kasamDict[kasamID]?.timeline == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
+                if SavedData.kasamDict[kasamID]?.programDuration == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
             }
             
             if SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress == 1 {streakPostText.text = "day completed"}
@@ -299,8 +293,9 @@ class PersonalBlockCell: UITableViewCell {
         print("step 5 checkmarkAndPercentage")
         if SavedData.kasamDict[tempBlock!.kasamID]?.metricType != "Checkmark" {
             percentComplete.isHidden = false
-            if SavedData.kasamDict[kasamID]?.percentComplete == nil {percentComplete.text = "0%"}
-            else {percentComplete.text = "\(Int((SavedData.kasamDict[kasamID]?.percentComplete)! * 100))%"}
+            percentComplete.text = "\(Int((SavedData.kasamDict[kasamID]?.percentComplete ?? 0)! * 100))%"
+        } else {
+            percentComplete.isHidden = true
         }
         if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[kasamID]!.metricType == "Checkmark" {
             streakShadow.backgroundColor = .colorFour

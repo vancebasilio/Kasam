@@ -33,7 +33,6 @@ pod 'Charts'
 pod 'SwiftEntryKit'
 pod 'IQKeyboardManagerSwift'
 pod 'SwipeCellKit'
-pod 'HCVimeoVideoExtractor'
 
 end
 

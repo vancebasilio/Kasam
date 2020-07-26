@@ -82,7 +82,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     var followerCountGlobal = 0
     var kasamID: String = ""            //transfered in values from previous vc
     var kasamGTitle: String = ""        //transfered in values from previous vc
-    var timelineDuration: Int?          //only for timeline Kasams
+    var programDuration: Int?          //only for Program Kasams
     var kasamCompletedRadio = 0.0
     
     var kasamTracker: [Tracker] = [Tracker]()
@@ -197,10 +197,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             addButtonText.isHidden = true
             
             createKasamButton.layer.cornerRadius = 20.0
-            createKasamButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.magic), iconColor: UIColor.white, postfixText: createKasamTitle, postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.black, forState: .normal, iconSize: 15)
+            createKasamButton.setIcon(prefixText: "", prefixTextFont: .systemFont(ofSize: 15, weight:.regular), prefixTextColor: .white, icon: .fontAwesomeSolid(.magic), iconColor: .white, postfixText: createKasamTitle, postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: .white, backgroundColor: .black, forState: .normal, iconSize: 15)
             
             deleteKasamButton.layer.cornerRadius = 20.0
-            deleteKasamButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.trashAlt), iconColor: UIColor.white, postfixText: "  Delete Kasam", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: UIColor.init(hex: 0xDB482D), forState: .normal, iconSize: 15)
+            deleteKasamButton.setIcon(prefixText: "", prefixTextFont: .systemFont(ofSize: 15, weight:.regular), prefixTextColor: .white, icon: .fontAwesomeSolid(.trashAlt), iconColor: .white, postfixText: "  Delete Kasam", postfixTextFont: .systemFont(ofSize: 15, weight:.medium), postfixTextColor: .white, backgroundColor: .cancelColor, forState: .normal, iconSize: 15)
             }
             trophiesView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(kasamTrophiesPopup)))
         }
@@ -255,7 +255,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func headerBadge(){
         if SavedData.kasamDict[kasamID]!.repeatDuration > 0 && SavedData.kasamDict[kasamID] != nil {
             self.headerImageView.alpha = 0.7
-            var daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress ?? 0)
+            var daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.currentStreak.value ?? 0)
             finishIcon.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 35, color: UIColor.colorFive.lighter, forState: .normal)
             extendIcon.setIcon(icon: .fontAwesomeSolid(.arrowCircleRight), iconSize: 30, color: UIColor.colorFive.lighter, forState: .normal)
             finishLabel.textColor = UIColor.colorFive.lighter
@@ -270,9 +270,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 headerBadgeIcon.animation = Animations.kasamBadges[1]
             } else {
                 //OPTION 2 - Kasam ongoing currently
-                if SavedData.kasamDict[kasamID]?.sequence == "streak" {
-                    daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.currentStreak.value ?? 0)
-                }
                 ratio = (daysCompleted / Double(SavedData.kasamDict[kasamID]!.repeatDuration))
                 self.badgeInfo.text = "  \(SavedData.kasamDict[kasamID]!.repeatDuration) day trophy  "
                 self.badgeCompletion.text = "\(Int(ratio * 100))%"
@@ -416,7 +413,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamMetric = value["Metric"] as? String ?? "Checkmark"
                 self.chosenRepeat = (value["Duration"] as? Int ?? 30)
                 if self.kasamMetric == "Checkmark" {self.tableView.allowsSelection = false; self.tableView.reloadData()}
-                if let duration = value["Duration"] as? Int {self.timelineDuration = duration}
+                if let duration = value["Duration"] as? Int {self.programDuration = duration}
                 
                 //Set icons
                 self.TypeIcon = self.TypeIcon.setKasamTypeIcon(kasamType: self.kasamGenre.text!, button: self.TypeIcon, location: "kasamHolder")
@@ -464,10 +461,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //OPENS THE POPUP TO ENTER PREFERENCES
         if registerCheck == 0 || reset == true {
             //Adding new Kasam
-            addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: true, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: true)
+            addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: true, duration: chosenRepeat, fullView: true)
         } else {
             //Existing Kasam prefernces being updated
-            addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: false, timelineDuration: timelineDuration, duration: chosenRepeat, fullView: false)
+            addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: false, duration: chosenRepeat, fullView: false)
         }
         //If the user presses save:
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
@@ -555,7 +552,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             DBlocation = DBRef.userGroupFollowing
             status = "initiated"
         }
-        DBlocation.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": status as Any, "Metric": kasamMetric, "Duration": timelineDuration as Any]) {(error, reference) in
+        DBlocation.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": status as Any, "Metric": kasamMetric, "Program Duration": programDuration as Any]) {(error, reference) in
             Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
             self.refreshBadge()
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)

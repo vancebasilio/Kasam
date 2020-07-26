@@ -82,7 +82,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             tableViewHeight = completedKasamTableHeight.constant + 42.5                 //42.5 is the completed label height
             completedStatsHeight.constant = completedKasamTableHeight.constant
         }
-        let contentViewHeight = topViewHeight.constant + collectionViewHeight.constant + tableViewHeight + 10
+        let contentViewHeight = topViewHeight.constant + collectionViewHeight.constant + tableViewHeight + 20
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
         if contentViewHeight > frame.height {
             contentView.constant = contentViewHeight
@@ -186,13 +186,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     //STEP 2
     func getWeeklyStats(kasamID: String, snap: DataSnapshot) {
         let kasam = SavedData.kasamDict[kasamID]!
-        var daysLeft = 0
-        if kasam.sequence == "streak" {
-            daysLeft = kasam.repeatDuration - kasam.streakInfo.currentStreak.value
-        } else {
-            daysLeft = kasam.repeatDuration - kasam.streakInfo.daysWithAnyProgress
-        }
-        
         var metricMatrix = 0
         var checkerCount = 0
         let imageURL = URL(string:kasam.image)
@@ -223,12 +216,8 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                     //For Complex Kasams, show total for the weeks
                     avgMetric = (metricMatrix)
                 }
-                self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: daysLeft, metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric))
+                self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: (kasam.repeatDuration - kasam.streakInfo.currentStreak.value), metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric))
                 weekStatsCollectionView.reloadData()
-                
-                //Orders the array as kasams with no history will always show up first, even though they were loaded later
-//                self.weeklyStats = self.weeklyStats.sorted(by: { $0.order < $1.order })
-//                self.weekStatsCollectionView.reloadData()
             }
         }
     }

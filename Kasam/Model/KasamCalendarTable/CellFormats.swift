@@ -109,8 +109,7 @@ class KasamSavedFormat {
     var image: String
     var joinType: String
     var metricType: String
-    var timeline: Int?
-    var sequence: String?
+    var programDuration: Int?
     var streakInfo: streakInfo
     var displayStatus: String
     var percentComplete: Double
@@ -118,7 +117,7 @@ class KasamSavedFormat {
     var benefitsThresholds: [(Int,String)]?
     var dayTrackerArray: [Int:(date: Date, progress: Double)]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, image: String?, joinType: String, metricType: String?, timeline: Int?, sequence: String?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, image: String?, joinType: String, metricType: String?, programDuration: Int?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
@@ -128,8 +127,7 @@ class KasamSavedFormat {
         self.image = image ?? ""
         self.joinType = joinType
         self.metricType = metricType ?? ""
-        self.timeline = timeline
-        self.sequence = sequence
+        self.programDuration = programDuration
         self.streakInfo = streakInfo
         self.displayStatus = displayStatus
         self.percentComplete = percentComplete
@@ -238,9 +236,8 @@ class KasamActivityCellFormat {
     var type: String
     var currentOrder: Int
     var totalOrder: Int
-    var currentText: String
     
-    init(kasamID: String, blockID: String, title: String, description: String, totalMetric: String, increment: String?, currentMetric: String, imageURL: String?, videoURL: String?, image: UIImage?, type: String, currentOrder: Int, totalOrder: Int, currentText: String){
+    init(kasamID: String, blockID: String, title: String, description: String, totalMetric: String, increment: String?, currentMetric: String, imageURL: String?, videoURL: String?, image: UIImage?, type: String, currentOrder: Int, totalOrder: Int){
         self.kasamID = kasamID
         self.blockID = blockID
         self.activityTitle = title
@@ -254,7 +251,6 @@ class KasamActivityCellFormat {
         self.type = type
         self.currentOrder = currentOrder
         self.totalOrder = totalOrder
-        self.currentText = currentText
     }
 }
 

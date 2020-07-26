@@ -41,7 +41,6 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var fillerStackViewTop: UIStackView!
     
     var kasamID = ""                        //loaded in value
-    var timelineDuration: Int?              //loaded in value
     var fullView = true                     //loaded in value
     var repeatDuration = 30                 //loaded in value
     var percentComplete = 0.0               //loaded in value
@@ -204,11 +203,7 @@ class AddKasamController: UIViewController {
             if SavedData.kasamDict[kasamID]?.repeatDuration != nil {
                 repeatDuration = SavedData.kasamDict[kasamID]!.repeatDuration
                 if repeatDuration > 1 && (currentDay ?? 1 < repeatDuration) {
-//                    startDateTimeLabel.text = "Restart Kasam"
-                    //Restarting a kasam, so load in the previous duration
-                    if timelineDuration == nil {
-                        personalChallengeSelected()
-                    }
+                    personalChallengeSelected()
                 }
             }
             

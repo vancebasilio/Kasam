@@ -154,7 +154,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                     } else if metricType == "Video" {
                         indieMetric = (indieMetric / 60.0).rounded(toPlaces: 2)
                     }
-                    if SavedData.kasamDict[kasamID]?.timeline != nil {
+                    if SavedData.kasamDict[kasamID]?.programDuration != nil {
                         blockName = value["Block Name"] as? String ?? ""
                     }
                 } else if let value = snap.value as? Int{
@@ -166,7 +166,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                 
                 var metric = ""
                 var shortDate = ""
-                if SavedData.kasamDict[kasamID]?.timeline == nil {
+                if SavedData.kasamDict[kasamID]?.programDuration == nil {
                     if currentKasam == true {
                         firstDate = SavedData.kasamDict[kasamID]?.joinedDate
                         dayNo = (Calendar.current.dateComponents([.day], from: firstDate!, to: snap.key.stringToDate()).day ?? 0) + 1
@@ -186,7 +186,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                         metric = "Complete"
                     }
                     shortDate = self.convertLongDateToShort(date: snap.key)
-                //OPTION 4 - TIMELINE KASAM
+                //OPTION 4 - PROGRAM KASAM
                 } else {
                     self.dayNo += 1
                     shortDate = blockName

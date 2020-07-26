@@ -19,6 +19,7 @@ extension UIColor {
     static let greyBackground = UIColor(hex: 0xF6F6F8) //light grey background
     static let dayYesColor = UIColor.init(hex: 0x66A058)
     static let dayNoColor = UIColor.init(hex: 0xcd742c)
+    static let cancelColor = UIColor.init(hex: 0xDB482D)
     
     static let seemuBlue = UIColor(hex: 0x00adf7)
     static let transparentBlack = UIColor(hex: 0x000000, a: 0.5)
