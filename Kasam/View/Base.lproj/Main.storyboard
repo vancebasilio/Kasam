@@ -53,7 +53,7 @@
                                                         </constraints>
                                                     </imageView>
                                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="kasam-logo" translatesAutoresizingMaskIntoConstraints="NO" id="Hiw-qv-Kq3">
-                                                        <rect key="frame" x="90" y="183" width="234" height="101.33333333333331"/>
+                                                        <rect key="frame" x="90" y="183.33333333333334" width="234" height="101.00000000000003"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="Hiw-qv-Kq3" secondAttribute="height" multiplier="67:29" id="jxY-fI-FSV"/>
                                                         </constraints>
@@ -463,9 +463,6 @@
                                                                         <constraints>
                                                                             <constraint firstAttribute="width" secondItem="dN9-sx-yBL" secondAttribute="height" multiplier="1:1" id="rT0-5h-iyY"/>
                                                                         </constraints>
-                                                                        <userDefinedRuntimeAttributes>
-                                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                        </userDefinedRuntimeAttributes>
                                                                     </imageView>
                                                                 </subviews>
                                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -503,18 +500,12 @@
                                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="23"/>
                                                         <color key="textColor" red="0.1764705882" green="0.1843137255" blue="0.2470588235" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
-                                                        <userDefinedRuntimeAttributes>
-                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="NO"/>
-                                                        </userDefinedRuntimeAttributes>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Statistics" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gLk-RP-37v" userLabel="Statistics">
                                                         <rect key="frame" x="154" y="167.66666666666666" width="67.333333333333314" height="18"/>
                                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                                         <color key="textColor" red="0.76470588235294112" green="0.58823529411764708" blue="0.1764705882352941" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                         <nil key="highlightedColor"/>
-                                                        <userDefinedRuntimeAttributes>
-                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="NO"/>
-                                                        </userDefinedRuntimeAttributes>
                                                     </label>
                                                 </subviews>
                                                 <color key="backgroundColor" red="0.97647058823529409" green="0.97647058823529409" blue="0.97647058823529409" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -819,9 +810,6 @@
                                                                     <constraint firstAttribute="bottom" secondItem="K3i-bd-Bve" secondAttribute="bottom" id="hey-L1-1GT"/>
                                                                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="8EC-rb-hWp" secondAttribute="trailing" id="iEg-QS-WIU"/>
                                                                 </constraints>
-                                                                <userDefinedRuntimeAttributes>
-                                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="NO"/>
-                                                                </userDefinedRuntimeAttributes>
                                                             </stackView>
                                                             <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Pzf-6z-cIg">
                                                                 <rect key="frame" x="22" y="15" width="120" height="120"/>
@@ -830,7 +818,7 @@
                                                                     <constraint firstAttribute="width" constant="120" id="bm7-U5-iae"/>
                                                                 </constraints>
                                                                 <userDefinedRuntimeAttributes>
-                                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
+                                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="" value="YES"/>
                                                                 </userDefinedRuntimeAttributes>
                                                             </imageView>
                                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gXN-Zr-5q3" userLabel="ProfileClick">
@@ -852,9 +840,6 @@
                                                             <constraint firstItem="MqH-yv-SmH" firstAttribute="leading" secondItem="Pzf-6z-cIg" secondAttribute="trailing" constant="20" id="iN9-sL-uCF"/>
                                                             <constraint firstItem="Pzf-6z-cIg" firstAttribute="leading" secondItem="OHd-Jf-kRL" secondAttribute="leading" constant="22" id="x9Q-fP-YAS"/>
                                                         </constraints>
-                                                        <userDefinedRuntimeAttributes>
-                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                        </userDefinedRuntimeAttributes>
                                                     </view>
                                                 </subviews>
                                                 <color key="backgroundColor" red="0.97647058823529409" green="0.97647058823529409" blue="0.97647058823529409" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -865,9 +850,6 @@
                                                     <constraint firstAttribute="bottom" secondItem="OHd-Jf-kRL" secondAttribute="bottom" id="eZK-Wr-H0e"/>
                                                     <constraint firstAttribute="height" constant="150" id="fZU-nz-Tps"/>
                                                 </constraints>
-                                                <userDefinedRuntimeAttributes>
-                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                </userDefinedRuntimeAttributes>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fh4-37-Q2F" userLabel="Collection Views">
                                                 <rect key="frame" x="0.0" y="150" width="375" height="200"/>
@@ -1206,9 +1188,6 @@
                                                                                 <constraint firstItem="GUY-qa-uLo" firstAttribute="top" secondItem="JTm-1C-KV9" secondAttribute="top" constant="20" id="vn5-kf-1GI"/>
                                                                                 <constraint firstItem="fhX-Je-Q9v" firstAttribute="top" secondItem="JTm-1C-KV9" secondAttribute="top" constant="10" id="wwE-Lz-6pb"/>
                                                                             </constraints>
-                                                                            <userDefinedRuntimeAttributes>
-                                                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                            </userDefinedRuntimeAttributes>
                                                                         </view>
                                                                     </subviews>
                                                                 </view>
@@ -1218,9 +1197,6 @@
                                                                     <constraint firstItem="JTm-1C-KV9" firstAttribute="top" secondItem="zXJ-6L-vn9" secondAttribute="top" id="jnI-78-9ib"/>
                                                                     <constraint firstItem="JTm-1C-KV9" firstAttribute="leading" secondItem="zXJ-6L-vn9" secondAttribute="leading" id="sv6-pN-hl6"/>
                                                                 </constraints>
-                                                                <userDefinedRuntimeAttributes>
-                                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                </userDefinedRuntimeAttributes>
                                                                 <connections>
                                                                     <outlet property="FBar" destination="WvA-Li-toG" id="XNP-Ut-kAW"/>
                                                                     <outlet property="FHeight" destination="JXi-oR-nmf" id="auC-N7-WC5"/>
@@ -1244,9 +1220,6 @@
                                                                 </connections>
                                                             </collectionViewCell>
                                                         </cells>
-                                                        <userDefinedRuntimeAttributes>
-                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                        </userDefinedRuntimeAttributes>
                                                         <connections>
                                                             <outlet property="dataSource" destination="Glx-BM-B2u" id="LhV-q3-CgM"/>
                                                             <outlet property="delegate" destination="Glx-BM-B2u" id="Yd5-3I-OlO"/>
@@ -1298,9 +1271,6 @@
                                                                                             <constraints>
                                                                                                 <constraint firstAttribute="width" secondItem="gzj-1R-hzW" secondAttribute="height" multiplier="1:1" id="aFl-Nw-Hy5"/>
                                                                                             </constraints>
-                                                                                            <userDefinedRuntimeAttributes>
-                                                                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                                            </userDefinedRuntimeAttributes>
                                                                                         </imageView>
                                                                                     </subviews>
                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1311,9 +1281,6 @@
                                                                                         <constraint firstItem="gzj-1R-hzW" firstAttribute="top" secondItem="67T-6h-r6r" secondAttribute="top" constant="10" id="gbf-L9-eqw"/>
                                                                                         <constraint firstItem="gzj-1R-hzW" firstAttribute="centerY" secondItem="67T-6h-r6r" secondAttribute="centerY" id="qnQ-2I-YX6"/>
                                                                                     </constraints>
-                                                                                    <userDefinedRuntimeAttributes>
-                                                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                                    </userDefinedRuntimeAttributes>
                                                                                 </view>
                                                                                 <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y1v-vS-GKs" userLabel="Block Info">
                                                                                     <rect key="frame" x="70.000000000000014" y="0.0" width="196.33333333333337" height="90"/>
@@ -1324,7 +1291,6 @@
                                                                                             <color key="textColor" red="0.1764705882" green="0.1843137255" blue="0.2470588235" alpha="1" colorSpace="calibratedRGB"/>
                                                                                             <nil key="highlightedColor"/>
                                                                                             <userDefinedRuntimeAttributes>
-                                                                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
                                                                                                 <userDefinedRuntimeAttribute type="number" keyPath="linesCornerRadius">
                                                                                                     <integer key="value" value="6"/>
                                                                                                 </userDefinedRuntimeAttribute>
@@ -1339,7 +1305,6 @@
                                                                                             <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                             <nil key="highlightedColor"/>
                                                                                             <userDefinedRuntimeAttributes>
-                                                                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
                                                                                                 <userDefinedRuntimeAttribute type="number" keyPath="linesCornerRadius">
                                                                                                     <integer key="value" value="6"/>
                                                                                                 </userDefinedRuntimeAttribute>
@@ -1355,9 +1320,6 @@
                                                                                         <constraint firstItem="0jG-Fd-2Pb" firstAttribute="top" secondItem="1Wo-47-tez" secondAttribute="bottom" constant="3" id="UZD-FN-uSz"/>
                                                                                         <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="1Wo-47-tez" secondAttribute="trailing" id="e5o-dh-lU5"/>
                                                                                     </constraints>
-                                                                                    <userDefinedRuntimeAttributes>
-                                                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                                    </userDefinedRuntimeAttributes>
                                                                                 </view>
                                                                                 <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mIs-r8-aYp" userLabel="Status">
                                                                                     <rect key="frame" x="266.33333333333331" y="0.0" width="78.666666666666686" height="90"/>
@@ -1375,9 +1337,6 @@
                                                                                         <constraint firstItem="44K-Od-Vzk" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="mIs-r8-aYp" secondAttribute="leading" id="OuW-fk-cuO"/>
                                                                                         <constraint firstAttribute="trailing" secondItem="44K-Od-Vzk" secondAttribute="trailing" constant="10" id="els-27-lxq"/>
                                                                                     </constraints>
-                                                                                    <userDefinedRuntimeAttributes>
-                                                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                                    </userDefinedRuntimeAttributes>
                                                                                 </view>
                                                                             </subviews>
                                                                             <constraints>
@@ -1392,9 +1351,6 @@
                                                                                 <constraint firstItem="mIs-r8-aYp" firstAttribute="width" secondItem="Y1v-vS-GKs" secondAttribute="width" multiplier="0.4" id="VA7-Eh-zGJ"/>
                                                                                 <constraint firstItem="mIs-r8-aYp" firstAttribute="top" secondItem="n84-h7-vsX" secondAttribute="top" id="bma-Am-gXS"/>
                                                                             </constraints>
-                                                                            <userDefinedRuntimeAttributes>
-                                                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                            </userDefinedRuntimeAttributes>
                                                                         </stackView>
                                                                     </subviews>
                                                                     <color key="backgroundColor" systemColor="systemTealColor" red="0.35294117650000001" green="0.7843137255" blue="0.98039215690000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -1404,14 +1360,8 @@
                                                                         <constraint firstAttribute="trailing" secondItem="n84-h7-vsX" secondAttribute="trailing" id="O7O-dR-8Pd"/>
                                                                         <constraint firstItem="n84-h7-vsX" firstAttribute="leading" secondItem="fnx-Jp-iNj" secondAttribute="leading" id="eNH-qX-hAD"/>
                                                                     </constraints>
-                                                                    <userDefinedRuntimeAttributes>
-                                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                    </userDefinedRuntimeAttributes>
                                                                 </tableViewCellContentView>
                                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                                <userDefinedRuntimeAttributes>
-                                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                </userDefinedRuntimeAttributes>
                                                                 <connections>
                                                                     <outlet property="daysCompleted" destination="44K-Od-Vzk" id="uKb-BV-NjO"/>
                                                                     <outlet property="joinedDates" destination="0jG-Fd-2Pb" id="U8x-eP-tOZ"/>
@@ -1420,9 +1370,6 @@
                                                                 </connections>
                                                             </tableViewCell>
                                                         </prototypes>
-                                                        <userDefinedRuntimeAttributes>
-                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                        </userDefinedRuntimeAttributes>
                                                         <connections>
                                                             <outlet property="dataSource" destination="Glx-BM-B2u" id="dj8-6U-gfh"/>
                                                             <outlet property="delegate" destination="Glx-BM-B2u" id="BWa-qV-Bgd"/>
@@ -1475,9 +1422,6 @@
                             <constraint firstAttribute="trailing" secondItem="2YM-1n-gAk" secondAttribute="trailing" id="gDE-eC-m34"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="hfN-6b-geb"/>
-                        <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                        </userDefinedRuntimeAttributes>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
                     <navigationItem key="navigationItem" id="2QQ-HY-sFy"/>
@@ -1518,7 +1462,7 @@
             <objects>
                 <viewController storyboardIdentifier="Discover" id="1ds-W5-IlG" userLabel="Discover" customClass="DiscoverViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="uyQ-Kr-07J">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="796"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="807"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5dE-Zw-BsL">
@@ -1532,9 +1476,6 @@
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="30"/>
                                                 <color key="textColor" red="0.1764705882" green="0.1843137255" blue="0.2470588235" alpha="1" colorSpace="calibratedRGB"/>
                                                 <nil key="highlightedColor"/>
-                                                <userDefinedRuntimeAttributes>
-                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="NO"/>
-                                                </userDefinedRuntimeAttributes>
                                             </label>
                                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" alwaysBounceHorizontal="YES" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" springLoaded="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1rs-dW-xfQ" userLabel="CategoryHorizontalCollection">
                                                 <rect key="frame" x="0.0" y="61" width="375" height="200"/>
@@ -1649,9 +1590,6 @@
                                                                         <constraint firstItem="acn-Mz-yEt" firstAttribute="top" secondItem="gre-J1-1yf" secondAttribute="top" id="wIi-Dk-6A9"/>
                                                                         <constraint firstAttribute="trailing" secondItem="acn-Mz-yEt" secondAttribute="trailing" id="yDW-al-8g4"/>
                                                                     </constraints>
-                                                                    <userDefinedRuntimeAttributes>
-                                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                                    </userDefinedRuntimeAttributes>
                                                                 </view>
                                                             </subviews>
                                                         </view>
@@ -1661,9 +1599,6 @@
                                                             <constraint firstItem="gre-J1-1yf" firstAttribute="leading" secondItem="gwR-c7-mhv" secondAttribute="leading" id="vfw-KM-KG5"/>
                                                             <constraint firstItem="gre-J1-1yf" firstAttribute="top" secondItem="gwR-c7-mhv" secondAttribute="top" id="yna-S8-mOJ"/>
                                                         </constraints>
-                                                        <userDefinedRuntimeAttributes>
-                                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                        </userDefinedRuntimeAttributes>
                                                         <connections>
                                                             <outlet property="categoryTitle" destination="3iu-4q-r2d" id="1Qm-0g-lm4"/>
                                                             <outlet property="containerView" destination="gre-J1-1yf" id="nhh-DG-tkd"/>
@@ -1674,9 +1609,6 @@
                                                         </connections>
                                                     </collectionViewCell>
                                                 </cells>
-                                                <userDefinedRuntimeAttributes>
-                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                                </userDefinedRuntimeAttributes>
                                                 <connections>
                                                     <outlet property="dataSource" destination="1ds-W5-IlG" id="loM-Mt-VGP"/>
                                                     <outlet property="delegate" destination="1ds-W5-IlG" id="mdX-ei-OJK"/>
@@ -1912,9 +1844,6 @@
                                             <constraint firstAttribute="height" constant="687" id="vh6-6n-Dwf"/>
                                             <constraint firstItem="1rs-dW-xfQ" firstAttribute="leading" secondItem="mQc-IV-PSO" secondAttribute="leading" id="yVM-l0-Uvb"/>
                                         </constraints>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                        </userDefinedRuntimeAttributes>
                                     </view>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1926,9 +1855,6 @@
                                     <constraint firstItem="mQc-IV-PSO" firstAttribute="height" secondItem="5dE-Zw-BsL" secondAttribute="height" priority="250" id="qWF-NU-QvN"/>
                                     <constraint firstItem="mQc-IV-PSO" firstAttribute="width" secondItem="5dE-Zw-BsL" secondAttribute="width" id="uJr-9B-H1n"/>
                                 </constraints>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                                </userDefinedRuntimeAttributes>
                             </scrollView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1939,9 +1865,6 @@
                             <constraint firstItem="5dE-Zw-BsL" firstAttribute="leading" secondItem="uyQ-Kr-07J" secondAttribute="leading" id="cyY-ge-Dp1"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="XEU-RP-Ttx"/>
-                        <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                        </userDefinedRuntimeAttributes>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout" top="YES"/>
                     <navigationItem key="navigationItem" id="bQU-tn-Tfr"/>
@@ -2729,12 +2652,12 @@
             </objects>
             <point key="canvasLocation" x="5173.6000000000004" y="-1061.0194902548726"/>
         </scene>
-        <!--Today-->
+        <!--Personal-->
         <scene sceneID="hKK-i0-wv0">
             <objects>
-                <viewController storyboardIdentifier="KasamViewController" id="1JF-97-QwZ" userLabel="Today" customClass="PersonalViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="KasamViewController" id="1JF-97-QwZ" userLabel="Personal" customClass="PersonalViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ODe-ER-GSE">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="632"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="643"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="q8D-Wq-y8h">
@@ -3285,9 +3208,9 @@
                     <connections>
                         <outlet property="contentView" destination="s0t-aS-08i" id="Ake-lV-22j"/>
                         <outlet property="contentViewHeight" destination="bco-9g-jyE" id="v1K-4r-X24"/>
-                        <outlet property="tableView" destination="MmB-d7-voK" id="jAT-Tf-gxA"/>
+                        <outlet property="personalFollowingLabel" destination="CJv-P4-0ES" id="5zd-pv-AYh"/>
+                        <outlet property="personalKasamTable" destination="MmB-d7-voK" id="MGx-9X-1uk"/>
                         <outlet property="tableViewHeight" destination="fLa-xj-Qr0" id="vDC-zk-Uh6"/>
-                        <outlet property="todaySublabel" destination="CJv-P4-0ES" id="3Is-t6-PlL"/>
                         <segue destination="ejW-bE-e0v" kind="presentation" identifier="goToKasamActivityViewer" modalPresentationStyle="overFullScreen" id="Viy-yT-bOU"/>
                         <segue destination="uNf-cn-sv8" kind="show" identifier="goToKasamHolder" id="b1h-nV-uzD"/>
                         <segue destination="tlL-Y6-LbR" kind="presentation" identifier="goToNotifications" id="L4l-Iq-ZJc"/>
@@ -3322,11 +3245,11 @@
             <objects>
                 <viewController storyboardIdentifier="GroupViewController" id="cit-Lh-IH8" userLabel="Group" customClass="GroupViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="YMd-iV-iaI">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="632"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="643"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lTm-TJ-FXe">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="632"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="643"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="667" translatesAutoresizingMaskIntoConstraints="NO" id="goJ-99-KwY" userLabel="Content View">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="800"/>
@@ -3343,14 +3266,14 @@
                                                 <color key="textColor" white="0.53682398689999999" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" estimatedSectionHeaderHeight="-1" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="FR6-np-tds" userLabel="Today Kasam Table" customClass="SelfSizedTableView" customModule="Kasam" customModuleProvider="target">
+                                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" estimatedSectionHeaderHeight="-1" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="FR6-np-tds" userLabel="Group Kasam Table" customClass="SelfSizedTableView" customModule="Kasam" customModuleProvider="target">
                                                 <rect key="frame" x="10" y="105" width="394" height="200"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="200" id="u4M-gi-gWk"/>
                                                 </constraints>
                                                 <prototypes>
-                                                    <tableViewCell opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="TodayKasamCell" rowHeight="150" id="q8s-qb-wQH" customClass="PersonalBlockCell" customModule="Kasam" customModuleProvider="target">
+                                                    <tableViewCell opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="PersonalKasamCell" rowHeight="150" id="q8s-qb-wQH" userLabel="GroupKasamCell" customClass="PersonalBlockCell" customModule="Kasam" customModuleProvider="target">
                                                         <rect key="frame" x="0.0" y="28" width="394" height="150"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="q8s-qb-wQH" id="n58-QB-bak">
@@ -3819,8 +3742,8 @@
                                                     <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
                                                 </userDefinedRuntimeAttributes>
                                                 <connections>
-                                                    <outlet property="dataSource" destination="1JF-97-QwZ" id="bpZ-Mg-SMf"/>
-                                                    <outlet property="delegate" destination="1JF-97-QwZ" id="nLr-Ym-3zN"/>
+                                                    <outlet property="dataSource" destination="cit-Lh-IH8" id="bb6-9G-bcJ"/>
+                                                    <outlet property="delegate" destination="cit-Lh-IH8" id="p6n-fx-uQM"/>
                                                 </connections>
                                             </tableView>
                                         </subviews>
@@ -3871,6 +3794,8 @@
                         <outlet property="contentView" destination="goJ-99-KwY" id="fGW-4r-Cwt"/>
                         <outlet property="contentViewHeight" destination="DM7-if-Ti4" id="pfz-hy-ca5"/>
                         <outlet property="groupFollowingLabel" destination="xLA-Mp-EPP" id="IdQ-49-Ugl"/>
+                        <outlet property="groupKasamTable" destination="FR6-np-tds" id="Cm7-Ss-Npo"/>
+                        <outlet property="groupTableHeight" destination="u4M-gi-gWk" id="wFV-ng-g3n"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="foB-HL-Xbv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -4392,11 +4317,11 @@
             <objects>
                 <viewController storyboardIdentifier="CoachHolder" useStoryboardIdentifierAsRestorationIdentifier="YES" id="8Un-c2-rIU" userLabel="Coach Details View" customClass="CoachHolder" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="76g-ws-Z6u">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="813"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="687"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="G3I-ZV-gXq" userLabel="White BG">
-                                <rect key="frame" x="0.0" y="250" width="414" height="613"/>
+                                <rect key="frame" x="0.0" y="250" width="414" height="487"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WUW-Rm-KH0" userLabel="Header View">
@@ -4419,7 +4344,7 @@
                                 </constraints>
                             </view>
                             <tableView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="flT-bM-cQo">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="813"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="687"/>
                                 <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <view key="tableHeaderView" contentMode="scaleToFill" id="FRt-fG-i00" userLabel="Profile View">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="220"/>
@@ -4530,7 +4455,7 @@
                                                             </userDefinedRuntimeAttributes>
                                                         </view>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="0N4-JB-ayd">
-                                                            <rect key="frame" x="0.0" y="15" width="112" height="36"/>
+                                                            <rect key="frame" x="0.0" y="15.333333333333329" width="112" height="36"/>
                                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                             <state key="normal" title="Coach Type">
                                                                 <color key="titleColor" red="0.84093188730000001" green="0.68776430320000004" blue="0.45178080529999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -4885,7 +4810,7 @@
                                                             </constraints>
                                                         </button>
                                                         <textField opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" verticalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="8Mi-Vl-hcD" customClass="SkyFloatingLabelTextField" customModule="SkyFloatingLabelTextField">
-                                                            <rect key="frame" x="60" y="6" width="314" height="44"/>
+                                                            <rect key="frame" x="60" y="16" width="314" height="34"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
                                                             <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
                                                             <userDefinedRuntimeAttributes>
@@ -5480,7 +5405,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="415" height="170"/>
                                                                             <subviews>
                                                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xST-dz-BoM" customClass="SkyFloatingLabelTextField" customModule="SkyFloatingLabelTextField">
-                                                                                    <rect key="frame" x="20" y="0.0" width="375" height="68"/>
+                                                                                    <rect key="frame" x="20" y="0.0" width="375" height="55.333333333333336"/>
                                                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
                                                                                     <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
                                                                                     <userDefinedRuntimeAttributes>
@@ -5519,7 +5444,7 @@
                                                                                     </userDefinedRuntimeAttributes>
                                                                                 </textField>
                                                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Af2-Gf-WJf">
-                                                                                    <rect key="frame" x="50" y="73" width="315" height="37.666666666666657"/>
+                                                                                    <rect key="frame" x="50" y="60.333333333333371" width="315" height="37.666666666666657"/>
                                                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>

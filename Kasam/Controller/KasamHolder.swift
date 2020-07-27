@@ -540,7 +540,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             self.kasamBadgeHolder.isHidden = true
             Analytics.logEvent("unfollowing_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
         }
     }
     

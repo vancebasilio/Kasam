@@ -54,7 +54,6 @@ class KasamActivityViewer: UIViewController {
     }
     
     func updateControllers(){
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
     }
@@ -208,9 +207,6 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         } else {
             //removes the dayTracker for today if kasam is set to zero
             DBRef.userHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate).setValue(nil)
-        }
-        if SavedData.kasamDict[kasamID]?.programDuration != nil {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ReloadPersonalBlock"), object: self, userInfo: ["kasamID": kasamID])
         }
     }
 }

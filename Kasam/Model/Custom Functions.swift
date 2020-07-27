@@ -36,6 +36,97 @@ extension UICollectionViewCell {
 }
 
 extension UIViewController {
+    
+    func updateContentViewHeight(contentViewHeight: NSLayoutConstraint, tableViewHeight: NSLayoutConstraint, tableRowHeight: CGFloat, rowCount: Int, additionalHeight: CGFloat?){
+        //sets the height of the whole tableview, based on the numnber of rows
+        tableViewHeight.constant = tableRowHeight * CGFloat(rowCount)
+        
+        //elongates the entire scrollview, based on the tableview height
+        let frame = self.view.safeAreaLayoutGuide.layoutFrame
+        let contentHeightToSet = tableViewHeight.constant + (additionalHeight ?? 0)
+        if contentHeightToSet > frame.height {
+            contentViewHeight.constant = contentHeightToSet
+        } else if contentHeightToSet <= frame.height {
+            let diff = frame.height - contentHeightToSet
+            contentViewHeight.constant = contentHeightToSet + diff + 1
+        }
+    }
+    
+    func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String) {
+        tableView.reloadData()
+        if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
+            tableView.beginUpdates()
+            if cell.kasamName.text == "" {
+                if type == "personal" {cell.setBlock(block: SavedData.personalKasamBlocks[kasamOrder].data)}
+                else {cell.setBlock(block: SavedData.groupKasamBlocks[kasamOrder].data)}
+                cell.centerCollectionView()
+                cell.collectionCoverUpdate()
+            }
+            cell.statusUpdate(nil)
+            cell.dayTrackerCollectionView.reloadData()
+            tableView.endUpdates()
+        }
+    }
+    
+    func currentStreak(dictionary: [Int:(Date, Double)], currentDay: Int) -> (currentStreak:(value:Int, date:Date?), daysWithAnyProgress:Int, longestStreak:Int) {
+        print("Step 6 - Streak Calc hell6")
+        var daysWithAnyProgress = 0
+        var currentStreak = 0
+        var currentStreakDate: Date?
+        var anyProgressCheck = 0
+        var longestStreak = 0
+        var streak = [0]
+        var streakEndDate = [0]
+        for day in stride(from: currentDay, through: 1, by: -1) {
+            if dictionary[day] != nil {
+                streak[streak.count - 1] += 1
+                if dictionary[day]!.1 >= 0.0 {
+                    daysWithAnyProgress += 1                                        //all days with some progress
+                    if streakEndDate.count != streak.count {streakEndDate[streakEndDate.count - 1] = day}
+                } else {
+                    currentStreak = daysWithAnyProgress                             //current streak days with some progress
+                }
+            } else if day != currentDay {
+                streak += [0]
+                streakEndDate += [0]
+                if anyProgressCheck == 0 {
+                    currentStreak = daysWithAnyProgress                             //current streak days with some progress
+                }
+                anyProgressCheck = 1
+            }
+        }
+        longestStreak = streak.max() ?? 0
+        daysWithAnyProgress = streak.reduce(0, +)
+        if anyProgressCheck == 0 {                                                  //in case all days have some progress
+            currentStreak = daysWithAnyProgress
+        }
+        currentStreakDate = dictionary[30]?.0
+        return ((currentStreak,currentStreakDate), daysWithAnyProgress, longestStreak)
+    }
+    
+    func statusPercentCalc (snapshot: DataSnapshot) -> (percent: Double, displayStatus: String){
+        var percent = 0.0
+        var displayStatus = "Checkmark"
+        if let dictionary = snapshot.value as? Dictionary<String,Any> {
+            percent = dictionary["Metric Percent"] as? Double ?? 0.0
+            if percent < 1 {
+                displayStatus = "Progress"
+                Analytics.logEvent("working_Kasam", parameters: ["metric_percent": percent.rounded(toPlaces: 2) ])
+            } else {
+                displayStatus = "Check"
+            }
+        } else if snapshot.value as? Int == 1 {
+            displayStatus = "Check"
+            percent = 1.0
+            Analytics.logEvent("completed_Kasam", parameters: nil)
+        } else if snapshot.value as? Int == 0 {
+            percent = 0.0
+            displayStatus = "Checkmark"
+        }
+        return (percent, displayStatus)
+    }
+    
+    
     //STEP 1 - Saves Kasam Text Data
     func createKasam(existingKasamID: String?, basicKasam: Bool, completion: @escaping (Bool) -> ()) {
         print("1. creating kasam hell1")

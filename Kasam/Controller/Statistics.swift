@@ -325,7 +325,6 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
                 let popupImage = UIImage.init(icon: .fontAwesomeSolid(.eraser), size: CGSize(width: 30, height: 30), textColor: .white)
                 showPopupConfirmation(title: "Sure you want to delete your progress on \(self.personalKasamBlocks[indexPath.row].shortDate)?", description: "", image: popupImage, buttonText: "Delete") {(success) in
                     DBRef.userHistory.child(self.kasamID).child(self.personalKasamBlocks[indexPath.row].fullDate).setValue(nil)
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "KasamStatsUpdate"), object: self)
                     self.personalKasamBlocks.remove(at: indexPath.row)
                     self.historyTableView.reloadData()
                     self.updateViewConstraints()

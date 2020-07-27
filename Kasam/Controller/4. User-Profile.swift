@@ -49,6 +49,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     let animationView = AnimationView()
     var userKasamDBHandle: DatabaseHandle!
     var saveStorageRef = Storage.storage().reference()
+    var completedTableRowHeight = CGFloat(90)
     
     //Kasam Following
     var kasamIDGlobal: String = ""
@@ -74,22 +75,10 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         setupNavBar(clean: true)
     }
     
-    func updateContentTableHeight(){
-        self.completedKasamTableHeight.constant = self.completedKasamsTable.contentSize.height
+    func updateScrollViewSize(){
         collectionViewHeight.constant = kasamStatsHeight.constant + CGFloat(57.5)       //57.5 is the collectionView Title height
-        
-        if completedStats.count > 0 {
-            tableViewHeight = completedKasamTableHeight.constant + 42.5                 //42.5 is the completed label height
-            completedStatsHeight.constant = completedKasamTableHeight.constant
-        }
-        let contentViewHeight = topViewHeight.constant + collectionViewHeight.constant + tableViewHeight + 20
-        let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        if contentViewHeight > frame.height {
-            contentView.constant = contentViewHeight
-        } else if contentViewHeight <= frame.height {
-            let diff = frame.height - contentViewHeight
-            contentView.constant = contentViewHeight + diff + 1
-        }
+        let additional = kasamStatsHeight.constant + 120 + topViewHeight.constant
+        updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: completedKasamTableHeight, tableRowHeight: completedTableRowHeight, rowCount: completedStats.count, additionalHeight: additional)
     }
     
     func viewSetup(){
@@ -101,9 +90,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         
         let notificationName = NSNotification.Name("ProfileUpdate")
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.profileUpdate), name: notificationName, object: nil)
-        
-        let kasamStatsUpdate = NSNotification.Name("KasamStatsUpdate")
-        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.getDetailedStats), name: kasamStatsUpdate, object: nil)
         
         let showCompletionAnimation = NSNotification.Name("ShowCompletionAnimation")
                NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.showCompletionAnimation), name: showCompletionAnimation, object: nil)
@@ -133,23 +119,53 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
         self.totalKasamDays = 0
         DBRef.userHistory.observe(.childAdded, with:{(snap) in
-            let kasamID = snap.key
-            var kasamImage = URL(string: SavedData.kasamDict[kasamID]?.image ?? "")
-            var kasamName = SavedData.kasamDict[kasamID]?.kasamName
-            if SavedData.kasamDict[kasamID] == nil {
-                DBRef.coachKasams.child(kasamID).child("Image").observeSingleEvent(of: .value) {(image) in
-                    kasamImage = URL(string: image.value as! String)
-                    DBRef.coachKasams.child(kasamID).child("Title").observeSingleEvent(of: .value) {(name) in
-                        kasamName = name.value as? String
-                        self.loadCompletedTable(kasamID: kasamID, kasamName: kasamName ?? "Kasam", kasamImage: kasamImage ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, snap: snap)
-                    }
-                }
-        //STEP 1 - Weekly Stats for Current Kasams
-            } else {
-                self.getWeeklyStats(kasamID: kasamID, snap: snap)
-                self.loadCompletedTable(kasamID: kasamID, kasamName: kasamName ?? "Kasam", kasamImage: kasamImage ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, snap: snap)
+            self.addKasamStats(snap: snap, kasamID: snap.key)
+        })
+        DBRef.userHistory.observe(.childChanged, with:{(snap) in
+            print("hell0")
+            self.editKasamStats(snap: snap, kasamID: snap.key)
+        })
+        DBRef.userHistory.observe(.childRemoved, with:{(snap) in
+            if let index = self.completedStats.index(where: {($0.kasamID == snap.key)}) {
+                self.completedStats.remove(at: index)
+                self.totalKasamDays -= 1
+                self.completedKasamsTable.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
+                self.updateScrollViewSize()
+                self.setKasamLevel()
             }
         })
+    }
+    
+    func addKasamStats(snap: DataSnapshot, kasamID: String){
+        var kasamImage = URL(string: SavedData.kasamDict[kasamID]?.image ?? "")
+        var kasamName = SavedData.kasamDict[kasamID]?.kasamName
+        if SavedData.kasamDict[kasamID] == nil {
+            DBRef.coachKasams.child(kasamID).child("Image").observeSingleEvent(of: .value) {(image) in
+                kasamImage = URL(string: image.value as! String)
+                DBRef.coachKasams.child(kasamID).child("Title").observeSingleEvent(of: .value) {(name) in
+                    kasamName = name.value as? String
+                    self.loadCompletedTable(kasamID: kasamID, kasamName: kasamName ?? "Kasam", kasamImage: kasamImage ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, snap: snap)
+                }
+            }
+    //Weekly Stats for Current Kasams
+        } else {
+            self.getWeeklyStats(kasamID: kasamID, snap: snap)
+            self.loadCompletedTable(kasamID: kasamID, kasamName: kasamName ?? "Kasam", kasamImage: kasamImage ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, snap: snap)
+        }
+    }
+    
+    func editKasamStats(snap: DataSnapshot, kasamID: String){
+        if let index = completedStats.index(where: {($0.kasamID == kasamID)}) {
+            completedStats[index].userHistorySnap = snap
+            if let value = snap.value as? [String:[String:Any]] {
+                let newDaysCompleted = value.values.flatMap{$0}.count
+                self.totalKasamDays += (newDaysCompleted - completedStats[index].daysCompleted)
+                completedStats[index].daysCompleted = newDaysCompleted
+            }
+            self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
+            self.completedKasamsTable.reloadData()
+            self.setKasamLevel()
+        }
     }
     
     func loadCompletedTable(kasamID: String, kasamName: String, kasamImage: URL, snap: DataSnapshot){
@@ -164,7 +180,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         //Order the table by #days completed
         self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
         self.completedKasamsTable.reloadData()
-        updateContentTableHeight()
+        updateScrollViewSize()
         self.setKasamLevel()
     }
     
@@ -380,7 +396,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 90
+        return completedTableRowHeight
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
