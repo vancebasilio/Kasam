@@ -56,9 +56,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     var kasamImageGlobal: URL!
     var currentKasamTransfer: Bool!
     var userHistoryTransfer: CompletedKasamFormat?
-    var kasamHistoryRefHandle: DatabaseHandle!
-    var kasamUserRefHandle: DatabaseHandle!
-    var kasamUserFollowRefHandle: DatabaseHandle!
     
     var tableViewHeight = CGFloat(0)
     var noUserKasams = false
@@ -66,13 +63,16 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     override func viewDidLoad() {
         super.viewDidLoad()
         profileSetup()
-        profileUpdate()
         profilePicture()
         setupDateDictionary()
         getDetailedStats()
         viewSetup()
         setupImageHolders()
         setupNavBar(clean: true)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        profileUpdate()
     }
     
     func updateScrollViewSize(){
@@ -87,9 +87,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         levelLine.layer.cornerRadius = 4
         levelLine.clipsToBounds = true
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
-        
-        let notificationName = NSNotification.Name("ProfileUpdate")
-        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.profileUpdate), name: notificationName, object: nil)
         
         let showCompletionAnimation = NSNotification.Name("ShowCompletionAnimation")
                NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.showCompletionAnimation), name: showCompletionAnimation, object: nil)
@@ -122,7 +119,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             self.addKasamStats(snap: snap, kasamID: snap.key)
         })
         DBRef.userHistory.observe(.childChanged, with:{(snap) in
-            print("hell0")
             self.editKasamStats(snap: snap, kasamID: snap.key)
         })
         DBRef.userHistory.observe(.childRemoved, with:{(snap) in
@@ -139,6 +135,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     func addKasamStats(snap: DataSnapshot, kasamID: String){
         var kasamImage = URL(string: SavedData.kasamDict[kasamID]?.image ?? "")
         var kasamName = SavedData.kasamDict[kasamID]?.kasamName
+        //History for kasams that aren't being followed right now
         if SavedData.kasamDict[kasamID] == nil {
             DBRef.coachKasams.child(kasamID).child("Image").observeSingleEvent(of: .value) {(image) in
                 kasamImage = URL(string: image.value as! String)
@@ -147,7 +144,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                     self.loadCompletedTable(kasamID: kasamID, kasamName: kasamName ?? "Kasam", kasamImage: kasamImage ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, snap: snap)
                 }
             }
-    //Weekly Stats for Current Kasams
+        //History for kasams that ARE being followed
         } else {
             self.getWeeklyStats(kasamID: kasamID, snap: snap)
             self.loadCompletedTable(kasamID: kasamID, kasamName: kasamName ?? "Kasam", kasamImage: kasamImage ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, snap: snap)
@@ -269,20 +266,11 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     @objc func profileUpdate() {
-        //PART 1 - KASAM FOLLOWING COUNT
-        var kasamcount = 0
-//        var followingcount: [String: String] = [:]
+        let kasamcount = SavedData.personalKasamBlocks.count + SavedData.groupKasamBlocks.count
         kasamFollowingNo.text = String(kasamcount)
-            self.kasamUserFollowRefHandle = DBRef.userPersonalFollowing.observe(.childAdded) {(snapshot) in
-                kasamcount += 1
-//                followingcount = [snapshot.key: "1"]                    //this shows no of coaches the user is following
-                self.kasamFollowingNo.text = String(kasamcount)
-        }
         if kasamcount == 1 {kasamFollowingLabel.text = "kasam"}
-        badgeCount()
-    }
-    
-    func badgeCount(){
+        
+        //Badge Count
         SavedData.trophiesCount = 0
         for _ in SavedData.trophiesAchieved {
             SavedData.trophiesCount += 1
@@ -330,18 +318,9 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             NewKasam.kasamID = kasamIDGlobal
         }
     }
-    
-    //Stops the observer
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        if kasamUserRefHandle != nil {
-            DBRef.currentUser.removeObserver(withHandle: self.kasamUserRefHandle!)
-        }
-        if kasamHistoryRefHandle != nil {
-            DBRef.userHistory.removeObserver(withHandle: self.kasamHistoryRefHandle)
-        }
-    }
 }
+
+//CollectionView---------------------------------------------------------------------------------------------------
 
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -387,6 +366,8 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     }
 }
 
+//TableView---------------------------------------------------------------------------------------------------
+
 extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if completedStats.count > 0 {
@@ -411,7 +392,8 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-//Changing the profile image
+//ImagePicker---------------------------------------------------------------------------------------------------
+
 extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func setupImageHolders(){

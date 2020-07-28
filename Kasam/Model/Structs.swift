@@ -26,6 +26,7 @@ struct SavedData {
     static var trophiesAchieved: [String: (kasamName: String, kasamTrophies: [(completedDate: String, trophyThreshold: Int)])] = [:]
     static var trophiesCount = 0          //all badges achieved only
     static var userType = "Basic"
+    static var notificationArray = [Int:UNNotificationRequest]()
 }
 
 struct DBRef {

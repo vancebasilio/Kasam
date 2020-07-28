@@ -23,6 +23,8 @@ class TabBar: UITabBarController {
         tabBar.items?[2].setIcon(icon: .fontAwesomeSolid(.userFriends), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
         tabBar.items?[3].setIcon(icon: .fontAwesomeSolid(.featherAlt), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
         self.delegate = self
+        self.tabBarController?.selectedIndex = 1
+        self.tabBarController?.selectedIndex = 2
     }
     
     private func setReachabilityNotifier() {

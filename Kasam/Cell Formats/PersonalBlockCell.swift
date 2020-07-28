@@ -190,7 +190,6 @@ class PersonalBlockCell: UITableViewCell {
             let timeVC = notification.object as! AddKasamController
             DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self, userInfo: ["kasamID": self.kasamID])
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
                 NotificationCenter.default.removeObserver(saveTimeObserver as Any)
             }
         }
@@ -285,7 +284,6 @@ class PersonalBlockCell: UITableViewCell {
         //Update the badges the user has achieved after update to the today block
         DBRef.userTrophies.child(kasamID).observeSingleEvent(of: .value, with: {(snap) in
             SavedData.kasamDict[self.kasamID]?.badgeList = snap.value as? [String:[String: String]]
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
         })
     }
     

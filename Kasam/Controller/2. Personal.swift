@@ -359,7 +359,6 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
             let kasamID = SavedData.personalKasamBlocks[kasamOrder].1.kasamID
             DBRef.userPersonalFollowing.child(kasamID).child("Status").setValue("completed")
             self.getPersonalFollowing()
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
         })
     }
 }

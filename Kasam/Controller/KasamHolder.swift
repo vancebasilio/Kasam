@@ -539,7 +539,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             self.headerImageView.alpha = 1.0
             self.kasamBadgeHolder.isHidden = true
             Analytics.logEvent("unfollowing_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
         }
     }
     
@@ -554,7 +553,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         DBlocation.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": status as Any, "Metric": kasamMetric, "Program Duration": programDuration as Any]) {(error, reference) in
             Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
             self.refreshBadge()
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
         }
     }
     

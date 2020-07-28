@@ -42,8 +42,16 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         getGroupFollowing()
      }
     
+    override func viewWillAppear(_ animated: Bool) {
+        self.tabBarController?.selectedIndex = 1
+    }
+    
     func updateScrollViewSize(){
         self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.groupTableHeight, tableRowHeight: self.groupTableRowHeight, rowCount: SavedData.groupKasamBlocks.count, additionalHeight: 160)
+    }
+    
+    @objc func iconTapped(){
+        groupAnimationIcon.play()
     }
     
     //-------------------------------------------------------------------------------------------------------
@@ -194,9 +202,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
             print("Step 5 - Day Tracker hell6 \(kasam.kasamName)")
             //Gets the DayTracker info - only goes into this loop if the user has kasam history
             DBRef.userHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).observe(.value, with: {(snap) in
-                if SavedData.kasamDict[kasamID]?.programDuration != nil {
-                    self.getBlockDetails(kasamID: kasamID)  //Only for updates to timeline kasams
-                }
+                if SavedData.kasamDict[kasamID]?.programDuration != nil {self.getBlockDetails(kasamID: kasamID)}    //Only for updates to timeline kasams
                 
                 if snap.exists() {
                     var displayStatus = "Checkmark"
@@ -246,10 +252,6 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
             })
         }
     }
-
-    @objc func iconTapped(){
-        groupAnimationIcon.play()
-    }
 }
 
 //TABLEVIEW-----------------------------------------------------------------------------------------------
@@ -289,7 +291,6 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
             let kasamID = SavedData.groupKasamBlocks[kasamOrder].1.kasamID
             DBRef.userGroupFollowing.child(kasamID).child("Status").setValue("completed")
             self.getGroupFollowing()
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "ProfileUpdate"), object: self)
         })
     }
 }

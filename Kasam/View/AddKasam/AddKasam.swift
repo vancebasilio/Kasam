@@ -172,7 +172,9 @@ class AddKasamController: UIViewController {
             let setHourMin = formattedTime.components(separatedBy: " ").first
             hour = Int(setHourMin?.components(separatedBy: ":").first ?? "10") ?? 10
             min = Int(setHourMin?.components(separatedBy: ":").last ?? "30") ?? 0
-            startTimePicker.selectRow(hour - 1, inComponent: 0, animated: false)
+            if hour == 0 {startTimePicker.selectRow(11, inComponent: 0, animated: false)}
+            else {startTimePicker.selectRow(hour - 1, inComponent: 0, animated: false)}
+            
             startTimePicker.selectRow(timeMinArray.index(of:String(format:"%02d", min)) ?? 0, inComponent: 2, animated: false)
             baseDate = formattedDate.stringToDate()
              
