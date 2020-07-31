@@ -131,8 +131,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     //STEP 2
     func getPreferences(snapshot: DataSnapshot){
         if let value = snapshot.value as? [String: Any] {
-            let kasamID = snapshot.key
-            let preference = KasamSavedFormat(kasamID: kasamID, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, groupStatus: value["Status"] as? String, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, groupStatus: nil, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil)
             DispatchQueue.main.async {snapshot.key.benefitThresholds()}
             print("Step 2 - Get preferences hell6 \(preference.kasamName)")
             SavedData.addKasam(kasam: preference)
@@ -152,7 +151,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         
         //OPTION 1 - Load blocks based on last completed (PROGRAM KASAMS) e.g. Insanity
         if kasam.programDuration != nil {
-            DBRef.userHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).child(Date().dateToString()).child("BlockID").observeSingleEvent(of: .value) {(snapBlockID) in
+            DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).child(Date().dateToString()).child("BlockID").observeSingleEvent(of: .value) {(snapBlockID) in
                 if snapBlockID.exists() {
                     DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(snapBlockID.value as! String).observeSingleEvent(of: .value) {(snapshot) in
                         print("Step 3 - Get Block Data hell6 Option 1A \(kasam.kasamName)")
@@ -164,7 +163,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                     var dayToShow = 1
                     for date in Date.dates(from: kasam.joinedDate, to: Date()) {
                         let dateString = date.dateToString()
-                        DBRef.userHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).child(dateString).observeSingleEvent(of: .value) {(snapCount) in
+                        DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).child(dateString).observeSingleEvent(of: .value) {(snapCount) in
                             if dateString != Dates.getCurrentDate() && snapCount.exists() {
                                 blockDayToLoad += 1               //the user has completed xx number of blocks in the past (excludes today's block)
                             } else if dateString == Dates.getCurrentDate() {
@@ -214,7 +213,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
             SavedData.personalKasamBlocks[kasamOrder] = (kasam.kasamID, block)
             if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
-                print("hell1 subtitle to \(SavedData.personalKasamBlocks[kasamOrder].data.blockTitle)")
                 cell.blockSubtitle.text = SavedData.personalKasamBlocks[kasamOrder].data.blockTitle
             }
         } else {
@@ -237,10 +235,8 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         if let kasam = SavedData.kasamDict[kasamID] {
             print("Step 5 - Day Tracker hell6 \(kasam.kasamName)")
             //Gets the DayTracker info - only goes into this loop if the user has kasam history
-            self.dayTrackerRefHandle = DBRef.userHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).observe(.value, with: {(snap) in
-                if SavedData.kasamDict[kasamID]?.programDuration != nil {
-                    self.getBlockDetails(kasamID: kasamID)  //Only for updates to timeline kasams
-                }
+            self.dayTrackerRefHandle = DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).observe(.value, with: {(snap) in
+                if SavedData.kasamDict[kasamID]?.programDuration != nil {self.getBlockDetails(kasamID: kasamID)}    //Only for updates to timeline kasams
                 
                 if snap.exists() {
                     var displayStatus = "Checkmark"
@@ -407,10 +403,10 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
         let statusDate = (Calendar.current.date(byAdding: .day, value: day - SavedData.personalKasamBlocks[kasamOrder].data.dayOrder, to: Date())!).dateToString()
         if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day] != nil {
             if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.1 == 1.0 {
-                DBRef.userHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(nil)
+                DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(nil)
             }
         } else {
-            DBRef.userHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(1)
+            DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(1)
         }
     }
     

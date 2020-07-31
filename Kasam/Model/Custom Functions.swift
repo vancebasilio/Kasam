@@ -57,8 +57,8 @@ extension UIViewController {
         if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
             tableView.beginUpdates()
             if cell.kasamName.text == "" {
-                if type == "personal" {cell.setBlock(block: SavedData.personalKasamBlocks[kasamOrder].data)}
-                else {cell.setBlock(block: SavedData.groupKasamBlocks[kasamOrder].data)}
+                if type == "personal" {cell.type = "personal"; cell.setBlock(block: SavedData.personalKasamBlocks[kasamOrder].data)}
+                else {cell.type = "group"; cell.setBlock(block: SavedData.groupKasamBlocks[kasamOrder].data)}
                 cell.centerCollectionView()
                 cell.collectionCoverUpdate()
             }

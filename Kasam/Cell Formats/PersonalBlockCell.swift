@@ -28,6 +28,7 @@ class PersonalBlockCell: UITableViewCell {
     @IBOutlet weak var currentDayStreak: UILabel!
     @IBOutlet weak var streakPostText: UILabel!
     @IBOutlet weak var blockContents: UIView!
+    @IBOutlet weak var groupStatsView: UIView!
     @IBOutlet weak var blockImage: UIView!
     @IBOutlet weak var kasamImage: UIImageView!
     @IBOutlet weak var statsContent: UIView!
@@ -45,17 +46,24 @@ class PersonalBlockCell: UITableViewCell {
     @IBOutlet weak var collectionTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var collectionBottomConstraint: NSLayoutConstraint!
     @IBOutlet weak var restartButton: UIButton!
+    @IBOutlet weak var groupFirstName: UILabel!
+    @IBOutlet weak var groupFirstLine: UIView!
+    @IBOutlet weak var groupFirstLineLength: NSLayoutConstraint!
+    @IBOutlet weak var groupSecondName: UILabel!
+    @IBOutlet weak var groupSecondLine: UIView!
+    @IBOutlet weak var groupSecondLineLength: NSLayoutConstraint!
+    @IBOutlet weak var groupThirdName: UILabel!
+    @IBOutlet weak var groupThirdLine: UIView!
+    @IBOutlet weak var groupThirdLineLength: NSLayoutConstraint!
     
     var cellDelegate: TableCellDelegate?
-    var row = 0
     var tempBlock: PersonalBlockFormat?
+    var row = 0
+    var type = ""
     var today: Int?
-    let progress = Progress(totalUnitCount: 30)
     var hideDayTrackerDates = true
     let iconSize = CGFloat(35)
     var kasamID = ""
-    var benefits = [Int:String]()
-    var statusDate = ""
     var currentDayStat = 0
     
     func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
@@ -65,6 +73,7 @@ class PersonalBlockCell: UITableViewCell {
     }
     
     func setBlock(block: PersonalBlockFormat) {
+        print("hell1 \(block.blockTitle)")
         kasamID = block.kasamID
         tempBlock = block
         kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
@@ -83,6 +92,21 @@ class PersonalBlockCell: UITableViewCell {
         kasamImage.sd_setImage(with: block.image)
         levelLineBack.layer.cornerRadius = 4
         levelLine.layer.cornerRadius = 4
+        
+        if type == "group" {setGroup()}
+//        dayTrackerCollectionView.isHidden = true
+    }
+    
+    func setGroup(){
+        restartButton.isHidden = true
+        progressBar.isHidden = true
+        groupStatsView.layer.cornerRadius = 15.0
+        groupFirstLine.layer.cornerRadius = 4.0
+        groupSecondLine.layer.cornerRadius = 4.0
+        groupThirdLine.layer.cornerRadius = 4.0
+        
+        let maxLength = groupStatsView.frame.width - 30 - 20
+        groupFirstLineLength.constant = 0.5 * maxLength
     }
     
     override func awakeFromNib() {
@@ -154,11 +178,14 @@ class PersonalBlockCell: UITableViewCell {
     }
     
     @IBAction func yesButtonPressed(_ sender: UIButton) {
+        //Completed Kasam
         if tempBlock!.dayOrder >= SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
-            //Completed Kasam
             extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
+        //Regular completion
         } else {
-            if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
+            var database = SavedData.personalKasamBlocks
+            if type == "group" {database = SavedData.groupKasamBlocks}
+            if let kasamOrder = database.index(where: {($0.kasamID == kasamID)}) {
                 if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
                     cellDelegate?.updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: tempBlock?.dayOrder ?? 1)
                 } else {
@@ -214,10 +241,7 @@ class PersonalBlockCell: UITableViewCell {
         if tempBlock != nil && SavedData.kasamDict[kasamID] != nil {
             print("Step 5 STATUS UPDATE")
            //STEP 1 - DAY COUNTER
-            if SavedData.kasamDict[kasamID] != nil {
-                currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.currentStreak.value
-                statusDate = day ?? Date().dateToString()
-            }
+            currentDayStat = SavedData.kasamDict[kasamID]!.streakInfo.daysWithAnyProgress
             currentDayStreak.text = String(describing: currentDayStat)
             statsShadow.layer.shadowColor = UIColor.black.cgColor
             statsShadow.layer.shadowOpacity = 0.2

@@ -115,13 +115,13 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         metricDictionary.removeAll()
     
         self.totalKasamDays = 0
-        DBRef.userHistory.observe(.childAdded, with:{(snap) in
+        DBRef.userPersonalHistory.observe(.childAdded, with:{(snap) in
             self.addKasamStats(snap: snap, kasamID: snap.key)
         })
-        DBRef.userHistory.observe(.childChanged, with:{(snap) in
+        DBRef.userPersonalHistory.observe(.childChanged, with:{(snap) in
             self.editKasamStats(snap: snap, kasamID: snap.key)
         })
-        DBRef.userHistory.observe(.childRemoved, with:{(snap) in
+        DBRef.userPersonalHistory.observe(.childRemoved, with:{(snap) in
             if let index = self.completedStats.index(where: {($0.kasamID == snap.key)}) {
                 self.completedStats.remove(at: index)
                 self.totalKasamDays -= 1

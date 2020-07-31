@@ -74,7 +74,7 @@ class KasamActivityViewer: UIViewController {
                 if let value = snapshot.value as? [String: Any] {
                     count += 1
                     var currentMetric = "0"
-                    DBRef.userHistory.child(self.kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(self.statusDate).child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
+                    DBRef.userPersonalHistory.child(self.kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(self.statusDate).child("Metric Breakdown").child(String(count)).observeSingleEvent(of: .value, with: {(snap) in
                         if snap.exists() && self.viewingOnlyCheck == false {
                             currentMetric = snap.value as! String               //Gets the metric for the activity for the day selected
                         }
@@ -203,10 +203,10 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
             transferAvg = sum / Double(self.summedTotalMetric)
         }
         if transferAvg > 0.0 {
-            DBRef.userHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix])
+            DBRef.userPersonalHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix])
         } else {
             //removes the dayTracker for today if kasam is set to zero
-            DBRef.userHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate).setValue(nil)
+            DBRef.userPersonalHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate).setValue(nil)
         }
     }
 }

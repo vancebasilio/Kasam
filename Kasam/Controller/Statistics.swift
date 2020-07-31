@@ -324,7 +324,7 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
             let delete = SwipeAction(style: .destructive, title: nil) { action, indexPath in
                 let popupImage = UIImage.init(icon: .fontAwesomeSolid(.eraser), size: CGSize(width: 30, height: 30), textColor: .white)
                 showPopupConfirmation(title: "Sure you want to delete your progress on \(self.personalKasamBlocks[indexPath.row].shortDate)?", description: "", image: popupImage, buttonText: "Delete") {(success) in
-                    DBRef.userHistory.child(self.kasamID).child(self.personalKasamBlocks[indexPath.row].fullDate).setValue(nil)
+                    DBRef.userPersonalHistory.child(self.kasamID).child(self.personalKasamBlocks[indexPath.row].fullDate).setValue(nil)
                     self.personalKasamBlocks.remove(at: indexPath.row)
                     self.historyTableView.reloadData()
                     self.updateViewConstraints()

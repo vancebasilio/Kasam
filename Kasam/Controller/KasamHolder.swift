@@ -255,7 +255,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func headerBadge(){
         if SavedData.kasamDict[kasamID]!.repeatDuration > 0 && SavedData.kasamDict[kasamID] != nil {
             self.headerImageView.alpha = 0.7
-            var daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.currentStreak.value ?? 0)
+            var daysCompleted = Double(SavedData.kasamDict[kasamID]?.streakInfo.daysWithAnyProgress ?? 0)
             finishIcon.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 35, color: UIColor.colorFive.lighter, forState: .normal)
             extendIcon.setIcon(icon: .fontAwesomeSolid(.arrowCircleRight), iconSize: 30, color: UIColor.colorFive.lighter, forState: .normal)
             finishLabel.textColor = UIColor.colorFive.lighter
@@ -502,9 +502,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func registerUserToKasam() {
         var endDate: Date?
         let startDateConverted = startDate.stringToDate()
-        if self.chosenRepeat != 0 {
-            endDate = Calendar.current.date(byAdding: .day, value: self.chosenRepeat, to: startDateConverted)!
-        }
+        if self.chosenRepeat != 0 {endDate = Calendar.current.date(byAdding: .day, value: self.chosenRepeat, to: startDateConverted)!}
         if notificationCheck == true {
             kasamID.setupNotifications(kasamName: kasamGTitle, startDate: startDateConverted, endDate: endDate, chosenTime: self.chosenTime)
         }
@@ -518,6 +516,29 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 
         //STEP 3: Adds the user preferences to the Kasam they just followed
         self.addUserPreferncestoKasam(restart: false)
+    }
+    
+    func addUserPreferncestoKasam(restart: Bool){
+        if joinType == "group" {
+            let groupID = DBRef.groupKasams.childByAutoId()
+            
+            //Create the Group Kasam
+            DBRef.groupKasams.child(groupID.key!).updateChildValues(["KasamID": kasamID, "Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": "initiated", "Metric": kasamMetric, "Program Duration": programDuration as Any, "Team": [Auth.auth().currentUser?.uid: Auth.auth().currentUser?.displayName]]) {(error, reference) in
+                self.refreshBadge()
+            }
+            
+            //Add the GroupID to the user following
+            DBRef.userGroupFollowing.child(groupID.key!).setValue(self.startDate)
+            
+            
+            
+        } else {
+            DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Program Duration": programDuration as Any]) {(error, reference) in
+            Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
+            self.refreshBadge()
+        }
+        
+        }
     }
     
     func unregisterUseFromKasam() {
@@ -539,20 +560,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             self.headerImageView.alpha = 1.0
             self.kasamBadgeHolder.isHidden = true
             Analytics.logEvent("unfollowing_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-        }
-    }
-    
-        
-    func addUserPreferncestoKasam(restart: Bool){
-        var DBlocation = DBRef.userPersonalFollowing
-        var status: String?
-        if joinType == "group" {
-            DBlocation = DBRef.userGroupFollowing
-            status = "initiated"
-        }
-        DBlocation.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": status as Any, "Metric": kasamMetric, "Program Duration": programDuration as Any]) {(error, reference) in
-            Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
-            self.refreshBadge()
         }
     }
     
