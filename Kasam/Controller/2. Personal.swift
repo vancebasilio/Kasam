@@ -8,7 +8,7 @@
 
 import UIKit
 import Foundation
-import Firebase
+import FirebaseDatabase
 import SDWebImage
 import SwiftEntryKit
 import Lottie
@@ -50,7 +50,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func setupNotifications(){
-        let stopLoadingAnimation = NSNotification.Name("RemoveLoadingAnimation")
+        let stopLoadingAnimation = NSNotification.Name("RemovePersonalLoadingAnimation")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
         
         let resetPersonalKasam = NSNotification.Name("ResetPersonalKasam")
@@ -131,7 +131,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     //STEP 2
     func getPreferences(snapshot: DataSnapshot){
         if let value = snapshot.value as? [String: Any] {
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, groupStatus: nil, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: nil, groupStatus: nil, groupTeam: nil)
             DispatchQueue.main.async {snapshot.key.benefitThresholds()}
             print("Step 2 - Get preferences hell6 \(preference.kasamName)")
             SavedData.addKasam(kasam: preference)
@@ -305,6 +305,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             let kasamViewer = segue.destination as! KasamActivityViewer
             kasamViewer.kasamID = kasamIDforViewer
             kasamViewer.blockID = blockIDGlobal
+            kasamViewer.type = "personal"
             kasamViewer.blockName = blockNameGlobal
             kasamViewer.viewingOnlyCheck = viewOnlyGlobal
             kasamViewer.dateToLoad = dateGlobal

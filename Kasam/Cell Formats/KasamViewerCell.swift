@@ -93,7 +93,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     lazy var countdownTimer: CountdownTimer = {let countdownTimer = CountdownTimer(); return countdownTimer}()
     
     override func awakeFromNib() {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveLoadingAnimation"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "RemovePersonalLoadingAnimation"), object: self)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveGroupLoadingAnimation"), object: self)
     }
     
     //BASIC SETUP-----------------------------------------------------------------------------------

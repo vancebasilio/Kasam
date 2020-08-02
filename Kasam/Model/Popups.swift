@@ -285,7 +285,7 @@ func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text:
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
-    func addKasamPopup(kasamID: String, percentComplete: Double?, new: Bool, duration: Int, fullView: Bool) {
+    func addKasamPopup(kasamID: String, new: Bool, duration: Int, fullView: Bool) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -312,7 +312,6 @@ func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text:
         vC.kasamID = kasamID
         vC.repeatDuration = duration
         vC.new = new
-        vC.percentComplete = percentComplete ?? 0.0
         vC.fullView = fullView
         SwiftEntryKit.display(entry: vC, using: attributes)
     }

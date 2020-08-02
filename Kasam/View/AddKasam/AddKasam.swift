@@ -43,8 +43,7 @@ class AddKasamController: UIViewController {
     var kasamID = ""                        //loaded in value
     var fullView = true                     //loaded in value
     var repeatDuration = 30                 //loaded in value
-    var percentComplete = 0.0               //loaded in value
-    var new: Bool?
+    var new: Bool?                          //loaded in value
     
     var formattedDate = ""                  //loaded out value
     var formattedTime = ""                  //loaded out value

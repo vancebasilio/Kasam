@@ -8,7 +8,8 @@
 
 import UIKit
 import Foundation
-import Firebase
+import FirebaseDatabase
+import FirebaseAuth
 import Lottie
 import SwiftEntryKit
 
@@ -36,14 +37,12 @@ struct DBRef {
     static let coachKasams = Database.database().reference().child("Coach-Kasams")
     static let userCreator = Database.database().reference().child("Users")
     static let currentUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
-    static let motivationImages = Database.database().reference().child("Assets").child("Motivation Images")
     
-    static let userPersonalHistory = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     static let userKasams = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
+    static let userPersonalHistory = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
     
     static let groupKasams = Database.database().reference().child("Group-Kasams")
     static let userGroupFollowing = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Group-Following")
-    
 }
 
 struct Assets {

@@ -107,7 +107,6 @@ class KasamSavedFormat {
     var currentDay: Int
     var repeatDuration: Int
     var image: String
-    var groupStatus: String?
     var metricType: String
     var programDuration: Int?
     var streakInfo: streakInfo
@@ -116,8 +115,11 @@ class KasamSavedFormat {
     var badgeList: [String:[String:String]]?
     var benefitsThresholds: [(Int,String)]?
     var dayTrackerArray: [Int:(date: Date, progress: Double)]?
+    var groupID: String?
+    var groupStatus: String?
+    var groupTeam: [String:Any]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, image: String?, groupStatus: String?, metricType: String?, programDuration: Int?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, image: String?, metricType: String?, programDuration: Int?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?, groupID: String?, groupStatus: String?, groupTeam: [String:Any]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate
@@ -125,7 +127,6 @@ class KasamSavedFormat {
         self.currentDay = currentDay
         self.repeatDuration = repeatDuration
         self.image = image ?? ""
-        self.groupStatus = groupStatus
         self.metricType = metricType ?? ""
         self.programDuration = programDuration
         self.streakInfo = streakInfo
@@ -134,6 +135,9 @@ class KasamSavedFormat {
         self.badgeList = badgeList
         self.benefitsThresholds = benefitsThresholds
         self.dayTrackerArray = dayTrackerArray
+        self.groupID = groupID
+        self.groupStatus = groupStatus
+        self.groupTeam = groupTeam
     }
 }
 

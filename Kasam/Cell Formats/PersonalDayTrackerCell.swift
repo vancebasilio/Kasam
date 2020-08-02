@@ -84,7 +84,7 @@ class PersonalDayTrackerCell: UICollectionViewCell {
     }
     
     @IBAction func dayPressed(_ sender: UIButton) {
-        if futureInternal == false {
+        if SavedData.kasamDict[kasamIDInternal]!.groupStatus != "initiated" && futureInternal == false {
             dayTrackerDelegate?.dayPressed(kasamID: kasamIDInternal, day: dayInternal, date: dateInternal, metricType: metricTypeInternal, viewOnly: futureInternal)
         }
     }

@@ -56,7 +56,6 @@ class NotificationsController: UIViewController {
             }
             DispatchQueue.main.async {
                 if let order = notification?.userInfo?["order"] as? Int {
-                    print("hell7 update \(order)")
                     self.notificationsTable.reloadRows(at: [IndexPath(row: order, section: 0)], with: .none)
                 }
             }

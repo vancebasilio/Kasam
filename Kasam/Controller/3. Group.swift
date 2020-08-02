@@ -9,6 +9,8 @@
 import UIKit
 import Foundation
 import Firebase
+import FirebaseDatabase
+import FirebaseAuth
 import SDWebImage
 import SwiftEntryKit
 import Lottie
@@ -38,8 +40,9 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavBar(clean: false)                   //global function
-        groupTableRowHeight = (groupKasamTable.frame.width / 2) + 15
+        groupTableRowHeight = (groupKasamTable.frame.width / 1.8) + 15
         getGroupFollowing()
+        setupNotifications()
      }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -49,12 +52,21 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    func setupNotifications(){
+        let stopLoadingAnimation = NSNotification.Name("RemoveGroupLoadingAnimation")
+        NotificationCenter.default.addObserver(self, selector: #selector(GroupViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
+    }
+    
     func updateScrollViewSize(){
         self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.groupTableHeight, tableRowHeight: self.groupTableRowHeight, rowCount: SavedData.groupKasamBlocks.count, additionalHeight: 160)
     }
     
     @objc func iconTapped(){
         groupAnimationIcon.play()
+    }
+    
+    @objc func stopLoadingAnimation(){
+        animationView.removeFromSuperview()
     }
     
     //-------------------------------------------------------------------------------------------------------
@@ -79,8 +91,8 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         
         DBRef.userGroupFollowing.observe(.childAdded) {(groupID) in
             self.groupAnimationIcon.isHidden = true
-            DBRef.groupKasams.child(groupID.key).observeSingleEvent(of: .value, with: {(snapshot) in
-                self.getPreferences(snapshot: snapshot)
+            DBRef.groupKasams.child(groupID.key).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
+                self.getPreferences(snapshot: snapshot, groupID: groupID.key, reminderTime: (groupID.value as? [String:String])?["Time"] ?? "")
             })
         }
         //If user unfollows a group kasam
@@ -98,9 +110,9 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     //STEP 2
-    func getPreferences(snapshot: DataSnapshot){
+    func getPreferences(snapshot: DataSnapshot, groupID: String, reminderTime: String){
         if let value = snapshot.value as? [String: Any] {
-            let preference = KasamSavedFormat(kasamID: value["KasamID"] as? String ?? "", kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, groupStatus: value["Status"] as? String, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil)
+            let preference = KasamSavedFormat(kasamID: value["KasamID"] as? String ?? "", kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: reminderTime, currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil,  metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: groupID, groupStatus: value["Status"] as? String, groupTeam: value["Team"] as? [String:Any])
             DispatchQueue.main.async {snapshot.key.benefitThresholds()}
             print("Step 2 - Get preferences hell6 \(preference.kasamName)")
             SavedData.addKasam(kasam: preference)
@@ -115,7 +127,9 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         print("Step 3 - Get Block Data hell6 \(kasam.kasamName)")
         var dayOrder = 0
         //Seeing which blocks are needed for the day
-        dayOrder = ((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
+        if kasam.groupStatus != "initiated" {
+            dayOrder = ((Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: Date()).day!) + 1)
+        }
         SavedData.kasamDict[kasam.kasamID]?.currentDay = dayOrder
         
         //OPTION 1 - Load blocks based on last completed (PROGRAM KASAMS) e.g. Insanity
@@ -205,9 +219,8 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         if let kasam = SavedData.kasamDict[kasamID] {
             print("Step 5 - Day Tracker hell6 \(kasam.kasamName)")
             //Gets the DayTracker info - only goes into this loop if the user has kasam history
-            DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).observe(.value, with: {(snap) in
+            DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).observe(.value, with: {(snap) in
                 if SavedData.kasamDict[kasamID]?.programDuration != nil {self.getBlockDetails(kasamID: kasamID)}    //Only for updates to timeline kasams
-                
                 if snap.exists() {
                     var displayStatus = "Checkmark"
                     var order = 0
@@ -262,6 +275,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
             let kasamViewer = segue.destination as! KasamActivityViewer
             kasamViewer.kasamID = kasamIDTransfer
             kasamViewer.blockID = blockIDGlobal
+            kasamViewer.type = "group"
             kasamViewer.blockName = blockNameGlobal
             kasamViewer.viewingOnlyCheck = viewOnlyGlobal
             kasamViewer.dateToLoad = dateGlobal
@@ -301,7 +315,6 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
     
     func goToKasamHolder(kasamOrder: Int) {
         if SavedData.groupKasamBlocks.count > kasamOrder {
-            print("hell1 \(SavedData.groupKasamBlocks[kasamOrder].kasamID)")
             kasamIDTransfer = SavedData.groupKasamBlocks[kasamOrder].1.kasamID
         }
         self.performSegue(withIdentifier: "goToKasamHolder", sender: kasamOrder)
@@ -339,7 +352,8 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
             cell.dayTrackerDelegate = self
             let kasamBlock = SavedData.groupKasamBlocks[collectionView.tag]
             let day = indexPath.row + 1
-            let today = Int(kasamBlock.data.dayOrder)
+            var today = Int(kasamBlock.data.dayOrder)
+            if SavedData.kasamDict[SavedData.groupKasamBlocks[collectionView.tag].kasamID]?.groupStatus == "initiated" {today = 1}
             let date = dayTrackerDateFormat(date: Date(), todayDay: today, row: indexPath.row + 1)
             cell.setBlock(kasamID: kasamBlock.kasamID, day: day, status: SavedData.kasamDict[kasamBlock.kasamID]?.dayTrackerArray?[indexPath.row + 1]?.progress ?? 0.0, date: date , today: day == today, future: day > today)
         }
@@ -347,11 +361,13 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func dayPressed(kasamID: String, day: Int, date: Date?, metricType: String, viewOnly: Bool?) {
-        if let kasamOrder = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
-            if metricType == "Checkmark" {
-                updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: day)
-            } else {
-                openKasamBlock(kasamOrder: kasamOrder, day: day, date: date, viewOnly: viewOnly)
+        if day > 0 {
+            if let kasamOrder = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
+                if metricType == "Checkmark" {
+                    updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: day)
+                } else {
+                    openKasamBlock(kasamOrder: kasamOrder, day: day, date: date, viewOnly: viewOnly)
+                }
             }
         }
     }
@@ -361,10 +377,10 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
         let statusDate = (Calendar.current.date(byAdding: .day, value: day - SavedData.groupKasamBlocks[kasamOrder].data.dayOrder, to: Date())!).dateToString()
         if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day] != nil {
             if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.1 == 1.0 {
-                DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(nil)
+                DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(nil)
             }
         } else {
-            DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(1)
+            DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(1)
         }
     }
     

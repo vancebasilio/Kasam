@@ -461,10 +461,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //OPENS THE POPUP TO ENTER PREFERENCES
         if registerCheck == 0 || reset == true {
             //Adding new Kasam
-            addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: true, duration: chosenRepeat, fullView: true)
+            addKasamPopup(kasamID: kasamID, new: true, duration: chosenRepeat, fullView: true)
         } else {
             //Existing Kasam prefernces being updated
-            addKasamPopup(kasamID: kasamID, percentComplete: ratio, new: false, duration: chosenRepeat, fullView: false)
+            addKasamPopup(kasamID: kasamID, new: false, duration: chosenRepeat, fullView: false)
         }
         //If the user presses save:
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
@@ -523,12 +523,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             let groupID = DBRef.groupKasams.childByAutoId()
             
             //Create the Group Kasam
-            DBRef.groupKasams.child(groupID.key!).updateChildValues(["KasamID": kasamID, "Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Status": "initiated", "Metric": kasamMetric, "Program Duration": programDuration as Any, "Team": [Auth.auth().currentUser?.uid: Auth.auth().currentUser?.displayName]]) {(error, reference) in
+            DBRef.groupKasams.child(groupID.key!).updateChildValues(["Info": ["KasamID": kasamID, "Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Status": "initiated", "Metric": kasamMetric, "Program Duration": programDuration as Any, "Team": [Auth.auth().currentUser?.uid: 0]]]) {(error, reference) in
                 self.refreshBadge()
             }
             
             //Add the GroupID to the user following
-            DBRef.userGroupFollowing.child(groupID.key!).setValue(self.startDate)
+            DBRef.userGroupFollowing.child(groupID.key!).child("Time").setValue(self.chosenTime)
             
             
             

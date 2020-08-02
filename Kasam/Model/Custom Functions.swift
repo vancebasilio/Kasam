@@ -9,6 +9,7 @@
 import UIKit
 import Foundation
 import Firebase
+import FirebaseDatabase
 import AVKit
 import Lottie
 
@@ -54,6 +55,7 @@ extension UIViewController {
     
     func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String) {
         tableView.reloadData()
+        print("Step 6 - Update Table")
         if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
             tableView.beginUpdates()
             if cell.kasamName.text == "" {
@@ -877,11 +879,11 @@ extension Date {
 }
 
 extension UIView {
-    func roundCorners(_ corners: UIRectCorner, radius: CGFloat) {
-        let path = UIBezierPath(roundedRect: self.bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+    func roundCorners(corners: UIRectCorner, radius: CGFloat) {
+        let path = UIBezierPath(roundedRect: bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         let mask = CAShapeLayer()
         mask.path = path.cgPath
-        self.layer.mask = mask
+        layer.mask = mask
     }
 }
 
@@ -976,12 +978,8 @@ extension UIImage {
 }
 
 extension String {
-    func slice(from: String, to: String) -> String? {
-        return (range(of: from)?.upperBound).flatMap { substringFrom in
-            (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
-                String(self[substringFrom..<substringTo])
-            }
-        }
+    func initials () -> String {
+        return self.components(separatedBy: " ").reduce("") { ($0 == "" ? "" : "\($0.first!)") + "\($1.first!)" }
     }
     
     func stringToDate() -> Date {

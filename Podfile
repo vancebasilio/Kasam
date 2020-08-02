@@ -16,6 +16,7 @@ pod 'Fabric'
 pod 'Crashlytics'
 pod 'GoogleSignIn'
 pod ‘youtube-ios-player-helper’
+
 pod 'FacebookCore'
 pod 'FacebookLogin'
 pod 'FacebookShare'
