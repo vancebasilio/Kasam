@@ -350,7 +350,13 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
         self.performSegue(withIdentifier: "goToKasamHolder", sender: kasamOrder)
     }
     
-    func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int) {
+    func reloadKasamBlock(kasamOrder: Int) {
+        if let cell = personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
+            cell.statusUpdate(nil)
+        }
+    }
+    
+    func completeAndUnfollow(kasamOrder: Int) {
         let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
         showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
             let kasamID = SavedData.personalKasamBlocks[kasamOrder].1.kasamID

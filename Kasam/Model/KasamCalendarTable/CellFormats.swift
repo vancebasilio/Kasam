@@ -117,9 +117,9 @@ class KasamSavedFormat {
     var dayTrackerArray: [Int:(date: Date, progress: Double)]?
     var groupID: String?
     var groupStatus: String?
-    var groupTeam: [String:Any]?
+    var groupTeam: [String:Double]?
     
-    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, image: String?, metricType: String?, programDuration: Int?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?, groupID: String?, groupStatus: String?, groupTeam: [String:Any]?){
+    init(kasamID: String, kasamName: String, joinedDate: Date, startTime: String, currentDay: Int, repeatDuration: Int, image: String?, metricType: String?, programDuration: Int?, streakInfo: streakInfo, displayStatus: String, percentComplete: Double, badgeList: [String:[String:String]]?, benefitsThresholds: [(Int,String)]?, dayTrackerArray: [Int:(date: Date, progress: Double)]?, groupID: String?, groupStatus: String?, groupTeam: [String:Double]?){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.joinedDate = joinedDate

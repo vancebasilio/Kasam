@@ -7,7 +7,9 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
+import FirebaseAuth
+import FirebaseAnalytics
 import SwiftEntryKit
 import Lottie
 import youtube_ios_player_helper
@@ -397,7 +399,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamTitle.text! = self.kasamGTitle
                 self.kasamDescription.text! = value["Description"] as? String ?? ""
                 self.coachIDGlobal = value["CreatorID"] as! String
-                DBRef.userCreator.child(self.coachIDGlobal).child("Name").observeSingleEvent(of: .value) {(creator) in
+                DBRef.userCreator.child(self.coachIDGlobal).child("Info").child("Name").observeSingleEvent(of: .value) {(creator) in
                     self.coachName.setTitle(creator.value as? String ?? "Coach", for: .normal)
                 }
                 
@@ -511,7 +513,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         
         //STEP 2: Adds the user to the Coach-following list
-        DBRef.userCreator.child(coachIDGlobal).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
+        DBRef.userCreator.child(coachIDGlobal).child("Info").child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         countFollowers()
                 
         //STEP 3: Adds the user preferences to the Kasam they just followed
@@ -549,7 +551,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         DBRef.coachKasams.child(kasamID).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         
         //Removes the user from the Coach following
-        DBRef.userCreator.child(coachIDGlobal).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+        DBRef.userCreator.child(coachIDGlobal).child("Info").child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         
         //Remove notification
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])

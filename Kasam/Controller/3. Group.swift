@@ -112,7 +112,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     //STEP 2
     func getPreferences(snapshot: DataSnapshot, groupID: String, reminderTime: String){
         if let value = snapshot.value as? [String: Any] {
-            let preference = KasamSavedFormat(kasamID: value["KasamID"] as? String ?? "", kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: reminderTime, currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil,  metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: groupID, groupStatus: value["Status"] as? String, groupTeam: value["Team"] as? [String:Any])
+            let preference = KasamSavedFormat(kasamID: value["KasamID"] as? String ?? "", kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: reminderTime, currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil,  metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: groupID, groupStatus: value["Status"] as? String, groupTeam: value["Team"] as? [String:Double])
             DispatchQueue.main.async {snapshot.key.benefitThresholds()}
             print("Step 2 - Get preferences hell6 \(preference.kasamName)")
             SavedData.addKasam(kasam: preference)
@@ -293,6 +293,14 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension GroupViewController: UITableViewDataSource, UITableViewDelegate, TableCellDelegate {
     
+    func reloadKasamBlock(kasamOrder: Int) {
+        if let cell = groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
+            cell.setBlock(block: SavedData.groupKasamBlocks[kasamOrder].data)
+            cell.statusUpdate(nil)
+            cell.dayTrackerCollectionView.reloadData()
+        }
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return SavedData.groupKasamBlocks.count
     }
@@ -320,7 +328,7 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
         self.performSegue(withIdentifier: "goToKasamHolder", sender: kasamOrder)
     }
     
-    func completeAndUnfollow(_ sender: UIButton, kasamOrder: Int) {
+    func completeAndUnfollow(kasamOrder: Int) {
         let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
         showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
             let kasamID = SavedData.groupKasamBlocks[kasamOrder].1.kasamID
@@ -374,14 +382,19 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
     
     func updateKasamDayButtonPressed(kasamOrder: Int, day: Int){
         let kasamID = SavedData.groupKasamBlocks[kasamOrder].data.kasamID
+        var newPercent = (SavedData.kasamDict[kasamID]?.groupTeam?[Auth.auth().currentUser!.uid] ?? 0)
         let statusDate = (Calendar.current.date(byAdding: .day, value: day - SavedData.groupKasamBlocks[kasamOrder].data.dayOrder, to: Date())!).dateToString()
         if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day] != nil {
             if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.1 == 1.0 {
                 DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(nil)
+                newPercent -= (1.0 / Double(SavedData.kasamDict[kasamID]?.repeatDuration ?? 30))
             }
         } else {
             DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(1)
+             newPercent += (1.0 / Double(SavedData.kasamDict[kasamID]?.repeatDuration ?? 30))
+            
         }
+        DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").child(Auth.auth().currentUser!.uid).setValue(newPercent.rounded(toPlaces: 2))
     }
     
     func openKasamBlock(kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?) {

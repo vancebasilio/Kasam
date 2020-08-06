@@ -186,7 +186,7 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text: String?, type: String, button: String) {
+    func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text: String?, type: String, button: String, completion:@escaping () -> ()) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light
@@ -208,6 +208,35 @@ func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text:
         
         let vc = OptionsPopupController()
         vc.transfer = (kasamID, title, subtitle, text, type, button)
+        var buttonPressedObserver: NSObjectProtocol?
+        buttonPressedObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "DoneButtonPressed"), object: nil, queue: OperationQueue.main) {(notification) in
+            completion()
+            NotificationCenter.default.removeObserver(buttonPressedObserver as Any)
+        }
+        SwiftEntryKit.display(entry: vc, using: attributes)
+    }
+
+    func showGroupUserSearch(groupID: String, completion:@escaping () -> ()) {
+        var attributes: EKAttributes
+        attributes = .centerFloat
+        attributes.displayMode = .light
+        attributes.displayDuration = .infinity
+        attributes.hapticFeedbackType = .none
+        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
+        attributes.entryBackground = .color(color: .white)
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
+        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
+        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
+        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
+        attributes.roundCorners = .all(radius: 20)
+        
+        attributes.positionConstraints.size = .init(width: .ratio(value: 0.8), height: .constant(value: 400))
+        attributes.positionConstraints.safeArea = .overridden
+        attributes.statusBar = .dark
+        
+        let vc = GroupSearchController()
         SwiftEntryKit.display(entry: vc, using: attributes)
     }
 

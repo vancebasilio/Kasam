@@ -9,7 +9,9 @@
 import UIKit
 import WebKit
 import CFNetwork
-import Firebase
+import FirebaseDatabase
+import FirebaseAuth
+import FirebaseCore
 import GoogleSignIn
 import FBSDKCoreKit
 import IQKeyboardManagerSwift

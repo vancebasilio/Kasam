@@ -9,9 +9,14 @@
 import UIKit
 import Foundation
 import Firebase
+import FirebaseAuth
+import FirebaseStorage
 import FirebaseDatabase
 import AVKit
 import Lottie
+import var CommonCrypto.CC_MD5_DIGEST_LENGTH
+import func CommonCrypto.CC_MD5
+import typealias CommonCrypto.CC_LONG
 
 class ProgessView: UIProgressView {
     override func layoutSubviews() {
@@ -51,6 +56,7 @@ extension UIViewController {
             let diff = frame.height - contentHeightToSet
             contentViewHeight.constant = contentHeightToSet + diff + 1
         }
+        print("hell0 \(contentHeightToSet, frame.height, contentViewHeight.constant)")
     }
     
     func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String) {
@@ -1047,6 +1053,23 @@ extension String {
                 SavedData.kasamDict[self]?.benefitsThresholds = SavedData.kasamDict[self]?.benefitsThresholds!.sorted(by: { $0.0 < $1.0 })
             }
         }
+    }
+    
+    func MD5() -> String {
+        let length = Int(CC_MD5_DIGEST_LENGTH)
+        let messageData = self.data(using:.utf8)!
+        var digestData = Data(count: length)
+
+        _ = digestData.withUnsafeMutableBytes { digestBytes -> UInt8 in
+            messageData.withUnsafeBytes { messageBytes -> UInt8 in
+                if let messageBytesBaseAddress = messageBytes.baseAddress, let digestBytesBlindMemory = digestBytes.bindMemory(to: UInt8.self).baseAddress {
+                    let messageLength = CC_LONG(messageData.count)
+                    CC_MD5(messageBytesBaseAddress, messageLength, digestBytesBlindMemory)
+                }
+                return 0
+            }
+        }
+        return digestData.map { String(format: "%02hhx", $0) }.joined()
     }
 }
 

@@ -17,6 +17,7 @@
 		BC12F1EC233FB07B00D93227 /* KasamFollowingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */; };
 		BC12F1EE233FC17100D93227 /* Statistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1ED233FC17100D93227 /* Statistics.swift */; };
 		BC12F1F0233FF1E900D93227 /* DetailedStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */; };
+		BC133A8D24D854BA00D90713 /* rocket-group.json in Resources */ = {isa = PBXBuildFile; fileRef = BC133A8C24D854BA00D90713 /* rocket-group.json */; };
 		BC1414EB2493397F0073E577 /* SwipeTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1414EA2493397F0073E577 /* SwipeTable.swift */; };
 		BC16A20423292ABD00FDF70C /* loading.json in Resources */ = {isa = PBXBuildFile; fileRef = BC16A20323292ABD00FDF70C /* loading.json */; };
 		BC1FAF2D2269FAFA006A9245 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1FAF2C2269FAFA006A9245 /* AppDelegate.swift */; };
@@ -33,8 +34,13 @@
 		BC38419C24037DE6005D929A /* PersonalDayTrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC38419B24037DE6005D929A /* PersonalDayTrackerCell.swift */; };
 		BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC3AAA1F227D46BA00D098E1 /* TabBar.swift */; };
 		BC40365A24B3DAB100661E7B /* Unused_Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC40365924B3DAB100661E7B /* Unused_Functions.swift */; };
+		BC41D4E024DA28FB00CEC9A4 /* GroupSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC41D4DF24DA28FB00CEC9A4 /* GroupSearch.swift */; };
+		BC41D4E224DA293800CEC9A4 /* GroupSearch.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC41D4E124DA293800CEC9A4 /* GroupSearch.xib */; };
+		BC41D4E624DA308D00CEC9A4 /* GroupSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC41D4E524DA308D00CEC9A4 /* GroupSearchCell.swift */; };
+		BC41D4E724DA458400CEC9A4 /* GroupSearchCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC41D4E324DA305A00CEC9A4 /* GroupSearchCell.xib */; };
 		BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */; };
 		BC45558D2321F6D300F1227B /* KasamViewerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC45558C2321F6D300F1227B /* KasamViewerCell.swift */; };
+		BC463D4524D786C100229051 /* GroupStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC463D4424D786C100229051 /* GroupStatsCell.swift */; };
 		BC4DE60524B0241A00763B32 /* OptionsPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC4DE60324B0241A00763B32 /* OptionsPopup.swift */; };
 		BC4DE60624B0241A00763B32 /* OptionsPopupController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC4DE60424B0241A00763B32 /* OptionsPopupController.xib */; };
 		BC51EB4324C14F50003771E0 /* crownSeptors.json in Resources */ = {isa = PBXBuildFile; fileRef = BC51EB4224C14F50003771E0 /* crownSeptors.json */; };
@@ -113,6 +119,7 @@
 		BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamFollowingCell.swift; sourceTree = "<group>"; };
 		BC12F1ED233FC17100D93227 /* Statistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Statistics.swift; sourceTree = "<group>"; };
 		BC12F1EF233FF1E900D93227 /* DetailedStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedStatsCell.swift; sourceTree = "<group>"; };
+		BC133A8C24D854BA00D90713 /* rocket-group.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "rocket-group.json"; sourceTree = "<group>"; };
 		BC1414EA2493397F0073E577 /* SwipeTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeTable.swift; sourceTree = "<group>"; };
 		BC16A20323292ABD00FDF70C /* loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = loading.json; path = "Supporting Files/Lottie Animations/loading.json"; sourceTree = SOURCE_ROOT; };
 		BC1FAF292269FAFA006A9245 /* Kasam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kasam.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -131,8 +138,13 @@
 		BC38419B24037DE6005D929A /* PersonalDayTrackerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalDayTrackerCell.swift; sourceTree = "<group>"; };
 		BC3AAA1F227D46BA00D098E1 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
 		BC40365924B3DAB100661E7B /* Unused_Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Unused_Functions.swift; sourceTree = "<group>"; };
+		BC41D4DF24DA28FB00CEC9A4 /* GroupSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSearch.swift; sourceTree = "<group>"; };
+		BC41D4E124DA293800CEC9A4 /* GroupSearch.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GroupSearch.xib; sourceTree = "<group>"; };
+		BC41D4E324DA305A00CEC9A4 /* GroupSearchCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GroupSearchCell.xib; sourceTree = "<group>"; };
+		BC41D4E524DA308D00CEC9A4 /* GroupSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSearchCell.swift; sourceTree = "<group>"; };
 		BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewBlockCell.swift; sourceTree = "<group>"; };
 		BC45558C2321F6D300F1227B /* KasamViewerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamViewerCell.swift; sourceTree = "<group>"; };
+		BC463D4424D786C100229051 /* GroupStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupStatsCell.swift; sourceTree = "<group>"; };
 		BC4DE60324B0241A00763B32 /* OptionsPopup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionsPopup.swift; sourceTree = "<group>"; };
 		BC4DE60424B0241A00763B32 /* OptionsPopupController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OptionsPopupController.xib; sourceTree = "<group>"; };
 		BC51EB4224C14F50003771E0 /* crownSeptors.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = crownSeptors.json; sourceTree = "<group>"; };
@@ -236,6 +248,7 @@
 				BC83484D24450468001819DC /* Badges */,
 				BC16A20323292ABD00FDF70C /* loading.json */,
 				BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */,
+				BC133A8C24D854BA00D90713 /* rocket-group.json */,
 				BC2B4C8023A70436005F2255 /* checkmark.json */,
 				BCD824D223D7C0B40051C499 /* success.json */,
 				BC2B4C7F23A70436005F2255 /* rocket-fast.json */,
@@ -286,6 +299,17 @@
 			path = Kasam;
 			sourceTree = "<group>";
 		};
+		BC41D4DE24DA28CB00CEC9A4 /* GroupUserSearch */ = {
+			isa = PBXGroup;
+			children = (
+				BC41D4E124DA293800CEC9A4 /* GroupSearch.xib */,
+				BC41D4DF24DA28FB00CEC9A4 /* GroupSearch.swift */,
+				BC41D4E324DA305A00CEC9A4 /* GroupSearchCell.xib */,
+				BC41D4E524DA308D00CEC9A4 /* GroupSearchCell.swift */,
+			);
+			path = GroupUserSearch;
+			sourceTree = "<group>";
+		};
 		BC4DE60224B023E400763B32 /* OptionsPopup */ = {
 			isa = PBXGroup;
 			children = (
@@ -331,6 +355,7 @@
 				BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */,
 				BC96F8462292085200E161FC /* PersonalBlockCell.swift */,
 				BC38419B24037DE6005D929A /* PersonalDayTrackerCell.swift */,
+				BC463D4424D786C100229051 /* GroupStatsCell.swift */,
 				BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */,
 				BC74AE98237DDCD100676B10 /* NewActivityCell.swift */,
 				BC45558C2321F6D300F1227B /* KasamViewerCell.swift */,
@@ -398,6 +423,7 @@
 				BC1FAF352269FAFA006A9245 /* LaunchScreen.storyboard */,
 				BCC07F4D2466F357000E2D81 /* UserOptions */,
 				BCF8A2FF246436140030C323 /* TrophiesAchieved */,
+				BC41D4DE24DA28CB00CEC9A4 /* GroupUserSearch */,
 				BC4DE60224B023E400763B32 /* OptionsPopup */,
 				BCC07F4E24670A11000E2D81 /* AddKasam */,
 				BC1C8412248B531400797A20 /* Notifications */,
@@ -528,9 +554,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BC41D4E724DA458400CEC9A4 /* GroupSearchCell.xib in Resources */,
 				BC8348462445027A001819DC /* goldCup.json in Resources */,
 				BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */,
+				BC41D4E224DA293800CEC9A4 /* GroupSearch.xib in Resources */,
 				BC51EB4324C14F50003771E0 /* crownSeptors.json in Resources */,
+				BC133A8D24D854BA00D90713 /* rocket-group.json in Resources */,
 				BC16A20423292ABD00FDF70C /* loading.json in Resources */,
 				BCD213672460CEE10096A365 /* flagmountainBG.json in Resources */,
 				BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */,
@@ -703,6 +732,7 @@
 				BC12F1EE233FC17100D93227 /* Statistics.swift in Sources */,
 				BCFCB43522AF02C900DC2DD7 /* DiscoverCollectionCell.swift in Sources */,
 				BC3AAA20227D46BA00D098E1 /* TabBar.swift in Sources */,
+				BC463D4524D786C100229051 /* GroupStatsCell.swift in Sources */,
 				BCE50BE022D04A37000F2534 /* FXBlurView.m in Sources */,
 				BCF8A303246436140030C323 /* TrophiesAchievedCell.swift in Sources */,
 				BC339E8E2376EB6D00E1D038 /* CustomSegmentedControl.swift in Sources */,
@@ -714,6 +744,7 @@
 				BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */,
 				BC38419C24037DE6005D929A /* PersonalDayTrackerCell.swift in Sources */,
 				BC9EC1D92390DD0400637C94 /* CompletedKasamCell.swift in Sources */,
+				BC41D4E624DA308D00CEC9A4 /* GroupSearchCell.swift in Sources */,
 				BC5D1B0224BA1D4700A5E9A7 /* 3. Group.swift in Sources */,
 				BC651491238DAD4600510971 /* Popups.swift in Sources */,
 				BC55BFD722AEEF6200D77337 /* Custom Functions.swift in Sources */,
@@ -724,6 +755,7 @@
 				BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */,
 				BC96F8482292085200E161FC /* PersonalBlockCell.swift in Sources */,
 				BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */,
+				BC41D4E024DA28FB00CEC9A4 /* GroupSearch.swift in Sources */,
 				BC01664522D53E970073186D /* CoachHolder.swift in Sources */,
 				BCF2A76B227F08F0009D2368 /* KasamBlocksCell.swift in Sources */,
 				BC339E902377242C00E1D038 /* LoginViewCell.swift in Sources */,

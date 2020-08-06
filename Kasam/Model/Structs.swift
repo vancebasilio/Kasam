@@ -36,7 +36,8 @@ struct DBRef {
     
     static let coachKasams = Database.database().reference().child("Coach-Kasams")
     static let userCreator = Database.database().reference().child("Users")
-    static let currentUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
+    static let currentUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Info")
+    static let userEmails = Database.database().reference().child("User-Emails")
     
     static let userKasams = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
     static let userPersonalHistory = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")

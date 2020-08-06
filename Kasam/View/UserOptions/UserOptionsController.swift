@@ -8,6 +8,7 @@
 
 import UIKit
 import SwiftEntryKit
+import FBSDKLoginKit
 
 class UserOptionsController: UIViewController {
 
@@ -75,13 +76,18 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
                         NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "complex"])
                         SwiftEntryKit.dismiss()
                     } else {
-                        showOptionsPopup(kasamID: nil, title: nil, subtitle: nil, text: "You'll need to go Pro to create a complex kasam", type:"goPro", button: "Go Pro!")
-                }
+                        showOptionsPopup(kasamID: nil, title: nil, subtitle: nil, text: "You'll need to go Pro to create a complex kasam", type:"goPro", button: "Go Pro!") {
+                            print("Go Pro Page")
+                        }
+                    }
                 case 2:
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNotifications"), object: self)
                     SwiftEntryKit.dismiss()
                 case 3:
-                    showOptionsPopup(kasamID: nil, title: "Are you sure?", subtitle: nil, text: nil, type:"logout", button: "Logout")
+                    showOptionsPopup(kasamID: nil, title: "Are you sure?", subtitle: nil, text: nil, type:"logout", button: "Logout") {
+                        AppManager.shared.logoout()
+                        LoginManager().logOut()
+                    }
                 default: SwiftEntryKit.dismiss()
             }
         } else if popupType == "categoryOptions" {

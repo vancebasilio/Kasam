@@ -7,7 +7,9 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseAuth
+import FirebaseDatabase
+import FirebaseStorage
 import FBSDKLoginKit
 import GoogleSignIn
 
@@ -154,24 +156,23 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
             showError(error)
             return
         } else {
-            let ref = Database.database().reference().child("Users")
-            ref.observeSingleEvent(of: .value, with: {(snapshot) in
-                //if the user exists, don't add data
+            DBRef.userCreator.observeSingleEvent(of: .value, with: {(snapshot) in
+                //If the user exists, don't add data
                 if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {
                     //user already exists in Firebase, so just sign them in
                     self.dismiss(animated: true, completion: nil)               //this takes them to the Personal page
                     return
                 } else {
-                    //user doesn't exist, so create a new profile for them
+                    //User doesn't exist, so create a new profile for them
                     let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
                     let userDictionary = ["Name": authResult?.user.displayName!, "UserID": Auth.auth().currentUser?.uid, "Type": "Basic"]
                     
-                    newUser.setValue(userDictionary) {
+                    newUser.child("Info").setValue(userDictionary) {
                         (error, reference) in
                         if error != nil {
                             print(error!)
                         } else {
-                            print("Registration Successful!")
+                            DBRef.userEmails.child(authResult?.user.email?.MD5() ?? "email").setValue((Auth.auth().currentUser?.uid)!)
                         }
                     }
                     let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()

@@ -7,7 +7,9 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseAuth
+import FirebaseDatabase
+import FirebaseStorage
 import FBSDKLoginKit
 import SwiftEntryKit
 import GoogleSignIn
@@ -76,6 +78,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     func updateScrollViewSize(){
+        print("hell0")
         collectionViewHeight.constant = kasamStatsHeight.constant + CGFloat(57.5)       //57.5 is the collectionView Title height
         let additional = kasamStatsHeight.constant + 120 + topViewHeight.constant
         updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: completedKasamTableHeight, tableRowHeight: completedTableRowHeight, rowCount: completedStats.count, additionalHeight: additional)
@@ -130,6 +133,9 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 self.setKasamLevel()
             }
         })
+        DispatchQueue.main.async {
+            self.updateScrollViewSize()
+        }
     }
     
     func addKasamStats(snap: DataSnapshot, kasamID: String){
