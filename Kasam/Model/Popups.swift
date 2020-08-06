@@ -216,7 +216,7 @@ import Firebase
         SwiftEntryKit.display(entry: vc, using: attributes)
     }
 
-    func showGroupUserSearch(groupID: String, completion:@escaping () -> ()) {
+    func showGroupUserSearch(kasamID: String, completion:@escaping () -> ()) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light
@@ -237,6 +237,7 @@ import Firebase
         attributes.statusBar = .dark
         
         let vc = GroupSearchController()
+        vc.kasamID = kasamID
         SwiftEntryKit.display(entry: vc, using: attributes)
     }
 

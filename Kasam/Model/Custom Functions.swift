@@ -56,7 +56,6 @@ extension UIViewController {
             let diff = frame.height - contentHeightToSet
             contentViewHeight.constant = contentHeightToSet + diff + 1
         }
-        print("hell0 \(contentHeightToSet, frame.height, contentViewHeight.constant)")
     }
     
     func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String) {

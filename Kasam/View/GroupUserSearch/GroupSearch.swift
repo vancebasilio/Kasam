@@ -19,7 +19,9 @@ class GroupSearchController: UIViewController {
     @IBOutlet weak var dropdownTableHeight: NSLayoutConstraint!
     @IBOutlet weak var searchBar: UISearchBar!
     
-    var dropdownTableArray:[(name: String, image: URL?)] = []
+    var dropdownTableArray: [(name: String, image: URL?, status: Double)] = []
+    var existingUsersArray: [(name: String, image: URL?, status: Double)] = []
+    var kasamID = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,6 +36,30 @@ class GroupSearchController: UIViewController {
         dropdownTableView.layer.shadowOpacity = 0.8
         dropdownTableView.layer.cornerRadius = 10
         searchBar.autocapitalizationType = .none
+        loadExistingUsersArray()
+    }
+    
+    func loadExistingUsersArray(){
+        existingUsersArray.removeAll()
+        if SavedData.kasamDict[kasamID]?.groupTeam != nil {
+            for member in SavedData.kasamDict[kasamID]!.groupTeam! {
+                DBRef.userCreator.child(member.key).child("Info").observeSingleEvent(of: .value) {(userInfo) in
+                    DispatchQueue.main.async {
+                        if let value = userInfo.value as? [String:Any] {
+                            self.existingUsersArray.append((name: value["Name"] as! String, image: URL(string: value["ProfilePic"] as! String), status: member.value))
+                        }
+                        if self.existingUsersArray.count == SavedData.kasamDict[self.kasamID]!.groupTeam!.count {
+                            self.existingUsersArray = self.existingUsersArray.sorted(by: {$0.status > $1.status})
+                            self.selectedTableView.reloadData()
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func touchOutside(){
+        print("hell0")
     }
     
     @IBAction func closeButtonPressed(_ sender: Any) {
@@ -49,10 +75,12 @@ extension GroupSearchController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         Database.database().reference().child("User-Emails").child((searchBar.text ?? "").MD5()).observeSingleEvent(of: .value) {(snap) in
             if snap.exists() {
-                DBRef.userCreator.child(snap.value as! String).child("Info").child("Name").observeSingleEvent(of: .value) {(userName) in
+                DBRef.userCreator.child(snap.value as! String).child("Info").observeSingleEvent(of: .value) {(userInfo) in
                     DispatchQueue.main.async {
                         self.dropdownTableArray.removeAll()
-                        self.dropdownTableArray.append((name: userName.value as! String, image: URL(string: "")))
+                        if let value = userInfo.value as? [String:Any] {
+                            self.dropdownTableArray.append((name: value["Name"] as! String, image: URL(string: value["ProfilePic"] as! String), status: -2))
+                        }
                         self.dropdownTableHeight.constant = CGFloat(50 * self.dropdownTableArray.count) + 20
                         self.dropdownTableView.reloadData()
                     }
@@ -75,7 +103,7 @@ extension GroupSearchController: UISearchBarDelegate {
 extension GroupSearchController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == selectedTableView {
-            return 0
+            return existingUsersArray.count
         } else {
             return dropdownTableArray.count
         }
@@ -88,9 +116,9 @@ extension GroupSearchController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GroupSearchCell") as! GroupSearchCell
         if tableView == selectedTableView {
-            
+            cell.setCell(cell: existingUsersArray[indexPath.row])
         } else {
-            cell.userName.text = dropdownTableArray[indexPath.row].name
+            cell.setCell(cell: dropdownTableArray[indexPath.row])
         }
         return cell
     }

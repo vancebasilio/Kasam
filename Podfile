@@ -34,6 +34,7 @@ pod 'Charts'
 pod 'SwiftEntryKit'
 pod 'IQKeyboardManagerSwift'
 pod 'SwipeCellKit'
+pod 'AMPopTip'
 
 end
 

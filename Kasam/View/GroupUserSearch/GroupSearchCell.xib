@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="GroupSearchCell" rowHeight="50" id="KGk-i7-Jjw" customClass="GroupSearchCell" customModule="Kasam" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="428" height="71"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="428" height="71"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9mz-BI-UpP" userLabel="UserImage">
+                        <rect key="frame" x="10" y="10" width="51" height="51"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="9mz-BI-UpP" secondAttribute="height" multiplier="1:1" id="N9h-Zr-EOn"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8hb-vZ-FfB">
+                        <rect key="frame" x="71" y="25" width="46" height="21"/>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Se4-Wb-Luh" userLabel="Check">
+                        <rect key="frame" x="357" y="5" width="61" height="61"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
+                        </userDefinedRuntimeAttributes>
+                        <connections>
+                            <action selector="checkBoxPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="R8X-5s-1vR"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <constraints>
+                    <constraint firstItem="8hb-vZ-FfB" firstAttribute="leading" secondItem="9mz-BI-UpP" secondAttribute="trailing" constant="10" id="1oA-fT-K4w"/>
+                    <constraint firstItem="Se4-Wb-Luh" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="5" id="3Cf-2D-ig1"/>
+                    <constraint firstItem="Se4-Wb-Luh" firstAttribute="width" secondItem="Se4-Wb-Luh" secondAttribute="height" multiplier="1:1" id="SlE-hD-ggy"/>
+                    <constraint firstItem="9mz-BI-UpP" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="c4U-I5-Mni"/>
+                    <constraint firstAttribute="bottom" secondItem="9mz-BI-UpP" secondAttribute="bottom" constant="10" id="hLV-dE-SeA"/>
+                    <constraint firstItem="8hb-vZ-FfB" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="jZi-7d-rQ5"/>
+                    <constraint firstItem="9mz-BI-UpP" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="jsE-yP-cUz"/>
+                    <constraint firstAttribute="bottom" secondItem="Se4-Wb-Luh" secondAttribute="bottom" constant="5" id="lSI-4S-bV3"/>
+                    <constraint firstAttribute="trailing" secondItem="Se4-Wb-Luh" secondAttribute="trailing" constant="10" id="sT9-sf-9FN"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="checkBox" destination="Se4-Wb-Luh" id="W2d-aw-Hec"/>
+                <outlet property="userImage" destination="9mz-BI-UpP" id="7IU-G0-c4W"/>
+                <outlet property="userName" destination="8hb-vZ-FfB" id="Kfh-q4-pjq"/>
+            </connections>
+            <point key="canvasLocation" x="215.94202898550725" y="103.45982142857143"/>
+        </tableViewCell>
+    </objects>
+</document>

@@ -165,7 +165,7 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
     
     @objc func showBenefit(){
         if type == "group" && SavedData.kasamDict[kasamID]?.groupStatus == "initiated" {
-            showGroupUserSearch(groupID: SavedData.kasamDict[kasamID]!.groupID!) {
+            showGroupUserSearch(kasamID: kasamID) {
                 //
             }
         } else {
