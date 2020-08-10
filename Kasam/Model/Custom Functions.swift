@@ -673,6 +673,25 @@ extension UIViewController {
             }
         }
     }
+    
+    func getCurrentDate() -> String {
+        let currentDateTime = Date()
+        let formatter = DateFormatter()
+        formatter.timeStyle = .none
+        formatter.dateFormat = "yyyy-MM-dd"                                     //***keep this value the same as below
+        let finalDate = formatter.string(from: currentDateTime)
+        return finalDate
+    }
+    
+    func loginUser() {
+        if Auth.auth().currentUser != nil {
+            SavedData.userID = Auth.auth().currentUser!.uid
+            DBRef.resetDBs()
+            DBRef.currentUser.child("Type").observeSingleEvent(of: .value, with:{(snap) in
+                SavedData.userType = snap.value as? String ?? "Basic"
+            })
+        }
+    }
 }
 
 extension UINavigationItem {

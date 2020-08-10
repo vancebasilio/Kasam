@@ -25,42 +25,51 @@ struct SavedData {
     static func addKasam(kasam: KasamSavedFormat) {self.kasamDict[kasam.kasamID] = kasam}
     
     static var trophiesAchieved: [String: (kasamName: String, kasamTrophies: [(completedDate: String, trophyThreshold: Int)])] = [:]
-    static var trophiesCount = 0          //all badges achieved only
+    static var trophiesCount = 0                                    //All badges achieved only
     static var userType = "Basic"
-    static var notificationArray = [Int:UNNotificationRequest]()
+    static var userID = Auth.auth().currentUser?.uid ?? ""
+    
+    static func wipeAllData(){
+        personalKasamBlocks.removeAll()
+        personalCompletedList.removeAll()
+        groupKasamBlocks.removeAll()
+        groupCompletedList.removeAll()
+        kasamDict.removeAll()
+        trophiesAchieved.removeAll()
+        trophiesCount = 0
+        userType = "Basic"
+    }
 }
 
 struct DBRef {
-    static let userPersonalFollowing = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasam-Following")
-    static let userTrophies = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Trophies")
+    static var userPersonalFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Kasam-Following")
+    static var userTrophies = Database.database().reference().child("Users").child(SavedData.userID).child("Trophies")
     
     static let coachKasams = Database.database().reference().child("Coach-Kasams")
-    static let userCreator = Database.database().reference().child("Users")
-    static let currentUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Info")
+    static let userBase = Database.database().reference().child("Users")
+    static var currentUser = Database.database().reference().child("Users").child(SavedData.userID).child("Info")
     static let userEmails = Database.database().reference().child("User-Emails")
     
-    static let userKasams = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Kasams")
-    static let userPersonalHistory = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("History")
+    static var userKasams = Database.database().reference().child("Users").child(SavedData.userID).child("Kasams")
+    static var userPersonalHistory = Database.database().reference().child("Users").child(SavedData.userID).child("History")
     
     static let groupKasams = Database.database().reference().child("Group-Kasams")
-    static let userGroupFollowing = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Group-Following")
+    static var userGroupFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Group-Following")
+    
+    static func resetDBs(){
+        DBRef.userPersonalFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Kasam-Following")
+        DBRef.userTrophies = Database.database().reference().child("Users").child(SavedData.userID).child("Trophies")
+        DBRef.currentUser = Database.database().reference().child("Users").child(SavedData.userID).child("Info")
+        DBRef.userKasams = Database.database().reference().child("Users").child(SavedData.userID).child("Kasams")
+        DBRef.userPersonalHistory = Database.database().reference().child("Users").child(SavedData.userID).child("History")
+        DBRef.userGroupFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Group-Following")
+    }
 }
 
 struct Assets {
     static var levelsArray = ["Easy", "Medium", "Hard"]
     static var featuredKasams: [String]?
     static var discoverCriteria = [""]
-}
-
-struct Dates {
-    static func getCurrentDate() -> String {
-        let currentDateTime = Date()
-        let formatter = DateFormatter()
-        formatter.timeStyle = .none
-        formatter.dateFormat = "yyyy-MM-dd"                                     //***keep this value the same as below
-        let finalDate = formatter.string(from: currentDateTime)
-        return finalDate
-    }
 }
 
 struct Icons {

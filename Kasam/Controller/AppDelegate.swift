@@ -45,16 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
         })
-        profileInfo()
         return true
-    }
-    
-    func profileInfo() {
-        if Auth.auth().currentUser != nil {
-            DBRef.currentUser.child("Type").observeSingleEvent(of: .value, with:{(snap) in
-                SavedData.userType = snap.value as? String ?? "Basic"
-            })
-        }
     }
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
@@ -89,11 +80,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!, withError error: Error!) {
-
     }
 
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
-
     }
 }
 

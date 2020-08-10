@@ -50,7 +50,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     
     func countFollowers(){
         var count = 0
-        DBRef.userCreator.child(coachID).child("Info").child("Followers").observe(.childAdded) {(snapshot) in
+        DBRef.userBase.child(coachID).child("Info").child("Followers").observe(.childAdded) {(snapshot) in
             count += 1
             self.followersNo.text = String(count)
         }

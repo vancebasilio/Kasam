@@ -156,7 +156,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
             showError(error)
             return
         } else {
-            DBRef.userCreator.observeSingleEvent(of: .value, with: {(snapshot) in
+            DBRef.userBase.observeSingleEvent(of: .value, with: {(snapshot) in
                 //If the user exists, don't add data
                 if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {
                     //user already exists in Firebase, so just sign them in
@@ -197,7 +197,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
             let profilePicRef = storageRef.child("users/"+userFirebase.uid+"/profile_pic.jpg")
             
             //Check if the image is stored in Firebase
-            profilePicRef.downloadURL { (url, error) in
+            profilePicRef.downloadURL {(url, error) in
                 if url != nil {
                     //OPTION 1 - Get the image from Firebase
                 } else {
@@ -207,12 +207,13 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                             //OPTION 2 - Download image from Google
                             if let imageData = NSData(contentsOf: googleUser!.profile.imageURL(withDimension: 400)) {
                             //Upload the file to the storage reference location
-                                _ = profilePicRef.putData(imageData as Data, metadata:nil){
-                                    metadata, error in
-                                    if(error == nil) {
-                                        //image successfully downloaded to Firebase
-                                    }
-                                    else {print("Error in downloading image")}
+                                profilePicRef.putData(imageData as Data, metadata:nil){ metadata, error in
+                                    //Image successfully downloaded to Firebase
+                                    profilePicRef.downloadURL(completion: { (url, error) in
+                                        if let urlText = url?.absoluteString {
+                                            Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Info").child("ProfilePic").setValue(urlText)
+                                        }
+                                    })
                                 }
                             }
                         } else {
@@ -225,12 +226,13 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                                     let urlPic = ((data as AnyObject).object(forKey: "url"))! as! String
                                     if let imageData = NSData(contentsOf: NSURL(string:urlPic)! as URL) {
                                         //Upload the file to the storage reference location
-                                        _ = profilePicRef.putData(imageData as Data, metadata:nil){
-                                            metadata, error in
-                                            if(error == nil) {
-                                                //image successfully downloaded to Firebase
-                                        }
-                                        else {print("Error in downloading image")}
+                                        profilePicRef.putData(imageData as Data, metadata:nil) {metadata, error in
+                                            //Image successfully downloaded to Firebase
+                                            profilePicRef.downloadURL(completion: { (url, error) in
+                                                if let urlText = url?.absoluteString {
+                                                    Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!).child("Info").child("ProfilePic").setValue(urlText)
+                                                }
+                                            })
                                         }
                                     }
                                 }

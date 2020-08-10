@@ -108,6 +108,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         personalKasamCount = 0
         SavedData.personalKasamBlocks.removeAll()
         showIconCheck()
+        print("hell5 \(SavedData.userID)")
         //Kasam list loaded for first time + if new kasam is added
         DBRef.userPersonalFollowing.observe(.childAdded) {(snapshot) in
             self.personalAnimationIcon.isHidden = true
@@ -131,7 +132,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     //STEP 2
     func getPreferences(snapshot: DataSnapshot){
         if let value = snapshot.value as? [String: Any] {
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: nil, groupStatus: nil, groupTeam: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: nil, groupAdmin: nil, groupStatus: nil, groupTeam: nil)
             DispatchQueue.main.async {snapshot.key.benefitThresholds()}
             print("Step 2 - Get preferences hell6 \(preference.kasamName)")
             SavedData.addKasam(kasam: preference)
@@ -164,9 +165,9 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                     for date in Date.dates(from: kasam.joinedDate, to: Date()) {
                         let dateString = date.dateToString()
                         DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).child(dateString).observeSingleEvent(of: .value) {(snapCount) in
-                            if dateString != Dates.getCurrentDate() && snapCount.exists() {
+                            if dateString != self.getCurrentDate() && snapCount.exists() {
                                 blockDayToLoad += 1               //the user has completed xx number of blocks in the past (excludes today's block)
-                            } else if dateString == Dates.getCurrentDate() {
+                            } else if dateString == self.getCurrentDate() {
                                 DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observeSingleEvent(of: .value, with: {(snapshot) in
                                     if let value = snapshot.value as? [String:String] {
                                         dayToShow = blockDayToLoad
@@ -209,7 +210,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         print("Step 4 - Save Kasam Blocks hell6 \((kasam.kasamName))")
         let kasamImage = value["Image"] as! String
         SavedData.kasamDict[kasam.kasamID]?.image = kasamImage
-        let block = PersonalBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, dayCount: dayCount)
+        let block = PersonalBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, dayCount: dayCount)
         if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
             SavedData.personalKasamBlocks[kasamOrder] = (kasam.kasamID, block)
             if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
@@ -255,7 +256,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                         dayTrackerArrayInternal[order] = (kasamDate, dayPercent)
                         
                         //Status for Current day
-                        if history.key == Dates.getCurrentDate() {
+                        if history.key == self.getCurrentDate() {
                             percentComplete = dayPercent
                             if dayPercent == 1 {displayStatus = "Check"}
                             else if dayPercent < 1 && dayPercent > 0 {displayStatus = "Progress"}

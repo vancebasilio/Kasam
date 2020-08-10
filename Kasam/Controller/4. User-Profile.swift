@@ -263,8 +263,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         if let truncUserFirst = Auth.auth().currentUser?.displayName?.split(separator: " ").first.map(String.init), let truncUserLast = Auth.auth().currentUser?.displayName?.split(separator: " ").last.map(String.init) {
             userFirstName.text = truncUserFirst + " " + truncUserLast
         }
-        let tap = UITapGestureRecognizer(target: self, action: #selector(allTrophiesPopup))
-        badgesView.addGestureRecognizer(tap)
+        badgesView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(allTrophiesPopup)))
     }
     
     @objc func allTrophiesPopup() {
@@ -292,25 +291,17 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             DBRef.currentUser.child("ProfilePic").observeSingleEvent(of: .value, with:{(snap) in
                 if snap.exists() {
                     //get the manually set Image
-                    let profilePicRef = storageRef.child("users/"+user.uid+"/manual_profile_pic.jpg")
-                    self.setProfileImage(profilePicRef: profilePicRef)
+                    self.profileImage.sd_setImage(with: URL(string:snap.value as! String), completed: nil)
                 } else {
                     //get the Facebook or Google Image
                     let profilePicRef = storageRef.child("users/"+user.uid+"/profile_pic.jpg")
-                    self.setProfileImage(profilePicRef: profilePicRef)
+                    profilePicRef.downloadURL {(url, error) in
+                        //Get the image from Firebase
+                        self.profileImage?.sd_setImage(with: url, placeholderImage: PlaceHolders.kasamLoadingImage, options: [], completed: { (image, error, cache, url) in
+                        })
+                    }
                 }
             })
-        }
-    }
-    
-    func setProfileImage(profilePicRef: StorageReference){
-        //Check if the image is stored in Firebase
-        profilePicRef.downloadURL {(url, error) in
-            if url != nil {
-                //Get the image from Firebase
-                self.profileImage?.sd_setImage(with: url, placeholderImage: PlaceHolders.kasamLoadingImage, options: [], completed: { (image, error, cache, url) in
-                })
-            }
         }
     }
     

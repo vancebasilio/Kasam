@@ -9,7 +9,7 @@
 import UIKit
 import SDWebImage
 import SwiftIcons
-import Firebase
+import FirebaseAuth
 import Lottie
 
 protocol TableCellDelegate : class {
@@ -42,12 +42,17 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
     @IBOutlet weak var statsContent: UIView!
     @IBOutlet weak var statsShadow: UIView!
     @IBOutlet weak var streakShadow: UIView!
-    @IBOutlet weak var yesButtonView: UIView!
-    @IBOutlet weak var yesButton: UIButton!
-    @IBOutlet weak var trophyIconView: UIView!
-    @IBOutlet weak var trophyIcon: AnimationView!
+    
+    @IBOutlet weak var bottomStatusView: UIView!
+    @IBOutlet weak var bottomStatusButton: UIButton!
+    @IBOutlet weak var bottomStatusText: UILabel!
+    
+    @IBOutlet weak var topStatusView: UIView!
+    @IBOutlet weak var topStatusAnimation: AnimationView!
+    @IBOutlet weak var topStatusButton: UIButton!
+    @IBOutlet weak var topStatusText: UILabel!
+    
     @IBOutlet weak var progressBar: UIView!
-    @IBOutlet weak var percentComplete: UILabel!
     @IBOutlet weak var dayTrackerCollectionView: UICollectionView!
     @IBOutlet weak var dayTrackerCollectionHeight: NSLayoutConstraint!
     @IBOutlet weak var hideDayTrackerButton: UIButton!
@@ -116,6 +121,22 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
             SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = snap.value as? Double
             self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
             self.groupStatsTable.reloadData()
+        }
+        
+        //New user added to group kasam
+        DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childAdded) {(snap) in
+            SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = snap.value as? Double
+            self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
+            self.groupStatsTable.reloadData()
+            self.statusUpdate(nil)
+        }
+        
+        //User removed from group kasam
+        DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childRemoved) {(snap) in
+            SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = nil
+            self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
+            self.groupStatsTable.reloadData()
+            self.statusUpdate(nil)
         }
     }
     
@@ -195,7 +216,17 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
         dayTrackerCollectionView.reloadData()
     }
     
-    @IBAction func yesButtonPressed(_ sender: UIButton) {
+    @IBAction func topStatusButtonPressed(_ sender: Any) {
+        if SavedData.kasamDict[kasamID]?.groupTeam?[SavedData.userID] == -1 {
+            DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").child("Team").child(SavedData.userID).setValue(0)
+            topStatusButton.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
+        } else if SavedData.kasamDict[kasamID]?.groupTeam?[SavedData.userID] == 0 {
+            DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").child("Team").child(SavedData.userID).setValue(-1)
+            topStatusButton.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
+        }
+    }
+    
+    @IBAction func bottomStatusButtonPressed(_ sender: Any) {
         //Completed Kasam
         if tempBlock!.dayOrder >= SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
             extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
@@ -213,12 +244,19 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
             centerCollectionView()
         //Group kasams that haven't started yet
         } else {
-            showOptionsPopup(kasamID: nil, title: "Start your group kasam", subtitle: nil, text: "You'll be starting on \(Date().dateToShortString()) \nwith \(SavedData.kasamDict[kasamID]!.groupTeam!.count.pluralUnit(unit: "member"))", type:"startGroupKasam", button: "Start!") {
-                DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").updateChildValues(["Status":"active", "Date Joined":Date().dateToString()])
-                SavedData.kasamDict[self.kasamID]?.groupStatus = "active"
-                SavedData.groupKasamBlocks[self.row].data.dayOrder = 1
-                self.cellDelegate?.reloadKasamBlock(kasamOrder: self.row)
-                self.groupStatsTable.reloadData()
+            if SavedData.kasamDict[kasamID]?.groupAdmin == SavedData.userID {
+                showOptionsPopup(kasamID: nil, title: "Start your group kasam", subtitle: nil, text: "You'll be starting on \(Date().dateToShortString()) \nwith \(SavedData.kasamDict[kasamID]!.groupTeam!.count.pluralUnit(unit: "member"))", type:"startGroupKasam", button: "Start!") {
+                    DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").updateChildValues(["Status":"active", "Date Joined":Date().dateToString()])
+                    SavedData.kasamDict[self.kasamID]?.groupStatus = "active"
+                    SavedData.groupKasamBlocks[self.row].data.dayOrder = 1
+                    self.cellDelegate?.reloadKasamBlock(kasamOrder: self.row)
+                    self.groupStatsTable.reloadData()
+                }
+            } else {
+                showOptionsPopup(kasamID: nil, title: "Leave the kasam?", subtitle: nil, text: "You'll be permanately removing the '\(String(describing: SavedData.kasamDict[kasamID]!.kasamName))' kasam from your Group following. You'll need to be re-invited to rejoin.", type:"leaveGroupKasam", button: "Leave") {
+                        DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").child("Team").child(SavedData.userID).setValue(nil)
+                        DBRef.userGroupFollowing.child(SavedData.kasamDict[self.kasamID]!.groupID!).setValue(nil)
+                }
             }
         }
     }
@@ -285,10 +323,20 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
             let block = SavedData.kasamDict[kasamID]
             print("Step 5 - Block status update \(String(describing: block?.kasamName))")
             if block?.groupStatus == "initiated" {
+                if block?.groupAdmin != SavedData.userID {
+                    topStatusView.isHidden = false
+                    topStatusButton.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
+                    topStatusText.isHidden = false; topStatusText.text = "Accept"; topStatusText.textColor = .dayYesColor
+                    bottomStatusButton.setIcon(icon: .fontAwesomeRegular(.timesCircle), iconSize: iconSize, color: .dayNoColor, forState: .normal)
+                    bottomStatusText.isHidden = false; bottomStatusText.text = "Leave"; bottomStatusText.textColor = .dayNoColor
+                } else {
+                    topStatusView.isHidden = true
+                    topStatusText.isHidden = true
+                    bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: iconSize, color: .darkGray, forState: .normal)
+                    bottomStatusText.isHidden = false; bottomStatusText.text = "Start"; bottomStatusText.textColor = .darkGray
+                }
                 currentDayStreak.text = String(describing:block!.groupTeam?.count ?? 0)
-                if block!.groupTeam?.count == 1 {streakPostText.text = "member joined"} else {streakPostText.text = "members joined"}
-                yesButton?.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: iconSize, color: .darkGray, forState: .normal)
-                percentComplete.isHidden = false; percentComplete.text = "Start"
+                if block!.groupTeam?.count == 1 {streakPostText.text = "member"} else {streakPostText.text = "members"}
                 statsShadow.layer.shadowColor = UIColor.colorFive.cgColor
                 statsShadow.layer.shadowOpacity = 1
             } else {
@@ -301,16 +349,16 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
             //STEP 2 - Update Percentage complete and Checkmark
                 if tempBlock?.dayOrder ?? 0 >= block!.repeatDuration {
                     //STEP 2 - COMPLETED KASAMS
-                    yesButton?.setIcon(icon: .fontAwesomeSolid(.flagCheckered), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
+                    bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.flagCheckered), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
                     blockSubtitle.frame.size.height = 20
                     blockSubtitle.text = "Complete!"
                     if currentDayStat == block!.repeatDuration {
                         streakShadow.backgroundColor = .dayYesColor
-                        trophyIconView.isHidden = false; trophyIcon.animation = Animations.kasamBadges[1]; trophyIcon.backgroundBehavior = .pauseAndRestore
-                        trophyIcon.play()
+                        topStatusAnimation.isHidden = false; topStatusAnimation.animation = Animations.kasamBadges[1]; topStatusAnimation.backgroundBehavior = .pauseAndRestore
+                        topStatusAnimation.play()
                     } else {
                         streakShadow.backgroundColor = .colorFour
-                        trophyIconView.isHidden = true
+                        topStatusView.isHidden = true
                     }
                     statsShadow.layer.shadowColor = UIColor.dayYesColor.darker.darker.cgColor
                     statsShadow.layer.shadowOpacity = 1
@@ -319,7 +367,7 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
                 } else {
                     //ONGOING KASAM
                     checkmarkAndPercentageUpdate()
-                    trophyIconView.isHidden = true
+                    topStatusView.isHidden = true
                     blockSubtitle.frame.size.height = 20
                     if block!.repeatDuration - tempBlock!.dayOrder == 1 {
                         blockSubtitle.text = "One day left!"
@@ -361,26 +409,26 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
     func checkmarkAndPercentageUpdate(){
         print("STEP 5C - CheckmarkAndPercentage")
         if SavedData.kasamDict[tempBlock!.kasamID]?.metricType != "Checkmark" {
-            percentComplete.isHidden = false
-            percentComplete.text = "\(Int((SavedData.kasamDict[kasamID]?.percentComplete ?? 0)! * 100))%"
+            bottomStatusText.isHidden = false
+            bottomStatusText.text = "\(Int((SavedData.kasamDict[kasamID]?.percentComplete ?? 0)! * 100))%"
         } else {
-            percentComplete.isHidden = true
+            bottomStatusText.isHidden = true
         }
         if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[kasamID]!.metricType == "Checkmark" {
             streakShadow.backgroundColor = .colorFour
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: .colorFour, forState: .normal)
+            bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: .colorFour, forState: .normal)
         } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[kasamID]!.metricType != "Checkmark" {
             streakShadow.backgroundColor = .colorFour
-            percentComplete.textColor = .colorFive
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
+            bottomStatusText.textColor = .colorFive
+            bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
         } else if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {
             streakShadow.backgroundColor = .dayYesColor
-            percentComplete.textColor = .dayYesColor
-            yesButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
+            bottomStatusText.textColor = .dayYesColor
+            bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
         } else if SavedData.kasamDict[kasamID]?.displayStatus == "Progress" {
             streakShadow.backgroundColor = .dayYesColor
-            percentComplete.textColor = .colorFive
-            yesButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
+            bottomStatusText.textColor = .colorFive
+            bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
         }
     }
     
@@ -403,10 +451,15 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GroupStatsCell") as! GroupStatsCell
         if groupStatsList != nil {
-            DBRef.userCreator.child(groupStatsList![indexPath.row].0).child("Info").child("Name").observeSingleEvent(of: .value) {(username) in
+            let userID = groupStatsList![indexPath.row].0
+            DBRef.userBase.child(userID).child("Info").child("Name").observeSingleEvent(of: .value) {(username) in
                 cell.userInitials.text = (username.value as? String)?.initials()
                 if SavedData.kasamDict[self.kasamID]?.groupStatus == "initiated" {
-                    cell.percentProgress.text = "Joined"
+                    if SavedData.kasamDict[self.kasamID]?.groupTeam?[userID] == -1.0 {
+                        cell.percentProgress.text = "Pending acceptance"
+                    } else {
+                        cell.percentProgress.text = "Joined"
+                    }
                     cell.percentProgress.textColor = .colorFive
                 } else {
                     cell.levelLineProgress.constant = CGFloat((self.groupStatsList![indexPath.row].1)) * (cell.levelLineHolder.frame.size.width - 40)
@@ -419,5 +472,3 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
         return cell
     }
 }
-
-

@@ -85,6 +85,7 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
                     SwiftEntryKit.dismiss()
                 case 3:
                     showOptionsPopup(kasamID: nil, title: "Are you sure?", subtitle: nil, text: nil, type:"logout", button: "Logout") {
+                        SavedData.wipeAllData()
                         AppManager.shared.logoout()
                         LoginManager().logOut()
                     }

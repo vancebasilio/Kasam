@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
 import Charts
 import SwipeCellKit
 import SwiftEntryKit

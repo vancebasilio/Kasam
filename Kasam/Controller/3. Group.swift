@@ -39,18 +39,12 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        loginUser()
         setupNavBar(clean: false)                   //global function
         groupTableRowHeight = (groupKasamTable.frame.width / 1.8) + 15
         getGroupFollowing()
         setupNotifications()
      }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        if initialLoad == false {
-            self.tabBarController?.selectedIndex = 1
-            initialLoad = true
-        }
-    }
     
     func setupNotifications(){
         let stopLoadingAnimation = NSNotification.Name("RemoveGroupLoadingAnimation")
@@ -59,6 +53,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func updateScrollViewSize(){
         self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.groupTableHeight, tableRowHeight: self.groupTableRowHeight, rowCount: SavedData.groupKasamBlocks.count, additionalHeight: 160)
+        self.initialLoad = true
     }
     
     @objc func iconTapped(){
@@ -74,6 +69,9 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     func showIconCheck(){
         DBRef.userGroupFollowing.observeSingleEvent(of: .value) {(snap) in
             if snap.exists() {} else {
+                if self.initialLoad == false {
+                    self.tabBarController?.selectedIndex = 1
+                }
                 self.groupAnimationIcon.isHidden = false
                 self.groupFollowingLabel.text = "You're not in any group kasams"
                 self.groupAnimationIcon.loadingAnimation(view: self.contentView, animation: "crownSeptors", width: 200, overlayView: nil, loop: false, buttonText: "Add a Kasam", completion: nil)
@@ -97,13 +95,12 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         //If user unfollows a group kasam
         DBRef.userGroupFollowing.observe(.childRemoved) {(snapshot) in
-            if let index = SavedData.groupKasamBlocks.index(where: {($0.kasamID == snapshot.key)}) {
+            print("hell9 group kasam unfollowed")
+            if let index = SavedData.groupKasamBlocks.index(where: {($0.data.groupID == snapshot.key)}) {
                 self.groupKasamCount -= 1
                 SavedData.groupKasamBlocks.remove(at: index)
                 self.groupKasamTable.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
-                self.updateScrollViewSize()
                 self.groupFollowingLabel.text = "You have \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "PopDiscoverToRoot"), object: self)
             }
             self.showIconCheck()
         }
@@ -112,7 +109,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     //STEP 2
     func getPreferences(snapshot: DataSnapshot, groupID: String, reminderTime: String){
         if let value = snapshot.value as? [String: Any] {
-            let preference = KasamSavedFormat(kasamID: value["KasamID"] as? String ?? "", kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: reminderTime, currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil,  metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: groupID, groupStatus: value["Status"] as? String, groupTeam: value["Team"] as? [String:Double])
+            let preference = KasamSavedFormat(kasamID: value["KasamID"] as? String ?? "", kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: reminderTime, currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil,  metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: groupID, groupAdmin: value["Admin"] as? String, groupStatus: value["Status"] as? String, groupTeam: value["Team"] as? [String:Double])
             DispatchQueue.main.async {snapshot.key.benefitThresholds()}
             print("Step 2 - Get preferences hell6 \(preference.kasamName)")
             SavedData.addKasam(kasam: preference)
@@ -147,9 +144,9 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
                     for date in Date.dates(from: kasam.joinedDate, to: Date()) {
                         let dateString = date.dateToString()
                         DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).child(dateString).observeSingleEvent(of: .value) {(snapCount) in
-                            if dateString != Dates.getCurrentDate() && snapCount.exists() {
+                            if dateString != self.getCurrentDate() && snapCount.exists() {
                                 blockDayToLoad += 1               //the user has completed xx number of blocks in the past (excludes today's block)
-                            } else if dateString == Dates.getCurrentDate() {
+                            } else if dateString == self.getCurrentDate() {
                                 DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observeSingleEvent(of: .value, with: {(snapshot) in
                                     if let value = snapshot.value as? [String:String] {
                                         dayToShow = blockDayToLoad
@@ -192,7 +189,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         print("Step 4 - Save Kasam Blocks hell6 \((kasam.kasamName))")
         let kasamImage = value["Image"] as! String
         SavedData.kasamDict[kasam.kasamID]?.image = kasamImage
-        let block = PersonalBlockFormat(kasamID: kasam.kasamID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, dayCount: dayCount)
+        let block = PersonalBlockFormat(kasamID: kasam.kasamID, groupID: SavedData.kasamDict[kasam.kasamID]?.groupID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, dayCount: dayCount)
         if let kasamOrder = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
             SavedData.groupKasamBlocks[kasamOrder] = (kasam.kasamID, block)
             if let cell = self.groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
@@ -238,7 +235,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
                         dayTrackerArrayInternal[order] = (kasamDate, dayPercent)
                         
                         //Status for Current day
-                        if history.key == Dates.getCurrentDate() {
+                        if history.key == self.getCurrentDate() {
                             percentComplete = dayPercent
                             if dayPercent == 1 {displayStatus = "Check"}
                             else if dayPercent < 1 && dayPercent > 0 {displayStatus = "Progress"}

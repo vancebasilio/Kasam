@@ -8,7 +8,9 @@
 
 import UIKit
 import FirebaseDatabase
+import FirebaseAuth
 import SwiftEntryKit
+import AMPopTip
 
 class GroupSearchController: UIViewController {
     
@@ -19,8 +21,8 @@ class GroupSearchController: UIViewController {
     @IBOutlet weak var dropdownTableHeight: NSLayoutConstraint!
     @IBOutlet weak var searchBar: UISearchBar!
     
-    var dropdownTableArray: [(name: String, image: URL?, status: Double)] = []
-    var existingUsersArray: [(name: String, image: URL?, status: Double)] = []
+    var dropdownTableArray: [(userID: String, name: String, image: URL?, status: Double)] = []
+    var existingUsersArray: [(userID: String, name: String, image: URL?, status: Double)] = []
     var kasamID = ""
     
     override func viewDidLoad() {
@@ -43,10 +45,10 @@ class GroupSearchController: UIViewController {
         existingUsersArray.removeAll()
         if SavedData.kasamDict[kasamID]?.groupTeam != nil {
             for member in SavedData.kasamDict[kasamID]!.groupTeam! {
-                DBRef.userCreator.child(member.key).child("Info").observeSingleEvent(of: .value) {(userInfo) in
+                DBRef.userBase.child(member.key).child("Info").observeSingleEvent(of: .value) {(userInfo) in
                     DispatchQueue.main.async {
                         if let value = userInfo.value as? [String:Any] {
-                            self.existingUsersArray.append((name: value["Name"] as! String, image: URL(string: value["ProfilePic"] as! String), status: member.value))
+                            self.existingUsersArray.append((userID: member.key,name: value["Name"] as! String, image: URL(string: value["ProfilePic"] as! String), status: member.value))
                         }
                         if self.existingUsersArray.count == SavedData.kasamDict[self.kasamID]!.groupTeam!.count {
                             self.existingUsersArray = self.existingUsersArray.sorted(by: {$0.status > $1.status})
@@ -58,54 +60,61 @@ class GroupSearchController: UIViewController {
         }
     }
     
-    @objc func touchOutside(){
-        print("hell0")
-    }
-    
     @IBAction func closeButtonPressed(_ sender: Any) {
         SwiftEntryKit.dismiss()
     }
     
     @IBAction func doneButtonPressed(_ sender: Any) {
+        SwiftEntryKit.dismiss()
     }
 }
 
 extension GroupSearchController: UISearchBarDelegate {
     
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        Database.database().reference().child("User-Emails").child((searchBar.text ?? "").MD5()).observeSingleEvent(of: .value) {(snap) in
-            if snap.exists() {
-                DBRef.userCreator.child(snap.value as! String).child("Info").observeSingleEvent(of: .value) {(userInfo) in
-                    DispatchQueue.main.async {
-                        self.dropdownTableArray.removeAll()
-                        if let value = userInfo.value as? [String:Any] {
-                            self.dropdownTableArray.append((name: value["Name"] as! String, image: URL(string: value["ProfilePic"] as! String), status: -2))
-                        }
-                        self.dropdownTableHeight.constant = CGFloat(50 * self.dropdownTableArray.count) + 20
-                        self.dropdownTableView.reloadData()
-                    }
-                }
-            }
-            else {
-                print("hell0 no userfound")
-            }
-        }
-    }
-    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.isEmpty {
             self.dropdownTableHeight.constant = 0
             self.dropdownTableArray.removeAll()
+            self.dropdownTableView.reloadData()
+        } else if searchText.contains(".com") {
+            Database.database().reference().child("User-Emails").child((searchBar.text ?? "").MD5()).observeSingleEvent(of: .value) {(snap) in
+                if snap.exists() {
+                    DBRef.userBase.child(snap.value as! String).child("Info").observeSingleEvent(of: .value) {(userInfo) in
+                        DispatchQueue.main.async {
+                            if let value = userInfo.value as? [String:Any] {
+                                var status = -2.0
+                                if SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.value as! String] != nil {
+                                    status = SavedData.kasamDict[self.kasamID]!.groupTeam![snap.value as! String]!
+                                }
+                                self.dropdownTableArray.append((userID: snap.value as! String,name: value["Name"] as! String, image: URL(string: value["ProfilePic"] as! String), status: status))
+                            }
+                            self.dropdownTableView.reloadData()
+                        }
+                    }
+                } else {
+                    self.dropdownTableView.reloadData()
+                    print("hell0 no userfound")
+                }
+            }
+        } else {
+            self.dropdownTableHeight.constant = self.selectedTableView.frame.height
+            self.dropdownTableArray.removeAll()
+            self.dropdownTableView.reloadData()
         }
     }
 }
 
-extension GroupSearchController: UITableViewDelegate, UITableViewDataSource {
+extension GroupSearchController: UITableViewDelegate, UITableViewDataSource, GroupCellDelegate {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == selectedTableView {
             return existingUsersArray.count
         } else {
-            return dropdownTableArray.count
+            if dropdownTableArray.count == 0 {
+                return 1
+            } else {
+                return dropdownTableArray.count
+            }
         }
     }
     
@@ -115,11 +124,39 @@ extension GroupSearchController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GroupSearchCell") as! GroupSearchCell
+        cell.row = indexPath.row
+        cell.cellDelegate = self
         if tableView == selectedTableView {
             cell.setCell(cell: existingUsersArray[indexPath.row])
         } else {
-            cell.setCell(cell: dropdownTableArray[indexPath.row])
+            if dropdownTableArray.count == 0 {
+                cell.setPlaceholder()
+            } else {
+                cell.setCell(cell: dropdownTableArray[indexPath.row])
+            }
         }
         return cell
+    }
+    
+    func statusButtonPressed(row: Int, status: Double, userID: String) {
+        if let cell = dropdownTableView.cellForRow(at: IndexPath(item: row, section: 0)) as? GroupSearchCell {
+            dropdownTableView.beginUpdates()
+            //User being invited
+            if status == -2 {
+                cell.checkBox.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: 30, color: .dayYesColor, forState: .normal)
+                DBRef.userBase.child(userID).child("Group-Following").child(SavedData.kasamDict[kasamID]!.groupID!).child("Time").setValue(SavedData.kasamDict[kasamID]?.startTime)
+                DBRef.groupKasams.child(SavedData.kasamDict[kasamID]!.groupID!).child("Info").child("Team").child(userID).setValue(-1.0)
+                SavedData.kasamDict[kasamID]?.groupTeam?[userID] = -1
+                loadExistingUsersArray()
+            }
+            dropdownTableView.endUpdates()
+        }
+    }
+    
+    func removeUser(row:Int, userID: String) {
+        DBRef.groupKasams.child(SavedData.kasamDict[kasamID]!.groupID!).child("Info").child("Team").child(userID).setValue(nil)
+        DBRef.userBase.child(userID).child("Group-Following").child(SavedData.kasamDict[kasamID]!.groupID!).setValue(nil)
+        SavedData.kasamDict[kasamID]?.groupTeam?[userID] = nil
+        loadExistingUsersArray()
     }
 }

@@ -81,6 +81,7 @@
 		BCB7FFCE248BCF4900E41913 /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB7FFCD248BCF4900E41913 /* NotificationsController.swift */; };
 		BCB7FFD0248BD3F600E41913 /* NotificationsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB7FFCF248BD3F600E41913 /* NotificationsCell.swift */; };
 		BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */; };
+		BCC1299724DDEC0F0003FB34 /* hand-waving.json in Resources */ = {isa = PBXBuildFile; fileRef = BCC1299624DDEC0F0003FB34 /* hand-waving.json */; };
 		BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */; };
 		BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BCC79A05226BD56000B72D65 /* Default-568h@2x.png */; };
 		BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */; };
@@ -185,6 +186,7 @@
 		BCB7FFCD248BCF4900E41913 /* NotificationsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsController.swift; sourceTree = "<group>"; };
 		BCB7FFCF248BD3F600E41913 /* NotificationsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsCell.swift; sourceTree = "<group>"; };
 		BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KasamTrackerCell.swift; sourceTree = "<group>"; };
+		BCC1299624DDEC0F0003FB34 /* hand-waving.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "hand-waving.json"; sourceTree = "<group>"; };
 		BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
 		BCC79A05226BD56000B72D65 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizedTableView.swift; sourceTree = "<group>"; };
@@ -248,6 +250,7 @@
 				BC83484D24450468001819DC /* Badges */,
 				BC16A20323292ABD00FDF70C /* loading.json */,
 				BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */,
+				BCC1299624DDEC0F0003FB34 /* hand-waving.json */,
 				BC133A8C24D854BA00D90713 /* rocket-group.json */,
 				BC2B4C8023A70436005F2255 /* checkmark.json */,
 				BCD824D223D7C0B40051C499 /* success.json */,
@@ -581,6 +584,7 @@
 				BCF8A304246436140030C323 /* TrophiesAchievedCell.xib in Resources */,
 				BC834848244502B0001819DC /* oneMedal.json in Resources */,
 				BCF8A305246436140030C323 /* TrophiesAchieved.xib in Resources */,
+				BCC1299724DDEC0F0003FB34 /* hand-waving.json in Resources */,
 				BC228CB224401C3D00BA665C /* crownMedal.json in Resources */,
 				BC679ECB2439290800441F6E /* badge.json in Resources */,
 				BCD213652460CAC80096A365 /* flagmountain.json in Resources */,

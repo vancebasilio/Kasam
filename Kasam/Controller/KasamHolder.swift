@@ -399,7 +399,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamTitle.text! = self.kasamGTitle
                 self.kasamDescription.text! = value["Description"] as? String ?? ""
                 self.coachIDGlobal = value["CreatorID"] as! String
-                DBRef.userCreator.child(self.coachIDGlobal).child("Info").child("Name").observeSingleEvent(of: .value) {(creator) in
+                DBRef.userBase.child(self.coachIDGlobal).child("Info").child("Name").observeSingleEvent(of: .value) {(creator) in
                     self.coachName.setTitle(creator.value as? String ?? "Coach", for: .normal)
                 }
                 
@@ -513,7 +513,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         
         //STEP 2: Adds the user to the Coach-following list
-        DBRef.userCreator.child(coachIDGlobal).child("Info").child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
+        DBRef.userBase.child(coachIDGlobal).child("Info").child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         countFollowers()
                 
         //STEP 3: Adds the user preferences to the Kasam they just followed
@@ -523,17 +523,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     func addUserPreferncestoKasam(restart: Bool){
         if joinType == "group" {
             let groupID = DBRef.groupKasams.childByAutoId()
-            
-            //Create the Group Kasam
-            DBRef.groupKasams.child(groupID.key!).updateChildValues(["Info": ["KasamID": kasamID, "Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Status": "initiated", "Metric": kasamMetric, "Program Duration": programDuration as Any, "Team": [Auth.auth().currentUser?.uid: 0]]]) {(error, reference) in
+        //Create the Group Kasam
+            DBRef.groupKasams.child(groupID.key!).updateChildValues(["Info": ["KasamID": kasamID, "Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Admin": Auth.auth().currentUser!.uid,"Status": "initiated", "Metric": kasamMetric, "Program Duration": programDuration as Any, "Team": [Auth.auth().currentUser?.uid: 0]]]) {(error, reference) in
                 self.refreshBadge()
             }
-            
-            //Add the GroupID to the user following
+        //Add the GroupID to the user following
             DBRef.userGroupFollowing.child(groupID.key!).child("Time").setValue(self.chosenTime)
-            
-            
-            
         } else {
             DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Program Duration": programDuration as Any]) {(error, reference) in
             Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
@@ -551,7 +546,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         DBRef.coachKasams.child(kasamID).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         
         //Removes the user from the Coach following
-        DBRef.userCreator.child(coachIDGlobal).child("Info").child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+        DBRef.userBase.child(coachIDGlobal).child("Info").child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         
         //Remove notification
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
