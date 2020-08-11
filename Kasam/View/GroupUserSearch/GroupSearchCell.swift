@@ -22,6 +22,7 @@ class GroupSearchCell: UITableViewCell {
     
     var status: Double!
     var cellDelegate: GroupCellDelegate?
+    var cellTable = "selected"
     let popTip = PopTip()
     var popTipStatus = false
     let popTipView = PopTip()
@@ -66,12 +67,18 @@ class GroupSearchCell: UITableViewCell {
         checkBox.isHidden = true
     }
     
-    @IBAction func checkBoxPressed(_ sender: Any) {
-        if status == -2 {cellDelegate?.statusButtonPressed(row: row, status: status, userID: userIDInternal)}
-        else if status == -1 {showPopTipView()}
+    func firstCell(){
+        userName.isHidden = true
+        userImage.isHidden = true
+        checkBox.isHidden = true
     }
     
-    func showPopTipView(){
+    @IBAction func checkBoxPressed(_ sender: Any) {
+        if status == -2 {cellDelegate?.statusButtonPressed(row: row, status: status, userID: userIDInternal)}
+        else if status == -1 && cellTable == "selected" {showPopTipRemove()}
+    }
+    
+    func showPopTipRemove(){
         popTipView.shouldDismissOnTap = false
         popTipView.appearHandler = {popTip in self.popTipViewStatus = true}
         popTipView.dismissHandler = {popTip in self.popTipViewStatus = false}

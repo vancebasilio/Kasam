@@ -42,6 +42,7 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
     @IBOutlet weak var statsContent: UIView!
     @IBOutlet weak var statsShadow: UIView!
     @IBOutlet weak var streakShadow: UIView!
+    @IBOutlet weak var addButton: UIButton!
     
     @IBOutlet weak var bottomStatusView: UIView!
     @IBOutlet weak var bottomStatusButton: UIButton!
@@ -323,23 +324,26 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
             let block = SavedData.kasamDict[kasamID]
             print("Step 5 - Block status update \(String(describing: block?.kasamName))")
             if block?.groupStatus == "initiated" {
-                if block?.groupAdmin != SavedData.userID {
+                if block?.groupAdmin == SavedData.userID {
+                    addButton.isHidden = false
+                    addButton.setIcon(icon: .fontAwesomeSolid(.plusCircle), iconSize: 30, color: UIColor.colorFour.darker, forState: .normal)
+                    topStatusView.isHidden = true
+                    topStatusText.isHidden = true
+                    bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: iconSize, color: .darkGray, forState: .normal)
+                    bottomStatusText.isHidden = false; bottomStatusText.text = "Start"; bottomStatusText.textColor = .darkGray
+                } else {
                     topStatusView.isHidden = false
                     topStatusButton.setIcon(icon: .fontAwesomeRegular(.checkCircle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
                     topStatusText.isHidden = false; topStatusText.text = "Accept"; topStatusText.textColor = .dayYesColor
                     bottomStatusButton.setIcon(icon: .fontAwesomeRegular(.timesCircle), iconSize: iconSize, color: .dayNoColor, forState: .normal)
                     bottomStatusText.isHidden = false; bottomStatusText.text = "Leave"; bottomStatusText.textColor = .dayNoColor
-                } else {
-                    topStatusView.isHidden = true
-                    topStatusText.isHidden = true
-                    bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.playCircle), iconSize: iconSize, color: .darkGray, forState: .normal)
-                    bottomStatusText.isHidden = false; bottomStatusText.text = "Start"; bottomStatusText.textColor = .darkGray
                 }
                 currentDayStreak.text = String(describing:block!.groupTeam?.count ?? 0)
                 if block!.groupTeam?.count == 1 {streakPostText.text = "member"} else {streakPostText.text = "members"}
                 statsShadow.layer.shadowColor = UIColor.colorFive.cgColor
                 statsShadow.layer.shadowOpacity = 1
             } else {
+                if type == "group" {addButton.isHidden = true}
             //STEP 1 - DAY COUNTER
                 currentDayStat = block!.streakInfo.daysWithAnyProgress
                 currentDayStreak.text = String(describing: currentDayStat)

@@ -55,6 +55,36 @@
                         <action selector="doneButtonPressed:" destination="-1" eventType="touchUpInside" id="7VB-e1-vlc"/>
                     </connections>
                 </button>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" style="plain" separatorStyle="none" rowHeight="50" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="kSY-Sd-3JS" userLabel="Selected Table View">
+                    <rect key="frame" x="10" y="125" width="394" height="296"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="0tx-L7-GLN"/>
+                        <outlet property="delegate" destination="-1" id="bQ2-Kk-KXi"/>
+                    </connections>
+                </tableView>
+                <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tD4-9G-pI5">
+                    <rect key="frame" x="10" y="69" width="394" height="0.0"/>
+                    <subviews>
+                        <tableView contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="6zc-dH-8GO" userLabel="Dropdown Table View">
+                            <rect key="frame" x="10" y="0.0" width="374" height="0.0"/>
+                            <color key="backgroundColor" white="0.94999999999999996" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="separatorColor" red="0.88235294119999996" green="0.61960784310000006" blue="0.1450980392" alpha="1" colorSpace="calibratedRGB"/>
+                            <connections>
+                                <outlet property="dataSource" destination="-1" id="hrd-5I-AeD"/>
+                                <outlet property="delegate" destination="-1" id="DKR-iS-HEe"/>
+                            </connections>
+                        </tableView>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="6zc-dH-8GO" secondAttribute="trailing" constant="10" id="Prx-MY-Lgc"/>
+                        <constraint firstItem="6zc-dH-8GO" firstAttribute="leading" secondItem="tD4-9G-pI5" secondAttribute="leading" constant="10" id="TNY-EC-kOc"/>
+                        <constraint firstItem="6zc-dH-8GO" firstAttribute="top" secondItem="tD4-9G-pI5" secondAttribute="top" constant="10" id="WEB-UM-BV1"/>
+                        <constraint firstAttribute="height" id="t2v-E9-GrT"/>
+                        <constraint firstAttribute="bottom" secondItem="6zc-dH-8GO" secondAttribute="bottom" constant="10" id="xUw-kD-lcj"/>
+                    </constraints>
+                </view>
                 <searchBar contentMode="redraw" searchBarStyle="minimal" placeholder="Search by email address" translatesAutoresizingMaskIntoConstraints="NO" id="RxP-up-Vcc">
                     <rect key="frame" x="10" y="69" width="394" height="56"/>
                     <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="emailAddress" textContentType="email"/>
@@ -66,36 +96,6 @@
                         <outlet property="delegate" destination="-1" id="gBj-Nc-gcH"/>
                     </connections>
                 </searchBar>
-                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" style="plain" separatorStyle="none" rowHeight="50" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="kSY-Sd-3JS" userLabel="Selected Table View">
-                    <rect key="frame" x="10" y="125" width="394" height="296"/>
-                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <connections>
-                        <outlet property="dataSource" destination="-1" id="0tx-L7-GLN"/>
-                        <outlet property="delegate" destination="-1" id="bQ2-Kk-KXi"/>
-                    </connections>
-                </tableView>
-                <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tD4-9G-pI5">
-                    <rect key="frame" x="10" y="115" width="394" height="0.0"/>
-                    <subviews>
-                        <tableView contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="6zc-dH-8GO" userLabel="Dropdown Table View">
-                            <rect key="frame" x="10" y="0.0" width="374" height="0.0"/>
-                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <color key="separatorColor" red="0.88235294119999996" green="0.61960784310000006" blue="0.1450980392" alpha="1" colorSpace="calibratedRGB"/>
-                            <connections>
-                                <outlet property="dataSource" destination="-1" id="hrd-5I-AeD"/>
-                                <outlet property="delegate" destination="-1" id="DKR-iS-HEe"/>
-                            </connections>
-                        </tableView>
-                    </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                    <constraints>
-                        <constraint firstAttribute="trailing" secondItem="6zc-dH-8GO" secondAttribute="trailing" constant="10" id="Prx-MY-Lgc"/>
-                        <constraint firstItem="6zc-dH-8GO" firstAttribute="leading" secondItem="tD4-9G-pI5" secondAttribute="leading" constant="10" id="TNY-EC-kOc"/>
-                        <constraint firstItem="6zc-dH-8GO" firstAttribute="top" secondItem="tD4-9G-pI5" secondAttribute="top" constant="10" id="WEB-UM-BV1"/>
-                        <constraint firstAttribute="height" id="t2v-E9-GrT"/>
-                        <constraint firstAttribute="bottom" secondItem="6zc-dH-8GO" secondAttribute="bottom" constant="10" id="xUw-kD-lcj"/>
-                    </constraints>
-                </view>
             </subviews>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
@@ -107,12 +107,12 @@
                 <constraint firstItem="kSY-Sd-3JS" firstAttribute="top" secondItem="RxP-up-Vcc" secondAttribute="bottom" id="F9v-nJ-avc"/>
                 <constraint firstItem="luh-7d-dK4" firstAttribute="top" secondItem="S8i-Cl-a3V" secondAttribute="top" constant="25" id="HW8-fD-ZuL"/>
                 <constraint firstItem="aEw-2z-JnH" firstAttribute="centerY" secondItem="luh-7d-dK4" secondAttribute="centerY" id="Lkp-PI-USw"/>
+                <constraint firstItem="tD4-9G-pI5" firstAttribute="top" secondItem="RxP-up-Vcc" secondAttribute="top" id="R1g-RU-mJd"/>
                 <constraint firstItem="w1W-DB-gQN" firstAttribute="bottom" secondItem="FRi-wC-d4n" secondAttribute="bottom" constant="20" id="WaN-f2-uDH"/>
                 <constraint firstItem="tD4-9G-pI5" firstAttribute="leading" secondItem="S8i-Cl-a3V" secondAttribute="leading" constant="10" id="YgV-jc-LiP"/>
                 <constraint firstItem="FRi-wC-d4n" firstAttribute="centerX" secondItem="S8i-Cl-a3V" secondAttribute="centerX" id="f2M-Ri-OVh"/>
                 <constraint firstItem="RxP-up-Vcc" firstAttribute="leading" secondItem="S8i-Cl-a3V" secondAttribute="leading" constant="10" id="gPH-xw-jLu"/>
                 <constraint firstAttribute="trailing" secondItem="tD4-9G-pI5" secondAttribute="trailing" constant="10" id="gWR-cA-bOj"/>
-                <constraint firstItem="tD4-9G-pI5" firstAttribute="top" secondItem="RxP-up-Vcc" secondAttribute="bottom" constant="-10" id="iQW-eA-W4o"/>
                 <constraint firstItem="w1W-DB-gQN" firstAttribute="trailing" secondItem="aEw-2z-JnH" secondAttribute="trailing" constant="10" id="kH9-X4-cda"/>
                 <constraint firstAttribute="trailing" secondItem="RxP-up-Vcc" secondAttribute="trailing" constant="10" id="rzX-TO-7BS"/>
                 <constraint firstItem="aEw-2z-JnH" firstAttribute="width" secondItem="aEw-2z-JnH" secondAttribute="height" multiplier="1:1" id="rzr-ho-2si"/>
