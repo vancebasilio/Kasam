@@ -12,6 +12,7 @@ import AMPopTip
 protocol GroupCellDelegate : class {
     func statusButtonPressed(row: Int, status: Double, userID: String)
     func removeUser(row:Int, userID: String)
+    func showPopTipRemove(row: Int, frame: CGRect)
 }
 
 class GroupSearchCell: UITableViewCell {
@@ -25,8 +26,6 @@ class GroupSearchCell: UITableViewCell {
     var cellTable = "selected"
     let popTip = PopTip()
     var popTipStatus = false
-    let popTipView = PopTip()
-    var popTipViewStatus = false
     var row = 0
     var userIDInternal = ""
 
@@ -36,11 +35,6 @@ class GroupSearchCell: UITableViewCell {
         popTip.shouldDismissOnTap = true
         popTip.shouldDismissOnSwipeOutside = true
         popTip.bubbleColor = .colorFour
-        popTipView.shouldDismissOnTapOutside = true
-        popTipView.shouldDismissOnSwipeOutside = true
-        popTipView.bubbleColor = .darkGray
-        popTipView.shouldDismissOnTap = true
-        popTipView.cornerRadius = 8
     }
     
     func setCell (cell: (userID: String, name: String, image: URL?, status: Double)){
@@ -75,26 +69,9 @@ class GroupSearchCell: UITableViewCell {
     
     @IBAction func checkBoxPressed(_ sender: Any) {
         if status == -2 {cellDelegate?.statusButtonPressed(row: row, status: status, userID: userIDInternal)}
-        else if status == -1 && cellTable == "selected" {showPopTipRemove()}
-    }
-    
-    func showPopTipRemove(){
-        popTipView.shouldDismissOnTap = false
-        popTipView.appearHandler = {popTip in self.popTipViewStatus = true}
-        popTipView.dismissHandler = {popTip in self.popTipViewStatus = false}
-        let customView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 20))
-        let button:UIButton = UIButton(frame: customView.frame)
-        button.backgroundColor = .clear
-        button.setTitle("Remove", for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
-        button.addTarget(self, action:#selector(buttonClicked), for: .touchUpInside)
-        customView.addSubview(button)
-        if popTipViewStatus == false {popTipView.show(customView: customView, direction: .left, in: self, from: checkBox.frame, duration: 3)}
-        else {popTipView.hide()}
-    }
-    
-    @objc func buttonClicked() {
-        cellDelegate?.removeUser(row: row, userID: userIDInternal)
+        else if status == -1 && cellTable == "selected" {
+            cellDelegate?.showPopTipRemove(row: row, frame: checkBox.frame)
+        }
     }
     
     @objc func showPopTipInfo(){

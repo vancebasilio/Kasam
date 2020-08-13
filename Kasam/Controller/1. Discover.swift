@@ -126,8 +126,8 @@ class DiscoverViewController: UIViewController {
     
     func getDiscoverFeatured(){
         if Assets.featuredKasams != nil {
-            for kasam in Assets.featuredKasams! {
-                DBRef.coachKasams.child(kasam).observe(.value) {(snapshot) in
+            for kasamID in Assets.featuredKasams! {
+                DBRef.coachKasams.child(kasamID).child("Info").observe(.value) {(snapshot) in
                     let value = snapshot.value as? Dictionary<String,Any>
                     let kasam = discoverKasamFormat(title: value?["Title"] as? String ?? "", image: URL(string: value?["Image"] as? String ?? "") ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value?["Rating"] as? String ?? "5", creator: value?["CreatorName"] as? String ?? "", kasamID: value?["KasamID"] as? String ?? "", genre: value?["Genre"] as? String ?? "Fitness")
                     self.featuredKasamArray.append(kasam)
@@ -140,21 +140,20 @@ class DiscoverViewController: UIViewController {
     func getDiscoverKasams() {
         var count = 0
         discoverKasamDict.removeAll()
-        DBRef.coachKasams.observeSingleEvent(of: .value, with:{(snap) in
-            DBRef.coachKasams.observe(.childAdded) {(snapshot) in
-                if let value = snapshot.value as? [String: Any] {
-                    let imageURL = URL(string: value["Image"] as? String ?? "")
-                    let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: (imageURL ?? URL(string: PlaceHolders.kasamHeaderPlaceholderURL))!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
-                    count += 1
-                    if self.discoverKasamDict[kasam.genre] == nil {self.discoverKasamDict[kasam.genre] = [kasam]}
-                    else {self.discoverKasamDict[kasam.genre]!.append(kasam)}
-                    if count == snap.childrenCount {
-                        self.updateContentTableHeight()
+        self.updateContentTableHeight()
+        for genre in Assets.discoverCriteria {
+            DBRef.coachKasamIndex.child(genre).observe(.childAdded) {(kasamID) in
+                DBRef.coachKasams.child(kasamID.key).child("Info").observeSingleEvent(of: .value) {(snapshot) in
+                    if let value = snapshot.value as? [String: Any] {
+                        let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: (URL(string: value["Image"] as? String ?? "") ?? URL(string: PlaceHolders.kasamHeaderPlaceholderURL))!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
+                        count += 1
+                        if self.discoverKasamDict[kasam.genre] == nil {self.discoverKasamDict[kasam.genre] = [kasam]}
+                        else {self.discoverKasamDict[kasam.genre]!.append(kasam)}
                         self.discoverTableView.reloadData()
                     }
                 }
             }
-        })
+        }
     }
     
     @objc func getMyKasams() {
@@ -197,6 +196,8 @@ extension DiscoverViewController: UITableViewDataSource, UITableViewDelegate {
         if Assets.discoverCriteria[indexPath.row] == "My Kasams" && discoverKasamDict["My Kasams"] == nil {
             cell.DiscoverCategoryTitle.text = ""
             cell.disableSwiping()
+        } else {
+            cell.enableSwiping()
         }
         return cell
     }

@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-import Firebase
+import FirebaseDatabase
 
 class discoverKasamFormat {
     var title: String
@@ -150,14 +150,18 @@ class CompletedKasamFormat {
     var kasamName: String
     var daysCompleted: Int
     var imageURL: URL
-    var userHistorySnap: DataSnapshot?
+    var firstDate: String?
+    var lastDate: String?
+    var metric: String
     
-    init(kasamID: String, kasamName: String, daysCompleted: Int, imageURL: URL, userHistorySnap: DataSnapshot?){
+    init(kasamID: String, kasamName: String, daysCompleted: Int, imageURL: URL, firstDate: String?, lastDate: String?, metric: String){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.daysCompleted = daysCompleted
         self.imageURL = imageURL
-        self.userHistorySnap = userHistorySnap
+        self.firstDate = firstDate
+        self.lastDate = lastDate
+        self.metric = metric
     }
 }
 
@@ -180,14 +184,12 @@ class kasamFollowingFormat {
     var shortDate: String
     var fullDate: String
     var metric: String
-    var text: String
     
-    init(day: Int, shortDate: String, fullDate:String, metric: String, text: String) {
+    init(day: Int, shortDate: String, fullDate:String, metric: String) {
         self.day = day
         self.shortDate = shortDate
         self.fullDate = fullDate
         self.metric = metric
-        self.text = text
     }
 }
 

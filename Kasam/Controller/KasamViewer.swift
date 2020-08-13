@@ -209,16 +209,22 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         if self.summedTotalMetric > 0 {
             transferAvg = sum / Double(self.summedTotalMetric)
         }
+        let db = DBRef.userPersonalHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate)
         if transferAvg > 0.0 {
+        //OPTION 1 - Progress made
             if type == "personal" {
-                DBRef.userPersonalHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix])
+                db.observeSingleEvent(of: .value) {(snap) in
+                    if !snap.exists() {self.setHistoryTotal(kasamID: self.kasamID, statusDate: self.statusDate, value: 1)}  //Add history once
+                    db.setValue(["BlockID": self.blockID, "Block Name": self.blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": self.transferMetricMatrix])
+                }
             } else {
                 DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix])
             }
+        //OPTION 2 - REMOVE PROGRESS
         } else {
             if type == "personal" {
-                //Removes the dayTracker for today if kasam is set to zero
-                DBRef.userPersonalHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate).setValue(nil)
+                db.setValue(nil)
+                setHistoryTotal(kasamID: kasamID, statusDate: statusDate, value: 0)
             } else {
                 DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(nil)
             }

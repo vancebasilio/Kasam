@@ -24,6 +24,8 @@ class GroupSearchController: UIViewController {
     var dropdownUserArray: [(userID: String, name: String, image: URL?, status: Double)] = []
     var selectedUserArray: [(userID: String, name: String, image: URL?, status: Double)] = []
     var kasamID = ""
+    let popTipView = PopTip()
+    var popTipViewStatus = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,6 +41,11 @@ class GroupSearchController: UIViewController {
         dropdownTableView.layer.cornerRadius = 10
         searchBar.autocapitalizationType = .none
         loadExistingUsersArray()
+        popTipView.shouldDismissOnTapOutside = true
+        popTipView.shouldDismissOnSwipeOutside = true
+        popTipView.bubbleColor = .darkGray
+        popTipView.shouldDismissOnTap = false
+        popTipView.cornerRadius = 8
     }
     
     func loadExistingUsersArray(){
@@ -80,8 +87,6 @@ extension GroupSearchController: UISearchBarDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         let touch: UITouch? = touches.first
-        //location is relative to the current view
-        // do something with the touched point
         if touch?.view != dropdownTableView {
             self.dropdownTableHeight.constant = 0
             self.dropdownTableView.reloadData()
@@ -183,6 +188,29 @@ extension GroupSearchController: UITableViewDelegate, UITableViewDataSource, Gro
             SavedData.kasamDict[kasamID]?.groupTeam?[userID] = -1
             loadExistingUsersArray()
         }
+    }
+    
+    func showPopTipRemove(row: Int, frame: CGRect) {
+        popTipView.appearHandler = {popTip in self.popTipViewStatus = true}
+        popTipView.dismissHandler = {popTip in self.popTipViewStatus = false}
+        let customView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 20))
+        let button:UIButton = UIButton(frame: customView.frame)
+        button.backgroundColor = .clear
+        button.setTitle("Remove", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
+        button.addTarget(self, action:#selector(buttonClicked), for: .touchUpInside)
+        button.tag = row
+        customView.addSubview(button)
+        if popTipViewStatus == false {
+            let frameY = self.selectedTableView.rectForRow(at: IndexPath(row: row, section: 0)).minY + selectedTableView.frame.minY + 5
+            let modifiedFrame = CGRect(x: frame.midX - 10, y: frameY, width: frame.width, height: frame.height)
+            popTipView.show(customView: customView, direction: .down, in: view, from: modifiedFrame, duration: 3)}
+        else {popTipView.hide()}
+    }
+    
+    @objc func buttonClicked(sender:UIButton) {
+        removeUser(row: sender.tag, userID: selectedUserArray[sender.tag].userID)
+        popTipView.hide()
     }
     
     func removeUser(row:Int, userID: String) {

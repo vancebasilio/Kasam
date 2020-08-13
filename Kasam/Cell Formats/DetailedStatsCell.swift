@@ -22,10 +22,6 @@ class KasamHistoryTableCell: SwipeTableViewCell {
     func setBlock(block: kasamFollowingFormat) {
         dayLabel.text = "Day \(block.day)"
         dateLabel.text = block.shortDate
-        if block.text != "" {
-            metricLabel.text = block.text
-        } else {
-            metricLabel.text = block.metric
-        }
+        metricLabel.text = block.metric
     }
 }

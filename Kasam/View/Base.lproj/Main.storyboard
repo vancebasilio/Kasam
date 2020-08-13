@@ -821,7 +821,7 @@
                                                                     <userDefinedRuntimeAttribute type="boolean" keyPath="" value="YES"/>
                                                                 </userDefinedRuntimeAttributes>
                                                             </imageView>
-                                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gXN-Zr-5q3" userLabel="ProfileClick">
+                                                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gXN-Zr-5q3" userLabel="ProfileClick">
                                                                 <rect key="frame" x="22" y="15" width="120" height="120"/>
                                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <constraints>
@@ -1266,7 +1266,7 @@
                                                                                 <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="67T-6h-r6r" userLabel="Block Image">
                                                                                     <rect key="frame" x="0.0" y="0.0" width="70" height="90"/>
                                                                                     <subviews>
-                                                                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gzj-1R-hzW">
+                                                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gzj-1R-hzW">
                                                                                             <rect key="frame" x="0.0" y="10" width="70" height="70"/>
                                                                                             <constraints>
                                                                                                 <constraint firstAttribute="width" secondItem="gzj-1R-hzW" secondAttribute="height" multiplier="1:1" id="aFl-Nw-Hy5"/>
@@ -2660,7 +2660,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="q8D-Wq-y8h">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="643"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="632"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="667" translatesAutoresizingMaskIntoConstraints="NO" id="s0t-aS-08i" userLabel="Content View">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="800"/>
@@ -2851,6 +2851,7 @@
                                                                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                                     <constraints>
                                                                                                         <constraint firstItem="QMj-Uf-9qv" firstAttribute="leading" secondItem="VTE-cw-FHa" secondAttribute="leading" id="Bh3-n6-Dbc"/>
+                                                                                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="QMj-Uf-9qv" secondAttribute="trailing" constant="5.6666666666666643" id="Csi-fO-6zn"/>
                                                                                                         <constraint firstItem="RdO-uP-4yS" firstAttribute="centerY" secondItem="VTE-cw-FHa" secondAttribute="centerY" id="UMp-tn-mTb"/>
                                                                                                         <constraint firstItem="RdO-uP-4yS" firstAttribute="leading" secondItem="VTE-cw-FHa" secondAttribute="leading" id="W4N-xD-Kxc"/>
                                                                                                         <constraint firstItem="RdO-uP-4yS" firstAttribute="top" secondItem="QMj-Uf-9qv" secondAttribute="bottom" constant="5" id="XNd-CQ-EpX"/>
@@ -3279,7 +3280,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lTm-TJ-FXe">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="632"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="643"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="667" translatesAutoresizingMaskIntoConstraints="NO" id="goJ-99-KwY" userLabel="Content View">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="800"/>
@@ -6591,9 +6592,9 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="TgI-4x-mSS"/>
-        <segue reference="U8Q-Ic-CkC"/>
+        <segue reference="Viy-yT-bOU"/>
         <segue reference="YHX-Ee-lpe"/>
-        <segue reference="1Ub-YR-ues"/>
+        <segue reference="b1h-nV-uzD"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="EmailBox" width="900" height="147"/>

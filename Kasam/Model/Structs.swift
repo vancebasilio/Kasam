@@ -46,12 +46,14 @@ struct DBRef {
     static var userTrophies = Database.database().reference().child("Users").child(SavedData.userID).child("Trophies")
     
     static let coachKasams = Database.database().reference().child("Coach-Kasams")
+    static let coachKasamIndex = Database.database().reference().child("Coach-Kasam-Index")
     static let userBase = Database.database().reference().child("Users")
     static var currentUser = Database.database().reference().child("Users").child(SavedData.userID).child("Info")
     static let userEmails = Database.database().reference().child("User-Emails")
     
     static var userKasams = Database.database().reference().child("Users").child(SavedData.userID).child("Kasams")
     static var userPersonalHistory = Database.database().reference().child("Users").child(SavedData.userID).child("History")
+    static var userHistoryTotals = Database.database().reference().child("Users").child(SavedData.userID).child("History-Totals")
     
     static let groupKasams = Database.database().reference().child("Group-Kasams")
     static var userGroupFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Group-Following")

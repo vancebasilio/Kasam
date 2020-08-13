@@ -390,8 +390,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     //Retrieves Kasam Data using Kasam ID selected
     func getKasamData(){
         var kasamDB = DatabaseReference()
-        if userKasam == true {kasamDB = DBRef.userKasams.child(kasamID)}
-        else {kasamDB = DBRef.coachKasams.child(kasamID)}
+        if userKasam == true {kasamDB = DBRef.userKasams.child(kasamID).child("Info")}
+        else {kasamDB = DBRef.coachKasams.child(kasamID).child("Info")}
         kasamDB.observe(.value, with: {(snapshot) in
             if let value = snapshot.value as? [String: Any] {
                 self.kasamGTitle = value["Title"] as? String ?? "Kasam"

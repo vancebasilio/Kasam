@@ -44,6 +44,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         groupTableRowHeight = (groupKasamTable.frame.width / 1.8) + 15
         getGroupFollowing()
         setupNotifications()
+        allTrophiesAchieved()
      }
     
     func setupNotifications(){
@@ -68,10 +69,8 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func showIconCheck(){
         DBRef.userGroupFollowing.observeSingleEvent(of: .value) {(snap) in
+            if self.initialLoad == false {self.tabBarController?.selectedIndex = 1}
             if snap.exists() {} else {
-                if self.initialLoad == false {
-                    self.tabBarController?.selectedIndex = 1
-                }
                 self.groupAnimationIcon.isHidden = false
                 self.groupFollowingLabel.text = "You're not in any group kasams"
                 self.groupAnimationIcon.loadingAnimation(view: self.contentView, animation: "crownSeptors", width: 200, overlayView: nil, loop: false, buttonText: "Add a Kasam", completion: nil)
@@ -167,7 +166,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         //OPTION 2 - Load Kasam as Block (BASIC KASAMS)
         } else if kasam.metricType == "Checkmark" {
-            DBRef.coachKasams.child(kasam.kasamID).observeSingleEvent(of: .value, with: {(snapshot) in
+            DBRef.coachKasams.child(kasam.kasamID).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
                 print("Step 3 - Get Block Data hell6 Option 2 \(kasam.kasamName)")
                 self.groupKasamCount += 1
                 if let snapshot = snapshot.value as? Dictionary<String,Any> {

@@ -67,7 +67,6 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
     var tempBlock: PersonalBlockFormat?
     var row = 0
     var type = ""
-    var today: Int?
     var hideDayTrackerDates = true
     let iconSize = CGFloat(35)
     var kasamID = ""
@@ -86,10 +85,6 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
         tempBlock = block
         kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
         kasamName.numberOfLines = kasamName.calculateMaxLines()
-        
-        //For PROGRAM kasams only
-        if block.dayCount != nil {today = block.dayCount!}
-        else {today = Int(block.dayOrder)}
         
         //Show the block subtite if it's a PROGRAM kasam
         if SavedData.kasamDict[kasamID]?.programDuration != nil {
@@ -305,9 +300,10 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
     }
     
     @objc func centerCollectionView() {
-        if today != nil && tempBlock != nil && SavedData.kasamDict[(tempBlock!.kasamID)]?.repeatDuration != nil {
+        let today = Int(tempBlock!.dayOrder)
+        if tempBlock != nil && SavedData.kasamDict[(tempBlock!.kasamID)]?.repeatDuration != nil {
             if tempBlock!.dayOrder < SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
-                let indexPath = IndexPath(item: self.today! - 1, section: 0)
+                let indexPath = IndexPath(item: today - 1, section: 0)
                 self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
                 self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
             } else {
@@ -373,7 +369,7 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
                     checkmarkAndPercentageUpdate()
                     topStatusView.isHidden = true
                     blockSubtitle.frame.size.height = 20
-                    if block!.repeatDuration - tempBlock!.dayOrder == 1 {
+                    if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {
                         blockSubtitle.text = "One day left!"
                         statsShadow.layer.shadowColor = UIColor.dayYesColor.cgColor
                         statsShadow.layer.shadowOpacity = 1
@@ -460,7 +456,7 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
                 cell.userInitials.text = (username.value as? String)?.initials()
                 if SavedData.kasamDict[self.kasamID]?.groupStatus == "initiated" {
                     if SavedData.kasamDict[self.kasamID]?.groupTeam?[userID] == -1.0 {
-                        cell.percentProgress.text = "Pending acceptance"
+                        cell.percentProgress.text = "Invitation Sent"
                     } else {
                         cell.percentProgress.text = "Joined"
                     }

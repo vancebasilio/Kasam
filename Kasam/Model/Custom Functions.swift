@@ -43,6 +43,28 @@ extension UICollectionViewCell {
 
 extension UIViewController {
     
+    func allTrophiesAchieved() {
+        SavedData.trophiesCount = 0
+        DBRef.userTrophies.observe(.childAdded) {(trophySnap) in
+            let kasamID = trophySnap.key
+            DBRef.coachKasams.child(kasamID).child("Info").child("Title").observeSingleEvent(of: .value, with: {(kasamNameSnap) in
+                let kasamName = kasamNameSnap.value as! String
+                if let kasamIDTrophy = trophySnap.value as? [String: Any] {
+                    SavedData.trophiesAchieved[kasamID] = ("",[])
+                    SavedData.trophiesAchieved[kasamID]?.kasamName = kasamName
+                    for trophyStartDate in kasamIDTrophy {
+                        if let badge = trophyStartDate.value as? [String:String] {
+                            for badgeDeets in badge {
+                                SavedData.trophiesAchieved[kasamID]?.kasamTrophies.append((completedDate: badgeDeets.value, trophyThreshold: Int(badgeDeets.key)!))
+                                SavedData.trophiesCount += 1
+                            }
+                        }
+                    }
+                }
+            })
+        }
+    }
+    
     func updateContentViewHeight(contentViewHeight: NSLayoutConstraint, tableViewHeight: NSLayoutConstraint, tableRowHeight: CGFloat, rowCount: Int, additionalHeight: CGFloat?){
         //sets the height of the whole tableview, based on the numnber of rows
         tableViewHeight.constant = tableRowHeight * CGFloat(rowCount)
@@ -638,42 +660,6 @@ extension UIViewController {
         }
     }
     
-    func allTrophiesAchieved() {
-        DBRef.userTrophies.observe(.childAdded) {(trophySnap) in
-            let kasamID = trophySnap.key
-            var kasamName = ""
-            if SavedData.kasamDict[kasamID]?.kasamName != nil {
-                kasamName = SavedData.kasamDict[kasamID]!.kasamName
-                if let kasamIDTrophy = trophySnap.value as? [String: Any] {
-                    SavedData.trophiesAchieved[kasamID] = ("",[])
-                    SavedData.trophiesAchieved[kasamID]?.kasamName = kasamName
-                    for trophyStartDate in kasamIDTrophy {
-                        if let badge = trophyStartDate.value as? [String:String] {
-                            for badgeDeets in badge {
-                                SavedData.trophiesAchieved[kasamID]?.kasamTrophies.append((completedDate: badgeDeets.value, trophyThreshold: Int(badgeDeets.key)!))
-                            }
-                        }
-                    }
-                }
-            } else {
-                DBRef.coachKasams.child(kasamID).child("Title").observeSingleEvent(of: .value, with: {(kasamNameSnap) in
-                    kasamName = kasamNameSnap.value as! String
-                    if let kasamIDTrophy = trophySnap.value as? [String: Any] {
-                        SavedData.trophiesAchieved[kasamID] = ("",[])
-                        SavedData.trophiesAchieved[kasamID]?.kasamName = kasamName
-                        for trophyStartDate in kasamIDTrophy {
-                            if let badge = trophyStartDate.value as? [String:String] {
-                                for badgeDeets in badge {
-                                    SavedData.trophiesAchieved[kasamID]?.kasamTrophies.append((completedDate: badgeDeets.value, trophyThreshold: Int(badgeDeets.key)!))
-                                }
-                            }
-                        }
-                    }
-                })
-            }
-        }
-    }
-    
     func getCurrentDate() -> String {
         let currentDateTime = Date()
         let formatter = DateFormatter()
@@ -690,6 +676,46 @@ extension UIViewController {
             DBRef.currentUser.child("Type").observeSingleEvent(of: .value, with:{(snap) in
                 SavedData.userType = snap.value as? String ?? "Basic"
             })
+        }
+    }
+    
+    func setHistoryTotal(kasamID: String, statusDate: String, value: Double) {
+        if value > 0 {
+            //Adding progress
+            DBRef.userHistoryTotals.child(kasamID).observeSingleEvent(of: .value) {(snap) in
+                if snap.exists() {
+                    if let value = snap.value as? [String:Any] {
+                        if value["Last"] as? String != statusDate {
+                            if let daysCompleted = value["Days"] as? Int {DBRef.userHistoryTotals.child(kasamID).child("Days").setValue(daysCompleted + 1)}
+                        }
+                        else {DBRef.userHistoryTotals.child(kasamID).child("Days").setValue(1)}
+                        if (value["First"] as? String) ?? Date().dateToString() >= statusDate {
+                            DBRef.userHistoryTotals.child(kasamID).child("First").setValue(statusDate)
+                        }
+                        if value["Last"] as? String ?? Date().dateToString() <= statusDate {
+                            DBRef.userHistoryTotals.child(kasamID).child("Last").setValue(statusDate)
+                        }
+                    }
+                } else {
+                    DBRef.userHistoryTotals.child(kasamID).setValue(["Days": 1, "First": statusDate, "Last": statusDate])
+                }
+            }
+        } else {
+            //Removing progress
+            DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(nil)
+            DBRef.userHistoryTotals.child(kasamID).observeSingleEvent(of: .value) {(snap) in
+                if let value = snap.value as? [String:Any] {
+                    if let daysCompleted = value["Days"] as? Int {
+                        if daysCompleted == 1 {
+                            DBRef.userHistoryTotals.child(kasamID).child("Days").setValue(nil)
+                        } else {
+                            DBRef.userHistoryTotals.child(kasamID).child("Days").setValue(daysCompleted - 1)
+                        }
+                    }
+                    if value["First"] as? String == statusDate {DBRef.userHistoryTotals.child(kasamID).child("First").setValue(nil)}
+                    if value["Last"] as? String == statusDate {DBRef.userHistoryTotals.child(kasamID).child("Last").setValue(nil)}
+                }
+            }
         }
     }
 }

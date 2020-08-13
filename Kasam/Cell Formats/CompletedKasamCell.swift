@@ -15,28 +15,20 @@ class CompletedKasamCell: UITableViewCell {
     @IBOutlet weak var joinedDates: UILabel!
     @IBOutlet weak var daysCompleted: UILabel!
     
+    override func awakeFromNib() {
+        kasamImage.layer.cornerRadius = 8.0
+    }
+    
     func setCompletedBlock(block:CompletedKasamFormat) {
         kasamImage.sd_setImage(with: block.imageURL)
-        kasamImage.layer.cornerRadius = 8.0
-        kasamImage.clipsToBounds = true
         kasamName.text = block.kasamName
         daysCompleted.text = block.daysCompleted.pluralUnit(unit: "day")
-        
-        if let snap = block.userHistorySnap {
-            if snap.exists() {
-                let snapArray = Array((snap.value as! [String:Any]).keys).sorted()
-                let joinedDate = convertLongDateToShort(date: snapArray.first!)
-                let endDate = convertLongDateToShort(date: snapArray.last ?? joinedDate)
-                if joinedDate == endDate {
-                    joinedDates.text = "\(joinedDate)"
-                } else {
-                    joinedDates.text = "\(joinedDate) - \(endDate)"
-                }
-            } else {
-                if let joinedDate = SavedData.kasamDict[block.kasamID]?.joinedDate.dateToShortString() {
-                    joinedDates.text = "\(joinedDate)"
-                }
-            }
+        let joinedDate = convertLongDateToShort(date: block.firstDate!)
+        let endDate = convertLongDateToShort(date: block.lastDate!)
+        if joinedDate == endDate {
+            joinedDates.text = "\(joinedDate)"
+        } else {
+            joinedDates.text = "\(joinedDate) - \(endDate)"
         }
     }
 }
