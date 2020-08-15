@@ -1039,6 +1039,14 @@ extension String {
         return kasamDate
     }
     
+    func shortDateToLongDate() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let date = dateFormatter.date(from: self)
+        dateFormatter.dateFormat = "MMM d, yyyy"
+        return  dateFormatter.string(from: date!)
+    }
+    
     func stringToTime () -> (hour: Int, minute: Int) {
         let dateAsString = self
         let dateFormatter = DateFormatter()
@@ -1175,6 +1183,15 @@ extension UIView{
         UIView.animate(withDuration: duration, animations: {
             self.alpha = 0.0
         })
+    }
+    
+    func rotate(_ toValue: CGFloat, duration: CFTimeInterval = 0.2) {
+        let animation = CABasicAnimation(keyPath: "transform.rotation")
+        animation.toValue = toValue
+        animation.duration = duration
+        animation.isRemovedOnCompletion = false
+        animation.fillMode = CAMediaTimingFillMode.forwards
+        self.layer.add(animation, forKey: nil)
     }
 }
 
