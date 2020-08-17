@@ -370,7 +370,6 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
                     topStatusView.isHidden = true
                     blockSubtitle.frame.size.height = 20
                     if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {
-                        blockSubtitle.text = "One day left!"
                         statsShadow.layer.shadowColor = UIColor.dayYesColor.cgColor
                         statsShadow.layer.shadowOpacity = 1
                     }

@@ -183,13 +183,15 @@ class kasamFollowingFormat {
     var day: Int
     var shortDate: String
     var fullDate: String
-    var metric: String
+    var metric: Double
+    var metricAndType: String
     
-    init(day: Int, shortDate: String, fullDate:String, metric: String) {
+    init(day: Int, shortDate: String, fullDate:String, metric: Double, metricAndType: String) {
         self.day = day
         self.shortDate = shortDate
         self.fullDate = fullDate
         self.metric = metric
+        self.metricAndType = metricAndType
     }
 }
 

@@ -21,13 +21,11 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     
     @IBOutlet weak var backButton: UIButton!
     @IBOutlet weak var historyTableView: UITableView!
-    @IBOutlet weak var historyView: UIView!
     @IBOutlet weak var navView: UIView!
     @IBOutlet weak var kasamNameLabel: UILabel!
     @IBOutlet weak var kasamImageView: UIImageView!
     @IBOutlet weak var imageWhiteBack: UIView!
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
-    @IBOutlet weak var bottomViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var contentViewHeight: NSLayoutConstraint!
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
@@ -58,6 +56,10 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     var firstDateCheck = true
     var dayNo = 0
     
+    var sectionHeight = CGFloat(60)
+    var chartHeight = CGFloat(200)
+    var rowHeight = CGFloat(40)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -76,8 +78,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     
     func updateContentTableHeight() {
         tableViewHeight.constant = setTableViewHeight
-        bottomViewHeight.constant = tableViewHeight.constant + 54
-        contentViewHeight.constant = bottomViewHeight.constant + topViewHeight.constant
+        contentViewHeight.constant = tableViewHeight.constant + topViewHeight.constant + 20
         //elongates the entire scrollview, based on the tableview height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
         if contentViewHeight.constant <= frame.height {
@@ -103,31 +104,32 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(StatisticsViewController.getKasamStats), name: mainStatsUpdate, object: nil)
     }
     
-    //Creating gradient for filling space under the line chart
-    private func getGradientFilling() -> CGGradient {
-        let coloTop = UIColor.init(hex: 0xFFD062).cgColor
-        let colorBottom = UIColor.init(hex: 0xFFD062).cgColor
-        let gradientColors = [coloTop, colorBottom] as CFArray
-        let colorLocations: [CGFloat] = [0.7, 0.0]
-        return CGGradient.init(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: gradientColors, locations: colorLocations)!
-    }
-    
     @objc func getKasamStats(){
         var indieMetric = 0.0
+        setTableViewHeight = 0
+        self.tableViewData.removeAll()
         let metricType = self.transferArray!.metric
-        self.kasamHistoryArray.removeAll()
         self.dayNoValue.text = self.transferArray?.daysCompleted.pluralUnit(unit: "Day")
         DBRef.userPersonalHistory.child(transferArray!.kasamID).observeSingleEvent(of: .value) {(snapshot) in
         //SECTIONS
             for snap in snapshot.children.allObjects as! [DataSnapshot]{
+                self.kasamHistoryArray.removeAll()
+                self.setTableViewHeight += self.sectionHeight
                 let startDate = snap.key.stringToDate()
-                if let joinDate = snap.value as? [String:[String:Any]] {
+                if let joinDate = snap.value as? [String:Any] {
                     for individualDate in joinDate {
                         //ROWS
-                        indieMetric = individualDate.value["Total Metric"] as! Double
                         self.dayNo = (Calendar.current.dateComponents([.day], from: startDate, to: individualDate.key.stringToDate()).day ?? 0) + 1
                         self.progressDayCount += 1
                         var blockName = ""
+                        if let block = individualDate.value as? [String:Any] {
+                            indieMetric = block["Total Metric"] as! Double
+                            if SavedData.kasamDict[self.transferArray!.kasamID]?.programDuration != nil {
+                                blockName = block["Block Name"] as? String ?? ""
+                            }
+                        } else if let block = individualDate.value as? Int {
+                            indieMetric = Double(block * 100)           //Kasam is only Checkmark
+                        }
                         //Kasam is Reps or Timer
                             var timeAndMetric = (0.0,"")
                             if metricType == "Time" {
@@ -136,18 +138,11 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                             } else if metricType == "Video" {
                                 indieMetric = (indieMetric / 60.0).rounded(toPlaces: 2)
                             }
-                            if SavedData.kasamDict[self.transferArray!.kasamID]?.programDuration != nil {
-//                                blockName = value["Block Name"] as? String ?? ""
-                            }
-//                        } else if let value = snap.value as? Int{
-//                        //Kasam is only Checkmark
-//                            indieMetric = Double(value * 100)
-//                        }
                         self.metricArray[self.dayNo] = indieMetric
                         self.metricTotal += Int(indieMetric)
                         
                         var metricAndType = ""
-                        var shortDate = self.convertLongDateToShort(date: individualDate.key)
+                        var middleBold = self.convertLongDateToShort(date: individualDate.key)
                         if SavedData.kasamDict[self.transferArray!.kasamID]?.programDuration == nil {
                         //OPTION 1 - REPS
                             if metricType == "Reps" {
@@ -162,12 +157,11 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                             }
                         //OPTION 4 - PROGRAM KASAM
                         } else {
-                            self.dayNo += 1
-                            shortDate = blockName
-                            metricAndType = self.convertLongDateToShort(date: snap.key)
+                            middleBold = blockName
+                            metricAndType = self.convertLongDateToShort(date: individualDate.key)
                         }
                         
-                        self.kasamHistoryArray.append(kasamFollowingFormat(day: self.dayNo, shortDate: shortDate, fullDate: individualDate.key, metric: metricAndType))
+                        self.kasamHistoryArray.append(kasamFollowingFormat(day: self.dayNo, shortDate: middleBold, fullDate: individualDate.key, metric: indieMetric, metricAndType: metricAndType))
                         if self.kasamHistoryArray.count == snap.childrenCount {
                             self.kasamHistoryArray = self.kasamHistoryArray.sorted(by: { $0.day < $1.day })
                             self.tableViewData.append(cellData(opened: false, title: startDate.dateToString(), sectionData: self.kasamHistoryArray))
@@ -216,7 +210,7 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableViewData[section].opened == true {
-            return tableViewData[section].sectionData.count + 1
+            return tableViewData[section].sectionData.count + 2
         } else {
             return 1
         }
@@ -225,20 +219,28 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "KasamStatsCell") as? KasamHistoryTableCell else {return UITableViewCell()}
-            cell.setSection(title: tableViewData[indexPath.section].title.shortDateToLongDate(), open: tableViewData[indexPath.section].opened)
+            cell.setSection(title: tableViewData[indexPath.section].title.shortDateToLongDate(), open: tableViewData[indexPath.section].opened, count: tableViewData[indexPath.section].sectionData.count)
             cell.selectionStyle = .none
+            return cell
+        } else if indexPath.row == 1 {
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: "KasamStatsChart") as? KasamHistoryTableCell else {return UITableViewCell()}
+            cell.setChart(dataSet: tableViewData[indexPath.section].sectionData)
             return cell
         } else {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "KasamStatsCell") as? KasamHistoryTableCell else {return UITableViewCell()}
             cell.delegate = self
-            cell.setBlock(block: tableViewData[indexPath.section].sectionData[indexPath.row - 1])
+            cell.setBlock(block: tableViewData[indexPath.section].sectionData[indexPath.row - 2])
             cell.selectionStyle = .none
             return cell
         }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 40
+        switch indexPath.row {
+            case 0: return sectionHeight
+            case 1: return chartHeight
+            default: return rowHeight
+        }
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -250,17 +252,15 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
             //Closing the section
             if tableViewData[indexPath.section].opened == true {
                 tableViewData[indexPath.section].opened = false
+                setTableViewHeight -= (chartHeight + rowHeight * CGFloat((tableViewData[indexPath.section].sectionData.count)))
                 tableView.reloadSections(IndexSet.init(integer: indexPath.section), with: .none)
-                setTableViewHeight = 40
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                     self.updateContentTableHeight()
-                 }
+                updateContentTableHeight()
             } else {
             //Opening the section
-                setTableViewHeight = CGFloat(40 * (tableViewData[indexPath.section].sectionData.count))
+                self.tableViewData[indexPath.section].opened = true
+                setTableViewHeight += chartHeight + rowHeight * CGFloat((tableViewData[indexPath.section].sectionData.count))
                 updateContentTableHeight()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.005) {
-                    self.tableViewData[indexPath.section].opened = true
                     tableView.reloadSections(IndexSet.init(integer: indexPath.section), with: .none)
                 }
             }

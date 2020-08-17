@@ -192,12 +192,11 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         if let kasamOrder = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
             SavedData.groupKasamBlocks[kasamOrder] = (kasam.kasamID, block)
             if let cell = self.groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
-                print("hell1 subtitle to \(SavedData.groupKasamBlocks[kasamOrder].data.blockTitle)")
                 cell.blockSubtitle.text = SavedData.groupKasamBlocks[kasamOrder].data.blockTitle
             }
         } else {
             SavedData.groupKasamBlocks.append((kasam.kasamID, block))
-            self.getDayTracker(kasamID: block.kasamID)
+            self.getDayTracker(kasamID: block.kasamID, tableView: self.groupKasamTable, type: "group")
         }
         
         //Only does the below after all Kasams loaded
@@ -206,63 +205,6 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
             self.groupFollowingLabel.text = "You have \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
             self.groupKasamTable.reloadData()
             self.updateScrollViewSize()
-        }
-    }
-    
-    //STEP 5
-    func getDayTracker(kasamID: String) {
-        //For the active Kasams on the Group page
-        if let kasam = SavedData.kasamDict[kasamID] {
-            print("Step 5 - Day Tracker hell6 \(kasam.kasamName)")
-            //Gets the DayTracker info - only goes into this loop if the user has kasam history
-            DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).observe(.value, with: {(snap) in
-                if SavedData.kasamDict[kasamID]?.programDuration != nil {self.getBlockDetails(kasamID: kasamID)}    //Only for updates to timeline kasams
-                if snap.exists() {
-                    var displayStatus = "Checkmark"
-                    var order = 0
-                    var dayTrackerArrayInternal = [Int:(Date,Double)]()
-                    var dayPercent = 1.0
-                    var percentComplete = 0.0
-                    let dayCount = snap.childrenCount
-                    var internalCount = 0
-                    
-                    for history in snap.children.allObjects as! [DataSnapshot] {
-                        let kasamDate = history.key.stringToDate()
-                        internalCount += 1
-                        order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                        dayPercent = self.statusPercentCalc(snapshot: history).0
-                        dayTrackerArrayInternal[order] = (kasamDate, dayPercent)
-                        
-                        //Status for Current day
-                        if history.key == self.getCurrentDate() {
-                            percentComplete = dayPercent
-                            if dayPercent == 1 {displayStatus = "Check"}
-                            else if dayPercent < 1 && dayPercent > 0 {displayStatus = "Progress"}
-                        }
-                        
-                        if internalCount == dayCount {
-                            //DayTrackerArrayInternal adds the status of each day
-                            SavedData.kasamDict[(kasam.kasamID)]?.displayStatus = displayStatus
-                            SavedData.kasamDict[(kasam.kasamID)]?.percentComplete = percentComplete         //only for COMPLEX kasams
-                            SavedData.kasamDict[kasam.kasamID]?.dayTrackerArray = dayTrackerArrayInternal
-                            
-                            if let index = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
-                                SavedData.kasamDict[kasam.kasamID]?.streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: SavedData.groupKasamBlocks[index].data.dayOrder)
-                                NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
-                                self.singleKasamUpdate(kasamOrder: index, tableView: self.groupKasamTable, type: "group")
-                            }
-                        }
-                    }
-                } else {
-                    SavedData.kasamDict[kasam.kasamID]?.dayTrackerArray = nil
-                    SavedData.kasamDict[(kasam.kasamID)]?.displayStatus = "Checkmark"
-                    SavedData.kasamDict[kasam.kasamID]?.streakInfo = (currentStreak:(value:0, date:nil), daysWithAnyProgress:0, longestStreak:0)
-                    SavedData.kasamDict[(kasam.kasamID)]?.percentComplete = 0
-                    if let index = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
-                        self.singleKasamUpdate(kasamOrder: index, tableView: self.groupKasamTable, type: "group")
-                    }
-                }
-            })
         }
     }
     

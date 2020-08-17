@@ -97,6 +97,67 @@ extension UIViewController {
         }
     }
     
+    func getDayTracker(kasamID: String, tableView: UITableView, type: String) {
+        //For the active Kasams on the Personal or Group page
+        if let kasam = SavedData.kasamDict[kasamID] {
+            //Gets the DayTracker info - only goes into this loop if the user has kasam history
+            var db = DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString())
+            var block = SavedData.personalKasamBlocks
+            if type == "group" {
+                db = DBRef.groupKasams.child((kasam.groupID)!).child("History").child(Auth.auth().currentUser!.uid)
+                block = SavedData.groupKasamBlocks
+            }
+            db.observe(.value, with: {(snap) in
+                if snap.exists() {
+                    var displayStatus = "Checkmark"
+                    var order = 0
+                    var dayTrackerArrayInternal = [Int:(Date,Double)]()
+                    var dayPercent = 1.0
+                    var percentComplete = 0.0
+                    let dayCount = snap.childrenCount
+                    var internalCount = 0
+                    
+                    for history in snap.children.allObjects as! [DataSnapshot] {
+                        let kasamDate = history.key.stringToDate()
+                        internalCount += 1
+                        order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
+                        dayPercent = self.statusPercentCalc(snapshot: history).0
+                        dayTrackerArrayInternal[order] = (kasamDate, dayPercent)
+                        
+                        //Status for Current day
+                        if history.key == self.getCurrentDate() {
+                            percentComplete = dayPercent
+                            if dayPercent == 1 {displayStatus = "Check"}
+                            else if dayPercent < 1 && dayPercent > 0 {displayStatus = "Progress"}
+                        }
+                        
+                        if internalCount == dayCount {
+                            //DayTrackerArrayInternal adds the status of each day
+                            kasam.displayStatus = displayStatus
+                            kasam.percentComplete = percentComplete         //only for COMPLEX kasams
+                            kasam.dayTrackerArray = dayTrackerArrayInternal
+                            
+                            if let index = block.index(where: {($0.kasamID == kasam.kasamID)}) {
+                                kasam.streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: block[index].data.dayOrder)
+                                NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
+                                self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type)
+                            }
+                        }
+                    }
+                } else {
+                    kasam.dayTrackerArray = nil
+                    kasam.displayStatus = "Checkmark"
+                    kasam.streakInfo = (currentStreak:(value:0, date:nil), daysWithAnyProgress:0, longestStreak:0)
+                    kasam.percentComplete = 0
+                    if let index = block.index(where: {($0.kasamID == kasam.kasamID)}) {
+                        self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type)
+                    }
+                }
+            })
+        }
+    }
+    
+    
     func currentStreak(dictionary: [Int:(Date, Double)], currentDay: Int) -> (currentStreak:(value:Int, date:Date?), daysWithAnyProgress:Int, longestStreak:Int) {
         print("Step 6 - Streak Calc hell6")
         var daysWithAnyProgress = 0
