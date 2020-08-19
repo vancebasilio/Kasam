@@ -52,7 +52,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(GroupViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
     }
     
-    func updateScrollViewSize(){
+    @objc func updateScrollViewSize(){
         self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.groupTableHeight, tableRowHeight: self.groupTableRowHeight, rowCount: SavedData.groupKasamBlocks.count, additionalHeight: 160)
         self.initialLoad = true
     }
@@ -130,37 +130,13 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         
         //OPTION 1 - Load blocks based on last completed (PROGRAM KASAMS) e.g. Insanity
         if kasam.programDuration != nil {
-            DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).child(Date().dateToString()).child("BlockID").observeSingleEvent(of: .value) {(snapBlockID) in
-                if snapBlockID.exists() {
-                    DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(snapBlockID.value as! String).observeSingleEvent(of: .value) {(snapshot) in
-                        print("Step 3 - Get Block Data hell6 Option 1A \(kasam.kasamName)")
+            DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observeSingleEvent(of: .value) {(snapshot) in
+                let blockDayToLoad = kasam.currentDay % Int(snapshot.childrenCount)
+                if let value = snapshot.value as? [String: String] {
+                    DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"] ?? "").observeSingleEvent(of: .value) {(snapshot) in
+                        print("Step 3 - Get Block Data hell6 Option 1B \(kasam.kasamName)")
                         self.groupKasamCount += 1
-                        self.saveGroupKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, dayCount: nil)
-                    }
-                } else {
-                    var blockDayToLoad = 1
-                    var dayToShow = 1
-                    for date in Date.dates(from: kasam.joinedDate, to: Date()) {
-                        let dateString = date.dateToString()
-                        DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString()).child(dateString).observeSingleEvent(of: .value) {(snapCount) in
-                            if dateString != self.getCurrentDate() && snapCount.exists() {
-                                blockDayToLoad += 1               //the user has completed xx number of blocks in the past (excludes today's block)
-                            } else if dateString == self.getCurrentDate() {
-                                DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observeSingleEvent(of: .value, with: {(snapshot) in
-                                    if let value = snapshot.value as? [String:String] {
-                                        dayToShow = blockDayToLoad
-                                        if blockDayToLoad > value.count {
-                                            blockDayToLoad = (blockDayToLoad % value.count) + 1
-                                        }
-                                        DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"]!).observeSingleEvent(of: .value) {(snapshot) in
-                                            print("Step 3 - Get Block Data hell6 Option 1B \(kasam.kasamName)")
-                                            self.groupKasamCount += 1
-                                            self.saveGroupKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, dayCount: dayToShow)
-                                        }
-                                    }
-                                })
-                            }
-                        }
+                        self.saveGroupKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam)
                     }
                 }
             }
@@ -170,7 +146,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
                 print("Step 3 - Get Block Data hell6 Option 2 \(kasam.kasamName)")
                 self.groupKasamCount += 1
                 if let snapshot = snapshot.value as? Dictionary<String,Any> {
-                    self.saveGroupKasamBlocks(value: snapshot, dayOrder: dayOrder, kasam: kasam, dayCount: nil)
+                    self.saveGroupKasamBlocks(value: snapshot, dayOrder: dayOrder, kasam: kasam)
                 }
             })
         //OPTION 3 - Load single repeated block (CHALLENGE KASAMS) e.g. 200 Push-ups
@@ -178,17 +154,17 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
             DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in //childAdded needed
                 print("Step 3 - Get Block Data hell6 Option 3 \(kasam.kasamName)")
                 self.groupKasamCount += 1
-                self.saveGroupKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, dayCount: nil)
+                self.saveGroupKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam)
             })
         }
     }
     
     //STEP 4
-    func saveGroupKasamBlocks(value: Dictionary<String,Any>, dayOrder: Int, kasam: KasamSavedFormat, dayCount: Int?){
+    func saveGroupKasamBlocks(value: Dictionary<String,Any>, dayOrder: Int, kasam: KasamSavedFormat){
         print("Step 4 - Save Kasam Blocks hell6 \((kasam.kasamName))")
         let kasamImage = value["Image"] as! String
         SavedData.kasamDict[kasam.kasamID]?.image = kasamImage
-        let block = PersonalBlockFormat(kasamID: kasam.kasamID, groupID: SavedData.kasamDict[kasam.kasamID]?.groupID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, dayCount: dayCount)
+        let block = PersonalBlockFormat(kasamID: kasam.kasamID, groupID: SavedData.kasamDict[kasam.kasamID]?.groupID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
         if let kasamOrder = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
             SavedData.groupKasamBlocks[kasamOrder] = (kasam.kasamID, block)
             if let cell = self.groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {

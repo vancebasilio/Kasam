@@ -19,7 +19,7 @@ import youtube_ios_player_helper
 protocol KasamViewerCellDelegate {
     func dismissViewController()
     func updateControllers()
-    func sendCompletedMatrix(activityNo: Int, value: Double)
+    func sendCompletedMatrix(activityNo: Int, value: Double, max: Double)
     func nextItem()
 }
 
@@ -77,20 +77,16 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     let animationView = AnimationView()
     var pickerViewIsScrolling = false {didSet {if !pickerViewIsScrolling && shouldSave {savePickerValue()}}}
     
-    //Video variables
-    var pauseState = false
-    var player: AVPlayer?
-    var timeObserver: Any?
-    var timer: Timer?
-    var currentTimeInSeconds = Float64(0)
-    var totalTimeInSeconds = Float64(0)
-    
     //Timer variables
     var maxTime: TimeInterval = 0   //set max timer value
     var currentTime = 0.0
     var countdownTimerDidStart = false
-    var timerOrCountdown = ""
+    var type = ""
     lazy var countdownTimer: CountdownTimer = {let countdownTimer = CountdownTimer(); return countdownTimer}()
+    
+    //Video variables
+    var videoDuration = 0.0
+    var videoURL: String?
     
     override func awakeFromNib() {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemovePersonalLoadingAnimation"), object: self)
@@ -111,7 +107,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
         pickerView.reloadAllComponents()
         //Important so that the pickerview updates to the max metric
         if activity.videoURL != nil {
-            setVideoPlayer(url: activity.videoURL!, title: activity.activityTitle)
+            videoURL = activity.videoURL
         } else if activity.image == nil {
             if activity.imageURL == nil && activity.videoURL == nil {
                 animatedImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityPlaceholderURL))
@@ -135,16 +131,16 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     
     //COUNTDOWN-----------------------------------------------------------------------------------
     
-    func setupCountdown(maxtime: String){
+    func setupCountdown(maxtime: Int){
         //hide picker views
         animatedImageView.isHidden = true
         doneButton.isHidden = true
         pickerView.isHidden = true
         instruction.isHidden = true
-        timerOrCountdown = "countdown"
+        type = "countdown"
         
         //setup timer
-        maxTime = Double(maxtime) ?? 0.0
+        maxTime = Double(maxtime) 
         countdownTimer.delegate = self
         if pastProgress >= maxTime {
             countdownTimerDone()
@@ -183,13 +179,13 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     
     //TIMER-----------------------------------------------------------------------------------
     
-    func setupTimer(maxtime: String){
+    func setupTimer(maxtime: Int){
         //hide picker views
         animatedImageView.isHidden = true
         doneButton.isHidden = true
         pickerView.isHidden = true
         instruction.isHidden = true
-        timerOrCountdown = "timer"
+        type = "timer"
         
         //setup timer
         maxTime = 0.0
@@ -244,7 +240,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
             animatedImageView.stopAnimating()
             buttoncheck = 0
         }
-        if timerOrCountdown == "countdown" {
+        if type == "countdown" {
             if !countdownTimerDidStart {
                 countdownTimer.start()
                 countdownTimerDidStart = true
@@ -254,7 +250,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
                 countdownTimerDidStart = false
                 timerStartStop.text = "tap to start"
             }
-        } else if timerOrCountdown == "timer" {
+        } else if type == "timer" {
             if !countdownTimerDidStart {
                 countdownTimer.startTimer()
                 countdownTimerDidStart = true
@@ -277,8 +273,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
         resetButton.isHidden = true
         circularSlider.isHidden = true
         doneButton.layer.cornerRadius = 20.0
-        timerOrCountdown = "Checkmark"
-        if pastProgress == 100.0 {
+        type = "checkmark"
+        if pastProgress > 0.0 {
             doneButton.setIcon(prefixText: "  ", prefixTextColor: .white, icon: .fontAwesomeRegular(.checkCircle), iconColor: .white, postfixText: "  Completed!", postfixTextColor: .white, backgroundColor: .dayYesColor, forState: .normal, textSize: 17, iconSize: 20)
             doneCancelButton.layer.cornerRadius = doneCancelButton.frame.height / 2
             doneCancelButton.setIcon(icon: .fontAwesomeSolid(.undo), iconSize: 18, color: .white, backgroundColor: UIColor.init(hex: 0xf15e4a), forState: .normal)
@@ -291,14 +287,20 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     
     //VIDEO---------------------------------------------------------------------------------------
     
-    func setVideoPlayer(url: String, title: String){
+    func setVideoPlayer(){
+        setupCheckmark()
+        type = "video"
         videoPlayerHolder.isHidden = false
         videoPlayer.delegate = self
-        videoPlayer.load(withVideoId: url)
+        videoPlayer.load(withVideoId: videoURL ?? "")
     }
     
     func playerViewPreferredWebViewBackgroundColor(_ playerView: YTPlayerView) -> UIColor {
         return .black
+    }
+    
+    func playerViewDidBecomeReady(_ playerView: YTPlayerView) {
+        videoDuration = playerView.duration()
     }
     
     func playerView(_ playerView: YTPlayerView, didChangeTo state: YTPlayerState) {
@@ -319,12 +321,20 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
         restImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityRestImageURL))
     }
     
+    //DONE BUTTON----------------------------------------------------------------------------
+    
     @IBAction func doneButton(_ sender: UIButton) {
         if currentOrder == totalOrder {
             if viewOnlyCheck == false {
-                if timerOrCountdown == "Checkmark" {
+                if type == "checkmark" {
                     if pastProgress == 0.0 {
-                        delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 100.0)
+                        delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 100.0, max: 100.0)
+                        delegate?.updateControllers()
+                    }
+                    delegate?.dismissViewController()
+                } else if type == "video" {
+                    if pastProgress == 0.0 {
+                        delegate?.sendCompletedMatrix(activityNo: currentOrder, value: videoDuration, max: videoDuration)
                         delegate?.updateControllers()
                     }
                     delegate?.dismissViewController()
@@ -338,8 +348,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     }
     
     @IBAction func doneCancelButtonPressed(_ sender: Any) {
-        if pastProgress == 100.0 {
-            delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 0.0)
+        if pastProgress > 0.0 {
+            delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 0.0, max: 100)
             delegate?.updateControllers()
             delegate?.dismissViewController()
         }
@@ -360,7 +370,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     @IBAction func timerDoneButton(_ sender: Any) {
         delegate?.dismissViewController()
         if viewOnlyCheck == false {
-            delegate?.sendCompletedMatrix(activityNo: currentOrder, value: (maxTime - currentTime))
+            delegate?.sendCompletedMatrix(activityNo: currentOrder, value: (maxTime - currentTime), max: maxTime)
             delegate?.updateControllers()
         }
     }
@@ -404,7 +414,7 @@ extension KasamViewerCell: UIPickerViewDelegate, UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if viewOnlyCheck == false {
             pickerViewIsScrolling = false
-            delegate?.sendCompletedMatrix(activityNo: currentOrder, value: Double(row * increment))
+            delegate?.sendCompletedMatrix(activityNo: currentOrder, value: Double(row * increment), max: Double(((pickerMetric) * increment)))
         }
     }
 }

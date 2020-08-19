@@ -23,12 +23,12 @@ class CompletedKasamCell: UITableViewCell {
         kasamImage.sd_setImage(with: block.imageURL)
         kasamName.text = block.kasamName
         daysCompleted.text = block.daysCompleted.pluralUnit(unit: "day")
-        let joinedDate = convertLongDateToShort(date: block.firstDate!)
-        let endDate = convertLongDateToShort(date: block.lastDate!)
+        let joinedDate = block.firstDate?.longDateToShort()
+        let endDate = block.lastDate?.longDateToShort()
         if joinedDate == endDate {
-            joinedDates.text = "\(joinedDate)"
+            joinedDates.text = String(describing: joinedDate)
         } else {
-            joinedDates.text = "\(joinedDate) - \(endDate)"
+            joinedDates.text = "\(String(describing: joinedDate ?? "")) - \(String(describing: endDate ?? ""))"
         }
     }
 }

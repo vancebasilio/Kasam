@@ -1543,7 +1543,7 @@
             <objects>
                 <viewController storyboardIdentifier="Discover" id="1ds-W5-IlG" userLabel="Discover" customClass="DiscoverViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="uyQ-Kr-07J">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="807"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="796"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5dE-Zw-BsL">
@@ -2742,7 +2742,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="q8D-Wq-y8h">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="643"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="632"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="667" translatesAutoresizingMaskIntoConstraints="NO" id="s0t-aS-08i" userLabel="Content View">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="800"/>
@@ -3362,7 +3362,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lTm-TJ-FXe">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="643"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="632"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="667" translatesAutoresizingMaskIntoConstraints="NO" id="goJ-99-KwY" userLabel="Content View">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="800"/>
@@ -4541,11 +4541,11 @@
             <objects>
                 <viewController storyboardIdentifier="CoachHolder" useStoryboardIdentifierAsRestorationIdentifier="YES" id="8Un-c2-rIU" userLabel="Coach Details View" customClass="CoachHolder" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="76g-ws-Z6u">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="687"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="676"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="G3I-ZV-gXq" userLabel="White BG">
-                                <rect key="frame" x="0.0" y="250" width="414" height="487"/>
+                                <rect key="frame" x="0.0" y="250" width="414" height="476"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WUW-Rm-KH0" userLabel="Header View">
@@ -4568,7 +4568,7 @@
                                 </constraints>
                             </view>
                             <tableView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="flT-bM-cQo">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="687"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="676"/>
                                 <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <view key="tableHeaderView" contentMode="scaleToFill" id="FRt-fG-i00" userLabel="Profile View">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="220"/>

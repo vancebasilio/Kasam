@@ -157,7 +157,7 @@ extension UIViewController {
         }
     }
     
-    
+    //STEP 6
     func currentStreak(dictionary: [Int:(Date, Double)], currentDay: Int) -> (currentStreak:(value:Int, date:Date?), daysWithAnyProgress:Int, longestStreak:Int) {
         print("Step 6 - Streak Calc hell6")
         var daysWithAnyProgress = 0
@@ -344,7 +344,7 @@ extension UIViewController {
                                 "Title" : blockActivity?[0]?.title ?? "",
                                 "Type" : NewKasam.chosenMetric] as [String : Any]
                 let activityMatrix = ["1":activity]
-                let blockDictionary = ["Activity": activityMatrix, "Duration": transferBlockDuration, "Image": imageURL, "Order": String(j), "Rating": "5", "Title": NewKasam.kasamTransferArray[j]?.blockTitle ?? "Block Title", "BlockID": blockID.key!] as [String : Any]
+                let blockDictionary = ["Activity": activityMatrix, "Duration": transferBlockDuration, "Image": imageURL, "Rating": "5", "Title": NewKasam.kasamTransferArray[j]?.blockTitle ?? "Block Title", "BlockID": blockID.key!] as [String : Any]
                 blockID.setValue(blockDictionary) {
                     (error, reference) in
                     if error != nil {
@@ -1108,6 +1108,14 @@ extension String {
         return  dateFormatter.string(from: date!)
     }
     
+    func longDateToShort() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let date = dateFormatter.date(from:self)
+        dateFormatter.dateFormat = "MMM dd"
+        return dateFormatter.string(from: date ?? Date())
+    }
+    
     func stringToTime () -> (hour: Int, minute: Int) {
         let dateAsString = self
         let dateFormatter = DateFormatter()
@@ -1389,22 +1397,6 @@ extension UITableViewCell {
         formatter.dateFormat = "yyyy-MM-dd"                                     
         let finalDate = formatter.string(from: currentDateTime)
         return finalDate
-    }
-    
-    func convertLongDateToShort(date: String) -> String {
-        var dateOutput = ""
-        let dateFormatterGet = DateFormatter()
-        dateFormatterGet.dateFormat = "yyyy-MM-dd"                              //***keep this value the same as above
-        
-        let dateFormatterPrint = DateFormatter()
-        dateFormatterPrint.dateFormat = "MMM dd"
-        
-        if let date = dateFormatterGet.date(from: date) {
-            dateOutput = dateFormatterPrint.string(from: date)
-        } else {
-            print("There was an error converting the date")
-        }
-        return dateOutput
     }
 }
 

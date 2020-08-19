@@ -86,9 +86,8 @@ class PersonalBlockFormat {
     var blockTitle: String
     var dayOrder: Int
     var duration: String?
-    var dayCount: Int?
     
-    init(kasamID: String, groupID: String?, blockID: String, blockTitle: String, dayOrder: Int, duration: String?, image: URL, dayCount: Int?){
+    init(kasamID: String, groupID: String?, blockID: String, blockTitle: String, dayOrder: Int, duration: String?, image: URL){
         self.kasamID = kasamID
         self.groupID = groupID
         self.blockID = blockID
@@ -96,7 +95,6 @@ class PersonalBlockFormat {
         self.image = image
         self.blockTitle = blockTitle
         self.duration = duration
-        self.dayCount = dayCount
     }
 }
 
@@ -239,9 +237,9 @@ class KasamActivityCellFormat {
     var blockID: String
     var activityTitle: String
     var activityDescription: String
-    var totalMetric: String
     var increment: String?
-    var currentMetric: String
+    var currentMetric: Double
+    var totalMetric: Int
     var imageURL: String?
     var videoURL: String?
     var image: UIImage?
@@ -249,14 +247,14 @@ class KasamActivityCellFormat {
     var currentOrder: Int
     var totalOrder: Int
     
-    init(kasamID: String, blockID: String, title: String, description: String, totalMetric: String, increment: String?, currentMetric: String, imageURL: String?, videoURL: String?, image: UIImage?, type: String, currentOrder: Int, totalOrder: Int){
+    init(kasamID: String, blockID: String, title: String, description: String, increment: String?, currentMetric: Double, totalMetric: Int, imageURL: String?, videoURL: String?, image: UIImage?, type: String, currentOrder: Int, totalOrder: Int){
         self.kasamID = kasamID
         self.blockID = blockID
         self.activityTitle = title
         self.activityDescription = description
-        self.totalMetric = totalMetric
         self.increment = increment
         self.currentMetric = currentMetric
+        self.totalMetric = totalMetric
         self.imageURL = imageURL
         self.videoURL = videoURL
         self.image = image

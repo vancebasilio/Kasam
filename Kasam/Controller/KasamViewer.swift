@@ -31,8 +31,8 @@ class KasamActivityViewer: UIViewController {
     var metricRefHandle: DatabaseHandle?
     var metricCompleted = 0
     var totalActivties = 0
-    var summedTotalMetric = 0
-    var transferMetricMatrix = [String: String]()
+    var achievedMaxMatrix = [String: (achieved: Double, max: Double)]()
+    var achievedMatrix = [String: Double]()
     var viewingOnlyCheck = false
     var activityCurrentValue = 0
     var reviewOnly = false
@@ -76,16 +76,16 @@ class KasamActivityViewer: UIViewController {
             self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
                 if let value = snapshot.value as? [String: Any] {
                     count += 1
-                    var currentMetric = "0"
-                    var Database = DBRef.userPersonalHistory.child(self.kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(self.statusDate).child("Metric Breakdown").child(String(count))
+                    var currentMetric = 0.0
+                    var db = DBRef.userPersonalHistory.child(self.kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(self.statusDate).child("Metric Breakdown").child(String(count))
                     if self.type == "group" {
-                        Database = DBRef.groupKasams.child((SavedData.kasamDict[self.kasamID]?.groupID)!).child("Team").child(Auth.auth().currentUser!.uid).child(self.statusDate).child("Metric Breakdown").child(String(count))
+                        db = DBRef.groupKasams.child((SavedData.kasamDict[self.kasamID]?.groupID)!).child("Team").child(Auth.auth().currentUser!.uid).child(self.statusDate).child("Metric Breakdown").child(String(count))
                     }
-                    Database.observeSingleEvent(of: .value, with: {(snap) in
+                    db.observeSingleEvent(of: .value, with: {(snap) in
                         if snap.exists() && self.viewingOnlyCheck == false {
-                            currentMetric = snap.value as! String               //Gets the metric for the activity for the day selected
+                            currentMetric = (snap.value as? Double) ?? 0.0               //Gets the metric for the activity for the day selected
                         }
-                        let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, totalMetric: value["Metric"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, imageURL: value["Image"] as? String, videoURL: value["Video"] as? String, image: nil, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0)
+                        let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, totalMetric: value["Metric"] as? Int ?? 0, imageURL: value["Image"] as? String, videoURL: value["Video"] as? String, image: nil, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0)
                         self.activityBlocks.append(activity)
                         self.collectionView.reloadData()
                         if self.activityBlocks.count == count {
@@ -95,7 +95,7 @@ class KasamActivityViewer: UIViewController {
                             completion()
                         }
                     })
-                    self.transferMetricMatrix[String(count)] = "0"
+                    self.achievedMaxMatrix[String(count)] = (achieved: 0.0, max: 0.0)
                 }
                 self.collectionView.reloadData()
                 self.activityRef.removeObserver(withHandle: self.activityRefHandle!)
@@ -104,7 +104,7 @@ class KasamActivityViewer: UIViewController {
             count += 1
             let blockNo = Int(blockID) ?? 1
             let blockActivity = NewKasam.fullActivityMatrix[blockNo]
-            let activity = KasamActivityCellFormat(kasamID: "", blockID: "", title: blockActivity?[0]?.title ?? "Activity Title", description: blockActivity?[0]?.description ?? "Activity Description", totalMetric: String(describing: blockActivity?[0]?.reps), increment: String(describing: blockActivity?[0]?.interval), currentMetric: "", imageURL: "", videoURL: "", image: blockActivity?[0]?.imageToSave, type: NewKasam.chosenMetric, currentOrder: 0, totalOrder: 0)
+            let activity = KasamActivityCellFormat(kasamID: "", blockID: "", title: blockActivity?[0]?.title ?? "Activity Title", description: blockActivity?[0]?.description ?? "Activity Description", increment: String(describing: blockActivity?[0]?.interval), currentMetric: 0.0, totalMetric: blockActivity?[0]?.reps ?? 0, imageURL: "", videoURL: "", image: blockActivity?[0]?.imageToSave, type: NewKasam.chosenMetric, currentOrder: 0, totalOrder: 0)
             self.activityBlocks.append(activity)
             self.collectionView.reloadData()
             if self.activityBlocks.count == count {
@@ -116,8 +116,7 @@ class KasamActivityViewer: UIViewController {
     
     func setupMetricMatrix(){
         for index in 1...activityBlocks.count {
-            self.transferMetricMatrix[String(index)] = String(activityBlocks[index - 1].currentMetric)
-            summedTotalMetric += Int(activityBlocks[index - 1].totalMetric) ?? 0
+            self.achievedMatrix[String(index)] = activityBlocks[index - 1].currentMetric
         }
     }
     
@@ -155,7 +154,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         cell.viewOnlyCheck = viewingOnlyCheck
         cell.kasamIDTransfer["kasamID"] = kasamID
         cell.setKasamViewer(activity: activity)
-        cell.pastProgress = Double(activityBlocks[indexPath.row].currentMetric) ?? 0.0
+        cell.pastProgress = activityBlocks[indexPath.row].currentMetric
         if activity.type == "Reps" {
             cell.setupPicker()
         } else if activity.type == "Countdown" {
@@ -164,6 +163,8 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
             cell.setupTimer(maxtime: activity.totalMetric)
         } else if activity.type == "Checkmark" {
             cell.setupCheckmark()
+        } else if activity.type == "Video" {
+            cell.setVideoPlayer()
         } else if activity.type == "Rest" {
             cell.setupRest(activity: activity)
         }
@@ -195,30 +196,29 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         dismiss(animated: true, completion: nil)
     }
     
-    func sendCompletedMatrix(activityNo: Int, value: Double) {
-        transferMetricMatrix[String(activityNo)] = String(value)
-        activityBlocks[activityNo - 1].currentMetric = String(value)
-        let statusDateTime = getCurrentDateTime()
-        var transferAvg = 1.0
+    func sendCompletedMatrix(activityNo: Int, value: Double, max: Double) {
+        achievedMaxMatrix[String(activityNo)] = (value, max)
+        achievedMatrix[String(activityNo)] = value
+        activityBlocks[activityNo - 1].currentMetric = value
+        var transferAvg = 0.0
         var sum = 0.0
         
-        for (_, avg) in transferMetricMatrix {
-            sum += Double(avg) ?? 0.0
+        for progress in achievedMaxMatrix {
+            print("hell5 \(progress.value.achieved, progress.value.max)")
+            transferAvg += (progress.value.achieved / progress.value.max)
+            sum += progress.value.achieved
         }
         
-        if self.summedTotalMetric > 0 {
-            transferAvg = sum / Double(self.summedTotalMetric)
-        }
         let db = DBRef.userPersonalHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate)
         if transferAvg > 0.0 {
         //OPTION 1 - Progress made
             if type == "personal" {
                 db.observeSingleEvent(of: .value) {(snap) in
                     if !snap.exists() {self.setHistoryTotal(kasamID: self.kasamID, statusDate: self.statusDate, value: 1)}  //Add history once
-                    db.setValue(["BlockID": self.blockID, "Block Name": self.blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": self.transferMetricMatrix])
+                    db.setValue(["BlockID": self.blockID, "Block Name": self.blockName, "Time": self.getCurrentDateTime(), "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": self.achievedMatrix])
                 }
             } else {
-                DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": statusDateTime , "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": transferMetricMatrix])
+                DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": self.getCurrentDateTime(), "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": self.achievedMatrix])
             }
         //OPTION 2 - REMOVE PROGRESS
         } else {
