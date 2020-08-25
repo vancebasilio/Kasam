@@ -80,7 +80,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
     func updateScrollViewSize(){
         collectionViewHeight.constant = kasamStatsHeight.constant + CGFloat(57.5)       //57.5 is the collectionView Title height
-        updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: completedKasamTableHeight, tableRowHeight: completedTableRowHeight, rowCount: completedStats.count, additionalHeight: kasamStatsHeight.constant + 120 + topViewHeight.constant)
+        updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: completedKasamTableHeight, tableRowHeight: completedTableRowHeight, additionalTableHeight: nil, rowCount: completedStats.count, additionalHeight: kasamStatsHeight.constant + 120 + topViewHeight.constant)
     }
     
     func viewSetup(){
@@ -365,8 +365,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
 extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func setupImageHolders(){
-        let imageTap = UITapGestureRecognizer(target: self, action: #selector(openImagePicker))
-        profileImageClickArea.addGestureRecognizer(imageTap)
+        profileImageClickArea.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(openImagePicker)))
     }
     
     @objc func openImagePicker(_ sender:Any) {

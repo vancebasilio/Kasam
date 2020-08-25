@@ -26,8 +26,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     var blockIDGlobal = ""
     var blockNameGlobal = ""
     var dateGlobal: Date?
-    var dayToLoadGlobal: Int?
-    var viewOnlyGlobal = false
     var personalTableRowHeight = CGFloat(80)
     
     let personalAnimationIcon = AnimationView()
@@ -47,6 +45,9 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         let stopLoadingAnimation = NSNotification.Name("RemovePersonalLoadingAnimation")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
         
+        let refreshPersonalKasam = NSNotification.Name("RefreshPersonalKasam")
+        NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.refreshPersonalKasam), name: refreshPersonalKasam, object: nil)
+        
         let resetPersonalKasam = NSNotification.Name("ResetPersonalKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.getPersonalFollowing), name: resetPersonalKasam, object: nil)
         
@@ -61,7 +62,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func updateScrollViewSize(){
-        self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.tableViewHeight, tableRowHeight: self.personalTableRowHeight, rowCount: SavedData.personalKasamBlocks.count, additionalHeight: 140)
+        self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.tableViewHeight, tableRowHeight: self.personalTableRowHeight, additionalTableHeight: nil, rowCount: SavedData.personalKasamBlocks.count, additionalHeight: 140)
     }
     
     @objc func goToCreateKasam(_ notification: NSNotification?) {
@@ -97,6 +98,12 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                 self.personalAnimationIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.iconTapped)))
                 self.updateScrollViewSize()
             }
+        }
+    }
+    
+    @objc func refreshPersonalKasam(_ kasamOrderTransfer: NSNotification?){
+        if let kasamOrder = kasamOrderTransfer?.userInfo?["kasamOrder"] as? Int {
+            singleKasamUpdate(kasamOrder: kasamOrder, tableView: personalKasamTable, type: "personal")
         }
     }
     
@@ -148,7 +155,8 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         //OPTION 1 - Load blocks based on last completed (PROGRAM KASAMS) e.g. Insanity
         if kasam.programDuration != nil {
             DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observeSingleEvent(of: .value) {(snapshot) in
-                let blockDayToLoad = kasam.currentDay % Int(snapshot.childrenCount)
+                var blockDayToLoad = kasam.currentDay % Int(snapshot.childrenCount)
+                if blockDayToLoad == 0 {blockDayToLoad = Int(snapshot.childrenCount)}
                 if let value = snapshot.value as? [String: String] {
                     DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"] ?? "").observeSingleEvent(of: .value) {(snapshot) in
                         print("Step 3 - Get Block Data hell6 Option 1B \(kasam.kasamName)")
@@ -221,9 +229,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             kasamViewer.blockID = blockIDGlobal
             kasamViewer.type = "personal"
             kasamViewer.blockName = blockNameGlobal
-            kasamViewer.viewingOnlyCheck = viewOnlyGlobal
             kasamViewer.dateToLoad = dateGlobal
-            kasamViewer.dayToLoad = dayToLoadGlobal
         } else if segue.identifier == "goToKasamHolder" {
             let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDforHolder
@@ -312,7 +318,7 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
     
 extension PersonalViewController: DayTrackerCellDelegate{
     
-    func dayPressed(kasamID: String, day: Int, date: Date?, metricType: String, viewOnly: Bool?) {
+    func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?) {
         if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
             if metricType == "Checkmark" {
                 updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: day)
@@ -334,40 +340,49 @@ extension PersonalViewController: DayTrackerCellDelegate{
         }
     }
     
-    func openKasamBlock(kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?) {
+    func openKasamBlock(kasamOrder: Int, day: Int?, date: Date, viewOnly: Bool?) {
         animationView.loadingAnimation(view: view, animation: "loading", width: 100, overlayView: nil, loop: true, buttonText: nil, completion: nil)
         UIApplication.shared.beginIgnoringInteractionEvents()
         let kasamID = SavedData.personalKasamBlocks[kasamOrder].kasamID
         kasamIDforViewer = kasamID
         blockIDGlobal = SavedData.personalKasamBlocks[kasamOrder].data.blockID
-        blockNameGlobal = SavedData.personalKasamBlocks[kasamOrder].data.blockTitle
+        blockNameGlobal = SavedData.personalKasamBlocks[kasamOrder].data.blockTitle  //DAY TRACKER FUNC WILL LOAD MANUALLY CHANGED BLOCKS FOR PROGRAM KASAMS
         dateGlobal = date
         
         //OPTION 1 - Opening a past day's block
         if day != nil {
-            viewOnlyGlobal = viewOnly ?? false
-            DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
-                let blockCount = Int(blockCountSnapshot.childrenCount)
-                var blockOrder = 1
-                if SavedData.kasamDict[kasamID]?.programDuration != nil {
-                    //OPTION 1A - Day in past, so find the correct block to show
-                    if day! <= blockCount {blockOrder = day!}
-                    else {blockOrder = (day! % blockCount) + 1}
-                    DBRef.coachKasams.child(kasamID).child("Timeline").observe(.value, with: {(snapshot) in
-                        if let value = snapshot.value as? [String:String] {
-                            self.blockIDGlobal = value["D\(blockOrder)"]!
-                            self.definesPresentationContext = true
+            DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(date.dateToString()).observeSingleEvent(of: .value) {(pastProgress) in
+                //There's past progress, so the user may have manually completed another kasam
+                if pastProgress.exists() {
+                    if let value = pastProgress.value as? [String:Any] {
+                        self.blockIDGlobal = value["BlockID"] as! String
+                        self.blockNameGlobal = value["Block Name"] as! String
+                        self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
+                   }
+                } else {
+                    DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
+                        let blockCount = Int(blockCountSnapshot.childrenCount)
+                        var blockOrder = 1
+                        if SavedData.kasamDict[kasamID]?.programDuration != nil {
+                            //OPTION 1A - Day in past, so find the correct block to show
+                            if day! <= blockCount {blockOrder = day!}
+                            else {blockOrder = (day! % blockCount) + 1}
+                            DBRef.coachKasams.child(kasamID).child("Timeline").observe(.value, with: {(snapshot) in
+                                if let value = snapshot.value as? [String:String] {
+                                    self.blockIDGlobal = value["D\(blockOrder)"]!
+                                    self.definesPresentationContext = true
+                                    self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
+                                }
+                            })
+                        } else {
+                            //OPTION 1B - Day in past and Kasam has only 1 block, so no point finding the correct block
+                            if day! <= blockCount {blockOrder = day!}
+                            else {blockOrder = (blockCount / day!) + 1}
                             self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
                         }
                     })
-                } else {
-                    //OPTION 1B - Day in past and Kasam has only 1 block, so no point finding the correct block
-                    if day! <= blockCount {blockOrder = day!}
-                    else {blockOrder = (blockCount / day!) + 1}
-                    self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
                 }
-                self.dayToLoadGlobal = day
-            })
+            }
         //OPTION 2 - Open Today's block
         } else {
             self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)

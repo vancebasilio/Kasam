@@ -15,6 +15,7 @@ struct cellData {
     var opened = Bool()
     var title = String()
     var sectionData = [kasamFollowingFormat]()
+    var repeatDuration: Int?
 }
 
 class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
@@ -36,7 +37,6 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     
     var transferArray: CompletedKasamFormat?      //loaded in
     var currentKasam = false
-    var metricArray: [Int:Double] = [:]
     var kasamFollowingRefHandle: DatabaseHandle!
     var kasamHistoryRefHandle: DatabaseHandle!
     var dayTrackerRefHandle: DatabaseHandle!
@@ -55,6 +55,8 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     var firstDate: Date?
     var firstDateCheck = true
     var dayNo = 0
+    var totalDayCount = 0
+    var repeatDurationTotal = 0
     
     var sectionHeight = CGFloat(60)
     var chartHeight = CGFloat(200)
@@ -100,16 +102,14 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
         self.avgMetricIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chartBar), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, iconSize: 20)
         self.dayNoIcon.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.calendarCheck), iconColor: UIColor.darkGray, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, iconSize: 20)
         backButton.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), prefixTextColor: UIColor.darkGray, icon: .fontAwesomeSolid(.chevronLeft), iconColor: UIColor.darkGray, postfixText: " Profile", postfixTextFont: UIFont.systemFont(ofSize: 15, weight: .semibold), postfixTextColor: UIColor.darkGray, backgroundColor: UIColor.clear, forState: .normal, iconSize: 15)
-        let mainStatsUpdate = NSNotification.Name("MainStatsUpdate")
-        NotificationCenter.default.addObserver(self, selector: #selector(StatisticsViewController.getKasamStats), name: mainStatsUpdate, object: nil)
     }
     
     @objc func getKasamStats(){
         var indieMetric = 0.0
+        repeatDurationTotal = 0
         setTableViewHeight = 0
         self.tableViewData.removeAll()
         let metricType = self.transferArray!.metric
-        self.dayNoValue.text = self.transferArray?.daysCompleted.pluralUnit(unit: "Day")
         DBRef.userPersonalHistory.child(transferArray!.kasamID).observeSingleEvent(of: .value) {(snapshot) in
         //SECTIONS
             for snap in snapshot.children.allObjects as! [DataSnapshot]{
@@ -117,8 +117,14 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                 self.setTableViewHeight += self.sectionHeight
                 let startDate = snap.key.stringToDate()
                 if let joinDate = snap.value as? [String:Any] {
+                    //ROWS
+                    var goalCheck = 0
+                    var repeatDuration: Int?
                     for individualDate in joinDate {
-                        //ROWS
+                        if individualDate.key == "Goal" {
+                            repeatDuration = individualDate.value as? Int; goalCheck = 1
+                            self.repeatDurationTotal += repeatDuration ?? 0
+                        } else {
                         self.dayNo = (Calendar.current.dateComponents([.day], from: startDate, to: individualDate.key.stringToDate()).day ?? 0) + 1
                         self.progressDayCount += 1
                         var blockName = ""
@@ -131,14 +137,13 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                             indieMetric = Double(block * 100)           //Kasam is only Checkmark
                         }
                         //Kasam is Reps or Timer
-                            var timeAndMetric = (0.0,"")
-                            if metricType == "Time" {
-                                timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
-                                indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
-                            } else if metricType == "Video" {
-                                indieMetric = (indieMetric / 60.0).rounded(toPlaces: 2)
-                            }
-                        self.metricArray[self.dayNo] = indieMetric
+                        var timeAndMetric = (0.0,"")
+                        if metricType == "Time" {
+                            timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
+                            indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
+                        } else if metricType == "Video" {
+                            indieMetric = (indieMetric / 60.0).rounded(toPlaces: 2)
+                        }
                         self.metricTotal += Int(indieMetric)
                         
                         var metricAndType = ""
@@ -162,43 +167,45 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                         }
                         
                         self.kasamHistoryArray.append(kasamFollowingFormat(day: self.dayNo, shortDate: middleBold, fullDate: individualDate.key, metric: indieMetric, metricAndType: metricAndType))
-                        if self.kasamHistoryArray.count == snap.childrenCount {
+                        }
+                        if self.kasamHistoryArray.count + goalCheck == snap.childrenCount {
                             self.kasamHistoryArray = self.kasamHistoryArray.sorted(by: { $0.day < $1.day })
-                            self.tableViewData.append(cellData(opened: false, title: startDate.dateToString(), sectionData: self.kasamHistoryArray))
+                            self.tableViewData.append(cellData(opened: false, title: startDate.dateToString(), sectionData: self.kasamHistoryArray, repeatDuration: repeatDuration))
+                            self.totalDayCount += self.kasamHistoryArray.count
                             self.updateContentTableHeight()
-                            self.setAvgMetric(metricType: metricType, kasamDay: self.dayNo)
                         }
                     }
                 }
                 if self.tableViewData.count == snapshot.childrenCount {
+                    self.setAvgMetric()
+                    if self.totalDayCount != self.transferArray?.daysCompleted && self.totalDayCount != 0 {
+                        DBRef.userHistoryTotals.child(self.transferArray!.kasamID).child("Days").setValue(self.totalDayCount)
+                    }
+                    self.dayNoValue.text = self.totalDayCount.pluralUnit(unit: "Day")
                     self.historyTableView.reloadData()
                 }
             }
         }
     }
-        
-    func setAvgMetric(metricType: String, kasamDay: Int){
-        //STEP 2 - IF ALL DAYS ACCOUNTED FOR, UPDATE TABLE AND CHART
-            if progressDayCount >= kasamDay {
-            //OPTION 1 - REPS
-                if metricType == "Reps" {
-                    self.avgMetric.text = "\(metricTotal) Total \(metricType)"
-            //OPTION 2 - TIME
-                } else if metricType == "Time" {
-                    let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(metricTotal), metric: metricType)
-                    self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) total \(avgTimeAndMetric.1)"
-            //OPTION 3 - PERCENTAGE COMPLETED
-                } else if metricType == "Checkmark" {
-                    var avgMetric = 0
-                    avgMetric = (metricTotal) / (dayNo)
-                    self.avgMetric.text = "\(avgMetric)% Avg."
-            //OPTION 4 - VIDEO
-                } else if metricType == "Video" {
-                    self.avgMetric.text = "\(metricTotal) Total mins"
-                }
-                if self.metricArray[kasamDay] == nil {self.metricArray[kasamDay] = 0}
-                self.metricArray.removeAll()
-        }
+       
+     //STEP 2 - IF ALL DAYS ACCOUNTED FOR, UPDATE TABLE AND CHART
+    func setAvgMetric(){
+        let metricType = self.transferArray!.metric
+        //OPTION 1 - REPS
+            if metricType == "Reps" {
+                self.avgMetric.text = "\(metricTotal) Total \(metricType)"
+        //OPTION 2 - TIME
+            } else if metricType == "Time" {
+                let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(metricTotal), metric: metricType)
+                self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) total \(avgTimeAndMetric.1)"
+        //OPTION 3 - PERCENTAGE COMPLETED
+            } else if metricType == "Checkmark" {
+                let avgMetric = ((totalDayCount * 100) / repeatDurationTotal)
+                self.avgMetric.text = "\(avgMetric)%\nGoal"
+        //OPTION 4 - VIDEO
+            } else if metricType == "Video" {
+                self.avgMetric.text = "\(metricTotal) Total mins"
+            }
     }
     
     @IBAction func backButtonPressed(_ sender: Any) {
@@ -224,7 +231,7 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
             return cell
         } else if indexPath.row == 1 {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "KasamStatsChart") as? KasamHistoryTableCell else {return UITableViewCell()}
-            cell.setChart(dataSet: tableViewData[indexPath.section].sectionData)
+            cell.setChart(dataSet: tableViewData[indexPath.section].sectionData, repeatDuration: tableViewData[indexPath.section].repeatDuration)
             return cell
         } else {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "KasamStatsCell") as? KasamHistoryTableCell else {return UITableViewCell()}

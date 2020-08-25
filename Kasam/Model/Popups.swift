@@ -114,7 +114,7 @@ import Firebase
 
     //USER OPTIONS---------------------------------------------------------------------------------------------
 
-    func showBottomPopup(type: String) {
+    func showBottomPopup(type: String, array: [(blockID: String, blockName: String)]?) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -135,13 +135,15 @@ import Firebase
         let viewController = UserOptionsController()
         
         var noOfRows = 0
-        if type == "userOptions" {
+        if type == "changeKasamBlock" {
+            noOfRows = array?.count ?? 1
+        } else if type == "userOptions" {
             noOfRows = 4
-            viewController.popupType = "userOptions"
         } else if type == "categoryOptions" {
             noOfRows = Icons.categoryIcons.count
-            viewController.popupType = "categoryOptions"
         }
+        viewController.array = array
+        viewController.popupType = type
         attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: CGFloat(55 * (noOfRows + 2))))
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }

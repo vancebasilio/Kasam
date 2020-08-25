@@ -108,8 +108,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     let keypath = AnimationKeypath(keypath: "**.Color")
     let colorProvider = ColorValueProvider(UIColor.lightGray.lighter.lottieColorValue)
     
-    //Review Only Variables
-    var reviewOnly = false
+    //User editing their own kasam
+    var kasamEditCheck = false
     
     var reviewOnlyBlockNo = 1
     
@@ -119,7 +119,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         setupButtons()
         notificationCenter()
         self.playerView.delegate = self
-        if reviewOnly == false {
+        if kasamEditCheck == false {
             getKasamData()
             getBlocksData()
             countFollowers()
@@ -136,7 +136,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         for subview in self.navigationController!.navigationBar.subviews {
             if subview.restorationIdentifier == "rightButton" {subview.isHidden = true}
         }
-        if reviewOnly == true {
+        if kasamEditCheck == true {
             self.navigationController?.setNavigationBarHidden(false, animated: true)
             self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
             self.navigationController?.navigationBar.shadowImage = UIImage()
@@ -155,7 +155,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        if reviewOnly == true {
+        if kasamEditCheck == true {
             setupReviewOnly()
             self.navigationController?.navigationBar.tintColor = UIColor.white                  //change back arrow color to white
         }
@@ -191,7 +191,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         self.kasamDescriptionTrailingMargin.constant = 79.5
         self.trophyIcon.layer.cornerRadius = self.kasamLevelIcon.frame.height / 2
         
-        if reviewOnly == true {
+        if kasamEditCheck == true {
             previewButton.isHidden = true
             kasamDeetsStackView.isHidden = true
             createDeleteButtonStackView.isHidden = false
@@ -323,7 +323,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func coachNamePress(_ sender: Any) {
-        if reviewOnly == false {
+        if kasamEditCheck == false {
             self.performSegue(withIdentifier: "goToCoach", sender: self)
         }
     }
@@ -338,30 +338,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         playerView.isHidden = false
         animationView.loadingAnimation(view: view, animation: "fireworks-loading", width: 200, overlayView: nil, loop: true, buttonText: nil, completion: nil)
         self.view.isUserInteractionEnabled = true
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToCoach" {
-            let coachTransferHolder = segue.destination as! CoachHolder
-            coachTransferHolder.coachID = self.coachIDGlobal
-            coachTransferHolder.coachGName = self.coachNameGlobal
-            coachTransferHolder.previousWindow = self.kasamTitle.text!
-        } else if segue.identifier == "goToKasamActivityViewer" {
-            let kasamActivityHolder = segue.destination as! KasamActivityViewer
-            if reviewOnly == false {
-                kasamActivityHolder.kasamID = kasamID
-                kasamActivityHolder.blockID = blockIDGlobal
-                kasamActivityHolder.viewingOnlyCheck = true
-            } else if reviewOnly == true {
-                kasamActivityHolder.reviewOnly = true
-                kasamActivityHolder.blockID = blockIDGlobal     //this is the block No that gets transferred
-            }
-        } else if segue.identifier == "goToEditKasam" {
-            let transferHolder = segue.destination as! NewKasamPageController
-            transferHolder.kasamHolderKasamEdit = true
-            NewKasam.editKasamCheck = true
-            NewKasam.kasamID = kasamID
-        }
     }
     
     //Twitter Parallax-------------------------------------------------------------------------------------------------------------------
@@ -687,6 +663,25 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             completion(true)
         } else {
             completion(false)
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToCoach" {
+            let coachTransferHolder = segue.destination as! CoachHolder
+            coachTransferHolder.coachID = self.coachIDGlobal
+            coachTransferHolder.coachGName = self.coachNameGlobal
+            coachTransferHolder.previousWindow = self.kasamTitle.text!
+        } else if segue.identifier == "goToKasamActivityViewer" {
+            let kasamActivityHolder = segue.destination as! KasamActivityViewer
+            kasamActivityHolder.kasamID = kasamID
+            kasamActivityHolder.blockID = blockIDGlobal
+            kasamActivityHolder.viewOnlyCheck = true
+        } else if segue.identifier == "goToEditKasam" {
+            let transferHolder = segue.destination as! NewKasamPageController
+            transferHolder.kasamHolderKasamEdit = true
+            NewKasam.editKasamCheck = true
+            NewKasam.kasamID = kasamID
         }
     }
 }

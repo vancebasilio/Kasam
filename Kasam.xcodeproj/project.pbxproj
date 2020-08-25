@@ -68,6 +68,7 @@
 		BC834848244502B0001819DC /* oneMedal.json in Resources */ = {isa = PBXBuildFile; fileRef = BC834847244502AF001819DC /* oneMedal.json */; };
 		BC83484A2445034A001819DC /* crown.json in Resources */ = {isa = PBXBuildFile; fileRef = BC8348492445034A001819DC /* crown.json */; };
 		BC83484C24450403001819DC /* crownSmooth.json in Resources */ = {isa = PBXBuildFile; fileRef = BC83484B24450403001819DC /* crownSmooth.json */; };
+		BC84F75C24F21A5C009AFDBD /* updateCircle.json in Resources */ = {isa = PBXBuildFile; fileRef = BC84F75B24F21A5C009AFDBD /* updateCircle.json */; };
 		BC85E72C23B11EC500330F60 /* NewKasamPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC85E72B23B11EC500330F60 /* NewKasamPage.swift */; };
 		BC89B8CA23F86A4800EA3813 /* DiscoverTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC89B8C923F86A4800EA3813 /* DiscoverTableCell.swift */; };
 		BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */; };
@@ -173,6 +174,7 @@
 		BC834847244502AF001819DC /* oneMedal.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = oneMedal.json; sourceTree = "<group>"; };
 		BC8348492445034A001819DC /* crown.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = crown.json; sourceTree = "<group>"; };
 		BC83484B24450403001819DC /* crownSmooth.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = crownSmooth.json; sourceTree = "<group>"; };
+		BC84F75B24F21A5C009AFDBD /* updateCircle.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = updateCircle.json; path = "Supporting Files/updateCircle.json"; sourceTree = SOURCE_ROOT; };
 		BC85E72B23B11EC500330F60 /* NewKasamPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewKasamPage.swift; sourceTree = "<group>"; };
 		BC89B8C923F86A4800EA3813 /* DiscoverTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverTableCell.swift; sourceTree = "<group>"; };
 		BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+constraints.swift"; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 			children = (
 				BC83484D24450468001819DC /* Badges */,
 				BC16A20323292ABD00FDF70C /* loading.json */,
+				BC84F75B24F21A5C009AFDBD /* updateCircle.json */,
 				BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */,
 				BCC1299624DDEC0F0003FB34 /* hand-waving.json */,
 				BC133A8C24D854BA00D90713 /* rocket-group.json */,
@@ -360,9 +363,9 @@
 				BC96F8462292085200E161FC /* PersonalBlockCell.swift */,
 				BC38419B24037DE6005D929A /* PersonalDayTrackerCell.swift */,
 				BC463D4424D786C100229051 /* GroupStatsCell.swift */,
+				BC45558C2321F6D300F1227B /* KasamViewerCell.swift */,
 				BC42C6C62354EA8F008F0A6D /* NewBlockCell.swift */,
 				BC74AE98237DDCD100676B10 /* NewActivityCell.swift */,
-				BC45558C2321F6D300F1227B /* KasamViewerCell.swift */,
 				BCF2A76A227F08F0009D2368 /* KasamBlocksCell.swift */,
 				BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */,
 				BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */,
@@ -571,6 +574,7 @@
 				BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */,
 				BC83484C24450403001819DC /* crownSmooth.json in Resources */,
 				BC83484A2445034A001819DC /* crown.json in Resources */,
+				BC84F75C24F21A5C009AFDBD /* updateCircle.json in Resources */,
 				BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */,
 				BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */,
 				BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */,

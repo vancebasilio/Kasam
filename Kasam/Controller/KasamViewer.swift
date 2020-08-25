@@ -23,7 +23,6 @@ class KasamActivityViewer: UIViewController {
     var type = ""                       //loading in
     var blockName = ""                  //loaded in
     var dateToLoad: Date?               //loaded in
-    var dayToLoad: Int?                 //loaded in (for PROGRAM kasams, to update the right dayTracker day)
     
     var activityRef: DatabaseReference!
     var activityRefHandle: DatabaseHandle!
@@ -33,91 +32,110 @@ class KasamActivityViewer: UIViewController {
     var totalActivties = 0
     var achievedMaxMatrix = [String: (achieved: Double, max: Double)]()
     var achievedMatrix = [String: Double]()
-    var viewingOnlyCheck = false
     var activityCurrentValue = 0
     var reviewOnly = false
+    var viewOnlyCheck = false
     var statusDate = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        getBlockActivities{self.setupMetricMatrix()}
-        if reviewOnly == true {viewingOnlyCheck = true}
+        if reviewOnly == true {reviewOnlyKasamViewer()}
+        else {getBlockActivities(nil)}
         setupButtons()
         self.hideKeyboardWhenTappedAround()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+        let reloadKasamBlock = NSNotification.Name("ReloadKasamBlock")
+        NotificationCenter.default.addObserver(self, selector: #selector(KasamActivityViewer.getBlockActivities), name: reloadKasamBlock, object: nil)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self)
     }
     
     @IBAction func closeButton(_ sender: UIButton) {
-        if viewingOnlyCheck == false {
+        if reviewOnly == false {
             updateControllers()
         }
         dismiss(animated: true)
     }
     
     func updateControllers(){
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "MainStatsUpdate"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemovePersonalLoadingAnimation"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveGroupLoadingAnimation"), object: self)
     }
     
     func setupButtons() {
         UIApplication.shared.endIgnoringInteractionEvents()
-        closeButton?.setIcon(icon: .fontAwesomeSolid(.timesCircle), iconSize: 23, color: .lightGray, forState: .normal)
+        closeButton.setIcon(icon: .fontAwesomeSolid(.timesCircle), iconSize: 23, color: .darkGray, forState: .normal)
     }
     
-    func getBlockActivities(_ completion: @escaping () -> ()){
+    @objc func getBlockActivities(_ manualBlock: NSNotification?){
+        //User manually changing kasam block from the Kasam Viewer Cell
+        if let manualBlockID = manualBlock?.userInfo?["blockID"] as? String {
+            blockID = manualBlockID
+            blockName = manualBlock?.userInfo?["blockName"] as? String ?? ""
+            if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
+                SavedData.personalKasamBlocks[kasamOrder].data.blockTitle = blockName
+                SavedData.personalKasamBlocks[kasamOrder].data.blockID = blockID
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshPersonalKasam"), object: self, userInfo: ["kasamOrder": kasamOrder])
+            }
+        }
         activityBlocks.removeAll()
         var count = 0
-        if reviewOnly == false {
-            //Check if user has past progress and download metric
-            self.statusDate = dateToLoad?.dateToString() ?? Date().dateToString()
-            self.activityRef = DBRef.coachKasams.child(kasamID).child("Blocks").child(blockID).child("Activity")
-            self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
-                if let value = snapshot.value as? [String: Any] {
-                    count += 1
+        self.statusDate = dateToLoad?.dateToString() ?? Date().dateToString()
+    //STEP 1 - GET ALL THE BLOCK ACTIVITIES
+        self.activityRef = DBRef.coachKasams.child(kasamID).child("Blocks").child(blockID).child("Activity")
+        self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
+            if let value = snapshot.value as? [String: Any] {
+                count += 1
+            //STEP 2A - DOWNLOAD PAST PROGRESS FOR THE ACTIVITIES
+                if SavedData.kasamDict[self.kasamID] != nil {
                     var currentMetric = 0.0
                     var db = DBRef.userPersonalHistory.child(self.kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(self.statusDate).child("Metric Breakdown").child(String(count))
                     if self.type == "group" {
                         db = DBRef.groupKasams.child((SavedData.kasamDict[self.kasamID]?.groupID)!).child("Team").child(Auth.auth().currentUser!.uid).child(self.statusDate).child("Metric Breakdown").child(String(count))
                     }
                     db.observeSingleEvent(of: .value, with: {(snap) in
-                        if snap.exists() && self.viewingOnlyCheck == false {
+                        if snap.exists() && self.reviewOnly == false {
                             currentMetric = (snap.value as? Double) ?? 0.0               //Gets the metric for the activity for the day selected
                         }
-                        let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, totalMetric: value["Metric"] as? Int ?? 0, imageURL: value["Image"] as? String, videoURL: value["Video"] as? String, image: nil, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0)
-                        self.activityBlocks.append(activity)
-                        self.collectionView.reloadData()
-                        if self.activityBlocks.count == count {
-                            if self.activityBlocks.count == 1 {self.activityNumber.isHidden = true}
-                            else {self.activityNumber.isHidden = false}
-                            self.activityNumber.text = "1/\(self.activityBlocks.count)"
-                            completion()
-                        }
+                        self.loadActivity(currentMetric: currentMetric, value: value, count: count)
                     })
-                    self.achievedMaxMatrix[String(count)] = (achieved: 0.0, max: 0.0)
+                //STEP 2B - ONLY VIEWING THE KASAM BLOCKS FROM DISCOVER
+                } else {
+                    self.loadActivity(currentMetric: Double(value["Metric"] as? Int ?? 0), value: value, count: count)
                 }
-                self.collectionView.reloadData()
-                self.activityRef.removeObserver(withHandle: self.activityRefHandle!)
             }
-        } else {
-            count += 1
-            let blockNo = Int(blockID) ?? 1
-            let blockActivity = NewKasam.fullActivityMatrix[blockNo]
-            let activity = KasamActivityCellFormat(kasamID: "", blockID: "", title: blockActivity?[0]?.title ?? "Activity Title", description: blockActivity?[0]?.description ?? "Activity Description", increment: String(describing: blockActivity?[0]?.interval), currentMetric: 0.0, totalMetric: blockActivity?[0]?.reps ?? 0, imageURL: "", videoURL: "", image: blockActivity?[0]?.imageToSave, type: NewKasam.chosenMetric, currentOrder: 0, totalOrder: 0)
-            self.activityBlocks.append(activity)
+            self.activityRef.removeObserver(withHandle: self.activityRefHandle!)
+        }
+    }
+    
+    func loadActivity(currentMetric: Double, value: [String:Any], count: Int) {
+        let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, totalMetric: value["Metric"] as? Int ?? 0, imageURL: value["Image"] as? String, videoURL: value["Video"] as? String, image: nil, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0)
+        self.activityBlocks.append(activity)
+        if self.activityBlocks.count == count {
+            if self.activityBlocks.count == 1 {self.activityNumber.isHidden = true}
+            else {self.activityNumber.isHidden = false}
+            self.activityNumber.text = "1/\(self.activityBlocks.count)"
             self.collectionView.reloadData()
-            if self.activityBlocks.count == count {
-                self.activityNumber.text = "1/\(self.activityBlocks.count)"
-                completion()
+            if reviewOnly == false {
+                for index in 1...self.activityBlocks.count {
+                    self.achievedMatrix[String(index)] = self.activityBlocks[index - 1].currentMetric
+                    self.achievedMaxMatrix[String(index)] = (self.activityBlocks[index - 1].currentMetric!, Double(self.activityBlocks[index - 1].totalMetric))
+                }
             }
         }
     }
     
-    func setupMetricMatrix(){
-        for index in 1...activityBlocks.count {
-            self.achievedMatrix[String(index)] = activityBlocks[index - 1].currentMetric
-        }
+    func reviewOnlyKasamViewer(){
+        let blockNo = Int(blockID) ?? 1
+        let blockActivity = NewKasam.fullActivityMatrix[blockNo]
+        let activity = KasamActivityCellFormat(kasamID: "", blockID: "", title: blockActivity?[0]?.title ?? "Activity Title", description: blockActivity?[0]?.description ?? "Activity Description", increment: String(describing: blockActivity?[0]?.interval), currentMetric: 0.0, totalMetric: blockActivity?[0]?.reps ?? 0, imageURL: "", videoURL: "", image: blockActivity?[0]?.imageToSave, type: NewKasam.chosenMetric, currentOrder: 0, totalOrder: 0)
+        self.activityBlocks.append(activity)
+        self.collectionView.reloadData()
+        self.activityNumber.text = "1/\(self.activityBlocks.count)"
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -151,10 +169,11 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         activityBlocks[indexPath.row].totalOrder = activityBlocks.count
         let activity = activityBlocks[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamViewerCell", for: indexPath) as! KasamViewerCell
-        cell.viewOnlyCheck = viewingOnlyCheck
+        cell.viewOnlyCheck = viewOnlyCheck
+        cell.today = dateToLoad?.dateToString() == Date().dateToString()
         cell.kasamIDTransfer["kasamID"] = kasamID
         cell.setKasamViewer(activity: activity)
-        cell.pastProgress = activityBlocks[indexPath.row].currentMetric
+        cell.pastProgress = activityBlocks[indexPath.row].currentMetric ?? 0
         if activity.type == "Reps" {
             cell.setupPicker()
         } else if activity.type == "Countdown" {
@@ -204,8 +223,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         var sum = 0.0
         
         for progress in achievedMaxMatrix {
-            print("hell5 \(progress.value.achieved, progress.value.max)")
-            transferAvg += (progress.value.achieved / progress.value.max)
+            if progress.value.max > 0 {transferAvg += ((progress.value.achieved / progress.value.max) / Double(activityBlocks.count))}
             sum += progress.value.achieved
         }
         

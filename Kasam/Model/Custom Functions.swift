@@ -65,31 +65,33 @@ extension UIViewController {
         }
     }
     
-    func updateContentViewHeight(contentViewHeight: NSLayoutConstraint, tableViewHeight: NSLayoutConstraint, tableRowHeight: CGFloat, rowCount: Int, additionalHeight: CGFloat?){
+    func updateContentViewHeight(contentViewHeight: NSLayoutConstraint, tableViewHeight: NSLayoutConstraint, tableRowHeight: CGFloat, additionalTableHeight: CGFloat?, rowCount: Int, additionalHeight: CGFloat?){
         //sets the height of the whole tableview, based on the numnber of rows
-        tableViewHeight.constant = tableRowHeight * CGFloat(rowCount)
+        tableViewHeight.constant = (tableRowHeight * CGFloat(rowCount)) + (additionalTableHeight ?? 0)
         
         //elongates the entire scrollview, based on the tableview height
-        let frame = self.view.safeAreaLayoutGuide.layoutFrame
+        let frameHeight = self.view.safeAreaLayoutGuide.layoutFrame.height
         let contentHeightToSet = tableViewHeight.constant + (additionalHeight ?? 0)
-        if contentHeightToSet > frame.height {
+        if contentHeightToSet > frameHeight {
             contentViewHeight.constant = contentHeightToSet
-        } else if contentHeightToSet <= frame.height {
-            let diff = frame.height - contentHeightToSet
+        } else if contentHeightToSet <= frameHeight {
+            let diff = frameHeight - contentHeightToSet
             contentViewHeight.constant = contentHeightToSet + diff + 1
         }
     }
     
     func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String) {
         tableView.reloadData()
-        print("Step 6 - Update Table")
+        print("Step 6 - Update \(SavedData.personalKasamBlocks[kasamOrder].data.blockTitle)")
         if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
             tableView.beginUpdates()
-            if cell.kasamName.text == "" {
+            if (cell.kasamName.text == "") {
                 if type == "personal" {cell.type = "personal"; cell.setBlock(block: SavedData.personalKasamBlocks[kasamOrder].data)}
                 else {cell.type = "group"; cell.setBlock(block: SavedData.groupKasamBlocks[kasamOrder].data)}
                 cell.centerCollectionView()
                 cell.collectionCoverUpdate()
+            } else if (cell.blockSubtitle.text != SavedData.personalKasamBlocks[kasamOrder].data.blockTitle)  {
+                cell.blockSubtitle.text = SavedData.personalKasamBlocks[kasamOrder].data.blockTitle
             }
             cell.statusUpdate(nil)
             cell.dayTrackerCollectionView.reloadData()
@@ -114,30 +116,37 @@ extension UIViewController {
                     var dayTrackerArrayInternal = [Int:(Date,Double)]()
                     var dayPercent = 1.0
                     var percentComplete = 0.0
-                    let dayCount = snap.childrenCount
                     var internalCount = 0
+                    var blockDeets: (blockID: String, blockName: String)? = nil
                     
                     for history in snap.children.allObjects as! [DataSnapshot] {
-                        let kasamDate = history.key.stringToDate()
                         internalCount += 1
-                        order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
-                        dayPercent = self.statusPercentCalc(snapshot: history).0
-                        dayTrackerArrayInternal[order] = (kasamDate, dayPercent)
-                        
-                        //Status for Current day
-                        if history.key == self.getCurrentDate() {
-                            percentComplete = dayPercent
-                            if dayPercent == 1 {displayStatus = "Check"}
-                            else if dayPercent < 1 && dayPercent > 0 {displayStatus = "Progress"}
+                        if history.key != "Goal" {
+                            let kasamDate = history.key.stringToDate()
+                            order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
+                            dayPercent = self.statusPercentCalc(snapshot: history).0
+                            dayTrackerArrayInternal[order] = (kasamDate, dayPercent)
+                            
+                            //Status for Current day
+                            if history.key == self.getCurrentDate() {
+                                percentComplete = dayPercent
+                                if dayPercent == 1 {displayStatus = "Check"}
+                                else if dayPercent < 1 && dayPercent > 0 {displayStatus = "Progress"}
+                                //Manually set the block title and ID if the user changed it manually
+                                if kasam.programDuration != nil {
+                                    if let value = history.value as? [String:Any] {
+                                        blockDeets = (blockID: value["BlockID"] as! String, blockName: value["Block Name"] as! String)}
+                                }
+                            }
                         }
-                        
-                        if internalCount == dayCount {
+                        if internalCount == snap.childrenCount {
                             //DayTrackerArrayInternal adds the status of each day
                             kasam.displayStatus = displayStatus
                             kasam.percentComplete = percentComplete         //only for COMPLEX kasams
                             kasam.dayTrackerArray = dayTrackerArrayInternal
                             
                             if let index = block.index(where: {($0.kasamID == kasam.kasamID)}) {
+                                if blockDeets != nil {block[index].data.blockTitle = blockDeets!.blockName; block[index].data.blockID = blockDeets!.blockID}
                                 kasam.streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: block[index].data.dayOrder)
                                 NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
                                 self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type)
@@ -260,23 +269,20 @@ extension UIViewController {
                                    "Image": imageURL,
                                    "KasamID": kasamID.key!,
                                    "CreatorID": Auth.auth().currentUser!.uid as String,
-                                   "CreatorName": Auth.auth().currentUser!.displayName!,
-                                   "Type": "Basic",
                                    "Rating": "5",
-                                   "Blocks": "blocks",
                                    "Level": 0,
                                    "Metric": NewKasam.chosenMetric] as [String : Any]
         
             if NewKasam.kasamID != "" {
                 //updating existing kasam
-                kasamID.updateChildValues(kasamDictionary as [AnyHashable : Any]) {(error, reference) in
+                kasamID.child("Info").updateChildValues(kasamDictionary as [AnyHashable : Any]) {(error, reference) in
                     //kasam successfully updated
                     if basicKasam == false {self.saveBlocks(kasamID: kasamID, imageURL: imageURL)}
                     else {completion(true)}
                 }
             } else {
                 //creating new kasam
-                kasamID.setValue(kasamDictionary) {(error, reference) in
+                kasamID.child("Info").setValue(kasamDictionary) {(error, reference) in
                     if error == nil {
                         //Kasam successfully created
                         if basicKasam == false {self.saveBlocks(kasamID: kasamID, imageURL: imageURL)}
@@ -708,7 +714,7 @@ extension UIViewController {
     }
     
     @objc func showUserOptions(button: UIButton){
-         showBottomPopup(type: "userOptions")
+        showBottomPopup(type: "userOptions", array: nil)
     }
     
     func getBlockVideo (url: String){
@@ -774,7 +780,18 @@ extension UIViewController {
                         }
                     }
                     if value["First"] as? String == statusDate {DBRef.userHistoryTotals.child(kasamID).child("First").setValue(nil)}
-                    if value["Last"] as? String == statusDate {DBRef.userHistoryTotals.child(kasamID).child("Last").setValue(nil)}
+                    if value["Last"] as? String == statusDate {
+                        DBRef.userHistoryTotals.child(kasamID).child("Last").setValue(nil)
+                        DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).observeSingleEvent(of: .value) {(snap) in
+                            if snap.exists() {
+                                if let value = snap.value as? [String:Any] {
+                                    let array = value.map { return $0.key }
+                                    let lastDate = array[Int(snap.childrenCount) - 1]
+                                    DBRef.userHistoryTotals.child(kasamID).child("Last").setValue(lastDate)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

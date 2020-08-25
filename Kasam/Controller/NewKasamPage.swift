@@ -78,7 +78,7 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
             setViewControllers([firstViewController], direction: .forward, animated: true, completion: nil)
         }
         if let thirdViewController = orderedViewControllers.last as? KasamHolder {
-            thirdViewController.reviewOnly = true
+            thirdViewController.kasamEditCheck = true
         }
         
         if kasamHolderKasamEdit == false {

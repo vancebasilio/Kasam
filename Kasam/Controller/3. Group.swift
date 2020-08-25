@@ -27,7 +27,6 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     var blockIDGlobal = ""
     var blockNameGlobal = ""
     var dateGlobal: Date?
-    var dayToLoadGlobal: Int?
     var viewOnlyGlobal = false
     var groupTableRowHeight = CGFloat(80)
     var initialLoad = false
@@ -53,7 +52,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func updateScrollViewSize(){
-        self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.groupTableHeight, tableRowHeight: self.groupTableRowHeight, rowCount: SavedData.groupKasamBlocks.count, additionalHeight: 160)
+        self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.groupTableHeight, tableRowHeight: self.groupTableRowHeight, additionalTableHeight: nil, rowCount: SavedData.groupKasamBlocks.count, additionalHeight: 160)
         self.initialLoad = true
     }
     
@@ -191,9 +190,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
             kasamViewer.blockID = blockIDGlobal
             kasamViewer.type = "group"
             kasamViewer.blockName = blockNameGlobal
-            kasamViewer.viewingOnlyCheck = viewOnlyGlobal
             kasamViewer.dateToLoad = dateGlobal
-            kasamViewer.dayToLoad = dayToLoadGlobal
         } else if segue.identifier == "goToKasamHolder" {
             let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDTransfer
@@ -282,7 +279,7 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
         return cell
     }
     
-    func dayPressed(kasamID: String, day: Int, date: Date?, metricType: String, viewOnly: Bool?) {
+    func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?) {
         if day > 0 {
             if let kasamOrder = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
                 if metricType == "Checkmark" {
@@ -311,7 +308,7 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
         DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").child(Auth.auth().currentUser!.uid).setValue(newPercent.rounded(toPlaces: 2))
     }
     
-    func openKasamBlock(kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?) {
+    func openKasamBlock(kasamOrder: Int, day: Int?, date: Date, viewOnly: Bool?) {
         animationView.loadingAnimation(view: view, animation: "loading", width: 100, overlayView: nil, loop: true, buttonText: nil, completion: nil)
         UIApplication.shared.beginIgnoringInteractionEvents()
         let kasamID = SavedData.groupKasamBlocks[kasamOrder].kasamID
@@ -343,7 +340,6 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
                     else {blockOrder = (blockCount / day!) + 1}
                     self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
                 }
-                self.dayToLoadGlobal = day
             })
         //OPTION 2 - Open Today's block
         } else {

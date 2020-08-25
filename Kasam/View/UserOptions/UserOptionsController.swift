@@ -14,12 +14,14 @@ class UserOptionsController: UIViewController {
 
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet weak var slidingHandle: UIView!
+    @IBOutlet weak var headerLabel: UILabel!
     
     init() {super.init(nibName: type(of: self).className, bundle: nil)}
     required init?(coder aDecoder: NSCoder) {fatalError("init(coder:) has not been implemented")}
     
     var popupType = "userOptions"
     var categoryChosen = ""
+    var array: [(blockID: String, blockName: String)]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,7 +33,11 @@ class UserOptionsController: UIViewController {
 
 extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if popupType == "userOptions" {
+        if popupType == "changeKasamBlock" {
+            headerLabel.text = "Change Kasam Activity"
+            headerLabel.textColor = .colorFive
+            return array?.count ?? 1
+        } else if popupType == "userOptions" {
             return 4
         } else {
             return Icons.categoryIcons.count
@@ -59,6 +65,8 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
                 case "Writing": cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.book), postfixText: "  Writing", size: 20)
                 default: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.dumbbell), postfixText: "  Default", size: 20)
             }
+        } else if popupType == "changeKasamBlock" {
+            cell.textLabel?.text = array?[indexPath.row].blockName
         }
         cell.textLabel?.textAlignment = .left
         return cell
@@ -91,6 +99,9 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
                     }
                 default: SwiftEntryKit.dismiss()
             }
+        } else if popupType == "changeKasamBlock" {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "ReloadKasamBlock"), object: self, userInfo: ["blockID": array?[indexPath.row].blockID ?? "", "blockName": array?[indexPath.row].blockName ?? ""])
+            SwiftEntryKit.dismiss()
         } else if popupType == "categoryOptions" {
             categoryChosen = Icons.categoryIcons[indexPath.row]
             NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveCategory"), object: self)

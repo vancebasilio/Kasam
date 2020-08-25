@@ -238,7 +238,7 @@ class KasamActivityCellFormat {
     var activityTitle: String
     var activityDescription: String
     var increment: String?
-    var currentMetric: Double
+    var currentMetric: Double?
     var totalMetric: Int
     var imageURL: String?
     var videoURL: String?
@@ -247,7 +247,7 @@ class KasamActivityCellFormat {
     var currentOrder: Int
     var totalOrder: Int
     
-    init(kasamID: String, blockID: String, title: String, description: String, increment: String?, currentMetric: Double, totalMetric: Int, imageURL: String?, videoURL: String?, image: UIImage?, type: String, currentOrder: Int, totalOrder: Int){
+    init(kasamID: String, blockID: String, title: String, description: String, increment: String?, currentMetric: Double?, totalMetric: Int, imageURL: String?, videoURL: String?, image: UIImage?, type: String, currentOrder: Int, totalOrder: Int){
         self.kasamID = kasamID
         self.blockID = blockID
         self.activityTitle = title

@@ -12,9 +12,7 @@ import SDWebImage
 class DiscoverCategoryCell: UICollectionViewCell {
     
     @IBOutlet weak var containerView: UIView!
-    @IBOutlet weak var kasamCreator: UILabel!
     @IBOutlet weak var kasamGenre: UIButton!
-    
     @IBOutlet weak var kasamGenreWidth: NSLayoutConstraint!
     @IBOutlet weak var categoryTitle: UILabel!
     @IBOutlet weak var topImage: UIImageView!
@@ -22,8 +20,6 @@ class DiscoverCategoryCell: UICollectionViewCell {
     func setBlock(cell: discoverKasamFormat) {
         topImage.sd_setImage(with: cell.image, placeholderImage: PlaceHolders.kasamLoadingImage)
         categoryTitle.text = cell.title
-        kasamCreator.text = "Challenge"
-        
         kasamGenre.setTitle(cell.genre, for: .normal)
         kasamGenre.sizeToFit()
         kasamGenre.backgroundColor = UIColor.colorFour

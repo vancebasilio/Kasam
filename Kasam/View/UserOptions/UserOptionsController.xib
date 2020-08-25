@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UserOptionsController" customModule="Kasam" customModuleProvider="target">
             <connections>
+                <outlet property="headerLabel" destination="lIc-Zt-XBM" id="VSf-Oz-8Fp"/>
                 <outlet property="slidingHandle" destination="kV6-bC-wUc" id="31k-4u-wz4"/>
                 <outlet property="tableView" destination="a9F-D5-jui" id="hfI-EZ-Meh"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
@@ -31,8 +32,14 @@
                                 <constraint firstAttribute="height" constant="5" id="jo0-nB-ijJ"/>
                             </constraints>
                         </view>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lIc-Zt-XBM">
+                            <rect key="frame" x="10" y="40" width="355" height="0.0"/>
+                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
+                            <color key="textColor" red="0.83921568629999999" green="0.68627450980000004" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
                         <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" style="plain" separatorStyle="default" rowHeight="55" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="a9F-D5-jui">
-                            <rect key="frame" x="0.0" y="40" width="375" height="627"/>
+                            <rect key="frame" x="0.0" y="45" width="375" height="622"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <outlet property="dataSource" destination="-1" id="Obc-gA-2k3"/>
@@ -43,11 +50,14 @@
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstAttribute="trailing" secondItem="a9F-D5-jui" secondAttribute="trailing" id="B5K-SP-mHL"/>
+                        <constraint firstItem="lIc-Zt-XBM" firstAttribute="top" secondItem="kV6-bC-wUc" secondAttribute="bottom" constant="20" id="H70-hF-p6S"/>
+                        <constraint firstItem="lIc-Zt-XBM" firstAttribute="leading" secondItem="hQR-gn-Owe" secondAttribute="leading" constant="10" id="MEG-dE-5Sm"/>
+                        <constraint firstItem="a9F-D5-jui" firstAttribute="top" secondItem="lIc-Zt-XBM" secondAttribute="bottom" constant="5" id="MiJ-aX-jbI"/>
                         <constraint firstItem="a9F-D5-jui" firstAttribute="leading" secondItem="hQR-gn-Owe" secondAttribute="leading" id="QfF-dE-KDT"/>
                         <constraint firstAttribute="bottom" secondItem="a9F-D5-jui" secondAttribute="bottom" id="YAr-0Y-61Q"/>
                         <constraint firstItem="kV6-bC-wUc" firstAttribute="top" secondItem="hQR-gn-Owe" secondAttribute="top" constant="15" id="a1V-N7-mlw"/>
-                        <constraint firstItem="a9F-D5-jui" firstAttribute="top" secondItem="hQR-gn-Owe" secondAttribute="top" constant="40" id="mhy-CP-vcY"/>
                         <constraint firstItem="kV6-bC-wUc" firstAttribute="centerX" secondItem="hQR-gn-Owe" secondAttribute="centerX" id="p1c-fH-sjU"/>
+                        <constraint firstAttribute="trailing" secondItem="lIc-Zt-XBM" secondAttribute="trailing" constant="10" id="xu4-5n-Xuu"/>
                     </constraints>
                 </view>
             </subviews>

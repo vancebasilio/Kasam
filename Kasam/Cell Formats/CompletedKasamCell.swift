@@ -26,7 +26,7 @@ class CompletedKasamCell: UITableViewCell {
         let joinedDate = block.firstDate?.longDateToShort()
         let endDate = block.lastDate?.longDateToShort()
         if joinedDate == endDate {
-            joinedDates.text = String(describing: joinedDate)
+            joinedDates.text = String(describing: joinedDate ?? "")
         } else {
             joinedDates.text = "\(String(describing: joinedDate ?? "")) - \(String(describing: endDate ?? ""))"
         }

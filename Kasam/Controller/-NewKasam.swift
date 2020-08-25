@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseDatabase
 import FirebaseStorage
 import SwiftEntryKit
 import SkyFloatingLabelTextField
@@ -159,7 +159,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     }
     
     @objc func categoryOptions(){
-        showBottomPopup(type: "categoryOptions")
+        showBottomPopup(type: "categoryOptions", array: nil)
         saveCategoryObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveCategory"), object: nil, queue: OperationQueue.main) {(notification) in
             let categoryVC = notification.object as! UserOptionsController
             self.newCategoryChosenLabel.text = categoryVC.categoryChosen
@@ -380,7 +380,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     
     //Retrieves Kasam Data using Kasam ID selected
     func loadKasam(){
-        kasamDatabaseHandle = kasamDatabase.child(NewKasam.kasamID).observe(.value, with: {(snapshot) in
+        kasamDatabaseHandle = kasamDatabase.child(NewKasam.kasamID).child("Info").observe(.value, with: {(snapshot) in
             //STEP 1 - Load Kasam information
             if let value = snapshot.value as? [String: Any] {
                 //load kasam information

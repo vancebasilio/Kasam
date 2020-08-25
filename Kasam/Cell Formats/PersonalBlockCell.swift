@@ -14,13 +14,13 @@ import Lottie
 
 protocol TableCellDelegate : class {
     func updateKasamDayButtonPressed(kasamOrder: Int, day: Int)
-    func openKasamBlock(kasamOrder: Int, day: Int?, date: Date?, viewOnly: Bool?)
+    func openKasamBlock(kasamOrder: Int, day: Int?, date: Date, viewOnly: Bool?)
     func goToKasamHolder(kasamOrder: Int)
     func completeAndUnfollow(kasamOrder: Int)
     func reloadKasamBlock(kasamOrder: Int)
 }
 
-class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSource {
+class PersonalBlockCell: UITableViewCell {
     
     @IBOutlet weak var kasamName: UILabel!
     @IBOutlet weak var blockSubtitle: UILabel!
@@ -172,12 +172,10 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
         cellDelegate?.goToKasamHolder(kasamOrder: row)
     }
     
-    @objc func extendButtonPressed(_ complete: Bool){
+    func extendButtonPressed(_ complete: Bool){
         var type = "complete"
         if complete == true {type = "completeTrophy"}
-        showOptionsPopup(kasamID: kasamID, title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Congrats on completing the kasam. \nGo another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Restart' or close off the kasam by pressing 'Finish'", type: type, button: "Restart") {
-            //
-        }
+        showOptionsPopup(kasamID: kasamID, title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Congrats on completing the kasam. \nGo another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Restart' or close off the kasam by pressing 'Finish'", type: type, button: "Restart") {}
     }
     
     @objc func showBenefit(){
@@ -234,7 +232,7 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
                 if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
                     cellDelegate?.updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: tempBlock?.dayOrder ?? 1)
                 } else {
-                    cellDelegate?.openKasamBlock(kasamOrder: kasamOrder, day: nil, date: nil, viewOnly: false)
+                    cellDelegate?.openKasamBlock(kasamOrder: kasamOrder, day: nil, date: Date(), viewOnly: false)
                 }
             }
             centerCollectionView()
@@ -430,6 +428,11 @@ class PersonalBlockCell: UITableViewCell, UITableViewDelegate, UITableViewDataSo
             bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
         }
     }
+    
+}
+
+//For Group Kasams only
+extension PersonalBlockCell: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if type == "personal" {

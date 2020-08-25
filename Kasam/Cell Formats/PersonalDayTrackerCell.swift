@@ -9,7 +9,7 @@
 import UIKit
 
 protocol DayTrackerCellDelegate : class {
-    func dayPressed(kasamID: String, day: Int, date: Date?, metricType: String, viewOnly: Bool?)
+    func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?)
 }
 
 class PersonalDayTrackerCell: UICollectionViewCell {
@@ -55,6 +55,7 @@ class PersonalDayTrackerCell: UICollectionViewCell {
         } else {
             cellButtonOutline.isHidden = true
         }
+        
         //Set Status Color
         if future == true {
             cellButton.setTitleColor(UIColor.lightGray, for: .normal)       //greys out buttonBG that are in the future
@@ -85,7 +86,7 @@ class PersonalDayTrackerCell: UICollectionViewCell {
     
     @IBAction func dayPressed(_ sender: UIButton) {
         if SavedData.kasamDict[kasamIDInternal]!.groupStatus != "initiated" && futureInternal == false {
-            dayTrackerDelegate?.dayPressed(kasamID: kasamIDInternal, day: dayInternal, date: dateInternal, metricType: metricTypeInternal, viewOnly: futureInternal)
+            dayTrackerDelegate?.dayPressed(kasamID: kasamIDInternal, day: dayInternal, date: dateInternal ?? Date(), metricType: metricTypeInternal, viewOnly: futureInternal)
         }
     }
 }

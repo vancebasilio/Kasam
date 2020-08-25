@@ -26,12 +26,14 @@ class DiscoverViewController: UIViewController {
     var counter = 0
     var userKasam = false
     
-    var discoverFilledHeight = CGFloat(120)
-    var discoverEmptyHeight = CGFloat(120)
+    var discoverFilledHeight = CGFloat(240)
+    var discoverEmptyHeight = CGFloat(0)
+    var featureViewHeight = CGFloat(0)
+    var rowCount = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        discoverFilledHeight = (view.bounds.size.width / 2.3) + 60
+        setHeights()
         getDiscoverFeatured()
         getDiscoverKasams()
         getMyKasams()
@@ -54,6 +56,13 @@ class DiscoverViewController: UIViewController {
         _ = navigationController?.popToViewController(self, animated: true)
     }
     
+    func setHeights(){
+        discoverFilledHeight = (view.bounds.size.width / 2.3) + 60
+        featureViewHeight = view.bounds.size.width * (8/13) + 61 + 10
+        rowCount = Assets.discoverCriteria.count
+        if discoverKasamDict["My Kasams"] == nil {rowCount -= 1; discoverEmptyHeight = CGFloat(120)}
+    }
+    
     //Puts the nav bars back
     override func viewWillAppear(_ animated: Bool) {
         if let navBar = self.navigationController?.navigationBar {
@@ -69,24 +78,7 @@ class DiscoverViewController: UIViewController {
     //Table Resizing----------------------------------------------------------------------
     
     func updateContentTableHeight(){
-        //sets the height of the whole tableview, based on the numnber of rows
-        var height = CGFloat(0)
-        for row in Assets.discoverCriteria {
-            if discoverKasamDict[row] == nil {height += discoverEmptyHeight}
-            else {height += discoverFilledHeight}
-        }
-        self.discoverTableViewHeight.constant = height
-        
-        //elongates the entire scrollview, based on the tableview height
-        let frame = self.view.safeAreaLayoutGuide.layoutFrame
-        let featureViewHeight = view.bounds.size.width * (8/13)
-        let contentViewHeight = discoverTableViewHeight.constant + featureViewHeight + 61 + 10  //10 is the additional space from the bottom and 61 is the height of the Discover Title
-        if contentViewHeight > frame.height {
-            contentView.constant = contentViewHeight
-        } else if contentViewHeight <= frame.height {
-            let diff = frame.height - contentViewHeight
-            contentView.constant = contentViewHeight + diff + 1
-        }
+        self.updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: discoverTableViewHeight, tableRowHeight: discoverFilledHeight, additionalTableHeight: discoverEmptyHeight, rowCount: rowCount, additionalHeight: featureViewHeight)
     }
 
     //make the expert slider automatically scroll
@@ -138,18 +130,16 @@ class DiscoverViewController: UIViewController {
     }
     
     func getDiscoverKasams() {
-        var count = 0
         discoverKasamDict.removeAll()
-        self.updateContentTableHeight()
         for genre in Assets.discoverCriteria {
             DBRef.coachKasamIndex.child(genre).observe(.childAdded) {(kasamID) in
                 DBRef.coachKasams.child(kasamID.key).child("Info").observeSingleEvent(of: .value) {(snapshot) in
                     if let value = snapshot.value as? [String: Any] {
                         let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: (URL(string: value["Image"] as? String ?? "") ?? URL(string: PlaceHolders.kasamHeaderPlaceholderURL))!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
-                        count += 1
                         if self.discoverKasamDict[kasam.genre] == nil {self.discoverKasamDict[kasam.genre] = [kasam]}
                         else {self.discoverKasamDict[kasam.genre]!.append(kasam)}
                         self.discoverTableView.reloadData()
+                        self.updateContentTableHeight()
                     }
                 }
             }
@@ -157,21 +147,15 @@ class DiscoverViewController: UIViewController {
     }
     
     @objc func getMyKasams() {
-        var count = 0
         discoverKasamDict["My Kasams"] = nil
-        DBRef.userKasams.observeSingleEvent(of: .value, with:{(snapshot) in
-            if snapshot.exists() {
-                DBRef.userKasams.observe(.childAdded) {(snap) in
-                    if let value = snap.value as? [String: Any] {
+        DBRef.userKasams.observe(.childAdded) {(snap) in
+            if snap.exists() {
+                if let kasamValue = snap.value as? [String: Any] {
+                    if let value = kasamValue["Info"] as? [String: Any] {
                         let imageURL = URL(string: value["Image"] as? String ?? "")
-                        let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: (imageURL ?? URL(string: PlaceHolders.kasamHeaderPlaceholderURL))!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
+                        let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: (imageURL ?? URL(string: PlaceHolders.kasamHeaderPlaceholderURL))!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: snap.key, genre: value["Genre"] as? String ?? "Fitness")
                         if self.discoverKasamDict["My Kasams"] == nil {self.discoverKasamDict["My Kasams"] = [kasam]}
                         else {self.discoverKasamDict["My Kasams"]!.append(kasam)}
-                        count += 1
-                        if count == snapshot.childrenCount {
-                            self.discoverTableView.reloadRows(at: [IndexPath(item: Assets.discoverCriteria.count - 1, section: 0)], with: .fade)
-                            self.updateContentTableHeight()
-                        }
                     }
                 }
             } else {
@@ -179,7 +163,7 @@ class DiscoverViewController: UIViewController {
                 self.updateContentTableHeight()
                 self.discoverTableView.reloadRows(at: [IndexPath(item: Assets.discoverCriteria.count - 1, section: 0)], with: .fade)
             }
-        })
+        }
     }
 }
 

@@ -93,7 +93,7 @@ class KasamHistoryTableCell: SwipeTableViewCell {
         mChart.rightAxis.drawGridLinesEnabled = false
     }
     
-    func setChart(dataSet: [kasamFollowingFormat]) {
+    func setChart(dataSet: [kasamFollowingFormat], repeatDuration: Int?) {
         mChart.alpha = 0
         mChart.fadeIn()
         mChart.noDataText = "No kasam history"
@@ -121,7 +121,8 @@ class KasamHistoryTableCell: SwipeTableViewCell {
         line1.drawVerticalHighlightIndicatorEnabled = false     //highlight lines
         
         mChart.leftAxis.axisMinimum = 1.0
-        mChart.xAxis.axisMaximum = Double(dayUpperBound)
+        if repeatDuration != nil {mChart.xAxis.axisMaximum = Double(repeatDuration!)}
+        else {mChart.xAxis.axisMaximum = Double(dayUpperBound)}
         mChart.xAxis.axisMinimum = 1.0
 
         let data = LineChartData()
