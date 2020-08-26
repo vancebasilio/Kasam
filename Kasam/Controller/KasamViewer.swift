@@ -216,6 +216,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func sendCompletedMatrix(activityNo: Int, value: Double, max: Double) {
+        print("hell5 \(statusDate)")
         achievedMaxMatrix[String(activityNo)] = (value, max)
         achievedMatrix[String(activityNo)] = value
         activityBlocks[activityNo - 1].currentMetric = value

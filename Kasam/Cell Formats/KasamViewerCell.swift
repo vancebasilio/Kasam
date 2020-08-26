@@ -96,13 +96,6 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     override func awakeFromNib() {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemovePersonalLoadingAnimation"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveGroupLoadingAnimation"), object: self)
-        
-        let removeActivityProgress = NSNotification.Name("RemoveActivityProgress")
-        NotificationCenter.default.addObserver(self, selector: #selector(KasamViewerCell.removeActivityProgress), name: removeActivityProgress, object: nil)
-    }
-    
-    func denit() {
-       NotificationCenter.default.removeObserver(self)
     }
     
     //BASIC SETUP-----------------------------------------------------------------------------------
@@ -144,7 +137,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
         if pastProgress == 0.0 {
             downArrow.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(programPopup)))
             activityTitle.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(programPopup)))
-        } else if today == true {
+        } else {
             downArrow.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(pastProgressPopup)))
             activityTitle.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(pastProgressPopup)))
         }
@@ -169,7 +162,11 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     }
     
     @objc func pastProgressPopup(){
-        showOptionsPopup(kasamID: nil, title: "Change Kasam Activity", subtitle: nil, text: "You already completed \(String(describing: activityTitle.text!)). Remove your progress to change the kasam activity.", type: "changeKasamBlock", button: "Okay") {}
+        showOptionsPopup(kasamID: nil, title: "Change Kasam Activity", subtitle: nil, text: "You already completed \(String(describing: activityTitle.text!)). Remove your progress to change the kasam activity.", type: "changeKasamBlock", button: "Okay") {(mainButtonPressed) in
+            if mainButtonPressed == false {
+                self.removeActivityProgress()
+            }
+        }
     }
     
     //COUNTDOWN-----------------------------------------------------------------------------------
@@ -348,7 +345,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     }
     
     func playerViewPreferredWebViewBackgroundColor(_ playerView: YTPlayerView) -> UIColor {
-        return .black
+        return .clear
     }
     
     func playerViewDidBecomeReady(_ playerView: YTPlayerView) {
@@ -409,7 +406,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
         removeActivityProgress()
     }
     
-    @objc func removeActivityProgress(){
+    func removeActivityProgress(){
         if pastProgress > 0.0 {
             delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 0.0, max: 100)   //set Firebase progress to zero
             delegate?.updateControllers()

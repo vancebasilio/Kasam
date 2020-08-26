@@ -13,9 +13,11 @@ class NewKasamPageController: UIPageViewController, UIPageViewControllerDelegate
     var pageControl = UIPageControl()
     var kasamType = ""
     var kasamHolderKasamEdit = false
+    var userKasam = true
     lazy var orderedViewControllers: [UIViewController] = {
         let firstVC = self.newVc(viewController: "NewKasam") as! NewKasamController
         firstVC.basicKasam = true
+        firstVC.userKasam = userKasam
         firstVC.kasamHolderKasamEdit = kasamHolderKasamEdit
         return [firstVC]
     }()

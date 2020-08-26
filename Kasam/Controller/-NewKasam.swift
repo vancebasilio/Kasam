@@ -50,9 +50,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     
     //edit Kasam
     var kasamDatabase = DBRef.userKasams
-    var kasamDatabaseHandle: DatabaseHandle!
     var personalKasamBlocksDatabase = DBRef.userKasams
-    var personalKasamBlocksDatabaseHandle: DatabaseHandle!
     var blockDuration = [Int:String]()
     var basicKasam = false                  //loaded in
     var userKasam = true                    //change in the future to load in for professional kasams
@@ -125,6 +123,21 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 self.collectionView(self.metricTypeCollection, didSelectItemAt : IndexPath(item: 1, section: 0))
             }
         }
+        newKasamDescription.textContainer.maximumNumberOfLines = 3
+        newKasamDescription.textContainer.lineBreakMode = .byClipping
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 10
+        newKasamDescription.attributedText = NSAttributedString(string: "Description", attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15.5, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        benefitsTextView.attributedText = NSAttributedString(string: benefitsDefault, attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(categoryOptions))
+        newCategoryView.addGestureRecognizer(tap)
+        
+        self.headerImageView = UIImageView(frame: self.headerView.bounds)
+        self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
+        self.headerImageView?.image = PlaceHolders.kasamHeaderPlaceholderImage
+        self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
+        
         if NewKasam.editKasamCheck == true {
             loadKasam()
             headerLabel.text = "Edit Kasam"
@@ -142,20 +155,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             }
             newCategoryIcon = newCategoryIcon.setKasamTypeIcon(kasamType: "Question", button: newCategoryIcon, location: "options")
         }
-        newKasamDescription.textContainer.maximumNumberOfLines = 3
-        newKasamDescription.textContainer.lineBreakMode = .byClipping
-        let style = NSMutableParagraphStyle()
-        style.lineSpacing = 10
-        newKasamDescription.attributedText = NSAttributedString(string: "Description", attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        benefitsTextView.attributedText = NSAttributedString(string: benefitsDefault, attributes:[NSAttributedString.Key.paragraphStyle : style, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.medium), NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(categoryOptions))
-        newCategoryView.addGestureRecognizer(tap)
-        
-        self.headerImageView = UIImageView(frame: self.headerView.bounds)
-        self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-        self.headerImageView?.image = PlaceHolders.kasamHeaderPlaceholderImage
-        self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
     }
     
     @objc func categoryOptions(){
@@ -243,14 +242,13 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 NewKasam.kasamImageToSave = self.headerImageView.image!
             }
             self.animationView.loadingAnimation(view: view, animation: "rocket-fast", width: 200, overlayView: self.animationOverlay, loop: true, buttonText: nil, completion: nil)
-            createKasam(existingKasamID: NewKasam.kasamID, basicKasam: true) {(success) in
+            createKasam(existingKasamID: NewKasam.kasamID, basicKasam: false, userKasam: userKasam) {(success) in
                 if success == true {
                     self.animationView.removeFromSuperview()
                     self.animationOverlay.removeFromSuperview()
                     if self.kasamHolderKasamEdit == false {self.dismiss(animated: true, completion: nil)}
                     else {self.navigationController?.popViewController(animated: true)}
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GetUserKasams"), object: self)
                 }
             }
         }
@@ -262,7 +260,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 if self.kasamHolderKasamEdit == false {self.dismiss(animated: true, completion: nil)}
                 else {
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GetUserKasams"), object: self)
                     //Go back two view controllers
                     self.tabBarController?.tabBar.isHidden = false
                     self.tabBarController?.tabBar.isTranslucent = false
@@ -380,7 +377,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     
     //Retrieves Kasam Data using Kasam ID selected
     func loadKasam(){
-        kasamDatabaseHandle = kasamDatabase.child(NewKasam.kasamID).child("Info").observe(.value, with: {(snapshot) in
+        kasamDatabase.child(NewKasam.kasamID).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
             //STEP 1 - Load Kasam information
             if let value = snapshot.value as? [String: Any] {
                 //load kasam information
@@ -449,7 +446,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                     //All the Kasam data is downloaded, so display it
                     if NewKasam.kasamTransferArray.count == self.numberOfBlocks {
                         NewKasam.dataLoadCheck = true
-                        self.kasamDatabase.child(NewKasam.kasamID).removeObserver(withHandle: self.kasamDatabaseHandle)
                     }
                 })
             }
@@ -459,7 +455,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     //STEP 3 - Load Activity Information
     func loadActivities(blockNo: Int, blockID: String) {
         self.personalKasamBlocksDatabase = self.kasamDatabase.child(NewKasam.kasamID).child("Blocks").child(blockID).child("Activity")
-        self.personalKasamBlocksDatabaseHandle = self.personalKasamBlocksDatabase.observe(.childAdded) {(snapshot) in
+        self.personalKasamBlocksDatabase.observe(.childAdded) {(snapshot) in
         if let value = snapshot.value as? [String: Any] {
             var reps = 0
             var interval = 1
@@ -480,7 +476,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             let activity = [0: newActivityFormat(title: value["Title"] as? String, description: value["Description"] as? String, imageToLoad: URL(string:value["Image"] as! String), imageToSave: nil, reps: reps, interval: interval, hour: hours, min: mins, sec: secs)]
             NewKasam.fullActivityMatrix[blockNo] = activity
             }
-            self.personalKasamBlocksDatabase.removeObserver(withHandle: self.personalKasamBlocksDatabaseHandle)
         }
     }
 }

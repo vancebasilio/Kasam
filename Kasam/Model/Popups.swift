@@ -188,7 +188,7 @@ import Firebase
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-    func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text: String?, type: String, button: String, completion:@escaping () -> ()) {
+    func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text: String?, type: String, button: String, completion:@escaping (Bool) -> ()) {
         var attributes: EKAttributes
         attributes = .centerFloat
         attributes.displayMode = .light
@@ -210,10 +210,15 @@ import Firebase
         
         let vc = OptionsPopupController()
         vc.transfer = (kasamID, title, subtitle, text, type, button)
-        var buttonPressedObserver: NSObjectProtocol?
-        buttonPressedObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "DoneButtonPressed"), object: nil, queue: OperationQueue.main) {(notification) in
-            completion()
-            NotificationCenter.default.removeObserver(buttonPressedObserver as Any)
+        var mainButtonPressedObserver: NSObjectProtocol?
+        mainButtonPressedObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "MainButtonPressed"), object: nil, queue: OperationQueue.main) {(notification) in
+            completion(true)
+            NotificationCenter.default.removeObserver(mainButtonPressedObserver as Any)
+        }
+        var hiddenButtonPressedObserver: NSObjectProtocol?
+        hiddenButtonPressedObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "HiddenButtonPressed"), object: nil, queue: OperationQueue.main) {(notification) in
+            completion(false)
+            NotificationCenter.default.removeObserver(hiddenButtonPressedObserver as Any)
         }
         SwiftEntryKit.display(entry: vc, using: attributes)
     }

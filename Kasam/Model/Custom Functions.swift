@@ -227,21 +227,26 @@ extension UIViewController {
     
     
     //STEP 1 - Saves Kasam Text Data
-    func createKasam(existingKasamID: String?, basicKasam: Bool, completion: @escaping (Bool) -> ()) {
+    func createKasam(existingKasamID: String?, basicKasam: Bool, userKasam: Bool, completion: @escaping (Bool) -> ()) {
         print("1. creating kasam hell1")
         //all fields filled, so can create the Kasam now
         let semaphore = DispatchSemaphore(value: 0)
         self.view.isUserInteractionEnabled = false
-        var kasamID = DatabaseReference()
-        if existingKasamID != "" {kasamID = DBRef.userKasams.child(existingKasamID!)}      //editing existing kasam
-        else {kasamID = DBRef.userKasams.childByAutoId()}                                   //creating a new Kasam, so assign a new KasamID
+        var kasamDB = DatabaseReference()
+        //editing existing kasam
+        if existingKasamID != "" {
+            if userKasam == true {kasamDB = DBRef.userKasams.child(existingKasamID!)}
+            else {kasamDB = DBRef.coachKasams.child(existingKasamID!)}
+        }
+        //creating a new Kasam, so assign a new KasamID
+        else {kasamDB = DBRef.userKasams.childByAutoId()}
         var imageURL = ""
         
         let dispatchQueue = DispatchQueue.global(qos: .background)
         dispatchQueue.async {
             if NewKasam.kasamImageToSave != UIImage() {
                 //CASE 1 - user has uploaded a new image, so save it
-                self.saveImage(image: NewKasam.kasamImageToSave, location: "kasam/\(kasamID.key!)/kasam_header", completion: {uploadedImageURL in
+                self.saveImage(image: NewKasam.kasamImageToSave, location: "kasam/\(kasamDB.key!)/kasam_header", completion: {uploadedImageURL in
                     if uploadedImageURL != nil {
                         imageURL = uploadedImageURL!
                         semaphore.signal()
@@ -267,7 +272,7 @@ extension UIViewController {
                                    "Genre": NewKasam.chosenGenre,
                                    "Description": NewKasam.kasamDescription,
                                    "Image": imageURL,
-                                   "KasamID": kasamID.key!,
+                                   "KasamID": kasamDB.key!,
                                    "CreatorID": Auth.auth().currentUser!.uid as String,
                                    "Rating": "5",
                                    "Level": 0,
@@ -275,17 +280,17 @@ extension UIViewController {
         
             if NewKasam.kasamID != "" {
                 //updating existing kasam
-                kasamID.child("Info").updateChildValues(kasamDictionary as [AnyHashable : Any]) {(error, reference) in
+                kasamDB.child("Info").updateChildValues(kasamDictionary as [AnyHashable : Any]) {(error, reference) in
                     //kasam successfully updated
-                    if basicKasam == false {self.saveBlocks(kasamID: kasamID, imageURL: imageURL)}
+                    if basicKasam == false {self.saveBlocks(kasamID: kasamDB, imageURL: imageURL)}
                     else {completion(true)}
                 }
             } else {
                 //creating new kasam
-                kasamID.child("Info").setValue(kasamDictionary) {(error, reference) in
+                kasamDB.child("Info").setValue(kasamDictionary) {(error, reference) in
                     if error == nil {
                         //Kasam successfully created
-                        if basicKasam == false {self.saveBlocks(kasamID: kasamID, imageURL: imageURL)}
+                        if basicKasam == false {self.saveBlocks(kasamID: kasamDB, imageURL: imageURL)}
                         else {completion(true)}
                     }
                 }

@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import FirebaseDatabase
 
 class DiscoverViewController: UIViewController {
     
@@ -36,7 +37,6 @@ class DiscoverViewController: UIViewController {
         setHeights()
         getDiscoverFeatured()
         getDiscoverKasams()
-        getMyKasams()
         setupNavBar(clean: false)
         notificationsSetup()
         DispatchQueue.main.async {
@@ -45,9 +45,6 @@ class DiscoverViewController: UIViewController {
     }
     
     func notificationsSetup(){
-        let getUserKasams = NSNotification.Name("GetUserKasams")
-        NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.getMyKasams), name: getUserKasams, object: nil)
-        
         let popDiscoverToRoot = Notification.Name("PopDiscoverToRoot")
         NotificationCenter.default.addObserver(self, selector: #selector(DiscoverViewController.resetToTopView), name: popDiscoverToRoot, object: nil)
     }
@@ -60,7 +57,6 @@ class DiscoverViewController: UIViewController {
         discoverFilledHeight = (view.bounds.size.width / 2.3) + 60
         featureViewHeight = view.bounds.size.width * (8/13) + 61 + 10
         rowCount = Assets.discoverCriteria.count
-        if discoverKasamDict["My Kasams"] == nil {rowCount -= 1; discoverEmptyHeight = CGFloat(120)}
     }
     
     //Puts the nav bars back
@@ -131,40 +127,69 @@ class DiscoverViewController: UIViewController {
     
     func getDiscoverKasams() {
         discoverKasamDict.removeAll()
-        for genre in Assets.discoverCriteria {
-            DBRef.coachKasamIndex.child(genre).observe(.childAdded) {(kasamID) in
-                DBRef.coachKasams.child(kasamID.key).child("Info").observeSingleEvent(of: .value) {(snapshot) in
-                    if let value = snapshot.value as? [String: Any] {
-                        let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: (URL(string: value["Image"] as? String ?? "") ?? URL(string: PlaceHolders.kasamHeaderPlaceholderURL))!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
-                        if self.discoverKasamDict[kasam.genre] == nil {self.discoverKasamDict[kasam.genre] = [kasam]}
-                        else {self.discoverKasamDict[kasam.genre]!.append(kasam)}
-                        self.discoverTableView.reloadData()
-                        self.updateContentTableHeight()
+        for rowCount in 0...(Assets.discoverCriteria.count - 1) {
+            let genre = Assets.discoverCriteria[rowCount]
+            if genre != "My Kasams" {
+                DBRef.coachKasamIndex.child(genre).observe(.childAdded) {(kasamID) in
+                    DBRef.coachKasams.child(kasamID.key).child("Info").observeSingleEvent(of: .value) {(snapshot) in
+                        if let value = snapshot.value as? [String: Any] {
+                            let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: (URL(string: value["Image"] as? String ?? "") ?? URL(string: PlaceHolders.kasamHeaderPlaceholderURL))!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: value["KasamID"] as? String ?? "", genre: value["Genre"] as? String ?? "Fitness")
+                            if self.discoverKasamDict[kasam.genre] == nil {self.discoverKasamDict[kasam.genre] = [kasam]}
+                            else {self.discoverKasamDict[kasam.genre]!.append(kasam)}
+                            self.discoverTableView.reloadRows(at: [IndexPath(item: rowCount, section: 0)], with: .fade)
+                        }
                     }
                 }
+            } else {
+                getMyKasams()
             }
         }
     }
     
-    @objc func getMyKasams() {
-        discoverKasamDict["My Kasams"] = nil
-        DBRef.userKasams.observe(.childAdded) {(snap) in
+    func getMyKasams() {
+        discoverKasamDict["My Kasams"] = []
+        DBRef.userKasams.observeSingleEvent(of: .value) {(snap) in
             if snap.exists() {
-                if let kasamValue = snap.value as? [String: Any] {
-                    if let value = kasamValue["Info"] as? [String: Any] {
-                        let imageURL = URL(string: value["Image"] as? String ?? "")
-                        let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: (imageURL ?? URL(string: PlaceHolders.kasamHeaderPlaceholderURL))!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: snap.key, genre: value["Genre"] as? String ?? "Fitness")
-                        if self.discoverKasamDict["My Kasams"] == nil {self.discoverKasamDict["My Kasams"] = [kasam]}
-                        else {self.discoverKasamDict["My Kasams"]!.append(kasam)}
-                    }
+                self.addUserKasam(snap: snap)
+                if self.discoverKasamDict.count == snap.childrenCount {
+                    self.updateContentTableHeight()
                 }
             } else {
                 //Incase there was a user kasam, that's now being deleted, so this view needs to be reloaded
+                if self.discoverKasamDict["My Kasams"]?.count == 0 {self.rowCount -= 1; self.discoverEmptyHeight = CGFloat(120)}
+                self.updateContentTableHeight()
+                self.discoverTableView.reloadRows(at: [IndexPath(item: Assets.discoverCriteria.count - 1, section: 0)], with: .fade)
+            }
+        }
+        
+        DBRef.userKasams.observe(.childAdded) {(snap) in
+            self.addUserKasam(snap: snap)
+        }
+        
+        DBRef.userKasams.observe(.childRemoved) {(snap) in
+            if let index = self.discoverKasamDict["My Kasams"]?.index(where: {$0.kasamID == snap.key}) {
+                self.discoverKasamDict["My Kasams"]?.remove(at: index)
+                if self.discoverKasamDict["My Kasams"]?.count == 0 {print("hell5 empty arry"); self.rowCount -= 1; self.discoverEmptyHeight = CGFloat(120)}
+                self.discoverTableView.reloadRows(at: [IndexPath(item: Assets.discoverCriteria.count - 1, section: 0)], with: .fade)
+                self.updateContentTableHeight()
+            }
+        }
+    }
+    
+    func addUserKasam(snap: DataSnapshot) {
+        if let kasamValue = snap.value as? [String: Any] {
+            if let value = kasamValue["Info"] as? [String: Any] {
+                let imageURL = URL(string: value["Image"] as? String ?? "")
+                let kasam = discoverKasamFormat(title: value["Title"] as? String ?? "", image: (imageURL ?? URL(string: PlaceHolders.kasamHeaderPlaceholderURL))!, rating: value["Rating"] as? String ?? "5", creator: nil, kasamID: snap.key, genre: value["Genre"] as? String ?? "Fitness")
+                self.discoverKasamDict["My Kasams"]!.append(kasam)
+                if self.discoverKasamDict["My Kasams"] != nil {self.rowCount = Assets.discoverCriteria.count; self.discoverEmptyHeight = CGFloat(0)}
                 self.updateContentTableHeight()
                 self.discoverTableView.reloadRows(at: [IndexPath(item: Assets.discoverCriteria.count - 1, section: 0)], with: .fade)
             }
         }
     }
+    
+    
 }
 
 //TableView-----------------------------------------------------------
@@ -177,7 +202,8 @@ extension DiscoverViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DiscoverKasamCell") as! DiscoverKasamCell
         cell.DiscoverCategoryTitle.text = Assets.discoverCriteria[indexPath.row]
-        if Assets.discoverCriteria[indexPath.row] == "My Kasams" && discoverKasamDict["My Kasams"] == nil {
+        print("hell5 tablereload \(Assets.discoverCriteria[indexPath.row])")
+        if Assets.discoverCriteria[indexPath.row] == "My Kasams" && discoverKasamDict["My Kasams"]?.count == 0 {
             cell.DiscoverCategoryTitle.text = ""
             cell.disableSwiping()
         } else {
@@ -187,7 +213,7 @@ extension DiscoverViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if Assets.discoverCriteria[indexPath.row] == "My Kasams" && discoverKasamDict["My Kasams"] == nil {
+        if Assets.discoverCriteria[indexPath.row] == "My Kasams" && discoverKasamDict["My Kasams"]?.count == 0 {
             return discoverEmptyHeight      //to show the create kasam button
         } else {
             return discoverFilledHeight
@@ -210,7 +236,8 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
             return featuredKasamArray.count
         } else {
             if let count = discoverKasamDict[Assets.discoverCriteria[collectionView.tag]]?.count {
-                return count
+                if count == 0 {return 1}
+                else {return count}
             } else {
                 return 1
             }
@@ -226,7 +253,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DiscoverKasamCell", for: indexPath) as! DiscoverHorizontalCell
-            if Assets.discoverCriteria[collectionView.tag] == "My Kasams" && discoverKasamDict["My Kasams"] == nil {
+            if Assets.discoverCriteria[collectionView.tag] == "My Kasams" && discoverKasamDict["My Kasams"]?.count == 0 {
                 cell.setPlaceholder()
             } else if discoverKasamDict[Assets.discoverCriteria[collectionView.tag]]?[indexPath.row] != nil {
                 let block = discoverKasamDict[Assets.discoverCriteria[collectionView.tag]]?[indexPath.row]
@@ -245,7 +272,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
             self.performSegue(withIdentifier: "goToKasam", sender: indexPath)
         } else {
             //Creating a new kasam
-            if Assets.discoverCriteria[collectionView.tag] == "My Kasams" && discoverKasamDict["My Kasams"] == nil {
+            if Assets.discoverCriteria[collectionView.tag] == "My Kasams" && discoverKasamDict["My Kasams"]?.count == 0 {
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "basic"])
             } else {
                 //User kasam
@@ -267,8 +294,9 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
             return CGSize(width: view.bounds.size.width, height: view.bounds.size.width * (8/13))
         }
         else {
+            //for TableView collection view:
             viewSafeAreaInsetsDidChange()
-            if discoverKasamDict[Assets.discoverCriteria[collectionView.tag]]?[indexPath.row] == nil {
+            if discoverKasamDict[Assets.discoverCriteria[collectionView.tag]]?.count == 0 {
                 return CGSize(width: view.bounds.size.width - 30, height: 95)
             } else {
                 return CGSize(width: view.bounds.size.width / 2, height: view.bounds.size.width / 2.3)

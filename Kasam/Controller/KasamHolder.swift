@@ -618,7 +618,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 if NewKasam.loadedInKasamImage == UIImage() {
                     //creating a new kasam
                     self.animationView.loadingAnimation(view: self.view, animation: "rocket-fast", width: 200, overlayView: self.animationOverlay, loop: true, buttonText: nil, completion: nil)
-                    self.createKasam(existingKasamID: nil, basicKasam: false) {(success) in
+                    self.createKasam(existingKasamID: nil, basicKasam: false, userKasam: self.userKasam) {(success) in
                         if success == true {
                             self.animationView.removeFromSuperview()
                             self.animationOverlay.removeFromSuperview()
@@ -627,7 +627,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 } else {
                     //updating an existing kasam
                     self.animationView.loadingAnimation(view: self.view, animation: "rocket-fast", width: 200, overlayView: self.animationOverlay, loop: true, buttonText: nil, completion: nil)
-                    self.createKasam(existingKasamID: NewKasam.kasamID, basicKasam: false) {(success) in
+                    self.createKasam(existingKasamID: NewKasam.kasamID, basicKasam: false, userKasam: self.userKasam) {(success) in
                         if success == true {
                             self.animationView.removeFromSuperview()
                             self.animationOverlay.removeFromSuperview()
@@ -648,7 +648,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         deleteUserKasam {(success) in
             self.navigationController?.popViewController(animated: true)
             NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "GetUserKasams"), object: self)
         }
     }
     
@@ -680,6 +679,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         } else if segue.identifier == "goToEditKasam" {
             let transferHolder = segue.destination as! NewKasamPageController
             transferHolder.kasamHolderKasamEdit = true
+            transferHolder.userKasam = userKasam
             NewKasam.editKasamCheck = true
             NewKasam.kasamID = kasamID
         }

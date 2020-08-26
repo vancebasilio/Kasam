@@ -21,6 +21,7 @@ class DiscoverHorizontalCell: UICollectionViewCell {
     @IBOutlet weak var kasamType: UIButton!
     
     func setBlock(cell: discoverKasamFormat) {
+        print("hell5 cell \(cell.title)")
         containerView.isHidden = false
         placeholderView.isHidden = true
         topImage.sd_setImage(with: cell.image, placeholderImage: PlaceHolders.kasamLoadingImage)
@@ -32,6 +33,7 @@ class DiscoverHorizontalCell: UICollectionViewCell {
     }
     
     func setPlaceholder(){
+        print("hell5 cell placeholder")
         containerView.isHidden = true
         placeholderView.isHidden = false
         createButton.layer.cornerRadius = 20
