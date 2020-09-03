@@ -18,8 +18,9 @@ import youtube_ios_player_helper
 
 protocol KasamViewerCellDelegate {
     func dismissViewController()
-    func updateControllers()
+    func removeAnimations()
     func sendCompletedMatrix(activityNo: Int, value: Double, max: Double)
+    func setRestDay()
     func nextItem()
 }
 
@@ -29,7 +30,10 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     @IBOutlet weak var activityTitle: UILabel!
     @IBOutlet weak var downArrow: UIButton!
     @IBOutlet weak var activityDescription: UILabel!
+    
+    @IBOutlet weak var pickerViewHolder: UIView!
     @IBOutlet weak var pickerView: UIPickerView!
+    
     @IBOutlet weak var doneButton: UIButton!
     @IBOutlet weak var doneCancelButton: UIButton!
     @IBOutlet weak var circularSlider: CircularSlider!
@@ -48,14 +52,9 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     @IBOutlet weak var videoPlayerHolder: UIView!
     @IBOutlet weak var videoPlayer: YTPlayerView!
     
-    @IBOutlet weak var restImageView: UIImageView!
     @IBOutlet weak var topView: UIView!
     @IBOutlet weak var bottomView: UIStackView!
-    
-    @IBOutlet weak var restTitle: UILabel!
-    @IBOutlet weak var restDescription: UILabel!
-    @IBOutlet weak var restDoneButton: UIButton!
-    @IBOutlet weak var restView: UIStackView!
+    @IBOutlet weak var bottomViewHeight: NSLayoutConstraint!
     
     //Slider variables
     var delegate: KasamViewerCellDelegate?
@@ -94,6 +93,10 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     var today: Bool?
     
     override func awakeFromNib() {
+        doneButton.layer.cornerRadius = 20.0
+        resetButton.layer.cornerRadius = 20.0
+        timerDoneButton.layer.cornerRadius = 20.0
+        doneCancelButton.layer.cornerRadius = doneCancelButton.frame.height / 2
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemovePersonalLoadingAnimation"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveGroupLoadingAnimation"), object: self)
     }
@@ -134,28 +137,34 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     
     func programGestures(){
         downArrow.setIcon(icon: .fontAwesomeSolid(.sortDown), iconSize: 20, color: .darkGray, forState: .normal)
-        if pastProgress == 0.0 {
+        if pastProgress <= 0.0 {
             downArrow.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(programPopup)))
             activityTitle.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(programPopup)))
-        } else {
+        } else if pastProgress > 0.0 {
             downArrow.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(pastProgressPopup)))
             activityTitle.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(pastProgressPopup)))
         }
     }
     
     @objc func programPopup() {
-        var blockArray = [(blockID: String, blockName: String)]()
+        var blockArray = [(no: Int, blockID: String, blockName: String)]()
         DBRef.coachKasams.child(kasamID).child("Timeline").observeSingleEvent(of: .value) {(snap) in
             if let value = snap.value as? [String:String] {
                 for blockIDRef in 1...value.count {
                     if let blockID = value["D\(blockIDRef)"] {
-                        DBRef.coachKasams.child(self.kasamID).child("Blocks").child(blockID).child("Title").observeSingleEvent(of: .value) {(blockName) in
-                            blockArray.append((blockID, blockName.value as! String))
-                            if blockArray.count == snap.childrenCount {
-                                showBottomPopup(type: "changeKasamBlock", array: blockArray)
+                        if blockID == "Rest" {
+                            blockArray.append((blockIDRef, "rest", "Rest"))
+                        } else {
+                            DBRef.coachKasams.child(self.kasamID).child("Blocks").child(blockID).child("Title").observeSingleEvent(of: .value) {(blockName) in
+                                blockArray.append((blockIDRef, blockID, blockName.value as! String))
+                                if blockArray.count == snap.childrenCount {
+                                    blockArray = blockArray.sorted(by: {$0.no < $1.no})
+                                    showBottomPopup(type: "changeKasamBlock", array: blockArray)
+                                }
                             }
                         }
                     }
+                    
                 }
             }
         }
@@ -175,10 +184,9 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
         //hide picker views
         animatedImageView.isHidden = true
         doneButton.isHidden = true
-        pickerView.isHidden = true
+        pickerViewHolder.isHidden = true
         instruction.isHidden = true
         kasamLogoBG.isHidden = true
-        type = "countdown"
         
         //setup timer
         maxTime = Double(maxtime) 
@@ -191,8 +199,6 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
             else {countdownTimer.setCountDown(time: maxTime - pastProgress.rounded(.up))}
         }
         
-        resetButton.layer.cornerRadius = 20.0
-        timerDoneButton.layer.cornerRadius = 20.0
         circularSlider?.endThumbImage = UIImage(named: "kasam-timer-button")
         circularSlider?.minimumValue = 0.0
         circularSlider?.maximumValue = CGFloat(maxTime)
@@ -227,17 +233,14 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
         //hide picker views
         animatedImageView.isHidden = true
         doneButton.isHidden = true
-        pickerView.isHidden = true
+        pickerViewHolder.isHidden = true
         instruction.isHidden = true
         kasamLogoBG.isHidden = true
-        type = "timer"
         
         //setup timer
         maxTime = 0.0
         countdownTimer.delegate = self
         countdownTimer.setTimer(time: pastProgress.rounded(.down))
-        resetButton.layer.cornerRadius = 20.0
-        timerDoneButton.layer.cornerRadius = 20.0
         circularSlider?.endThumbImage = UIImage(named: "kasam-timer-button")
         circularSlider?.minimumValue = 0.0
         circularSlider?.maximumValue = CGFloat(20.0)
@@ -263,8 +266,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     func setupPicker(){
         pickerView.delegate = self
         pickerView.dataSource = self
+        pickerViewHolder.isHidden = false
         pickerView.selectRow(Int(pastProgress) / 10, inComponent: 0, animated: false)
-        doneButton.layer.cornerRadius = 20.0
         circularSlider.isHidden = true
         timerButtonStackView.isHidden = true
         instruction.isHidden = true
@@ -313,21 +316,21 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     func setupCheckmark(){
         //hide picker views
         timerButtonStackView.isHidden = true
-        pickerView.isHidden = true
+        pickerViewHolder.isHidden = true
         instruction.isHidden = true
         resetButton.isHidden = true
         circularSlider.isHidden = true
-        doneButton.layer.cornerRadius = 20.0
-        if videoURL == nil {type = "checkmark"}
+        if type != "rest" {bottomViewHeight = bottomViewHeight.constraintWithMultiplier(0.45, view: view)}
         
         if pastProgress > 0.0 {
             doneButton.setIcon(prefixText: "  ", prefixTextColor: .white, icon: .fontAwesomeRegular(.checkCircle), iconColor: .white, postfixText: "  Completed!", postfixTextColor: .white, backgroundColor: .dayYesColor, forState: .normal, textSize: 17, iconSize: 20)
-            doneCancelButton.layer.cornerRadius = doneCancelButton.frame.height / 2
             doneCancelButton.setIcon(icon: .fontAwesomeSolid(.undo), iconSize: 18, color: .white, backgroundColor: UIColor.init(hex: 0xf15e4a), forState: .normal)
             doneCancelButton.isHidden = false
-        } else {
+        } else if pastProgress == 0.0 {
             doneButton.setIcon(prefixText: "  ", prefixTextColor: .white, icon: .fontAwesomeRegular(.clock), iconColor: .white, postfixText: "  Mark Complete", postfixTextColor: .white, backgroundColor: .black, forState: .normal, textSize: 16, iconSize: 18)
             doneCancelButton.isHidden = true
+        } else {
+            doneButton.setIcon(prefixText: "  ", prefixTextColor: .white, icon: .fontAwesomeRegular(.clock), iconColor: .white, postfixText: "Done", postfixTextColor: .white, backgroundColor: .black, forState: .normal, textSize: 16, iconSize: 0)
         }
         if SavedData.kasamDict[kasamID]?.programDuration != nil {
             programGestures()
@@ -338,7 +341,6 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     
     func setVideoPlayer(){
         setupCheckmark()
-        type = "video"
         videoPlayerHolder.isHidden = false
         videoPlayer.delegate = self
         videoPlayer.load(withVideoId: videoURL ?? "")
@@ -361,36 +363,38 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     //REST-----------------------------------------------------------------------------------
     
     func setupRest(activity: KasamActivityCellFormat) {
-        restView.isHidden = false
-        topView.isHidden = true
-        bottomView.isHidden = true
-        restTitle.text = activity.activityTitle
-        restDescription.text = activity.activityDescription
-        restDoneButton.layer.cornerRadius = 20.0
-        restImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityRestImageURL))
+        setupCheckmark()
+        videoPlayerHolder.isHidden = true
+        bottomViewHeight = bottomViewHeight.constraintWithMultiplier(0.25, view: view)
+        activityTitle.text = "Rest Day"
+        activityDescription.text = "Take the day off. You've earned it!"
+        animatedImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityRestImageURL))
     }
     
     //DONE BUTTON----------------------------------------------------------------------------
     
-    @IBAction func doneButton(_ sender: UIButton) {
+    @IBAction func doneButton(_ sender: UIButton) {             //for regular kasam done + rest done
         if currentOrder == totalOrder {
             if viewOnlyCheck == false {
                 if type == "checkmark" {
                     if pastProgress == 0.0 {
                         delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 100.0, max: 100.0)
-                        delegate?.updateControllers()
+                        delegate?.removeAnimations()
                     }
                     delegate?.dismissViewController()
                 } else if type == "video" {
                     if pastProgress == 0.0 {
                         delegate?.sendCompletedMatrix(activityNo: currentOrder, value: videoDuration, max: videoDuration)
-                        delegate?.updateControllers()
+                        delegate?.removeAnimations()
                         pastProgress = videoDuration
                         setupCheckmark()
                         programGestures()
                     } else {
                         delegate?.dismissViewController()
                     }
+                } else if type == "rest" {
+                    delegate?.setRestDay()
+                    delegate?.dismissViewController()
                 } else {
                     savePickerValue()
                 }
@@ -407,13 +411,11 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     }
     
     func removeActivityProgress(){
-        if pastProgress > 0.0 {
-            delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 0.0, max: 100)   //set Firebase progress to zero
-            delegate?.updateControllers()
-            pastProgress = 0.0      //manually set progress to zero
-            setupCheckmark()
-            programGestures()
-        }
+        delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 0.0, max: 100)   //set Firebase progress to zero
+        delegate?.removeAnimations()
+        pastProgress = 0.0      //manually set progress to zero
+        setupCheckmark()
+        programGestures()
     }
     
     //Have to keep this function for the pickerValue check on top
@@ -424,7 +426,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
             animationView.loadingAnimation(view: view, animation: "loading", width: 100, overlayView: nil, loop: true, buttonText: nil, completion: nil)
             return
         }
-        delegate?.updateControllers()
+        delegate?.removeAnimations()
         delegate?.dismissViewController()
     }
     
@@ -432,7 +434,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
         delegate?.dismissViewController()
         if viewOnlyCheck == false {
             delegate?.sendCompletedMatrix(activityNo: currentOrder, value: (maxTime - currentTime), max: maxTime)
-            delegate?.updateControllers()
+            delegate?.removeAnimations()
         }
     }
     

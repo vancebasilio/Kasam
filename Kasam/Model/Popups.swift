@@ -114,7 +114,7 @@ import Firebase
 
     //USER OPTIONS---------------------------------------------------------------------------------------------
 
-    func showBottomPopup(type: String, array: [(blockID: String, blockName: String)]?) {
+    func showBottomPopup(type: String, array: [(no: Int, blockID: String, blockName: String)]?) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light

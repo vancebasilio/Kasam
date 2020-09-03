@@ -32,9 +32,6 @@
                     <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Se4-Wb-Luh" userLabel="Check">
                         <rect key="frame" x="357" y="5" width="61" height="61"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
-                        </userDefinedRuntimeAttributes>
                         <connections>
                             <action selector="checkBoxPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="R8X-5s-1vR"/>
                         </connections>

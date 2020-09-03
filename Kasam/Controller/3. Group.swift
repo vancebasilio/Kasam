@@ -285,7 +285,13 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
                 if metricType == "Checkmark" {
                     updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: day)
                 } else {
-                    openKasamBlock(kasamOrder: kasamOrder, day: day, date: date, viewOnly: viewOnly)
+                    openKasamBlock(type: "group", kasamOrder: kasamOrder, day: day, date: date, viewOnly: viewOnly, animationView: animationView) {(blockID, blockName) in
+                        self.kasamIDTransfer = kasamID
+                        self.dateGlobal = date
+                        self.blockIDGlobal = blockID
+                        self.blockNameGlobal = blockName
+                        self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
+                    }
                 }
             }
         }
@@ -306,44 +312,5 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
             
         }
         DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").child(Auth.auth().currentUser!.uid).setValue(newPercent.rounded(toPlaces: 2))
-    }
-    
-    func openKasamBlock(kasamOrder: Int, day: Int?, date: Date, viewOnly: Bool?) {
-        animationView.loadingAnimation(view: view, animation: "loading", width: 100, overlayView: nil, loop: true, buttonText: nil, completion: nil)
-        UIApplication.shared.beginIgnoringInteractionEvents()
-        let kasamID = SavedData.groupKasamBlocks[kasamOrder].kasamID
-        kasamIDTransfer = kasamID
-        blockIDGlobal = SavedData.groupKasamBlocks[kasamOrder].data.blockID
-        blockNameGlobal = SavedData.groupKasamBlocks[kasamOrder].data.blockTitle
-        dateGlobal = date
-        
-        //OPTION 1 - Opening a past day's block
-        if day != nil {
-            viewOnlyGlobal = viewOnly ?? false
-            DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
-                let blockCount = Int(blockCountSnapshot.childrenCount)
-                var blockOrder = 1
-                if SavedData.kasamDict[kasamID]?.programDuration != nil {
-                    //OPTION 1A - Day in past, so find the correct block to show
-                    if day! <= blockCount {blockOrder = day!}
-                    else {blockOrder = (day! % blockCount) + 1}
-                    DBRef.coachKasams.child(kasamID).child("Timeline").observe(.value, with: {(snapshot) in
-                        if let value = snapshot.value as? [String:String] {
-                            self.blockIDGlobal = value["D\(blockOrder)"]!
-                            self.definesPresentationContext = true
-                            self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
-                        }
-                    })
-                } else {
-                    //OPTION 1B - Day in past and Kasam has only 1 block, so no point finding the correct block
-                    if day! <= blockCount {blockOrder = day!}
-                    else {blockOrder = (blockCount / day!) + 1}
-                    self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
-                }
-            })
-        //OPTION 2 - Open Today's block
-        } else {
-            self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
-        }
     }
 }

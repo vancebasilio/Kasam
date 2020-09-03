@@ -169,7 +169,7 @@ class DiscoverViewController: UIViewController {
         DBRef.userKasams.observe(.childRemoved) {(snap) in
             if let index = self.discoverKasamDict["My Kasams"]?.index(where: {$0.kasamID == snap.key}) {
                 self.discoverKasamDict["My Kasams"]?.remove(at: index)
-                if self.discoverKasamDict["My Kasams"]?.count == 0 {print("hell5 empty arry"); self.rowCount -= 1; self.discoverEmptyHeight = CGFloat(120)}
+                if self.discoverKasamDict["My Kasams"]?.count == 0 {self.rowCount -= 1; self.discoverEmptyHeight = CGFloat(120)}
                 self.discoverTableView.reloadRows(at: [IndexPath(item: Assets.discoverCriteria.count - 1, section: 0)], with: .fade)
                 self.updateContentTableHeight()
             }
@@ -202,7 +202,6 @@ extension DiscoverViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DiscoverKasamCell") as! DiscoverKasamCell
         cell.DiscoverCategoryTitle.text = Assets.discoverCriteria[indexPath.row]
-        print("hell5 tablereload \(Assets.discoverCriteria[indexPath.row])")
         if Assets.discoverCriteria[indexPath.row] == "My Kasams" && discoverKasamDict["My Kasams"]?.count == 0 {
             cell.DiscoverCategoryTitle.text = ""
             cell.disableSwiping()

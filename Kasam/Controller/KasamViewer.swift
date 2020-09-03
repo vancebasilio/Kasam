@@ -56,12 +56,12 @@ class KasamActivityViewer: UIViewController {
     
     @IBAction func closeButton(_ sender: UIButton) {
         if reviewOnly == false {
-            updateControllers()
+            removeAnimations()
         }
         dismiss(animated: true)
     }
     
-    func updateControllers(){
+    func removeAnimations(){
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemovePersonalLoadingAnimation"), object: self)
         NotificationCenter.default.post(name: Notification.Name(rawValue: "RemoveGroupLoadingAnimation"), object: self)
     }
@@ -72,48 +72,56 @@ class KasamActivityViewer: UIViewController {
     }
     
     @objc func getBlockActivities(_ manualBlock: NSNotification?){
+        activityBlocks.removeAll()
         //User manually changing kasam block from the Kasam Viewer Cell
         if let manualBlockID = manualBlock?.userInfo?["blockID"] as? String {
-            blockID = manualBlockID
-            blockName = manualBlock?.userInfo?["blockName"] as? String ?? ""
+            if manualBlockID == "rest" {
+                blockName = "Rest Day"
+            } else {
+                blockID = manualBlockID; blockName = manualBlock?.userInfo?["blockName"] as? String ?? ""
+            }
             if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
                 SavedData.personalKasamBlocks[kasamOrder].data.blockTitle = blockName
                 SavedData.personalKasamBlocks[kasamOrder].data.blockID = blockID
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshPersonalKasam"), object: self, userInfo: ["kasamOrder": kasamOrder])
             }
         }
-        activityBlocks.removeAll()
-        var count = 0
         self.statusDate = dateToLoad?.dateToString() ?? Date().dateToString()
-    //STEP 1 - GET ALL THE BLOCK ACTIVITIES
-        self.activityRef = DBRef.coachKasams.child(kasamID).child("Blocks").child(blockID).child("Activity")
-        self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
-            if let value = snapshot.value as? [String: Any] {
-                count += 1
-            //STEP 2A - DOWNLOAD PAST PROGRESS FOR THE ACTIVITIES
-                if SavedData.kasamDict[self.kasamID] != nil {
-                    var currentMetric = 0.0
-                    var db = DBRef.userPersonalHistory.child(self.kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(self.statusDate).child("Metric Breakdown").child(String(count))
-                    if self.type == "group" {
-                        db = DBRef.groupKasams.child((SavedData.kasamDict[self.kasamID]?.groupID)!).child("Team").child(Auth.auth().currentUser!.uid).child(self.statusDate).child("Metric Breakdown").child(String(count))
-                    }
-                    db.observeSingleEvent(of: .value, with: {(snap) in
-                        if snap.exists() && self.reviewOnly == false {
-                            currentMetric = (snap.value as? Double) ?? 0.0               //Gets the metric for the activity for the day selected
+        var count = 0
+        if blockName != "Rest Day" {
+        //STEP 1 - GET ALL THE BLOCK ACTIVITIES
+            self.activityRef = DBRef.coachKasams.child(kasamID).child("Blocks").child(blockID).child("Activity")
+            self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in
+                if let value = snapshot.value as? [String: Any] {
+                    count += 1
+                //STEP 2A - DOWNLOAD PAST PROGRESS FOR THE ACTIVITIES
+                    if SavedData.kasamDict[self.kasamID] != nil {
+                        var currentMetric = 0.0
+                        var db = DBRef.userPersonalHistory.child(self.kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(self.statusDate).child("Metric Breakdown").child(String(count))
+                        if self.type == "group" {
+                            db = DBRef.groupKasams.child((SavedData.kasamDict[self.kasamID]?.groupID)!).child("Team").child(Auth.auth().currentUser!.uid).child(self.statusDate).child("Metric Breakdown").child(String(count))
                         }
-                        self.loadActivity(currentMetric: currentMetric, value: value, count: count)
-                    })
-                //STEP 2B - ONLY VIEWING THE KASAM BLOCKS FROM DISCOVER
-                } else {
-                    self.loadActivity(currentMetric: Double(value["Metric"] as? Int ?? 0), value: value, count: count)
+                        db.observeSingleEvent(of: .value, with: {(snap) in
+                            if snap.exists() && self.reviewOnly == false {
+                                currentMetric = (snap.value as? Double) ?? 0.0               //Gets the metric for the activity for the day selected
+                            }
+                            self.loadActivity(currentMetric: currentMetric, value: value, count: count)
+                        })
+                    //STEP 2B - ONLY VIEWING THE KASAM BLOCKS FROM DISCOVER
+                    } else {
+                        self.loadActivity(currentMetric: Double(value["Metric"] as? Int ?? 0), value: value, count: count)
+                    }
                 }
+                self.activityRef.removeObserver(withHandle: self.activityRefHandle!)
             }
-            self.activityRef.removeObserver(withHandle: self.activityRefHandle!)
+        } else {
+            let value = ["Type": "Rest"]
+            self.loadActivity(currentMetric: -1.0, value: value, count: 1)
         }
     }
     
     func loadActivity(currentMetric: Double, value: [String:Any], count: Int) {
-        let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as! String, description: value["Description"] as! String, increment: value["Interval"] as? String, currentMetric: currentMetric, totalMetric: value["Metric"] as? Int ?? 0, imageURL: value["Image"] as? String, videoURL: value["Video"] as? String, image: nil, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0)
+        let activity = KasamActivityCellFormat(kasamID: self.kasamID, blockID: self.blockID, title: value["Title"] as? String ?? "", description: value["Description"] as? String ?? "", increment: value["Interval"] as? String, currentMetric: currentMetric, totalMetric: value["Metric"] as? Int ?? 0, imageURL: value["Image"] as? String, videoURL: value["Video"] as? String, image: nil, type: value["Type"] as! String, currentOrder: 0, totalOrder: 0)
         self.activityBlocks.append(activity)
         if self.activityBlocks.count == count {
             if self.activityBlocks.count == 1 {self.activityNumber.isHidden = true}
@@ -174,17 +182,23 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         cell.kasamIDTransfer["kasamID"] = kasamID
         cell.setKasamViewer(activity: activity)
         cell.pastProgress = activityBlocks[indexPath.row].currentMetric ?? 0
+        
         if activity.type == "Reps" {
             cell.setupPicker()
         } else if activity.type == "Countdown" {
+            cell.type = "countdown"
             cell.setupCountdown(maxtime: activity.totalMetric)
         } else if activity.type == "Timer" {
+            cell.type = "timer"
             cell.setupTimer(maxtime: activity.totalMetric)
         } else if activity.type == "Checkmark" {
+            cell.type = "checkmark"
             cell.setupCheckmark()
         } else if activity.type == "Video" {
+            cell.type = "video"
             cell.setVideoPlayer()
         } else if activity.type == "Rest" {
+            cell.type = "rest"
             cell.setupRest(activity: activity)
         }
         cell.delegate = self
@@ -215,8 +229,15 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         dismiss(animated: true, completion: nil)
     }
     
+    func setRestDay(){
+        let db = DBRef.userPersonalHistory.child(kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(statusDate)
+        db.observeSingleEvent(of: .value) {(snap) in
+            if !snap.exists() {self.setHistoryTotal(kasamID: self.kasamID, statusDate: self.statusDate, value: 1)}  //Add history once
+            db.setValue(["Block Name": "Rest Day"])
+        }
+    }
+    
     func sendCompletedMatrix(activityNo: Int, value: Double, max: Double) {
-        print("hell5 \(statusDate)")
         achievedMaxMatrix[String(activityNo)] = (value, max)
         achievedMatrix[String(activityNo)] = value
         activityBlocks[activityNo - 1].currentMetric = value

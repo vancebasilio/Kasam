@@ -129,7 +129,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                         self.progressDayCount += 1
                         var blockName = ""
                         if let block = individualDate.value as? [String:Any] {
-                            indieMetric = block["Total Metric"] as! Double
+                            indieMetric = block["Total Metric"] as? Double ?? -1.0
                             if SavedData.kasamDict[self.transferArray!.kasamID]?.programDuration != nil {
                                 blockName = block["Block Name"] as? String ?? ""
                             }

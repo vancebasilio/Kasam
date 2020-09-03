@@ -135,7 +135,8 @@ extension UIViewController {
                                 //Manually set the block title and ID if the user changed it manually
                                 if kasam.programDuration != nil {
                                     if let value = history.value as? [String:Any] {
-                                        blockDeets = (blockID: value["BlockID"] as! String, blockName: value["Block Name"] as! String)}
+                                        blockDeets = (blockID: value["BlockID"] as? String ?? "", blockName: value["Block Name"] as! String)}
+                                    if blockDeets?.blockName == "Rest Day" {displayStatus = "Check"; percentComplete = -1}
                                 }
                             }
                         }
@@ -206,14 +207,21 @@ extension UIViewController {
     func statusPercentCalc (snapshot: DataSnapshot) -> (percent: Double, displayStatus: String){
         var percent = 0.0
         var displayStatus = "Checkmark"
+        //COMPLEX KASAM
         if let dictionary = snapshot.value as? Dictionary<String,Any> {
-            percent = dictionary["Metric Percent"] as? Double ?? 0.0
-            if percent < 1 {
-                displayStatus = "Progress"
-                Analytics.logEvent("working_Kasam", parameters: ["metric_percent": percent.rounded(toPlaces: 2) ])
+            if dictionary["Block Name"] as? String ?? "" == "Rest Day" {
+                percent = -1.0
+                displayStatus = "Rest Day"
             } else {
-                displayStatus = "Check"
+                percent = dictionary["Metric Percent"] as? Double ?? 0.0
+                if percent < 1 {
+                    displayStatus = "Progress"
+                    Analytics.logEvent("working_Kasam", parameters: ["metric_percent": percent.rounded(toPlaces: 2) ])
+                } else {
+                    displayStatus = "Check"
+                }
             }
+        //SIMPLE KASAM
         } else if snapshot.value as? Int == 1 {
             displayStatus = "Check"
             percent = 1.0
@@ -223,6 +231,57 @@ extension UIViewController {
             displayStatus = "Checkmark"
         }
         return (percent, displayStatus)
+    }
+    
+    func openKasamBlock(type: String, kasamOrder: Int, day: Int?, date: Date, viewOnly: Bool?, animationView: AnimationView, completion: @escaping ((blockID: String, blockName: String)) -> ()) {
+        animationView.loadingAnimation(view: view, animation: "loading", width: 100, overlayView: nil, loop: true, buttonText: nil, completion: nil)
+        UIApplication.shared.beginIgnoringInteractionEvents()
+        var block = SavedData.personalKasamBlocks; if type == "group" {block = SavedData.groupKasamBlocks}
+        let kasamID = block[kasamOrder].kasamID
+        var blockIDGlobal = block[kasamOrder].data.blockID
+        var blockNameGlobal = block[kasamOrder].data.blockTitle    //DAY TRACKER FUNC WILL LOAD MANUALLY CHANGED BLOCKS FOR PROGRAM KASAMS
+        
+        var db = DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!)
+        if type == "group" {db = DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid)}
+        
+        //OPTION 1 - Opening a past day's block
+        if day != nil {
+            db.child(date.dateToString()).observeSingleEvent(of: .value) {(pastProgress) in
+                //There's past progress, so the user may have manually completed another kasam
+                if pastProgress.exists() {
+                    if let value = pastProgress.value as? [String:Any] {
+                        blockIDGlobal = value["BlockID"] as? String ?? ""
+                        blockNameGlobal = value["Block Name"] as? String ?? ""
+                        completion((blockIDGlobal, blockNameGlobal))
+                   }
+                } else {
+                    DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
+                        let blockCount = Int(blockCountSnapshot.childrenCount)
+                        var blockOrder = 1
+                        if SavedData.kasamDict[kasamID]?.programDuration != nil {
+                            //OPTION 1A - Day in past, so find the correct block to show
+                            blockOrder = day! & blockCount
+                            if blockOrder == 0 {blockOrder = blockCount}
+                            DBRef.coachKasams.child(kasamID).child("Timeline").observe(.value, with: {(snapshot) in
+                                if let value = snapshot.value as? [String:String] {
+                                    blockIDGlobal = value["D\(blockOrder)"]!
+                                    self.definesPresentationContext = true
+                                    completion((blockIDGlobal, blockNameGlobal))
+                                }
+                            })
+                        } else {
+                            //OPTION 1B - Day in past and Kasam has only 1 block, so no point finding the correct block
+                            if day! <= blockCount {blockOrder = day!}
+                            else {blockOrder = (blockCount / day!) + 1}
+                            completion((blockIDGlobal, blockNameGlobal))
+                        }
+                    })
+                }
+            }
+        //OPTION 2 - Open Today's block
+        } else {
+            completion((blockIDGlobal, blockNameGlobal))
+        }
     }
     
     
@@ -1430,5 +1489,15 @@ class PassThroughView: UIView {
             }
         }
         return false
+    }
+}
+
+extension NSLayoutConstraint {
+    func constraintWithMultiplier(_ multiplier: CGFloat, view: UIView) -> NSLayoutConstraint {
+        let newConstraint = NSLayoutConstraint(item: self.firstItem!, attribute: self.firstAttribute, relatedBy: self.relation, toItem: self.secondItem, attribute: self.secondAttribute, multiplier: multiplier, constant: self.constant)
+        view.removeConstraint(self)
+        view.addConstraint(newConstraint)
+        view.layoutIfNeeded()
+        return newConstraint
     }
 }

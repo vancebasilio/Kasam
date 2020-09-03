@@ -60,27 +60,31 @@ class PersonalDayTrackerCell: UICollectionViewCell {
         if future == true {
             cellButton.setTitleColor(UIColor.lightGray, for: .normal)       //greys out buttonBG that are in the future
             cellButton.backgroundColor = UIColor.init(hex: 0xEFEFF4)        //greys out buttonText that are in the future
-        } else if future != true && status == 0.0 && today != true {
-            //Incomplete Kasams
-            cellButton.backgroundColor = UIColor.darkGray.lighter
-            cellButton.setTitleColor(UIColor.white, for: .normal)
-        } else if future != true && status > 0.0 && status < 1.0 {
-            //Partially complete Kasams
-            if metricTypeInternal == "Video" && today != true {
-                cellButton.backgroundColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7)
+        } else if future != true {
+            if status == 0.0 && today != true {
+                //Incomplete Kasams
+                cellButton.backgroundColor = UIColor.darkGray.lighter
+                cellButton.setTitleColor(UIColor.white, for: .normal)
+            } else if status > 0.0 && status < 1.0 {
+                //Partially complete Kasams
+                if metricTypeInternal == "Video" && today != true {
+                    cellButton.backgroundColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7)
+                    cellButtonOutline.layer.borderColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7).cgColor
+                } else {
+                    cellButton.backgroundColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7)            //light green color
+                    cellButtonOutline.layer.borderColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7).cgColor
+                }
+                cellButton.setTitleColor(UIColor.black, for: .normal)
+            } else if status >= 1.0 {
+                //Fully complete Kasams
+                cellButton.backgroundColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7)                //green color
                 cellButtonOutline.layer.borderColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7).cgColor
+                cellButton.setTitleColor(UIColor.black, for: .normal)
+            } else if status < 0 {
+                //Rest Days
+                cellButton.backgroundColor = UIColor.dayNoColor
+                cellButton.setTitleColor(UIColor.white, for: .normal)
             }
-            else {
-                cellButton.backgroundColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7)            //light green color
-                cellButtonOutline.layer.borderColor = UIColor.init(hex: 0xc1deba).withAlphaComponent(0.7).cgColor
-            }
-            
-            cellButton.setTitleColor(UIColor.black, for: .normal)
-        } else if future != true && status >= 1.0 {
-            //Fully complete Kasams
-            cellButton.backgroundColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7)                //green color
-            cellButtonOutline.layer.borderColor = UIColor.init(hex: 0x66A058).withAlphaComponent(0.7).cgColor
-            cellButton.setTitleColor(UIColor.black, for: .normal)
         }
     }
     

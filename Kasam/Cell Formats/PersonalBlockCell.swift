@@ -13,8 +13,7 @@ import FirebaseAuth
 import Lottie
 
 protocol TableCellDelegate : class {
-    func updateKasamDayButtonPressed(kasamOrder: Int, day: Int)
-    func openKasamBlock(kasamOrder: Int, day: Int?, date: Date, viewOnly: Bool?)
+    func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?)
     func goToKasamHolder(kasamOrder: Int)
     func completeAndUnfollow(kasamOrder: Int)
     func reloadKasamBlock(kasamOrder: Int)
@@ -55,11 +54,10 @@ class PersonalBlockCell: UITableViewCell {
     
     @IBOutlet weak var progressBar: UIView!
     @IBOutlet weak var dayTrackerCollectionView: UICollectionView!
-    @IBOutlet weak var dayTrackerCollectionHeight: NSLayoutConstraint!
+    @IBOutlet weak var dayTrackerCollectionHolderHeight: NSLayoutConstraint!
+    @IBOutlet weak var dayTrackerCollectionTopConstraint: NSLayoutConstraint!
+    
     @IBOutlet weak var hideDayTrackerButton: UIButton!
-    @IBOutlet weak var hideDayTrackerView: UIView!
-    @IBOutlet weak var collectionTopConstraint: NSLayoutConstraint!
-    @IBOutlet weak var collectionBottomConstraint: NSLayoutConstraint!
     @IBOutlet weak var restartButton: UIButton!
     @IBOutlet weak var groupStatsTable: UITableView!
     
@@ -67,7 +65,7 @@ class PersonalBlockCell: UITableViewCell {
     var tempBlock: PersonalBlockFormat?
     var row = 0
     var type = ""
-    var hideDayTrackerDates = true
+    var isDayTrackerHidden = true
     let iconSize = CGFloat(35)
     var kasamID = ""
     var currentDayStat = 0
@@ -100,7 +98,7 @@ class PersonalBlockCell: UITableViewCell {
             levelLineBack.layer.cornerRadius = 4
             levelLineMask.layer.cornerRadius = 4
             levelLine.mask = levelLineBack
-            dayTrackerCollectionHeight.constant = 5
+            dayTrackerCollectionHolderHeight.constant = 5
         }
     }
     
@@ -226,15 +224,7 @@ class PersonalBlockCell: UITableViewCell {
             extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
         //Regular completion
         } else if tempBlock?.dayOrder ?? 0 > 0 {
-            var database = SavedData.personalKasamBlocks
-            if type == "group" {database = SavedData.groupKasamBlocks}
-            if let kasamOrder = database.index(where: {($0.kasamID == kasamID)}) {
-                if SavedData.kasamDict[tempBlock!.kasamID]!.metricType == "Checkmark" {
-                    cellDelegate?.updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: tempBlock?.dayOrder ?? 1)
-                } else {
-                    cellDelegate?.openKasamBlock(kasamOrder: kasamOrder, day: nil, date: Date(), viewOnly: false)
-                }
-            }
+            cellDelegate?.dayPressed(kasamID: kasamID, day: tempBlock?.dayOrder ?? 1, date: Date(), metricType: SavedData.kasamDict[tempBlock!.kasamID]!.metricType, viewOnly: false)
             centerCollectionView()
         //Group kasams that haven't started yet
         } else {
@@ -261,27 +251,27 @@ class PersonalBlockCell: UITableViewCell {
     
     @objc func hideDayTracker(){
         //Show more info on day tracker
-        if hideDayTrackerDates == true {
+        if isDayTrackerHidden == true {
             if type != "group" {
-                dayTrackerCollectionHeight.constant = 50
+                dayTrackerCollectionHolderHeight.constant = 50
                 if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 0}
                 overallLabel.isHidden = true
+                dayTrackerCollectionView.isHidden = false
+            } else {
+                dayTrackerCollectionTopConstraint.constant = 0
             }
-            hideDayTrackerView.isHidden = true
-            collectionTopConstraint.constant = 0
-            collectionBottomConstraint.constant = 0
-            hideDayTrackerDates = false
+            isDayTrackerHidden = false
         //Hide more info on day tracker
         } else {
             if type != "group" {
-                dayTrackerCollectionHeight.constant = 5
+                dayTrackerCollectionHolderHeight.constant = 5
                 if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 20}
                 overallLabel.isHidden = false
+                dayTrackerCollectionView.isHidden = true
+            } else {
+                dayTrackerCollectionTopConstraint.constant = 10
             }
-            hideDayTrackerView.isHidden = false
-            collectionTopConstraint.constant = 5
-            collectionBottomConstraint.constant = -5
-            hideDayTrackerDates = true
+            isDayTrackerHidden = true
         }
     }
     
@@ -298,18 +288,17 @@ class PersonalBlockCell: UITableViewCell {
     }
     
     @objc func centerCollectionView() {
-        let today = Int(tempBlock!.dayOrder)
-        if tempBlock != nil && SavedData.kasamDict[(tempBlock!.kasamID)]?.repeatDuration != nil {
+        if dayTrackerCollectionView.numberOfItems(inSection: 0) != 0 && SavedData.kasamDict[(tempBlock!.kasamID)]?.repeatDuration != nil && Int(tempBlock!.dayOrder) > 0 {
+            var indexPath = IndexPath()
             if tempBlock!.dayOrder < SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
-                let indexPath = IndexPath(item: today - 1, section: 0)
-                self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
-                self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+                let today = Int(tempBlock!.dayOrder)
+                indexPath = IndexPath(item: today - 1, section: 0)
             } else {
-                //if the currentDay is more than the repeatDuration
-                let indexPath = IndexPath(item: SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration - 1, section: 0)
-                self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
-                self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+                //If the currentDay is more than the repeatDuration
+                indexPath = IndexPath(item: SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration - 1, section: 0)
             }
+            self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
+            self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         }
     }
     
@@ -361,7 +350,6 @@ class PersonalBlockCell: UITableViewCell {
                     statsShadow.layer.shadowColor = UIColor.dayYesColor.darker.darker.cgColor
                     statsShadow.layer.shadowOpacity = 1
                     statsContent.backgroundColor = UIColor.init(hex: 0xf0f6e6)
-                    hideDayTrackerView.backgroundColor = UIColor.init(hex: 0xf0f6e6)
                 } else {
                     //ONGOING KASAM
                     checkmarkAndPercentageUpdate()
@@ -372,7 +360,6 @@ class PersonalBlockCell: UITableViewCell {
                         statsShadow.layer.shadowOpacity = 1
                     }
                     statsContent.backgroundColor = UIColor.white
-                    hideDayTrackerView.backgroundColor = UIColor.white
                     if block?.programDuration == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
                 }
                 
@@ -406,11 +393,11 @@ class PersonalBlockCell: UITableViewCell {
     func checkmarkAndPercentageUpdate(){
         print("STEP 5C - CheckmarkAndPercentage")
         if SavedData.kasamDict[tempBlock!.kasamID]?.metricType != "Checkmark" {
-            bottomStatusText.isHidden = false
-            bottomStatusText.text = "\(Int((SavedData.kasamDict[kasamID]?.percentComplete ?? 0)! * 100))%"
-        } else {
-            bottomStatusText.isHidden = true
-        }
+            if let percent = ((SavedData.kasamDict[kasamID]?.percentComplete)) {
+                if percent >= 0 {bottomStatusText.isHidden = false; bottomStatusText.text = "\(Int(percent * 100))%"}
+                else {bottomStatusText.isHidden = true}
+            }}
+        else {bottomStatusText.isHidden = true}
         if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[kasamID]!.metricType == "Checkmark" {
             streakShadow.backgroundColor = .colorFour
             bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: .colorFour, forState: .normal)
@@ -428,7 +415,6 @@ class PersonalBlockCell: UITableViewCell {
             bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
         }
     }
-    
 }
 
 //For Group Kasams only

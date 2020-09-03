@@ -21,7 +21,7 @@ class UserOptionsController: UIViewController {
     
     var popupType = "userOptions"
     var categoryChosen = ""
-    var array: [(blockID: String, blockName: String)]?
+    var array: [(no: Int, blockID: String, blockName: String)]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
