@@ -9,9 +9,10 @@
 import UIKit
 import WebKit
 import CFNetwork
-import FirebaseDatabase
-import FirebaseAuth
 import FirebaseCore
+import FirebaseMessaging
+import FirebaseDatabase
+import UserNotifications
 import GoogleSignIn
 import FBSDKCoreKit
 import IQKeyboardManagerSwift
@@ -25,7 +26,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         super.init()
         FirebaseApp.configure()
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
-        UITabBar.appearance().tintColor = UIColor.colorFour
     }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -33,6 +33,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         IQKeyboardManager.shared.enable = true
+        let pushManager = PushNotificationManager()
+        pushManager.registerForPushNotifications()
+
+        UITabBar.appearance().tintColor = UIColor.colorFour
         Database.database().reference().child("Assets").observeSingleEvent(of: .value, with:{(snap) in
             if let value = snap.value as? [String:Any] {
                 Assets.levelsArray = (value["Levels"] as? String)?.components(separatedBy: ";") ?? ["Easy","Medium","Hard"]
@@ -85,4 +89,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
     }
 }
-

@@ -62,7 +62,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func updateScrollViewSize(){
-        self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.tableViewHeight, tableRowHeight: self.personalTableRowHeight, additionalTableHeight: nil, rowCount: SavedData.personalKasamBlocks.count, additionalHeight: 140)
+        self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.tableViewHeight, tableRowHeight: self.personalTableRowHeight, additionalTableHeight: nil, rowCount: SavedData.personalKasamBlocks.count, additionalHeight: 100)
     }
     
     @objc func goToCreateKasam(_ notification: NSNotification?) {
@@ -192,7 +192,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         let block = PersonalBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
         if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
             SavedData.personalKasamBlocks[kasamOrder] = (kasam.kasamID, block)
-            if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
+            if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
                 cell.blockSubtitle.text = SavedData.personalKasamBlocks[kasamOrder].data.blockTitle
             }
         } else {
@@ -204,7 +204,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         if personalKasamCount == SavedData.personalKasamBlocks.count {
             print("Step 4b - Reload Personal table with \(personalKasamCount) kasams hell6")
             self.personalFollowingLabel.text = "You have \(SavedData.personalKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
-            self.personalKasamTable.reloadData()
             self.updateScrollViewSize()
         }
     }
@@ -248,14 +247,14 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PersonalKasamCell") as! PersonalBlockCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as! TodayBlockCell
         cell.row = indexPath.row
         cell.cellDelegate = self
         return cell
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let tableCell = cell as? PersonalBlockCell else { return }
+        guard let tableCell = cell as? TodayBlockCell else { return }
         tableCell.setCollectionViewDataSourceDelegate(dataSourceDelegate: self, forRow: indexPath.row)
     }
     
@@ -271,7 +270,7 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
     }
     
     func reloadKasamBlock(kasamOrder: Int) {
-        if let cell = personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
+        if let cell = personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
             cell.statusUpdate(nil)
         }
     }
@@ -303,7 +302,7 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayTrackerCell", for: indexPath) as! PersonalDayTrackerCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayTrackerCell", for: indexPath) as! DayTrackerCollectionCell
         if SavedData.personalKasamBlocks.count > collectionView.tag {
             cell.dayTrackerDelegate = self
             let kasamBlock = SavedData.personalKasamBlocks[collectionView.tag]
@@ -321,7 +320,7 @@ extension PersonalViewController: DayTrackerCellDelegate{
     func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?) {
         if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
             if metricType == "Checkmark" {
-                updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: day)
+                updateKasamDayButtonPressed(type: "personal", kasamOrder: kasamOrder, day: day)
             } else {
                 openKasamBlock(type: "personal", kasamOrder: kasamOrder, day: day, date: date, viewOnly: viewOnly, animationView: animationView) {(blockID, blockName) in
                     self.kasamIDforViewer = kasamID
@@ -331,18 +330,6 @@ extension PersonalViewController: DayTrackerCellDelegate{
                     self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
                 }
             }
-        }
-    }
-    
-    func updateKasamDayButtonPressed(kasamOrder: Int, day: Int){
-        let kasamID = SavedData.personalKasamBlocks[kasamOrder].data.kasamID
-        let statusDate = (Calendar.current.date(byAdding: .day, value: day - SavedData.personalKasamBlocks[kasamOrder].data.dayOrder, to: Date())!).dateToString()
-        if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.1 == 1.0 {
-            DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(nil)
-            setHistoryTotal(kasamID: kasamID, statusDate: statusDate, value: 0)
-        } else {
-            DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate).setValue(1)
-            setHistoryTotal(kasamID: kasamID, statusDate: statusDate, value: 1)
         }
     }
 }

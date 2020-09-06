@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+import FirebaseAuth
 import FBSDKLoginKit
 
 protocol LoginViewCellDelegate {

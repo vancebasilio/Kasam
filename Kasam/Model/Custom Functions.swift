@@ -82,21 +82,23 @@ extension UIViewController {
     
     func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String) {
         tableView.reloadData()
-        print("Step 6 - Update \(SavedData.personalKasamBlocks[kasamOrder].data.blockTitle)")
-        if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
+        var block = SavedData.personalKasamBlocks
+        if type == "group" {block = SavedData.groupKasamBlocks}
+        if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
             tableView.beginUpdates()
             if (cell.kasamName.text == "") {
-                if type == "personal" {cell.type = "personal"; cell.setBlock(block: SavedData.personalKasamBlocks[kasamOrder].data)}
-                else {cell.type = "group"; cell.setBlock(block: SavedData.groupKasamBlocks[kasamOrder].data)}
+                if type == "personal" {cell.type = "personal"; cell.setBlock(block: block[kasamOrder].data)}
+                else {cell.type = "group"; cell.setBlock(block: block[kasamOrder].data)}
                 cell.centerCollectionView()
                 cell.collectionCoverUpdate()
-            } else if (cell.blockSubtitle.text != SavedData.personalKasamBlocks[kasamOrder].data.blockTitle)  {
-                cell.blockSubtitle.text = SavedData.personalKasamBlocks[kasamOrder].data.blockTitle
+            } else if (cell.blockSubtitle.text != block[kasamOrder].data.blockTitle)  {
+                cell.blockSubtitle.text = block[kasamOrder].data.blockTitle
             }
             cell.statusUpdate(nil)
             cell.dayTrackerCollectionView.reloadData()
             tableView.endUpdates()
         }
+        print("Step 6 - Update \(block[kasamOrder].data.blockTitle)")
     }
     
     func getDayTracker(kasamID: String, tableView: UITableView, type: String) {
@@ -245,7 +247,7 @@ extension UIViewController {
         if type == "group" {db = DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid)}
         
         //OPTION 1 - Opening a past day's block
-        if day != nil {
+        if (day != nil) && (date.dateToString() != Date().dateToString()) {
             db.child(date.dateToString()).observeSingleEvent(of: .value) {(pastProgress) in
                 //There's past progress, so the user may have manually completed another kasam
                 if pastProgress.exists() {
@@ -284,6 +286,29 @@ extension UIViewController {
         }
     }
     
+    func updateKasamDayButtonPressed(type: String, kasamOrder: Int, day: Int){
+        var kasamID = SavedData.personalKasamBlocks[kasamOrder].data.kasamID
+        var newPercent = 0.0
+        let statusDate = (Calendar.current.date(byAdding: .day, value: day - SavedData.personalKasamBlocks[kasamOrder].data.dayOrder, to: Date())!).dateToString()
+        var db = DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!).child(statusDate)
+        if type == "group" {
+            kasamID = SavedData.groupKasamBlocks[kasamOrder].data.kasamID
+            newPercent = (SavedData.kasamDict[kasamID]?.groupTeam?[Auth.auth().currentUser!.uid] ?? 0)
+            db = DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate)
+        }
+        if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.1 == 1.0 {
+            db.setValue(nil)
+            if type == "group" {newPercent -= (1.0 / Double(SavedData.kasamDict[kasamID]?.repeatDuration ?? 30))}
+            setHistoryTotal(kasamID: kasamID, statusDate: statusDate, value: 0)
+        } else {
+            db.setValue(1)
+            if type == "group" {newPercent += (1.0 / Double(SavedData.kasamDict[kasamID]?.repeatDuration ?? 30))}
+            setHistoryTotal(kasamID: kasamID, statusDate: statusDate, value: 1)
+        }
+        if type == "group" {
+            DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").child(Auth.auth().currentUser!.uid).setValue(newPercent.rounded(toPlaces: 2))
+        }
+    }
     
     //STEP 1 - Saves Kasam Text Data
     func createKasam(existingKasamID: String?, basicKasam: Bool, userKasam: Bool, completion: @escaping (Bool) -> ()) {

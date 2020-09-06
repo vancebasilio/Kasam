@@ -166,19 +166,18 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         let block = PersonalBlockFormat(kasamID: kasam.kasamID, groupID: SavedData.kasamDict[kasam.kasamID]?.groupID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
         if let kasamOrder = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
             SavedData.groupKasamBlocks[kasamOrder] = (kasam.kasamID, block)
-            if let cell = self.groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
+            if let cell = self.groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
                 cell.blockSubtitle.text = SavedData.groupKasamBlocks[kasamOrder].data.blockTitle
             }
         } else {
             SavedData.groupKasamBlocks.append((kasam.kasamID, block))
-            self.getDayTracker(kasamID: block.kasamID, tableView: self.groupKasamTable, type: "group")
+            self.getDayTracker(kasamID: block.kasamID, tableView: groupKasamTable, type: "group")
         }
         
         //Only does the below after all Kasams loaded
         if groupKasamCount == SavedData.groupKasamBlocks.count {
             print("Step 4b - Reload Group table with \(groupKasamCount) kasams hell6")
             self.groupFollowingLabel.text = "You have \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
-            self.groupKasamTable.reloadData()
             self.updateScrollViewSize()
         }
     }
@@ -205,7 +204,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
 extension GroupViewController: UITableViewDataSource, UITableViewDelegate, TableCellDelegate {
     
     func reloadKasamBlock(kasamOrder: Int) {
-        if let cell = groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? PersonalBlockCell {
+        if let cell = groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
             cell.setBlock(block: SavedData.groupKasamBlocks[kasamOrder].data)
             cell.statusUpdate(nil)
             cell.dayTrackerCollectionView.reloadData()
@@ -217,14 +216,14 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PersonalKasamCell") as! PersonalBlockCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as! TodayBlockCell
         cell.row = indexPath.row
         cell.cellDelegate = self
         return cell
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let tableCell = cell as? PersonalBlockCell else { return }
+        guard let tableCell = cell as? TodayBlockCell else { return }
         tableCell.setCollectionViewDataSourceDelegate(dataSourceDelegate: self, forRow: indexPath.row)
     }
     
@@ -266,7 +265,7 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayTrackerCell", for: indexPath) as! PersonalDayTrackerCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayTrackerCell", for: indexPath) as! DayTrackerCollectionCell
         if SavedData.groupKasamBlocks.count > collectionView.tag {
             cell.dayTrackerDelegate = self
             let kasamBlock = SavedData.groupKasamBlocks[collectionView.tag]
@@ -283,7 +282,7 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
         if day > 0 {
             if let kasamOrder = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
                 if metricType == "Checkmark" {
-                    updateKasamDayButtonPressed(kasamOrder: kasamOrder, day: day)
+                    updateKasamDayButtonPressed(type: "group", kasamOrder: kasamOrder, day: day)
                 } else {
                     openKasamBlock(type: "group", kasamOrder: kasamOrder, day: day, date: date, viewOnly: viewOnly, animationView: animationView) {(blockID, blockName) in
                         self.kasamIDTransfer = kasamID
@@ -295,22 +294,5 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
                 }
             }
         }
-    }
-    
-    func updateKasamDayButtonPressed(kasamOrder: Int, day: Int){
-        let kasamID = SavedData.groupKasamBlocks[kasamOrder].data.kasamID
-        var newPercent = (SavedData.kasamDict[kasamID]?.groupTeam?[Auth.auth().currentUser!.uid] ?? 0)
-        let statusDate = (Calendar.current.date(byAdding: .day, value: day - SavedData.groupKasamBlocks[kasamOrder].data.dayOrder, to: Date())!).dateToString()
-        if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day] != nil {
-            if SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.1 == 1.0 {
-                DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(nil)
-                newPercent -= (1.0 / Double(SavedData.kasamDict[kasamID]?.repeatDuration ?? 30))
-            }
-        } else {
-            DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(1)
-             newPercent += (1.0 / Double(SavedData.kasamDict[kasamID]?.repeatDuration ?? 30))
-            
-        }
-        DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").child(Auth.auth().currentUser!.uid).setValue(newPercent.rounded(toPlaces: 2))
     }
 }

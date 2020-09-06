@@ -54,7 +54,7 @@
                                 <constraint firstAttribute="height" constant="5" id="bpi-bL-wDo"/>
                             </constraints>
                         </view>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Join the Kasam" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a64-8D-jWN">
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add new Kasam" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a64-8D-jWN">
                             <rect key="frame" x="10" y="10" width="394" height="50"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
@@ -346,7 +346,7 @@
                                         <constraint firstAttribute="height" constant="40" id="yqB-02-f93"/>
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
-                                    <state key="normal" title="End Kasam">
+                                    <state key="normal" title="Cancel">
                                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </state>
                                     <connections>
@@ -370,11 +370,6 @@
                                 </button>
                             </subviews>
                             <constraints>
-                                <constraint firstItem="FRi-wC-d4n" firstAttribute="leading" secondItem="yYI-gH-vwg" secondAttribute="trailing" constant="20" id="22t-Em-1wj"/>
-                                <constraint firstItem="yYI-gH-vwg" firstAttribute="leading" secondItem="0FN-tA-R4b" secondAttribute="leading" id="3wg-Bt-erO"/>
-                                <constraint firstItem="FRi-wC-d4n" firstAttribute="leading" secondItem="yYI-gH-vwg" secondAttribute="trailing" constant="20" id="F0R-ms-ZFX"/>
-                                <constraint firstAttribute="trailing" secondItem="FRi-wC-d4n" secondAttribute="trailing" id="RlS-fI-lyx"/>
-                                <constraint firstItem="FRi-wC-d4n" firstAttribute="height" secondItem="yYI-gH-vwg" secondAttribute="height" id="Zuz-Wv-DjD"/>
                                 <constraint firstItem="FRi-wC-d4n" firstAttribute="top" secondItem="0FN-tA-R4b" secondAttribute="top" id="dMB-Gn-06X"/>
                                 <constraint firstAttribute="bottom" secondItem="FRi-wC-d4n" secondAttribute="bottom" id="ggl-Dr-ETx"/>
                                 <constraint firstAttribute="height" constant="40" id="jDP-XP-hdC"/>

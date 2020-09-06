@@ -1,5 +1,5 @@
 //
-//  PersonalDayTrackerCell.swift
+//  DayTrackerCollectionCell.swift
 //  Kasam
 //
 //  Created by Vance Basilio on 2020-02-23.
@@ -12,7 +12,7 @@ protocol DayTrackerCellDelegate : class {
     func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?)
 }
 
-class PersonalDayTrackerCell: UICollectionViewCell {
+class DayTrackerCollectionCell: UICollectionViewCell {
     
     @IBOutlet weak var cellButton: UIButton!
     @IBOutlet weak var cellButtonOutline: UIView!

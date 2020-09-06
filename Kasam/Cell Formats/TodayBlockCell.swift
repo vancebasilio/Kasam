@@ -19,7 +19,7 @@ protocol TableCellDelegate : class {
     func reloadKasamBlock(kasamOrder: Int)
 }
 
-class PersonalBlockCell: UITableViewCell {
+class TodayBlockCell: UITableViewCell {
     
     @IBOutlet weak var kasamName: UILabel!
     @IBOutlet weak var blockSubtitle: UILabel!
@@ -82,7 +82,6 @@ class PersonalBlockCell: UITableViewCell {
         kasamID = block.kasamID
         tempBlock = block
         kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
-        kasamName.numberOfLines = kasamName.calculateMaxLines()
         
         //Show the block subtite if it's a PROGRAM kasam
         if SavedData.kasamDict[kasamID]?.programDuration != nil {
@@ -159,7 +158,7 @@ class PersonalBlockCell: UITableViewCell {
         restartButton.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 15, color: UIColor.colorFour, forState: .normal)
         
         let centerCollectionView = NSNotification.Name("CenterCollectionView")
-        NotificationCenter.default.addObserver(self, selector: #selector(PersonalBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
     
         blockImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
         kasamName.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(kasamNamePressed)))
@@ -277,7 +276,7 @@ class PersonalBlockCell: UITableViewCell {
     
     @IBAction func restartButtonPressed(_ sender: Any) {
         var saveTimeObserver: NSObjectProtocol?
-        addKasamPopup(kasamID: kasamID, new: true, duration: SavedData.kasamDict[kasamID]!.repeatDuration, fullView: true)
+        addKasamPopup(kasamID: kasamID, state:"restart", duration: SavedData.kasamDict[kasamID]!.repeatDuration)
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
@@ -418,7 +417,7 @@ class PersonalBlockCell: UITableViewCell {
 }
 
 //For Group Kasams only
-extension PersonalBlockCell: UITableViewDelegate, UITableViewDataSource {
+extension TodayBlockCell: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if type == "personal" {

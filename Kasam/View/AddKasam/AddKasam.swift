@@ -41,14 +41,15 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var fillerStackViewTop: UIStackView!
     
     var kasamID = ""                        //loaded in value
-    var fullView = true                     //loaded in value
     var repeatDuration = 30                 //loaded in value
-    var new: Bool?                          //loaded in value
-    
+    var state = ""                          //loaded in value
+
     var formattedDate = ""                  //loaded out value
     var formattedTime = ""                  //loaded out value
     var currentDay: Int?                    //loaded out value
     var joinType = "personal"               //loaded out value
+    
+    var fullView = true
     var notificationCheck = true
     
     //Converter variables
@@ -79,9 +80,14 @@ class AddKasamController: UIViewController {
         groupOutline.layer.borderWidth = 3.0
         groupImage.setIcon(icon: .fontAwesomeSolid(.userFriends), textColor: .white, backgroundColor: .clear, size: CGSize(width: dayGoalImage.frame.size.width * 0.7, height: dayGoalImage.frame.size.height * 0.7))
         
-        if new == true {
+        if state == "new" {
             dayGoalButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(personalChallengeSelected)))
             groupButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(groupChallengeSelected)))
+        } else if state == "restart" {
+            startDateTimeLabel.text = "Restart Kasam"
+            saveButton.setTitle("Restart", for: .normal)
+        } else if state == "edit" {
+            cancelButton.setTitle("End Kasam", for: .normal)
         }
         
         reminderTimeSwitch.onTintColor = .colorFour
@@ -92,7 +98,7 @@ class AddKasamController: UIViewController {
         groupLabel.text = "Group\nKasam"
         
         setupTimePicker()
-        if fullView == false {
+        if state == "edit" {
             startDateTimeLabel.text = "Edit Reminder Time"
             goalStackView.isHidden = true
             startDayView.isHidden = true
@@ -149,7 +155,7 @@ class AddKasamController: UIViewController {
     
     func setupTimePicker(){
         //OPTION 1 - EDITING EXISTING KASAM
-        if new == false {
+        if state == "edit" {
             formattedDate = (SavedData.kasamDict[kasamID]?.joinedDate ?? Date()).dateToString()
             formattedTime = SavedData.kasamDict[kasamID]!.startTime
             currentDay = SavedData.kasamDict[kasamID]?.currentDay
@@ -194,11 +200,10 @@ class AddKasamController: UIViewController {
             }
        
         //OPTION 2 - ADDING NEW KASAM, SET DEFAULT DATE AND TIME
-        } else {
+        } else if state == "new" {
             DBRef.coachKasams.child(kasamID).child("Duration").observeSingleEvent(of: .value) {(snap) in
                 self.repeatDuration = snap.value as? Int ?? 30
             }
-            cancelButton.isHidden = true
             
             //If restarting a kasam
             if SavedData.kasamDict[kasamID]?.repeatDuration != nil {
@@ -250,20 +255,32 @@ class AddKasamController: UIViewController {
     @IBAction func saveButtonPressed(_ sender: Any) {
         if timeUnit == timeUnitArray[1] {hourAMPM = hour + 12}
         else {hourAMPM = hour}
-        
-        if new == true {
+        if state == "new" {
             if reminderTimeSwitch.isOn {notificationCheck = true}
             else {notificationCheck = false}
-        } else {
-            if reminderTimeSwitch.isOn {kasamID.restartExistingNotification()}
-            else {UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])}
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: self)
+            SwiftEntryKit.dismiss()
+        } else if state == "restart" {
+            showOptionsPopup(kasamID: nil, title: "Are you sure?", subtitle: nil, text: "You'll be ending this kasam and starting over from day 1", type: "restart", button: "Restart") {(button) in
+                if button == true {
+                    if self.reminderTimeSwitch.isOn {self.kasamID.restartExistingNotification()}
+                    else {UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [self.kasamID])}
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveTime\(self.kasamID)"), object: self)
+                }
+                SwiftEntryKit.dismiss()
+            }
+        } else if state == "edit" {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: self)
+            SwiftEntryKit.dismiss()
         }
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: self)
-        SwiftEntryKit.dismiss()
     }
     
     @IBAction func cancelButtonPressed(_ sender: Any) {
-        NotificationCenter.default.post(name: Notification.Name(rawValue: "UnfollowKasam\(kasamID)"), object: self)
+        if state == "edit" {
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "UnfollowKasam\(kasamID)"), object: self)
+        } else {
+            SwiftEntryKit.dismiss()
+        }
     }
 }
 

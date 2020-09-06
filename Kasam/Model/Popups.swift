@@ -8,7 +8,7 @@
 
 import Foundation
 import SwiftEntryKit
-import Firebase
+import FirebaseAuth
 
     //BOTTOM FLOAT CELL----------------------------------------------------------------------------------------
     func floatCellSelected(title: String, description: String) {
@@ -322,7 +322,7 @@ import Firebase
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
-    func addKasamPopup(kasamID: String, new: Bool, duration: Int, fullView: Bool) {
+    func addKasamPopup(kasamID: String, state: String, duration: Int) {
         var attributes: EKAttributes
         attributes = .bottomFloat
         attributes.displayMode = .light
@@ -337,7 +337,7 @@ import Firebase
         attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
         attributes.shadow = .active(with: .init(color: EKColor(UIColor.colorFour), opacity: 0.6, radius: 6))
         attributes.roundCorners = .all(radius: 20)
-        if fullView == true {
+        if state != "edit" {
             attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 500))
         } else {
             attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 300))
@@ -348,8 +348,7 @@ import Firebase
         let vC = AddKasamController()
         vC.kasamID = kasamID
         vC.repeatDuration = duration
-        vC.new = new
-        vC.fullView = fullView
+        vC.state = state
         SwiftEntryKit.display(entry: vC, using: attributes)
     }
 
