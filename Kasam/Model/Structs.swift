@@ -47,7 +47,7 @@ struct DBRef {
     
     static let coachKasams = Database.database().reference().child("Coach-Kasams")
     static let coachKasamIndex = Database.database().reference().child("Coach-Kasam-Index")
-    static let userBase = Database.database().reference().child("Users")
+    static let users = Database.database().reference().child("Users")
     static var currentUser = Database.database().reference().child("Users").child(SavedData.userID).child("Info")
     static let userEmails = Database.database().reference().child("User-Emails")
     
@@ -65,6 +65,49 @@ struct DBRef {
         DBRef.userKasams = Database.database().reference().child("Users").child(SavedData.userID).child("Kasams")
         DBRef.userPersonalHistory = Database.database().reference().child("Users").child(SavedData.userID).child("History")
         DBRef.userGroupFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Group-Following")
+    }
+}
+
+struct PopupAttributes{
+    static func bottom() -> EKAttributes {
+        var attributes: EKAttributes
+        attributes = .bottomFloat
+        attributes.displayMode = .light
+        attributes.displayDuration = .infinity
+        attributes.hapticFeedbackType = .none
+        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
+        attributes.entryBackground = .color(color: .white)
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
+        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
+        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
+        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
+        attributes.roundCorners = .all(radius: 20)
+        attributes.positionConstraints.verticalOffset = 0
+        attributes.positionConstraints.safeArea = .empty(fillSafeArea: true)
+        attributes.statusBar = .dark
+        return attributes
+    }
+    
+    static func center() -> EKAttributes {
+        var attributes: EKAttributes
+        attributes = .centerFloat
+        attributes.displayMode = .light
+        attributes.displayDuration = .infinity
+        attributes.hapticFeedbackType = .none
+        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
+        attributes.entryBackground = .color(color: .white)
+        attributes.screenInteraction = .dismiss
+        attributes.entryInteraction = .absorbTouches
+        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
+        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
+        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
+        attributes.roundCorners = .all(radius: 20)
+        attributes.positionConstraints.safeArea = .overridden
+        attributes.statusBar = .dark
+        return attributes
     }
 }
 

@@ -13,6 +13,8 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     
     @IBOutlet weak var tableView: UITableView! {didSet {tableView.estimatedRowHeight = 20}}
     @IBOutlet var headerView : UIView!
+    @IBOutlet weak var headerViewHeight: NSLayoutConstraint!
+    
     @IBOutlet weak var profileView: UIView!
     @IBOutlet weak var profileViewRadius: UIView!
     @IBOutlet weak var coachName: UILabel!
@@ -20,7 +22,6 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     @IBOutlet weak var coachBio: UILabel!
     @IBOutlet weak var followersNo: UILabel!
     @IBOutlet weak var headerLabel: UILabel!
-    @IBOutlet weak var contrainHeaderHeight: NSLayoutConstraint!
     @IBOutlet weak var kasamSquareCollection: UICollectionView!
     
     //scroll view variables
@@ -50,7 +51,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     
     func countFollowers(){
         var count = 0
-        DBRef.userBase.child(coachID).child("Info").child("Followers").observe(.childAdded) {(snapshot) in
+        DBRef.users.child(coachID).child("Info").child("Followers").observe(.childAdded) {(snapshot) in
             count += 1
             self.followersNo.text = String(count)
         }
@@ -89,15 +90,7 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     let headerHeight = UIScreen.main.bounds.width * 0.65            //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
     
     func setupTwitterParallax(){
-        tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)     //setup floating header
-        contrainHeaderHeight.constant = headerHeight                                                          //setup floating header
-        
-        //Header - Image
-        self.headerImageView = UIImageView(frame: self.headerView.bounds)
-        self.headerImageView?.contentMode = UIView.ContentMode.scaleAspectFill
-        self.headerView.insertSubview(self.headerImageView, belowSubview: self.headerLabel)
-     
-        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerLabel: headerLabel)
+        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerViewHeight: headerViewHeight, headerHeightToSet: headerHeight, headerLabel: headerLabel, tableView: tableView)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

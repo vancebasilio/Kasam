@@ -159,7 +159,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
                                 blockArray.append((blockIDRef, blockID, blockName.value as! String))
                                 if blockArray.count == snap.childrenCount {
                                     blockArray = blockArray.sorted(by: {$0.no < $1.no})
-                                    showBottomPopup(type: "changeKasamBlock", array: blockArray)
+                                    showBottomTablePopup(type: "changeKasamBlock", programKasamArray: blockArray)
                                 }
                             }
                         }
@@ -171,7 +171,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     }
     
     @objc func pastProgressPopup(){
-        showOptionsPopup(kasamID: nil, title: "Change Kasam Activity", subtitle: nil, text: "You already completed \(String(describing: activityTitle.text!)). Remove your progress to change the kasam activity.", type: "changeKasamBlock", button: "Okay") {(mainButtonPressed) in
+        showCenterOptionsPopup(kasamID: nil, title: "Change Kasam Activity", subtitle: nil, text: "You already completed \(String(describing: activityTitle.text!)). Remove your progress to change the kasam activity.", type: "changeKasamBlock", button: "Okay") {(mainButtonPressed) in
             if mainButtonPressed == false {
                 self.removeActivityProgress()
             }

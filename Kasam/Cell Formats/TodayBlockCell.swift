@@ -11,6 +11,7 @@ import SDWebImage
 import SwiftIcons
 import FirebaseAuth
 import Lottie
+import AMPopTip
 
 protocol TableCellDelegate : class {
     func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?)
@@ -69,7 +70,9 @@ class TodayBlockCell: UITableViewCell {
     let iconSize = CGFloat(35)
     var kasamID = ""
     var currentDayStat = 0
-    var groupStatsList: [(String, Double)]?
+    let popTip = PopTip()
+    var popTipStatus = false
+    var groupStatsList = [(userID: String, name: String, status: Double)]()
     
     func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
         dayTrackerCollectionView.delegate = dataSourceDelegate
@@ -98,38 +101,6 @@ class TodayBlockCell: UITableViewCell {
             levelLineMask.layer.cornerRadius = 4
             levelLine.mask = levelLineBack
             dayTrackerCollectionHolderHeight.constant = 5
-        }
-    }
-    
-    func setGroup(){
-        restartButton.isHidden = true
-        progressBar.isHidden = true
-        groupStatsView.layer.cornerRadius = 15.0
-        groupStatsTable.delegate = self
-        groupStatsTable.dataSource = self
-        groupStatsList = SavedData.kasamDict[kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
-        
-        //To update the kasam stats table
-        DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childChanged) {(snap) in
-            SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = snap.value as? Double
-            self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
-            self.groupStatsTable.reloadData()
-        }
-        
-        //New user added to group kasam
-        DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childAdded) {(snap) in
-            SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = snap.value as? Double
-            self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
-            self.groupStatsTable.reloadData()
-            self.statusUpdate(nil)
-        }
-        
-        //User removed from group kasam
-        DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childRemoved) {(snap) in
-            SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = nil
-            self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
-            self.groupStatsTable.reloadData()
-            self.statusUpdate(nil)
         }
     }
     
@@ -172,12 +143,12 @@ class TodayBlockCell: UITableViewCell {
     func extendButtonPressed(_ complete: Bool){
         var type = "complete"
         if complete == true {type = "completeTrophy"}
-        showOptionsPopup(kasamID: kasamID, title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Congrats on completing the kasam. \nGo another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Restart' or close off the kasam by pressing 'Finish'", type: type, button: "Restart") {(mainButtonPressed) in}
+        showCenterOptionsPopup(kasamID: kasamID, title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Congrats on completing the kasam. \nGo another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Restart' or close off the kasam by pressing 'Finish'", type: type, button: "Restart") {(mainButtonPressed) in}
     }
     
     @objc func showBenefit(){
         if type == "group" && SavedData.kasamDict[kasamID]?.groupStatus == "initiated" {
-            showGroupUserSearch(kasamID: kasamID) {
+            showCenterGroupUserSearch(kasamID: kasamID) {
                 //
             }
         } else {
@@ -185,9 +156,9 @@ class TodayBlockCell: UITableViewCell {
                 extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
             } else if SavedData.kasamDict[kasamID]?.benefitsThresholds != nil {
                 let benefit = currentDayStat.nearestElement(array: (SavedData.kasamDict[kasamID]?.benefitsThresholds)!)
-                showOptionsPopup(kasamID: kasamID, title: "Day \(benefit!.0)", subtitle: nil, text: benefit?.1, type: "benefit", button: "Awesome!") {(mainButtonPressed) in}
+                showCenterOptionsPopup(kasamID: kasamID, title: "Day \(benefit!.0)", subtitle: nil, text: benefit?.1, type: "benefit", button: "Awesome!") {(mainButtonPressed) in}
             } else {
-                showOptionsPopup(kasamID: kasamID, title: "Day \(currentDayStat)", subtitle: nil, text: nil, type: "benefit", button: "Done") {(mainButtonPressed) in}
+                showCenterOptionsPopup(kasamID: kasamID, title: "Day \(currentDayStat)", subtitle: nil, text: nil, type: "benefit", button: "Done") {(mainButtonPressed) in}
             }
         }
     }
@@ -228,7 +199,7 @@ class TodayBlockCell: UITableViewCell {
         //Group kasams that haven't started yet
         } else {
             if SavedData.kasamDict[kasamID]?.groupAdmin == SavedData.userID {
-                showOptionsPopup(kasamID: nil, title: "Start your group kasam", subtitle: nil, text: "You'll be starting on \(Date().dateToShortString()) \nwith \(SavedData.kasamDict[kasamID]!.groupTeam!.count.pluralUnit(unit: "member"))", type:"startGroupKasam", button: "Start!") {(mainButtonPressed) in
+                showCenterOptionsPopup(kasamID: nil, title: "Start your group kasam", subtitle: nil, text: "You'll be starting on \(Date().dateToShortString()) \nwith \(SavedData.kasamDict[kasamID]!.groupTeam!.count.pluralUnit(unit: "member"))", type:"startGroupKasam", button: "Start!") {(mainButtonPressed) in
                     DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").updateChildValues(["Status":"active", "Date Joined":Date().dateToString()])
                     SavedData.kasamDict[self.kasamID]?.groupStatus = "active"
                     SavedData.groupKasamBlocks[self.row].data.dayOrder = 1
@@ -236,7 +207,7 @@ class TodayBlockCell: UITableViewCell {
                     self.groupStatsTable.reloadData()
                 }
             } else {
-                showOptionsPopup(kasamID: nil, title: "Leave the kasam?", subtitle: nil, text: "You'll be permanately removing the '\(String(describing: SavedData.kasamDict[kasamID]!.kasamName))' kasam from your Group following. You'll need to be re-invited to rejoin.", type:"leaveGroupKasam", button: "Leave") {(mainButtonPressed) in
+                showCenterOptionsPopup(kasamID: nil, title: "Leave the kasam?", subtitle: nil, text: "You'll be permanately removing the '\(String(describing: SavedData.kasamDict[kasamID]!.kasamName))' kasam from your Group following. You'll need to be re-invited to rejoin.", type:"leaveGroupKasam", button: "Leave") {(mainButtonPressed) in
                         DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").child("Team").child(SavedData.userID).setValue(nil)
                         DBRef.userGroupFollowing.child(SavedData.kasamDict[self.kasamID]!.groupID!).setValue(nil)
                 }
@@ -276,7 +247,7 @@ class TodayBlockCell: UITableViewCell {
     
     @IBAction func restartButtonPressed(_ sender: Any) {
         var saveTimeObserver: NSObjectProtocol?
-        addKasamPopup(kasamID: kasamID, state:"restart", duration: SavedData.kasamDict[kasamID]!.repeatDuration)
+        showButtomAddKasamPopup(kasamID: kasamID, state:"restart", duration: SavedData.kasamDict[kasamID]!.repeatDuration)
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
@@ -419,16 +390,53 @@ class TodayBlockCell: UITableViewCell {
 //For Group Kasams only
 extension TodayBlockCell: UITableViewDelegate, UITableViewDataSource {
     
+    func setGroup(){
+        restartButton.isHidden = true
+        progressBar.isHidden = true
+        groupStatsView.layer.cornerRadius = 15.0
+        groupStatsTable.delegate = self
+        groupStatsTable.dataSource = self
+        popTip.shouldDismissOnTapOutside = true
+        popTip.shouldDismissOnTap = true
+        popTip.shouldDismissOnSwipeOutside = true
+        popTip.bubbleColor = .darkGray
+        
+        //New user added to group kasam
+        DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childAdded) {(snap) in
+            print("hell5 add")
+            SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = snap.value as? Double
+            DBRef.users.child(snap.key).child("Info").child("Name").observeSingleEvent(of: .value) {(userName) in
+                self.groupStatsList.append((userID: snap.key, name: userName.value as? String ?? "", status: snap.value as? Double ?? 0.0))
+                self.groupStatsList = self.groupStatsList.sorted(by: {$0.status > $1.status})
+            }
+            self.groupStatsTable.reloadData()
+            self.statusUpdate(nil)
+        }
+        
+        //To update the kasam stats table
+        DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childChanged) {(snap) in
+            print("hell5 change")
+            SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = snap.value as? Double
+//            self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
+            self.groupStatsTable.reloadData()
+        }
+        
+        //User removed from group kasam
+        DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childRemoved) {(snap) in
+            print("hell5 remove")
+            SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = nil
+//            self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
+            self.groupStatsTable.reloadData()
+            self.statusUpdate(nil)
+        }
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if type == "personal" {
             return 0
         } else {
-            return groupStatsList?.count ?? 1
+            return groupStatsList.count 
         }
-    }
-
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -436,26 +444,38 @@ extension TodayBlockCell: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "GroupStatsCell") as! GroupStatsCell
-        if groupStatsList != nil {
-            let userID = groupStatsList![indexPath.row].0
-            DBRef.userBase.child(userID).child("Info").child("Name").observeSingleEvent(of: .value) {(username) in
-                cell.userInitials.text = (username.value as? String)?.initials()
-                if SavedData.kasamDict[self.kasamID]?.groupStatus == "initiated" {
-                    if SavedData.kasamDict[self.kasamID]?.groupTeam?[userID] == -1.0 {
-                        cell.percentProgress.text = "Invitation Sent"
-                    } else {
-                        cell.percentProgress.text = "Joined"
-                    }
-                    cell.percentProgress.textColor = .colorFive
-                } else {
-                    cell.levelLineProgress.constant = CGFloat((self.groupStatsList![indexPath.row].1)) * (cell.levelLineHolder.frame.size.width - 40)
-                    cell.percentProgress.text = "\(Int(self.groupStatsList![indexPath.row].1 * 100))%"
-                    cell.percentProgress.textColor = UIColor.init(hex: 0x909090)
-                }
-                cell.placeStanding.setTitle(String(describing: indexPath.row + 1), for: .normal)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "GroupStatsCell") as? GroupStatsCell else {return UITableViewCell()}
+        let info = groupStatsList[indexPath.row]
+        cell.userInitials.text = info.name.initials()
+        cell.placeStanding.setTitle(String(describing: indexPath.row + 1), for: .normal)
+        cell.selectionStyle = .none
+        if SavedData.kasamDict[self.kasamID]?.groupStatus == "initiated" {
+            if info.status == -1.0 {
+                if info.userID == Auth.auth().currentUser?.uid {cell.percentProgress.text = "Invitation Pending"}
+                else {cell.percentProgress.text = "Invitation Sent"}
+            } else {
+                cell.percentProgress.text = "Joined"
             }
+            cell.percentProgress.textColor = .colorFive
+        } else {
+            cell.levelLineProgress.constant = CGFloat((info.status)) * (cell.levelLineHolder.frame.size.width - 40)
+            cell.percentProgress.text = "\(Int(info.status * 100))%"
+            cell.percentProgress.textColor = UIColor.init(hex: 0x909090)
         }
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "GroupStatsCell") as? GroupStatsCell else {return}
+        let x = cell.userInitials.frame.maxX + groupStatsTable.frame.minX
+        let y = tableView.rectForRow(at: indexPath).midY + groupStatsTable.frame.minY
+        showPopTipName(name: groupStatsList[indexPath.row].name, x: x, y: y)
+    }
+    
+    func showPopTipName(name: String, x: CGFloat, y: CGFloat) {
+        popTip.appearHandler = {popTip in self.popTipStatus = true}
+        popTip.dismissHandler = {popTip in self.popTipStatus = false}
+        if popTipStatus == false {popTip.show(text: name, direction: .right, maxWidth: 200, in: groupStatsView, from: CGRect(x: x, y: y, width: 0, height: 0), duration: 2)}
+        else {popTip.hide()}
     }
 }

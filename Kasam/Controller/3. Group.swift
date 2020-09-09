@@ -239,8 +239,8 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
     }
     
     func completeAndUnfollow(kasamOrder: Int) {
-        let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
-        showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
+        let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .colorFour)
+        showCenterPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
             let kasamID = SavedData.groupKasamBlocks[kasamOrder].1.kasamID
             DBRef.userGroupFollowing.child(kasamID).child("Status").setValue("completed")
             self.getGroupFollowing()

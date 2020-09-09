@@ -16,7 +16,7 @@ class GroupStatsCell: UITableViewCell {
     @IBOutlet weak var levelLineProgress: NSLayoutConstraint!
     @IBOutlet weak var userInitials: UILabel!
     @IBOutlet weak var percentProgress: UILabel!
-
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         levelLine.layer.cornerRadius = 4

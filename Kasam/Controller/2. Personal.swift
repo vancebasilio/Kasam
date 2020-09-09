@@ -50,9 +50,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         
         let resetPersonalKasam = NSNotification.Name("ResetPersonalKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.getPersonalFollowing), name: resetPersonalKasam, object: nil)
-        
-        let goToCreateKasam = NSNotification.Name("GoToCreateKasam")
-        NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToCreateKasam), name: goToCreateKasam, object: nil)
                
         let goToNotifications = NSNotification.Name("GoToNotifications")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToNotifications), name: goToNotifications, object: nil)
@@ -63,11 +60,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @objc func updateScrollViewSize(){
         self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.tableViewHeight, tableRowHeight: self.personalTableRowHeight, additionalTableHeight: nil, rowCount: SavedData.personalKasamBlocks.count, additionalHeight: 100)
-    }
-    
-    @objc func goToCreateKasam(_ notification: NSNotification?) {
-        NewKasam.resetKasam()
-        performSegue(withIdentifier: "goToCreateKasam", sender: nil)
     }
     
     @objc func goToNotifications(){
@@ -276,8 +268,8 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
     }
     
     func completeAndUnfollow(kasamOrder: Int) {
-        let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
-        showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
+        let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .colorFour)
+        showCenterPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
             let kasamID = SavedData.personalKasamBlocks[kasamOrder].1.kasamID
             DBRef.userPersonalFollowing.child(kasamID).child("Status").setValue("completed")
             self.getPersonalFollowing()

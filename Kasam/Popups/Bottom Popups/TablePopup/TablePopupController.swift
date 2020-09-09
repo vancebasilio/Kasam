@@ -10,7 +10,7 @@ import UIKit
 import SwiftEntryKit
 import FBSDKLoginKit
 
-class UserOptionsController: UIViewController {
+class TablePopupController: UIViewController {
 
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet weak var slidingHandle: UIView!
@@ -31,7 +31,7 @@ class UserOptionsController: UIViewController {
     }
 }
 
-extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
+extension TablePopupController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if popupType == "changeKasamBlock" {
             headerLabel.text = "Change Kasam Activity"
@@ -77,14 +77,14 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
         if popupType == "userOptions" {
             switch indexPath.row {
                 case 0:
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "basic"])
+                    goToCreateNewKasam(type: "basic")
                     SwiftEntryKit.dismiss()
                 case 1:
                     if SavedData.userType == "Pro" {
-                        NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "complex"])
+                        goToCreateNewKasam(type: "complex")
                         SwiftEntryKit.dismiss()
                     } else {
-                        showOptionsPopup(kasamID: nil, title: nil, subtitle: nil, text: "You'll need to go Pro to create a complex kasam", type:"goPro", button: "Go Pro!") {(mainButtonPressed) in
+                        showCenterOptionsPopup(kasamID: nil, title: nil, subtitle: nil, text: "You'll need to go Pro to create a complex kasam", type:"goPro", button: "Go Pro!") {(mainButtonPressed) in
                             print("Go Pro Page")
                         }
                     }
@@ -92,7 +92,7 @@ extension UserOptionsController: UITableViewDelegate, UITableViewDataSource {
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNotifications"), object: self)
                     SwiftEntryKit.dismiss()
                 case 3:
-                    showOptionsPopup(kasamID: nil, title: "Are you sure?", subtitle: nil, text: nil, type:"logout", button: "Logout") {(mainButtonPressed) in
+                    showCenterOptionsPopup(kasamID: nil, title: "Are you sure?", subtitle: nil, text: nil, type:"logout", button: "Logout") {(mainButtonPressed) in
                         SavedData.wipeAllData()
                         AppManager.shared.logoout()
                         LoginManager().logOut()

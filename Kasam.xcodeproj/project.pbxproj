@@ -82,6 +82,8 @@
 		BCB7FFCE248BCF4900E41913 /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB7FFCD248BCF4900E41913 /* NotificationsController.swift */; };
 		BCB7FFD0248BD3F600E41913 /* NotificationsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB7FFCF248BD3F600E41913 /* NotificationsCell.swift */; };
 		BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */; };
+		BCBCA43B2507D4CA00E0219A /* ButtonPopup.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCBCA4392507D4CA00E0219A /* ButtonPopup.xib */; };
+		BCBCA43D2507D64D00E0219A /* ButtonPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCA43C2507D64D00E0219A /* ButtonPopup.swift */; };
 		BCC1299724DDEC0F0003FB34 /* hand-waving.json in Resources */ = {isa = PBXBuildFile; fileRef = BCC1299624DDEC0F0003FB34 /* hand-waving.json */; };
 		BCC4F44823406BBE00EF2FBA /* BalloonMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */; };
 		BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BCC79A05226BD56000B72D65 /* Default-568h@2x.png */; };
@@ -92,8 +94,8 @@
 		BCD824D323D7C0B40051C499 /* success.json in Resources */ = {isa = PBXBuildFile; fileRef = BCD824D223D7C0B40051C499 /* success.json */; };
 		BCE0232D23B092E2007B25A0 /* MetricTypeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE0232C23B092E2007B25A0 /* MetricTypeCell.swift */; };
 		BCE09DEA2463B26E00A7A614 /* TrophiesAchieved.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE09DE92463B26E00A7A614 /* TrophiesAchieved.swift */; };
-		BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCE4B4B823666E0500C75480 /* UserOptionsController.xib */; };
-		BCE4B4BB23666E2800C75480 /* UserOptionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */; };
+		BCE4B4B923666E0500C75480 /* TablePopupController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCE4B4B823666E0500C75480 /* TablePopupController.xib */; };
+		BCE4B4BB23666E2800C75480 /* TablePopupController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4B4BA23666E2800C75480 /* TablePopupController.swift */; };
 		BCE50BDD22D0497B000F2534 /* KasamHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE50BDC22D0497B000F2534 /* KasamHolder.swift */; };
 		BCE50BE022D04A37000F2534 /* FXBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = BCE50BDE22D04A37000F2534 /* FXBlurView.m */; };
 		BCED0D87237285E80054E66B /* AlertService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCED0D86237285E80054E66B /* AlertService.swift */; };
@@ -189,6 +191,8 @@
 		BCB7FFCD248BCF4900E41913 /* NotificationsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsController.swift; sourceTree = "<group>"; };
 		BCB7FFCF248BD3F600E41913 /* NotificationsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsCell.swift; sourceTree = "<group>"; };
 		BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KasamTrackerCell.swift; sourceTree = "<group>"; };
+		BCBCA4392507D4CA00E0219A /* ButtonPopup.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ButtonPopup.xib; sourceTree = "<group>"; };
+		BCBCA43C2507D64D00E0219A /* ButtonPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonPopup.swift; sourceTree = "<group>"; };
 		BCC1299624DDEC0F0003FB34 /* hand-waving.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "hand-waving.json"; sourceTree = "<group>"; };
 		BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
 		BCC79A05226BD56000B72D65 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -199,8 +203,8 @@
 		BCD824D223D7C0B40051C499 /* success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = success.json; sourceTree = "<group>"; };
 		BCE0232C23B092E2007B25A0 /* MetricTypeCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetricTypeCell.swift; sourceTree = "<group>"; };
 		BCE09DE92463B26E00A7A614 /* TrophiesAchieved.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrophiesAchieved.swift; sourceTree = "<group>"; };
-		BCE4B4B823666E0500C75480 /* UserOptionsController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UserOptionsController.xib; sourceTree = "<group>"; };
-		BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserOptionsController.swift; sourceTree = "<group>"; };
+		BCE4B4B823666E0500C75480 /* TablePopupController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TablePopupController.xib; sourceTree = "<group>"; };
+		BCE4B4BA23666E2800C75480 /* TablePopupController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TablePopupController.swift; sourceTree = "<group>"; };
 		BCE50BDC22D0497B000F2534 /* KasamHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamHolder.swift; sourceTree = "<group>"; };
 		BCE50BDE22D04A37000F2534 /* FXBlurView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXBlurView.m; sourceTree = "<group>"; };
 		BCE50BDF22D04A37000F2534 /* FXBlurView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXBlurView.h; sourceTree = "<group>"; };
@@ -300,6 +304,7 @@
 				BCF2A773227FB55E009D2368 /* Services */,
 				BCC799FD226BD4F700B72D65 /* Model */,
 				BCADFBAD229CC5CC00A9EAFA /* Cell Formats */,
+				BCBCA42E2507D42000E0219A /* Popups */,
 				BCC799FE226BD4FC00B72D65 /* View */,
 				BCC799FF226BD4FF00B72D65 /* Controller */,
 				BC1FAF332269FAFA006A9245 /* Assets.xcassets */,
@@ -318,13 +323,14 @@
 			path = GroupUserSearch;
 			sourceTree = "<group>";
 		};
-		BC4DE60224B023E400763B32 /* OptionsPopup */ = {
+		BC4DE60224B023E400763B32 /* MiddlePopup */ = {
 			isa = PBXGroup;
 			children = (
-				BC4DE60424B0241A00763B32 /* OptionsPopupController.xib */,
-				BC4DE60324B0241A00763B32 /* OptionsPopup.swift */,
+				BC41D4DE24DA28CB00CEC9A4 /* GroupUserSearch */,
+				BCF8A2FF246436140030C323 /* TrophiesAchieved */,
+				BCBCA42C2507D3ED00E0219A /* Options Popup */,
 			);
-			path = OptionsPopup;
+			path = MiddlePopup;
 			sourceTree = "<group>";
 		};
 		BC554BD9226E0F2700D707CC /* User Kasams Table */ = {
@@ -381,13 +387,59 @@
 			path = "Cell Formats";
 			sourceTree = "<group>";
 		};
-		BCC07F4D2466F357000E2D81 /* UserOptions */ = {
+		BCBCA42B2507D3D100E0219A /* Bottom Popups */ = {
 			isa = PBXGroup;
 			children = (
-				BCE4B4B823666E0500C75480 /* UserOptionsController.xib */,
-				BCE4B4BA23666E2800C75480 /* UserOptionsController.swift */,
+				BCBCA42F2507D47300E0219A /* Button Popup */,
+				BCC07F4D2466F357000E2D81 /* TablePopup */,
+				BCC07F4E24670A11000E2D81 /* AddKasam */,
 			);
-			path = UserOptions;
+			path = "Bottom Popups";
+			sourceTree = "<group>";
+		};
+		BCBCA42C2507D3ED00E0219A /* Options Popup */ = {
+			isa = PBXGroup;
+			children = (
+				BC4DE60424B0241A00763B32 /* OptionsPopupController.xib */,
+				BC4DE60324B0241A00763B32 /* OptionsPopup.swift */,
+			);
+			path = "Options Popup";
+			sourceTree = "<group>";
+		};
+		BCBCA42D2507D40F00E0219A /* Full Screen Popups */ = {
+			isa = PBXGroup;
+			children = (
+				BC1C8412248B531400797A20 /* Notifications */,
+			);
+			path = "Full Screen Popups";
+			sourceTree = "<group>";
+		};
+		BCBCA42E2507D42000E0219A /* Popups */ = {
+			isa = PBXGroup;
+			children = (
+				BCBCA42B2507D3D100E0219A /* Bottom Popups */,
+				BC4DE60224B023E400763B32 /* MiddlePopup */,
+				BCBCA42D2507D40F00E0219A /* Full Screen Popups */,
+			);
+			path = Popups;
+			sourceTree = "<group>";
+		};
+		BCBCA42F2507D47300E0219A /* Button Popup */ = {
+			isa = PBXGroup;
+			children = (
+				BCBCA4392507D4CA00E0219A /* ButtonPopup.xib */,
+				BCBCA43C2507D64D00E0219A /* ButtonPopup.swift */,
+			);
+			path = "Button Popup";
+			sourceTree = "<group>";
+		};
+		BCC07F4D2466F357000E2D81 /* TablePopup */ = {
+			isa = PBXGroup;
+			children = (
+				BCE4B4B823666E0500C75480 /* TablePopupController.xib */,
+				BCE4B4BA23666E2800C75480 /* TablePopupController.swift */,
+			);
+			path = TablePopup;
 			sourceTree = "<group>";
 		};
 		BCC07F4E24670A11000E2D81 /* AddKasam */ = {
@@ -429,12 +481,6 @@
 			children = (
 				BC1FAF302269FAFA006A9245 /* Main.storyboard */,
 				BC1FAF352269FAFA006A9245 /* LaunchScreen.storyboard */,
-				BCC07F4D2466F357000E2D81 /* UserOptions */,
-				BCF8A2FF246436140030C323 /* TrophiesAchieved */,
-				BC41D4DE24DA28CB00CEC9A4 /* GroupUserSearch */,
-				BC4DE60224B023E400763B32 /* OptionsPopup */,
-				BCC07F4E24670A11000E2D81 /* AddKasam */,
-				BC1C8412248B531400797A20 /* Notifications */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -581,11 +627,12 @@
 				BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */,
 				BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */,
 				BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */,
-				BCE4B4B923666E0500C75480 /* UserOptionsController.xib in Resources */,
+				BCE4B4B923666E0500C75480 /* TablePopupController.xib in Resources */,
 				BC4DE60624B0241A00763B32 /* OptionsPopupController.xib in Resources */,
 				BCF8A9AF24B1690F00751CC9 /* diamond.json in Resources */,
 				BC2B4C8123A70437005F2255 /* rocket-fast.json in Resources */,
 				BCD824D323D7C0B40051C499 /* success.json in Resources */,
+				BCBCA43B2507D4CA00E0219A /* ButtonPopup.xib in Resources */,
 				BC01664722D5790B0073186D /* UIImageViewAligned in Resources */,
 				BC2B4C8223A70437005F2255 /* checkmark.json in Resources */,
 				BCF8A304246436140030C323 /* TrophiesAchievedCell.xib in Resources */,
@@ -754,12 +801,13 @@
 				BC9C7841228CD2DB000C8D0A /* 2. Personal.swift in Sources */,
 				BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */,
 				BCB7FFCE248BCF4900E41913 /* NotificationsController.swift in Sources */,
-				BCE4B4BB23666E2800C75480 /* UserOptionsController.swift in Sources */,
+				BCE4B4BB23666E2800C75480 /* TablePopupController.swift in Sources */,
 				BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */,
 				BC38419C24037DE6005D929A /* DayTrackerCell.swift in Sources */,
 				BC9EC1D92390DD0400637C94 /* CompletedKasamCell.swift in Sources */,
 				BC41D4E624DA308D00CEC9A4 /* GroupSearchCell.swift in Sources */,
 				BC5D1B0224BA1D4700A5E9A7 /* 3. Group.swift in Sources */,
+				BCBCA43D2507D64D00E0219A /* ButtonPopup.swift in Sources */,
 				BC651491238DAD4600510971 /* Popups.swift in Sources */,
 				BC55BFD722AEEF6200D77337 /* Custom Functions.swift in Sources */,
 				BC74E1F32336748E00653381 /* CountdownTimer.swift in Sources */,

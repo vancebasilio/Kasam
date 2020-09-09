@@ -156,7 +156,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
             showError(error)
             return
         } else {
-            DBRef.userBase.observeSingleEvent(of: .value, with: {(snapshot) in
+            DBRef.users.observeSingleEvent(of: .value, with: {(snapshot) in
                 //If the user exists, don't add data
                 if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {
                     //user already exists in Firebase, so just sign them in

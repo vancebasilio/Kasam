@@ -261,7 +261,7 @@ class AddKasamController: UIViewController {
             NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: self)
             SwiftEntryKit.dismiss()
         } else if state == "restart" {
-            showOptionsPopup(kasamID: nil, title: "Are you sure?", subtitle: nil, text: "You'll be ending this kasam and starting over from day 1", type: "restart", button: "Restart") {(button) in
+            showCenterOptionsPopup(kasamID: nil, title: "Are you sure?", subtitle: nil, text: "You'll be ending this kasam and starting over from day 1", type: "restart", button: "Restart") {(button) in
                 if button == true {
                     if self.reminderTimeSwitch.isOn {self.kasamID.restartExistingNotification()}
                     else {UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [self.kasamID])}

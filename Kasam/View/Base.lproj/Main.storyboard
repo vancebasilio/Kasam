@@ -473,7 +473,6 @@
                                                                     <constraint firstAttribute="width" secondItem="aYw-U7-ovp" secondAttribute="height" multiplier="1:1" id="Nda-lA-8zm"/>
                                                                     <constraint firstAttribute="trailing" secondItem="dN9-sx-yBL" secondAttribute="trailing" constant="5" id="cwe-8G-PaH"/>
                                                                     <constraint firstItem="dN9-sx-yBL" firstAttribute="centerY" secondItem="aYw-U7-ovp" secondAttribute="centerY" id="j6n-f1-qvc"/>
-                                                                    <constraint firstAttribute="width" constant="125" id="oP6-xg-aci"/>
                                                                     <constraint firstItem="dN9-sx-yBL" firstAttribute="centerX" secondItem="aYw-U7-ovp" secondAttribute="centerX" id="uTs-1T-8pB"/>
                                                                 </constraints>
                                                             </view>
@@ -899,9 +898,6 @@
                                                                     <constraint firstAttribute="width" secondItem="Pzf-6z-cIg" secondAttribute="height" multiplier="1:1" id="7a8-XP-P9f"/>
                                                                     <constraint firstAttribute="width" constant="120" id="bm7-U5-iae"/>
                                                                 </constraints>
-                                                                <userDefinedRuntimeAttributes>
-                                                                    <userDefinedRuntimeAttribute type="boolean" keyPath="" value="YES"/>
-                                                                </userDefinedRuntimeAttributes>
                                                             </imageView>
                                                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gXN-Zr-5q3" userLabel="ProfileClick">
                                                                 <rect key="frame" x="22" y="15" width="120" height="120"/>
@@ -1369,11 +1365,6 @@
                                                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="18"/>
                                                                                     <color key="textColor" red="0.1764705882" green="0.1843137255" blue="0.2470588235" alpha="1" colorSpace="calibratedRGB"/>
                                                                                     <nil key="highlightedColor"/>
-                                                                                    <userDefinedRuntimeAttributes>
-                                                                                        <userDefinedRuntimeAttribute type="number" keyPath="lastLineFillPercent">
-                                                                                            <integer key="value" value="100"/>
-                                                                                        </userDefinedRuntimeAttribute>
-                                                                                    </userDefinedRuntimeAttributes>
                                                                                 </label>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Joined Dates" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0jG-Fd-2Pb">
                                                                                     <rect key="frame" x="15" y="34.666666666666664" width="209.33333333333334" height="17"/>
@@ -1988,11 +1979,11 @@
             <objects>
                 <viewController storyboardIdentifier="KasamHolder" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uNf-cn-sv8" customClass="KasamHolder" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="bzo-M5-nb0">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="687"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qWS-Uv-207" userLabel="White BG">
-                                <rect key="frame" x="0.0" y="250" width="414" height="487"/>
+                                <rect key="frame" x="0.0" y="250" width="414" height="536"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NAT-ag-6Y7" userLabel="Header View">
@@ -2022,7 +2013,7 @@
                                 </constraints>
                             </view>
                             <tableView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" rowHeight="-1" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="4FX-UX-MCP">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="687"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <view key="tableHeaderView" contentMode="scaleToFill" id="npC-MF-4Gr" userLabel="Profile View">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="220"/>
@@ -2612,7 +2603,6 @@
                         <outlet property="badgeCompletion" destination="8Lr-ke-AV7" id="CsT-VC-zEe"/>
                         <outlet property="badgeInfo" destination="dE0-Oa-55e" id="2sh-AQ-j71"/>
                         <outlet property="coachName" destination="eLc-TR-mrZ" id="32J-lc-nfe"/>
-                        <outlet property="constraintHeightHeaerImages" destination="ESq-24-bW5" id="u4O-b7-c3b"/>
                         <outlet property="createDeleteButtonStackView" destination="Qi7-Nc-j8l" id="iO2-EG-XlC"/>
                         <outlet property="createKasamButton" destination="p1U-af-4ie" id="exl-6W-8Dd"/>
                         <outlet property="deleteKasamButton" destination="5oP-qE-NAZ" id="f6G-O0-ZAZ"/>
@@ -2629,6 +2619,7 @@
                         <outlet property="headerImageView" destination="Zqb-cp-U5t" id="NW6-Fb-9cp"/>
                         <outlet property="headerLabel" destination="aeU-8o-xiT" id="NSI-iQ-bBa"/>
                         <outlet property="headerView" destination="NAT-ag-6Y7" id="nQl-zV-XKj"/>
+                        <outlet property="headerViewHeight" destination="ESq-24-bW5" id="h9w-if-ay8"/>
                         <outlet property="kasamBadgeHeight" destination="IXs-2H-i8S" id="kgL-hP-PZ3"/>
                         <outlet property="kasamBadgeHolder" destination="MWO-fP-MMV" id="bfa-YF-5Nd"/>
                         <outlet property="kasamDeetsStackView" destination="gxe-pw-Bhb" id="f0Y-rK-gge"/>
@@ -2660,11 +2651,11 @@
             <objects>
                 <viewController storyboardIdentifier="KasamViewController" id="1JF-97-QwZ" userLabel="Personal" customClass="PersonalViewController" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ODe-ER-GSE">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="632"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="692"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="q8D-Wq-y8h">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="632"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="692"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="667" translatesAutoresizingMaskIntoConstraints="NO" id="s0t-aS-08i" userLabel="Content View">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="800"/>
@@ -3186,7 +3177,6 @@
                         <segue destination="ejW-bE-e0v" kind="presentation" identifier="goToKasamActivityViewer" modalPresentationStyle="overFullScreen" id="Viy-yT-bOU"/>
                         <segue destination="uNf-cn-sv8" kind="show" identifier="goToKasamHolder" id="b1h-nV-uzD"/>
                         <segue destination="tlL-Y6-LbR" kind="presentation" identifier="goToNotifications" id="L4l-Iq-ZJc"/>
-                        <segue destination="CHL-T4-n5T" kind="presentation" identifier="goToCreateKasam" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="L8B-wW-b3q"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sZG-Y6-k6N" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -3221,7 +3211,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lTm-TJ-FXe">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="632"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="643"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="667" translatesAutoresizingMaskIntoConstraints="NO" id="goJ-99-KwY" userLabel="Content View">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="800"/>
@@ -3339,21 +3329,21 @@
                                                                                                     <color key="textColor" red="0.71372549019999998" green="0.58431372550000005" blue="0.38431372549999998" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                                                                     <nil key="highlightedColor"/>
                                                                                                 </label>
-                                                                                                <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YAV-GX-Zv1">
+                                                                                                <view opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YAV-GX-Zv1">
                                                                                                     <rect key="frame" x="5" y="22" width="219" height="142"/>
                                                                                                     <subviews>
-                                                                                                        <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="tkm-yQ-v43">
+                                                                                                        <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="tkm-yQ-v43">
                                                                                                             <rect key="frame" x="10" y="10" width="199" height="122"/>
                                                                                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                                             <prototypes>
                                                                                                                 <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="GroupStatsCell" id="1Uy-1e-KqB" customClass="GroupStatsCell" customModule="Kasam" customModuleProvider="target">
                                                                                                                     <rect key="frame" x="0.0" y="28" width="199" height="44"/>
                                                                                                                     <autoresizingMask key="autoresizingMask"/>
-                                                                                                                    <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="1Uy-1e-KqB" id="Dx8-ys-GqF">
+                                                                                                                    <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="1Uy-1e-KqB" id="Dx8-ys-GqF">
                                                                                                                         <rect key="frame" x="0.0" y="0.0" width="199" height="44"/>
                                                                                                                         <autoresizingMask key="autoresizingMask"/>
                                                                                                                         <subviews>
-                                                                                                                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0YJ-VV-JoF">
+                                                                                                                            <button opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0YJ-VV-JoF">
                                                                                                                                 <rect key="frame" x="0.0" y="14.666666666666664" width="20" height="15"/>
                                                                                                                                 <constraints>
                                                                                                                                     <constraint firstAttribute="width" constant="20" id="AZD-A8-hiY"/>
@@ -3814,11 +3804,11 @@
             <objects>
                 <viewController extendedLayoutIncludesOpaqueBars="YES" id="ejW-bE-e0v" userLabel="Kasam Viewer" customClass="KasamActivityViewer" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="9HA-Q5-L0t">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="716"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="VWi-QP-tmS">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="716"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="hBB-mK-Yrw">
                                     <size key="itemSize" width="415" height="747"/>
@@ -3828,7 +3818,7 @@
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="KasamViewerCell" id="TKu-Q0-8wu" customClass="KasamViewerCell" customModule="Kasam" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="-5.666666666666667" width="415" height="747"/>
+                                        <rect key="frame" x="0.0" y="-15.666666666666666" width="415" height="747"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
                                             <rect key="frame" x="0.0" y="0.0" width="415" height="747"/>
@@ -4240,24 +4230,6 @@
             </objects>
             <point key="canvasLocation" x="5173.913043478261" y="1065.4017857142858"/>
         </scene>
-        <!--Item-->
-        <scene sceneID="qeD-nG-5uG">
-            <objects>
-                <navigationController modalPresentationStyle="fullScreen" id="CHL-T4-n5T" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="Koo-Ft-I6b"/>
-                    <navigationItem key="navigationItem" id="1oI-NJ-zCw"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="FJy-Lb-7IQ">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <connections>
-                        <segue destination="OZP-fg-bwZ" kind="relationship" relationship="rootViewController" id="oO1-cf-ha3"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="3hv-eO-ZQl" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="7036" y="1068"/>
-        </scene>
         <!--New Kasam Page Controller-->
         <scene sceneID="KtU-1X-zIy">
             <objects>
@@ -4289,11 +4261,11 @@
             <objects>
                 <viewController storyboardIdentifier="CoachHolder" useStoryboardIdentifierAsRestorationIdentifier="YES" id="8Un-c2-rIU" userLabel="Coach Details View" customClass="CoachHolder" customModule="Kasam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="76g-ws-Z6u">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="687"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="G3I-ZV-gXq" userLabel="White BG">
-                                <rect key="frame" x="0.0" y="250" width="414" height="487"/>
+                                <rect key="frame" x="0.0" y="250" width="414" height="536"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WUW-Rm-KH0" userLabel="Header View">
@@ -4316,7 +4288,7 @@
                                 </constraints>
                             </view>
                             <tableView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="flT-bM-cQo">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="687"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                                 <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <view key="tableHeaderView" contentMode="scaleToFill" id="FRt-fG-i00" userLabel="Profile View">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="220"/>
@@ -4427,7 +4399,7 @@
                                                             </userDefinedRuntimeAttributes>
                                                         </view>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="characterWrap" translatesAutoresizingMaskIntoConstraints="NO" id="0N4-JB-ayd">
-                                                            <rect key="frame" x="0.0" y="15" width="112" height="36"/>
+                                                            <rect key="frame" x="0.0" y="15.333333333333329" width="112" height="36"/>
                                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                             <state key="normal" title="Coach Type">
                                                                 <color key="titleColor" red="0.84093188730000001" green="0.68776430320000004" blue="0.45178080529999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -4629,10 +4601,10 @@
                         <outlet property="coachBio" destination="x69-3h-XA9" id="9jb-8n-GwS"/>
                         <outlet property="coachName" destination="nyd-xJ-Ap1" id="Tuu-Ks-XXm"/>
                         <outlet property="coachType" destination="0N4-JB-ayd" id="5xy-Uy-cRS"/>
-                        <outlet property="contrainHeaderHeight" destination="v3K-Er-zwu" id="uQI-po-Jw7"/>
                         <outlet property="followersNo" destination="fhA-mt-p7a" id="Lgp-HF-R4H"/>
                         <outlet property="headerLabel" destination="nhB-uN-NKo" id="fWX-FT-eF7"/>
                         <outlet property="headerView" destination="WUW-Rm-KH0" id="YUv-fR-vhb"/>
+                        <outlet property="headerViewHeight" destination="v3K-Er-zwu" id="kNd-jG-1pN"/>
                         <outlet property="kasamSquareCollection" destination="Z7p-SB-r9U" id="UR8-Yd-wRe"/>
                         <outlet property="profileView" destination="FRt-fG-i00" id="cYG-Zz-GD7"/>
                         <outlet property="profileViewRadius" destination="bf3-Vh-v9E" id="9qM-hm-zEV"/>
@@ -4674,14 +4646,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OFg-PY-hfn" userLabel="White BG">
-                                <rect key="frame" x="0.0" y="250" width="414" height="536"/>
+                                <rect key="frame" x="0.0" y="10" width="414" height="776"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gb2-7L-8OT" userLabel="Header View">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="250"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="10"/>
                                 <subviews>
                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hI1-ag-EXq" userLabel="Grey BG">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="250"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="10"/>
                                         <color key="backgroundColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="New Kasam" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LJe-qX-URx">
@@ -4692,7 +4664,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add an Image" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9aJ-3R-7d8">
-                                        <rect key="frame" x="142.66666666666669" y="113" width="128.66666666666669" height="24"/>
+                                        <rect key="frame" x="142.66666666666669" y="-7" width="128.66666666666669" height="24"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
@@ -4700,7 +4672,7 @@
                                 </subviews>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="250" id="5Np-Gi-HE9"/>
+                                    <constraint firstAttribute="height" constant="10" id="5Np-Gi-HE9"/>
                                     <constraint firstAttribute="trailing" relation="lessThanOrEqual" secondItem="LJe-qX-URx" secondAttribute="trailing" constant="44" id="5wp-cU-RSF"/>
                                     <constraint firstAttribute="bottom" secondItem="hI1-ag-EXq" secondAttribute="bottom" id="ANe-o0-5RC"/>
                                     <constraint firstItem="LJe-qX-URx" firstAttribute="leading" relation="lessThanOrEqual" secondItem="Gb2-7L-8OT" secondAttribute="leading" constant="44" id="HpT-JV-fCZ"/>
@@ -4757,18 +4729,6 @@
                                                             <color key="value" red="0.83921568629999999" green="0.68627450980000004" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         </userDefinedRuntimeAttribute>
                                                         <userDefinedRuntimeAttribute type="string" keyPath="title" value=" "/>
-                                                        <userDefinedRuntimeAttribute type="color" keyPath="iconColor">
-                                                            <color key="value" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="color" keyPath="selectedIconColor">
-                                                            <color key="value" red="0.83921568629999999" green="0.68627450980000004" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="number" keyPath="iconTypeValue">
-                                                            <integer key="value" value="15"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="number" keyPath="iconWidth">
-                                                            <real key="value" value="15"/>
-                                                        </userDefinedRuntimeAttribute>
                                                     </userDefinedRuntimeAttributes>
                                                 </textField>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ARN-Te-yMJ" userLabel="Category">
@@ -4782,7 +4742,7 @@
                                                             </constraints>
                                                         </button>
                                                         <textField opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" verticalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="8Mi-Vl-hcD" customClass="SkyFloatingLabelTextField" customModule="SkyFloatingLabelTextField">
-                                                            <rect key="frame" x="60" y="16" width="314" height="34"/>
+                                                            <rect key="frame" x="60" y="6" width="314" height="44"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
                                                             <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
                                                             <userDefinedRuntimeAttributes>
@@ -4805,18 +4765,6 @@
                                                                     <color key="value" red="0.83921568629999999" green="0.68627450980000004" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                 </userDefinedRuntimeAttribute>
                                                                 <userDefinedRuntimeAttribute type="string" keyPath="title" value=" "/>
-                                                                <userDefinedRuntimeAttribute type="color" keyPath="iconColor">
-                                                                    <color key="value" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                                </userDefinedRuntimeAttribute>
-                                                                <userDefinedRuntimeAttribute type="color" keyPath="selectedIconColor">
-                                                                    <color key="value" red="0.83921568629999999" green="0.68627450980000004" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                                </userDefinedRuntimeAttribute>
-                                                                <userDefinedRuntimeAttribute type="number" keyPath="iconTypeValue">
-                                                                    <integer key="value" value="15"/>
-                                                                </userDefinedRuntimeAttribute>
-                                                                <userDefinedRuntimeAttribute type="number" keyPath="iconWidth">
-                                                                    <real key="value" value="15"/>
-                                                                </userDefinedRuntimeAttribute>
                                                             </userDefinedRuntimeAttributes>
                                                         </textField>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Category (tap to select)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LPm-4c-VlF">
@@ -4868,18 +4816,6 @@
                                                                     <color key="value" red="0.83921568629999999" green="0.68627450980000004" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                 </userDefinedRuntimeAttribute>
                                                                 <userDefinedRuntimeAttribute type="string" keyPath="title" value=" "/>
-                                                                <userDefinedRuntimeAttribute type="color" keyPath="iconColor">
-                                                                    <color key="value" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                                </userDefinedRuntimeAttribute>
-                                                                <userDefinedRuntimeAttribute type="color" keyPath="selectedIconColor">
-                                                                    <color key="value" red="0.83921568629999999" green="0.68627450980000004" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                                </userDefinedRuntimeAttribute>
-                                                                <userDefinedRuntimeAttribute type="number" keyPath="iconTypeValue">
-                                                                    <integer key="value" value="15"/>
-                                                                </userDefinedRuntimeAttribute>
-                                                                <userDefinedRuntimeAttribute type="number" keyPath="iconWidth">
-                                                                    <real key="value" value="15"/>
-                                                                </userDefinedRuntimeAttribute>
                                                             </userDefinedRuntimeAttributes>
                                                         </textField>
                                                         <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="natural" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LzD-Sd-Xp8">
@@ -4957,18 +4893,6 @@
                                                             <color key="value" red="0.83921568629999999" green="0.68627450980000004" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         </userDefinedRuntimeAttribute>
                                                         <userDefinedRuntimeAttribute type="string" keyPath="title" value=" "/>
-                                                        <userDefinedRuntimeAttribute type="color" keyPath="iconColor">
-                                                            <color key="value" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="color" keyPath="selectedIconColor">
-                                                            <color key="value" red="0.83921568629999999" green="0.68627450980000004" blue="0.45098039220000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="number" keyPath="iconTypeValue">
-                                                            <integer key="value" value="15"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="number" keyPath="iconWidth">
-                                                            <real key="value" value="15"/>
-                                                        </userDefinedRuntimeAttribute>
                                                     </userDefinedRuntimeAttributes>
                                                 </textField>
                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="CAd-8B-4Wn" customClass="BulletedTextView" customModule="Kasam" customModuleProvider="target">
@@ -5189,7 +5113,6 @@
                         <outlet property="addAnImageLabel" destination="9aJ-3R-7d8" id="0c9-jg-Qv2"/>
                         <outlet property="benefitsLine" destination="w5u-e4-8td" id="i5V-uB-q8V"/>
                         <outlet property="benefitsTextView" destination="CAd-8B-4Wn" id="st3-f3-Qw3"/>
-                        <outlet property="constrainHeightHeaderImages" destination="5Np-Gi-HE9" id="rRT-Lx-h2C"/>
                         <outlet property="createActivitiesCircle" destination="4KM-Oa-bw2" id="1JW-Cg-Daa"/>
                         <outlet property="createActivitiesLabel" destination="RaU-2P-I3T" id="Ml4-8R-dxJ"/>
                         <outlet property="deleteKasamButton" destination="9pm-Pi-3HS" id="Wi7-Dx-gr1"/>
@@ -5197,6 +5120,7 @@
                         <outlet property="headerClickViewHeight" destination="c2a-mB-MiJ" id="jaQ-lR-6Wh"/>
                         <outlet property="headerLabel" destination="LJe-qX-URx" id="GMP-WB-VZm"/>
                         <outlet property="headerView" destination="Gb2-7L-8OT" id="Fr9-ZB-Cxt"/>
+                        <outlet property="headerViewHeight" destination="5Np-Gi-HE9" id="Lgh-JC-kd7"/>
                         <outlet property="metricTypeCollection" destination="72F-9d-SJc" id="dbO-nT-b4H"/>
                         <outlet property="metricTypeCollectionHeight" destination="vJp-w9-Bvy" id="TA3-8c-YbU"/>
                         <outlet property="newCategoryChosenLabel" destination="LPm-4c-VlF" id="jfN-Dt-pn6"/>
@@ -5412,11 +5336,6 @@
                                                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
                                                                                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                                                                    <userDefinedRuntimeAttributes>
-                                                                                        <userDefinedRuntimeAttribute type="number" keyPath="lastLineFillPercent">
-                                                                                            <integer key="value" value="-4"/>
-                                                                                        </userDefinedRuntimeAttribute>
-                                                                                    </userDefinedRuntimeAttributes>
                                                                                 </textView>
                                                                             </subviews>
                                                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -6183,11 +6102,6 @@
                                                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="19"/>
                                                                                     <color key="textColor" red="0.1764705882" green="0.1843137255" blue="0.2470588235" alpha="1" colorSpace="calibratedRGB"/>
                                                                                     <nil key="highlightedColor"/>
-                                                                                    <userDefinedRuntimeAttributes>
-                                                                                        <userDefinedRuntimeAttribute type="number" keyPath="lastLineFillPercent">
-                                                                                            <integer key="value" value="100"/>
-                                                                                        </userDefinedRuntimeAttribute>
-                                                                                    </userDefinedRuntimeAttributes>
                                                                                 </label>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Notification Time" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1kI-XS-bwf">
                                                                                     <rect key="frame" x="15.000000000000007" y="38" width="117.66666666666669" height="18"/>
@@ -6357,10 +6271,10 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="TgI-4x-mSS"/>
-        <segue reference="U8Q-Ic-CkC"/>
-        <segue reference="YHX-Ee-lpe"/>
-        <segue reference="1Ub-YR-ues"/>
+        <segue reference="2hy-gS-wQQ"/>
+        <segue reference="wnm-Aa-p59"/>
+        <segue reference="bfR-GK-E9V"/>
+        <segue reference="Kqo-1J-nJ2"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="EmailBox" width="900" height="147"/>

@@ -10,7 +10,7 @@ import Foundation
 import SwiftEntryKit
 import FirebaseAuth
 
-    //BOTTOM FLOAT CELL----------------------------------------------------------------------------------------
+    //FLOAT CELLS----------------------------------------------------------------------------------------
     func floatCellSelected(title: String, description: String) {
         var attributes: EKAttributes
         attributes = .topFloat
@@ -25,6 +25,22 @@ import FirebaseAuth
         let desc = description
         let image = "paper-plane-light"
         showNotificationMessage(attributes: attributes, title: title, desc: desc, textColor: .white, imageName: image)
+    }
+
+    func showProcessingNote() {
+        var attributes: EKAttributes
+        attributes = .topNote
+        attributes.displayMode = .light
+        attributes.hapticFeedbackType = .success
+        attributes.displayDuration = .infinity
+        attributes.popBehavior = .animated(animation: .translation)
+        attributes.entryBackground = .color(color: EKColor(UIColor.colorFour))
+        attributes.statusBar = .light
+        let text = "Looks like you're not connect to the internet"
+        let style = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15, weight: .medium), color: .white, alignment: .center, displayMode: .light)
+        let labelContent = EKProperty.LabelContent(text: text, style: style)
+        let contentView = EKProcessingNoteMessageView(with: labelContent, activityIndicator: .white)
+        SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
     // Bumps a notification structured entry
@@ -43,34 +59,17 @@ import FirebaseAuth
 
     //POPUP CONFIRMATION---------------------------------------------------------------------------
 
-    func showPopupConfirmation(title: String, description: String, image: UIImage, buttonText: String, completion:@escaping (Bool) -> ()) {
-        var attributes: EKAttributes
-        attributes = EKAttributes.centerFloat
-        attributes.hapticFeedbackType = .success
-        attributes.displayDuration = .infinity
-        attributes.entryBackground = .gradient(gradient: .init(colors: [EKColor(UIColor.colorFour), EKColor(UIColor.colorFour.darker)], startPoint: .zero, endPoint: CGPoint(x: 1, y: 1)))
-        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
-        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 8))
-        attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .absorbTouches
-        attributes.scroll = .enabled(swipeable: true, pullbackAnimation: .jolt)
-        attributes.roundCorners = .all(radius: 20)
-        attributes.entranceAnimation = .init(translate: .init(duration: 0.7, spring: .init(damping: 0.7, initialVelocity: 0)), scale: .init(from: 0.7, to: 1, duration: 0.4, spring: .init(damping: 1, initialVelocity: 0)))
-        attributes.exitAnimation = .init(translate: .init(duration: 0.2))
-        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+    func showCenterPopupConfirmation(title: String, description: String, image: UIImage, buttonText: String, completion:@escaping (Bool) -> ()) {
+        var attributes = PopupAttributes.center()
         attributes.positionConstraints.size = .init(width: .offset(value: 20), height: .intrinsic)
         attributes.positionConstraints.maxSize = .init(width: .intrinsic, height: .intrinsic)
-        attributes.statusBar = .dark
         
-        let image = image
-        let title = title
-        let description = description
         var themeImage: EKPopUpMessage.ThemeImage?
-        themeImage = EKPopUpMessage.ThemeImage(image: EKProperty.ImageContent(image: image, displayMode: .light, size: CGSize(width: 60, height: 60), tint: .white, contentMode: .scaleAspectFit))
-        let finalTitle = EKProperty.LabelContent(text: title, style: .init(font: UIFont.systemFont(ofSize: 23, weight: .bold), color: .white, alignment: .center, displayMode: .light))
-        let finalDescription = EKProperty.LabelContent(text: description, style: .init(font: UIFont.systemFont(ofSize: 17, weight: .semibold), color: .white, alignment: .center, displayMode: .light))
-        let button = EKProperty.ButtonContent(label: .init(text: buttonText, style: .init(font: UIFont.systemFont(ofSize: 16, weight: .semibold), color: EKColor(UIColor.colorFive),displayMode: .light)), backgroundColor: .white, highlightedBackgroundColor: EKColor(UIColor.colorFive).with(alpha: 0.05), displayMode: .light)
-        let message = EKPopUpMessage(themeImage: themeImage, title: finalTitle, description: finalDescription, button: button) {
+        themeImage = EKPopUpMessage.ThemeImage(image: EKProperty.ImageContent(image: image, displayMode: .dark, size: CGSize(width: 60, height: 60), tint: .black, contentMode: .scaleAspectFit))
+        let title = EKProperty.LabelContent(text: title, style: .init(font: UIFont.systemFont(ofSize: 23, weight: .bold), color: .black, alignment: .center, displayMode: .light))
+        let description = EKProperty.LabelContent(text: description, style: .init(font: UIFont.systemFont(ofSize: 17, weight: .semibold), color: EKColor(UIColor.darkGray), alignment: .center, displayMode: .light))
+        let button = EKProperty.ButtonContent(label: .init(text: buttonText, style: .init(font: UIFont.systemFont(ofSize: 16, weight: .semibold), color: .white, displayMode: .light)), backgroundColor: .black, highlightedBackgroundColor: EKColor(UIColor.colorFive).with(alpha: 0.05), displayMode: .light)
+        let message = EKPopUpMessage(themeImage: themeImage, title: title, description: description, button: button) {
             completion(true)
             SwiftEntryKit.dismiss()
         }
@@ -79,20 +78,7 @@ import FirebaseAuth
     }
 
     func missingFieldsPopup(title: String, description: String, image: UIImage, buttonText: String) {
-        var attributes: EKAttributes
-        attributes = EKAttributes.centerFloat
-        attributes.hapticFeedbackType = .success
-        attributes.displayDuration = .infinity
-        attributes.entryBackground = .gradient(gradient: .init(colors: [EKColor(UIColor.white), EKColor(UIColor.white)], startPoint: .zero, endPoint: CGPoint(x: 1, y: 1)))
-        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
-        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 8))
-        attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .absorbTouches
-        attributes.scroll = .enabled(swipeable: true, pullbackAnimation: .jolt)
-        attributes.roundCorners = .all(radius: 20)
-        attributes.entranceAnimation = .init(translate: .init(duration: 0.7, spring: .init(damping: 0.7, initialVelocity: 0)), scale: .init(from: 0.7, to: 1, duration: 0.4, spring: .init(damping: 1, initialVelocity: 0)))
-        attributes.exitAnimation = .init(translate: .init(duration: 0.2))
-        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
+        var attributes = PopupAttributes.center()
         attributes.positionConstraints.size = .init(width: .offset(value: 20), height: .intrinsic)
         attributes.positionConstraints.maxSize = .init(width: .intrinsic, height: .intrinsic)
         attributes.statusBar = .dark
@@ -114,99 +100,65 @@ import FirebaseAuth
 
     //USER OPTIONS---------------------------------------------------------------------------------------------
 
-    func showBottomPopup(type: String, array: [(no: Int, blockID: String, blockName: String)]?) {
-        var attributes: EKAttributes
-        attributes = .bottomFloat
-        attributes.displayMode = .light
-        attributes.displayDuration = .infinity
-        attributes.hapticFeedbackType = .none
-        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
-        attributes.entryBackground = .color(color: .white)
-        attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .absorbTouches
-        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
-        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
-        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
-        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
-        attributes.roundCorners = .all(radius: 20)
-        attributes.positionConstraints.verticalOffset = 0
-        attributes.positionConstraints.safeArea = .empty(fillSafeArea: true)
-        attributes.statusBar = .dark
-        let viewController = UserOptionsController()
-        
+    func showBottomTablePopup(type: String, programKasamArray: [(no: Int, blockID: String, blockName: String)]?) {
+        let viewController = TablePopupController()
         var noOfRows = 0
         if type == "changeKasamBlock" {
-            noOfRows = array?.count ?? 1
+            noOfRows = programKasamArray?.count ?? 1
         } else if type == "userOptions" {
             noOfRows = 4
         } else if type == "categoryOptions" {
             noOfRows = Icons.categoryIcons.count
         }
-        viewController.array = array
+        viewController.array = programKasamArray
         viewController.popupType = type
+        var attributes = PopupAttributes.bottom()
         attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: CGFloat(55 * (noOfRows + 2))))
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-    func showTrophiesPopup(kasamID: String?) {
-        var attributes: EKAttributes
-        attributes = .centerFloat
-        attributes.displayMode = .light
-        attributes.displayDuration = .infinity
-        attributes.hapticFeedbackType = .none
-        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
-        attributes.entryBackground = .color(color: .white)
-        attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .absorbTouches
-        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
-        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
-        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
-        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
-        attributes.roundCorners = .all(radius: 20)
+    func showBottomButtonPopup(title: String, buttonText: [String], completion:@escaping (Int) -> ()) {
+        let viewController = ButtonPopupController()
+        viewController.buttonTextArray = buttonText
+        viewController.title = title
+        var attributes = PopupAttributes.bottom()
+        attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: CGFloat(270)))
+        var firstButtonObserver: NSObjectProtocol?
+        firstButtonObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "FirstButtonPressed"), object: nil, queue: OperationQueue.main) {(notification) in
+            completion(0)
+            NotificationCenter.default.removeObserver(firstButtonObserver as Any)
+        }
+        var secondButtonObserver: NSObjectProtocol?
+        secondButtonObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SecondButtonPressed"), object: nil, queue: OperationQueue.main) {(notification) in
+            completion(1)
+            NotificationCenter.default.removeObserver(secondButtonObserver as Any)
+        }
+        SwiftEntryKit.display(entry: viewController, using: attributes)
+    }
+
+
+    func showCenterTrophiesPopup(kasamID: String?) {
         var height = CGFloat(40)        //Badges Title height
         if kasamID == nil {
             //For Profile View page (lists all trophies)
-            if SavedData.trophiesAchieved.count != 0 {
-                height += CGFloat((SavedData.trophiesCount + SavedData.trophiesAchieved.count + 1) * 40)
-            } else {
-                height += CGFloat(80)
-            }
+            if SavedData.trophiesAchieved.count != 0 {height += CGFloat((SavedData.trophiesCount + SavedData.trophiesAchieved.count + 1) * 40)}
+            else {height += CGFloat(80)}
         } else {
             //For specific Kasam
-            if SavedData.trophiesAchieved[kasamID!] != nil {
-                height += CGFloat((SavedData.trophiesAchieved[kasamID!]?.kasamTrophies.count ?? 0) + 2) * 40
-            } else {
-                height += CGFloat(80)
-            }
+            if SavedData.trophiesAchieved[kasamID!] != nil {height += CGFloat((SavedData.trophiesAchieved[kasamID!]?.kasamTrophies.count ?? 0) + 2) * 40}
+            else {height += CGFloat(80)}
         }
+        var attributes = PopupAttributes.center()
         attributes.positionConstraints.size = .init(width: .ratio(value: 0.9), height: .constant(value: height))
-        attributes.positionConstraints.safeArea = .overridden
-        attributes.statusBar = .dark
         
         let viewController = TrophiesAchieved()
         viewController.kasamID = kasamID
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
-    func showOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text: String?, type: String, button: String, completion:@escaping (Bool) -> ()) {
-        var attributes: EKAttributes
-        attributes = .centerFloat
-        attributes.displayMode = .light
-        attributes.displayDuration = .infinity
-        attributes.hapticFeedbackType = .none
-        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
-        attributes.entryBackground = .color(color: .white)
-        attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .absorbTouches
-        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
-        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
-        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
-        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
-        attributes.roundCorners = .all(radius: 20)
-        
+    func showCenterOptionsPopup(kasamID: String?, title: String?, subtitle: String?, text: String?, type: String, button: String, completion:@escaping (Bool) -> ()) {
+        var attributes = PopupAttributes.center()
         attributes.positionConstraints.size = .init(width: .ratio(value: 0.8), height: .intrinsic)
-        attributes.positionConstraints.safeArea = .overridden
-        attributes.statusBar = .dark
         
         let vc = OptionsPopupController()
         vc.transfer = (kasamID, title, subtitle, text, type, button)
@@ -223,73 +175,16 @@ import FirebaseAuth
         SwiftEntryKit.display(entry: vc, using: attributes)
     }
 
-    func showGroupUserSearch(kasamID: String, completion:@escaping () -> ()) {
-        var attributes: EKAttributes
-        attributes = .centerFloat
-        attributes.displayMode = .light
-        attributes.displayDuration = .infinity
-        attributes.hapticFeedbackType = .none
-        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
-        attributes.entryBackground = .color(color: .white)
-        attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .absorbTouches
-        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
-        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
-        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
-        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 6))
-        attributes.roundCorners = .all(radius: 20)
-        
+    func showCenterGroupUserSearch(kasamID: String, completion:@escaping () -> ()) {
+        var attributes = PopupAttributes.center()
         attributes.positionConstraints.size = .init(width: .ratio(value: 0.8), height: .constant(value: 400))
-        attributes.positionConstraints.safeArea = .overridden
-        attributes.statusBar = .dark
-        
         let vc = GroupSearchController()
         vc.kasamID = kasamID
         SwiftEntryKit.display(entry: vc, using: attributes)
     }
 
-    func showProcessingNote() {
-        var attributes: EKAttributes
-        attributes = .topNote
-        attributes.displayMode = .light
-        attributes.hapticFeedbackType = .success
-        attributes.displayDuration = .infinity
-        attributes.popBehavior = .animated(animation: .translation)
-        attributes.entryBackground = .color(color: EKColor(UIColor.colorFour))
-        attributes.statusBar = .light
-        let text = "Looks like you're not connect to the internet"
-        let style = EKProperty.LabelStyle(
-            font: UIFont.systemFont(ofSize: 15, weight: .medium),
-            color: .white,
-            alignment: .center,
-            displayMode: .light
-        )
-        let labelContent = EKProperty.LabelContent(
-            text: text,
-            style: style
-        )
-        let contentView = EKProcessingNoteMessageView(
-            with: labelContent,
-            activityIndicator: .white
-        )
-        SwiftEntryKit.display(entry: contentView, using: attributes)
-    }
-
-    func saveKasamPopup(level: Int, completion:@escaping (Int) -> ()) {
-        var attributes: EKAttributes
-        attributes = .centerFloat
-        attributes.displayMode = .light
-        attributes.windowLevel = .alerts
-        attributes.displayDuration = .infinity
-        attributes.hapticFeedbackType = .success
-        attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .absorbTouches
-        attributes.scroll = .disabled
-        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
-        attributes.entryBackground = .color(color: .white)
-        attributes.entranceAnimation = .init(scale: .init(from: 0.9, to: 1, duration: 0.4, spring: .init(damping: 1, initialVelocity: 0)), fade: .init(from: 0, to: 1, duration: 0.3))
-        attributes.exitAnimation = .init(fade: .init(from: 1, to: 0, duration: 0.2))
-        attributes.shadow = .active(with: .init(color: .black, opacity: 0.3, radius: 5))
+    func showCenterSaveKasamPopup(level: Int, completion:@escaping (Int) -> ()) {
+        var attributes = PopupAttributes.center()
         attributes.positionConstraints.maxSize = .init(width: .ratio(value: 0.7), height: .intrinsic)
         
         let goodLabelStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 15, weight: .medium), color: EKColor(UIColor.colorFive), displayMode: .light)
@@ -322,27 +217,10 @@ import FirebaseAuth
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
-    func addKasamPopup(kasamID: String, state: String, duration: Int) {
-        var attributes: EKAttributes
-        attributes = .bottomFloat
-        attributes.displayMode = .light
-        attributes.displayDuration = .infinity
-        attributes.screenBackground = .color(color: EKColor(UIColor.black.withAlphaComponent(0.3)))
-        attributes.entryBackground = .gradient(gradient: .init(colors: [EKColor(UIColor.white), EKColor(UIColor.white)], startPoint: .zero, endPoint: CGPoint(x: 1, y: 1)))
-        attributes.screenInteraction = .dismiss
-        attributes.entryInteraction = .absorbTouches
-        attributes.scroll = .edgeCrossingDisabled(swipeable: true)
-        attributes.entranceAnimation = .init(translate: .init(duration: 0.5, spring: .init(damping: 1, initialVelocity: 0)))
-        attributes.exitAnimation = .init(translate: .init(duration: 0.35))
-        attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.35)))
-        attributes.shadow = .active(with: .init(color: EKColor(UIColor.colorFour), opacity: 0.6, radius: 6))
-        attributes.roundCorners = .all(radius: 20)
-        if state != "edit" {
-            attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 500))
-        } else {
-            attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 300))
-        }
-        attributes.positionConstraints.verticalOffset = 0
+    func showButtomAddKasamPopup(kasamID: String, state: String, duration: Int) {
+        var attributes = PopupAttributes.bottom()
+        if state != "edit" {attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 500))}
+        else {attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 300))}
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark
         let vC = AddKasamController()

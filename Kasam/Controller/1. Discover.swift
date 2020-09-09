@@ -106,9 +106,6 @@ class DiscoverViewController: UIViewController {
             let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDGlobal
             kasamTransferHolder.userKasam = userKasam
-        } else if segue.identifier == "goToCreateKasam" {
-            let segueTransferHolder = segue.destination as! NewKasamPageController
-            segueTransferHolder.kasamType = "basic"
         }
     }
     
@@ -188,8 +185,6 @@ class DiscoverViewController: UIViewController {
             }
         }
     }
-    
-    
 }
 
 //TableView-----------------------------------------------------------
@@ -272,7 +267,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
         } else {
             //Creating a new kasam
             if Assets.discoverCriteria[collectionView.tag] == "My Kasams" && discoverKasamDict["My Kasams"]?.count == 0 {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToCreateKasam"), object: self, userInfo: ["type": "basic"])
+                goToCreateNewKasam(type: "basic")
             } else {
                 //User kasam
                 if Assets.discoverCriteria[collectionView.tag] == "My Kasams" && discoverKasamDict["My Kasams"] != nil {userKasam = true}

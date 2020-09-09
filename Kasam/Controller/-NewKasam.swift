@@ -18,13 +18,14 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     //Twitter Parallax
     @IBOutlet weak var tableView: UITableView!  {didSet {tableView.estimatedRowHeight = 100}}
     @IBOutlet weak var headerView: UIView!
+    @IBOutlet weak var headerViewHeight: NSLayoutConstraint!
     @IBOutlet weak var profileView: UIView!
     @IBOutlet weak var profileViewRadius: UIView!
     @IBOutlet weak var headerLabel: UILabel!
+    
     @IBOutlet weak var trackingProgressLabel: UILabel!
     @IBOutlet weak var metricTypeCollection: UICollectionView!
     @IBOutlet weak var metricTypeCollectionHeight: NSLayoutConstraint!
-    @IBOutlet weak var constrainHeightHeaderImages: NSLayoutConstraint!
     @IBOutlet weak var headerClickViewHeight: NSLayoutConstraint!
     @IBOutlet weak var newKasamTitle: SkyFloatingLabelTextField!
     @IBOutlet weak var newkasamDescriptionLine: SkyFloatingLabelTextField!
@@ -158,9 +159,9 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     }
     
     @objc func categoryOptions(){
-        showBottomPopup(type: "categoryOptions", array: nil)
+        showBottomTablePopup(type: "categoryOptions", programKasamArray: nil)
         saveCategoryObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveCategory"), object: nil, queue: OperationQueue.main) {(notification) in
-            let categoryVC = notification.object as! UserOptionsController
+            let categoryVC = notification.object as! TablePopupController
             self.newCategoryChosenLabel.text = categoryVC.categoryChosen
             self.newCategoryChosenLabel.textColor = .darkGray
             self.newCategoryIcon = self.newCategoryIcon.setKasamTypeIcon(kasamType: self.newCategoryChosenLabel.text!, button: self.newCategoryIcon, location: "options")
@@ -187,7 +188,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             }
         }
         if level != 3 {
-            saveKasamPopup(level: level) {(result) in
+            showCenterSaveKasamPopup(level: level) {(result) in
                 if result == 0 {DispatchQueue.main.async {self.saveBasicKasam()}}                   //saveButton
                 else if result == 1 {}                                                              //keepEditing
                 else {self.dismiss(animated: true, completion: nil)}                                //discard
@@ -342,12 +343,10 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     
     //Twitter Parallax-------------------------------------------------------------------------------------------------------------------
     
-    let headerHeight = UIScreen.main.bounds.width * 0.65        //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
+    let headerHeight = UIScreen.main.bounds.width * 0.55        //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
     
     func setupTwitterParallax(){
-        constrainHeightHeaderImages.constant = headerHeight
-        tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)       //setup floating header
-        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerLabel: headerLabel)
+        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerViewHeight: headerViewHeight, headerHeightToSet: headerHeight, headerLabel: headerLabel, tableView: tableView)
     }
     
     //executes when the user scrolls
@@ -356,7 +355,8 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
             let offsetHeaderStop:CGFloat = headerHeight - 100     // At this offset the Header stops its transformations
             let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
             //Shrinks the headerClickWindow that opens the imagePicker
-            headerClickViewHeight.constant = tableView.convert(tableView.frame.origin, to: nil).y - offsetLabelHeader
+            let height = (tableView.convert(tableView.frame.origin, to: nil).y - 10)
+            if height >= 0 {headerClickViewHeight.constant = height}
             twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, shrinkingButton2: nil, mainTitle: newKasamTitle)
         }
     }
@@ -364,8 +364,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     //IMAGE PICKER----------------------------------------------------------------------------------------------------------------------------
     
     func setupImageHolders(){
-        let imageTap = UITapGestureRecognizer(target: self, action: #selector(openImagePicker))
-        headerClickView.addGestureRecognizer(imageTap)
+        headerClickView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(openImagePicker)))
     }
     
     @objc func openImagePicker(_ sender:Any) {
@@ -483,22 +482,22 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
 //Sets the selected image as the kasam image in create view
 extension NewKasamController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func showChooseSourceTypeAlertController() {
-        let photoLibraryAction = UIAlertAction(title: "Choose a Photo", style: .default) { (action) in
-            self.showImagePickerController(sourceType: .photoLibrary)
+        showBottomButtonPopup(title: "Change Kasam Image", buttonText: ["Choose a Photo", "Take a new Photo"]) {(buttonPressed) in
+            if buttonPressed == 0 {
+                self.showImagePickerController(sourceType: .photoLibrary)
+            } else {
+                self.showImagePickerController(sourceType: .camera)
+            }
         }
-        let cameraAction = UIAlertAction(title: "Take a New Photo", style: .default) { (action) in
-            self.showImagePickerController(sourceType: .camera)
-        }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        AlertService.showAlert(style: .actionSheet, title: nil, message: nil, actions: [photoLibraryAction, cameraAction, cancelAction], completion: nil)
     }
     
     func showImagePickerController(sourceType: UIImagePickerController.SourceType) {
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.delegate = self
-        imagePickerController.allowsEditing = true
-        imagePickerController.sourceType = sourceType
-        present(imagePickerController, animated: true, completion: nil)
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = true
+        imagePicker.sourceType = sourceType
+        SwiftEntryKit.dismiss()
+        present(imagePicker, animated: true, completion: nil)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {

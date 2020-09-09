@@ -19,6 +19,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     @IBOutlet weak var tableView: UITableView! {didSet {tableView.estimatedRowHeight = 100}}
     @IBOutlet var headerView : UIView!
+    @IBOutlet weak var headerViewHeight: NSLayoutConstraint!
     @IBOutlet weak var headerImageView: UIImageView!
     @IBOutlet weak var kasamBadgeHolder: UIView!
     @IBOutlet weak var headerBadgeMask: UIView!
@@ -56,7 +57,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var extendIcon: UIButton!
     @IBOutlet weak var extendLabel: UILabel!
     
-    @IBOutlet weak var constraintHeightHeaerImages: NSLayoutConstraint!
     @IBOutlet weak var createKasamButton: UIButton!
     @IBOutlet weak var deleteKasamButton: UIButton!
     @IBOutlet weak var createDeleteButtonStackView: UIStackView!
@@ -208,7 +208,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         }
         
         @objc func kasamTrophiesPopup() {
-            showTrophiesPopup(kasamID: kasamID)
+            showCenterTrophiesPopup(kasamID: kasamID)
         }
     
     //KASAM BADGE------------------------------------------------------------------------------------
@@ -346,10 +346,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     let headerHeight = UIScreen.main.bounds.height - (518 * (UIScreen.main.bounds.width / 375))
     
     func setupTwitterParallax(){
-        constraintHeightHeaerImages.constant = headerHeight
-        headerView.layoutIfNeeded()
-        tableView.contentInset = UIEdgeInsets(top: headerView.frame.height, left: 0, bottom: 0, right: 0)
-        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerLabel: headerLabel)
+        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerViewHeight: headerViewHeight, headerHeightToSet: headerHeight, headerLabel: headerLabel, tableView: tableView)
+        
+        //Badge Constraints
         kasamBadgeHolder.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint(item: kasamBadgeHolder, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: profileViewRadius, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: -40).isActive = true
     }
@@ -375,7 +374,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 self.kasamTitle.text! = self.kasamGTitle
                 self.kasamDescription.text! = value["Description"] as? String ?? ""
                 self.coachIDGlobal = value["CreatorID"] as! String
-                DBRef.userBase.child(self.coachIDGlobal).child("Info").child("Name").observeSingleEvent(of: .value) {(creator) in
+                DBRef.users.child(self.coachIDGlobal).child("Info").child("Name").observeSingleEvent(of: .value) {(creator) in
                     self.coachName.setTitle(creator.value as? String ?? "Coach", for: .normal)
                 }
                 
@@ -439,10 +438,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //OPENS THE POPUP TO ENTER PREFERENCES
         if registerCheck == 0 || reset == true {
             //Adding new Kasam
-            addKasamPopup(kasamID: kasamID, state: "new", duration: chosenRepeat)
+            showButtomAddKasamPopup(kasamID: kasamID, state: "new", duration: chosenRepeat)
         } else {
             //Existing Kasam prefernces being updated
-            addKasamPopup(kasamID: kasamID, state: "edit", duration: chosenRepeat)
+            showButtomAddKasamPopup(kasamID: kasamID, state: "edit", duration: chosenRepeat)
         }
         //If the user presses save:
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
@@ -468,7 +467,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         }
         //If the user presses unfollow:
         unfollowObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "UnfollowKasam\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
-            showPopupConfirmation(title: "You sure?", description: "Your past progress will be saved.", image: UIImage.init(icon: .fontAwesomeSolid(.heartbeat), size: CGSize(width: 35, height: 35), textColor: .white), buttonText: "End Kasam") {(success) in
+            showCenterPopupConfirmation(title: "You sure?", description: "Your past progress will be saved.", image: UIImage.init(icon: .fontAwesomeSolid(.heartbeat), size: CGSize(width: 35, height: 35), textColor: .colorFour), buttonText: "End Kasam") {(success) in
                 SavedData.kasamDict[self.kasamID] = nil
                 self.unregisterUseFromKasam()
             }
@@ -489,7 +488,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         
         //STEP 2: Adds the user to the Coach-following list
-        DBRef.userBase.child(coachIDGlobal).child("Info").child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
+        DBRef.users.child(coachIDGlobal).child("Info").child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         countFollowers()
                 
         //STEP 3: Adds the user preferences to the Kasam they just followed
@@ -522,7 +521,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         DBRef.coachKasams.child(kasamID).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         
         //Removes the user from the Coach following
-        DBRef.userBase.child(coachIDGlobal).child("Info").child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+        DBRef.users.child(coachIDGlobal).child("Info").child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         
         //Remove notification
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
@@ -635,8 +634,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                     }
                 }
             } else {
-                let popupImage = UIImage.init(icon: .fontAwesomeSolid(.cookieBite), size: CGSize(width: 30, height: 30), textColor: .white)
-                showPopupConfirmation(title: "You're missing a few fields...", description: "", image: popupImage, buttonText: "Fill them in") {(success) in
+                let popupImage = UIImage.init(icon: .fontAwesomeSolid(.cookieBite), size: CGSize(width: 30, height: 30), textColor: .colorFour)
+                showCenterPopupConfirmation(title: "You're missing a few fields...", description: "", image: popupImage, buttonText: "Fill them in") {(success) in
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToBack"), object: self)
                     SwiftEntryKit.dismiss()
                 }

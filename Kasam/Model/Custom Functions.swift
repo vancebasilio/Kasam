@@ -310,6 +310,16 @@ extension UIViewController {
         }
     }
     
+    func goToCreateNewKasam(type: String) {
+        NewKasam.resetKasam()
+        let vc = NewKasamPageController()
+        vc.kasamType = type
+        vc.modalPresentationStyle = .fullScreen
+        let navController = UINavigationController(rootViewController: vc)
+        navController.modalPresentationStyle = .fullScreen
+        present(navController, animated: true)
+    }
+    
     //STEP 1 - Saves Kasam Text Data
     func createKasam(existingKasamID: String?, basicKasam: Bool, userKasam: Bool, completion: @escaping (Bool) -> ()) {
         print("1. creating kasam hell1")
@@ -465,8 +475,8 @@ extension UIViewController {
 //            self.navigationController?.popToRootViewController(animated: true)
 //        } else {
             //delete the existing Kasam
-            let popupImage = UIImage.init(icon: .fontAwesomeRegular(.trashAlt), size: CGSize(width: 30, height: 30), textColor: .white)
-            showPopupConfirmation(title: "Are you sure?", description: "You won't be able to undo this action", image: popupImage, buttonText: "Delete Kasam") {(success) in
+            let popupImage = UIImage.init(icon: .fontAwesomeRegular(.trashAlt), size: CGSize(width: 30, height: 30), textColor: .colorFour)
+            showCenterPopupConfirmation(title: "Are you sure?", description: "You won't be able to undo this action", image: popupImage, buttonText: "Delete Kasam") {(success) in
                 
                 DBRef.userKasams.child(NewKasam.kasamID).removeValue()                 //delete kasam
                 
@@ -720,9 +730,12 @@ extension UIViewController {
         shrinkingButton2?.layer.transform = avatarTransform
     }
     
-    func twitterParallaxHeaderSetup(headerBlurImageView: UIImageView?, headerImageView: UIImageView, headerView: UIView, headerLabel: UILabel) -> UIImageView? {
-        var headerBlurImageView = headerBlurImageView
+    func twitterParallaxHeaderSetup(headerBlurImageView: UIImageView?, headerImageView: UIImageView, headerView: UIView, headerViewHeight: NSLayoutConstraint, headerHeightToSet: CGFloat, headerLabel: UILabel, tableView: UITableView) -> UIImageView? {
+        headerView.layoutIfNeeded()
+        headerViewHeight.constant = headerHeightToSet
+        tableView.contentInset = UIEdgeInsets(top: headerHeightToSet, left: 0, bottom: 0, right: 0)       //setup floating header
         
+        var headerBlurImageView = headerBlurImageView
         //align header image to top
         headerImageView.translatesAutoresizingMaskIntoConstraints = false
         let topConstraint = NSLayoutConstraint(item: headerImageView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 0)
@@ -743,8 +756,8 @@ extension UIViewController {
     }
     
     func finishKasamPress (kasamID: String, completion: @escaping (Bool) -> ()) {
-        let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .white)
-        showPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam.\nYour past progress and badges will be saved.", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
+        let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .colorFour)
+        showCenterPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam.\nYour past progress and badges will be saved.", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
             
             //STEP 1 - Remove notification
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
@@ -803,7 +816,7 @@ extension UIViewController {
     }
     
     @objc func showUserOptions(button: UIButton){
-        showBottomPopup(type: "userOptions", array: nil)
+        showBottomTablePopup(type: "userOptions", programKasamArray: nil)
     }
     
     func getBlockVideo (url: String){

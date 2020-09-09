@@ -279,8 +279,8 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
             return nil
         } else {
             let delete = SwipeAction(style: .destructive, title: nil) { action, indexPath in
-                let popupImage = UIImage.init(icon: .fontAwesomeSolid(.eraser), size: CGSize(width: 30, height: 30), textColor: .white)
-                showPopupConfirmation(title: "Sure you want to delete your progress on \(self.kasamHistoryArray[indexPath.row].shortDate)?", description: "", image: popupImage, buttonText: "Delete") {(success) in
+                let popupImage = UIImage.init(icon: .fontAwesomeSolid(.eraser), size: CGSize(width: 30, height: 30), textColor: .colorFour)
+                showCenterPopupConfirmation(title: "Sure you want to delete your progress on \(self.kasamHistoryArray[indexPath.row].shortDate)?", description: "", image: popupImage, buttonText: "Delete") {(success) in
                     DBRef.userPersonalHistory.child(self.transferArray!.kasamID).child(self.kasamHistoryArray[indexPath.row].fullDate).setValue(nil)
                     self.kasamHistoryArray.remove(at: indexPath.row)
                     self.historyTableView.reloadData()

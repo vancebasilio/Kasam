@@ -34,7 +34,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     @IBOutlet weak var kasamStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionViewHeight: NSLayoutConstraint!
-    @IBOutlet weak var completedStatsHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     @IBOutlet weak var badgesView: UIStackView!
     
@@ -84,6 +83,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     func viewSetup(){
+        kasamStatsHeight.constant = (view.bounds.size.width * (2/5))
         levelLineBack.layer.cornerRadius = 4
         levelLineBack.clipsToBounds = true
         levelLine.layer.cornerRadius = 4
@@ -246,7 +246,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     @objc func allTrophiesPopup() {
-        showTrophiesPopup(kasamID: nil)
+        showCenterTrophiesPopup(kasamID: nil)
     }
     
     @objc func profileUpdate() {
@@ -313,7 +313,6 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        kasamStatsHeight.constant = (view.bounds.size.width * (2/5))
         return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
     }
     

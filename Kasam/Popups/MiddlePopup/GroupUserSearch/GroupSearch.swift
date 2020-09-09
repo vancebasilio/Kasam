@@ -52,7 +52,7 @@ class GroupSearchController: UIViewController {
         selectedUserArray.removeAll()
         if SavedData.kasamDict[kasamID]?.groupTeam != nil {
             for member in SavedData.kasamDict[kasamID]!.groupTeam! {
-                DBRef.userBase.child(member.key).child("Info").observeSingleEvent(of: .value) {(userInfo) in
+                DBRef.users.child(member.key).child("Info").observeSingleEvent(of: .value) {(userInfo) in
                     DispatchQueue.main.async {
                         if let value = userInfo.value as? [String:Any] {
                             self.selectedUserArray.append((userID: member.key,name: value["Name"] as! String, image: URL(string: value["ProfilePic"] as! String), status: member.value))
@@ -88,7 +88,7 @@ extension GroupSearchController: UISearchBarDelegate {
         super.touchesBegan(touches, with: event)
         let touch: UITouch? = touches.first
         if touch?.view != dropdownTableView {
-            self.dropdownTableHeight.constant = 0
+            self.dropdownTableHeight.constant = 20
             self.dropdownTableView.reloadData()
             selectedTableView.isUserInteractionEnabled = true
         }
@@ -96,14 +96,14 @@ extension GroupSearchController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.isEmpty {
-            self.dropdownTableHeight.constant = 0
+            self.dropdownTableHeight.constant = 20
             self.dropdownUserArray.removeAll()
             self.dropdownTableView.reloadData()
             selectedTableView.isUserInteractionEnabled = true
         } else if searchText.contains(".com") {
             Database.database().reference().child("User-Emails").child((searchBar.text ?? "").MD5()).observeSingleEvent(of: .value) {(snap) in
                 if snap.exists() {
-                    DBRef.userBase.child(snap.value as! String).child("Info").observeSingleEvent(of: .value) {(userInfo) in
+                    DBRef.users.child(snap.value as! String).child("Info").observeSingleEvent(of: .value) {(userInfo) in
                         DispatchQueue.main.async {
                             if let value = userInfo.value as? [String:Any] {
                                 var status = -2.0
@@ -183,29 +183,45 @@ extension GroupSearchController: UITableViewDelegate, UITableViewDataSource, Gro
             dropdownUserArray[row - 1].status = -1.0
             dropdownTableView.reloadRows(at: [IndexPath(row: row, section: 0)], with: .fade)
             dropdownTableView.endUpdates()
-            DBRef.userBase.child(userID).child("Group-Following").child(SavedData.kasamDict[kasamID]!.groupID!).child("Time").setValue(SavedData.kasamDict[kasamID]?.startTime)
+            
+            //Add kasam to user group following
+            DBRef.users.child(userID).child("Group-Following").child(SavedData.kasamDict[kasamID]!.groupID!).child("Time").setValue(SavedData.kasamDict[kasamID]?.startTime)
+            
+            //Add user to group kasam
             DBRef.groupKasams.child(SavedData.kasamDict[kasamID]!.groupID!).child("Info").child("Team").child(userID).setValue(-1.0)
+            
+            //Send notification invite
+            DBRef.users.child(userID).child("Info").child("fcmToken").observeSingleEvent(of: .value) {(fcmTokenSnap) in
+                if let fcmToken = fcmTokenSnap.value as? String {
+                    let sender = PushNotificationSender()
+                    sender.sendPushNotification(to: fcmToken, title: "Group Kasam Invitation", body: "\(Auth.auth().currentUser?.displayName ?? "") is inviting you to join the \(SavedData.kasamDict[self.kasamID]?.kasamName ?? "") kasam")
+                }
+            }
+            
+            //Add user to internal app tracking dictionary
             SavedData.kasamDict[kasamID]?.groupTeam?[userID] = -1
             loadExistingUsersArray()
         }
     }
     
     func showPopTipRemove(row: Int, frame: CGRect) {
-        popTipView.appearHandler = {popTip in self.popTipViewStatus = true}
-        popTipView.dismissHandler = {popTip in self.popTipViewStatus = false}
-        let customView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 20))
-        let button:UIButton = UIButton(frame: customView.frame)
-        button.backgroundColor = .clear
-        button.setTitle("Remove", for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
-        button.addTarget(self, action:#selector(buttonClicked), for: .touchUpInside)
-        button.tag = row
-        customView.addSubview(button)
-        if popTipViewStatus == false {
-            let frameY = self.selectedTableView.rectForRow(at: IndexPath(row: row, section: 0)).minY + selectedTableView.frame.minY + 5
-            let modifiedFrame = CGRect(x: frame.midX - 10, y: frameY, width: frame.width, height: frame.height)
-            popTipView.show(customView: customView, direction: .down, in: view, from: modifiedFrame, duration: 3)}
-        else {popTipView.hide()}
+        if SavedData.userID == SavedData.kasamDict[kasamID]!.groupAdmin {
+            popTipView.appearHandler = {popTip in self.popTipViewStatus = true}
+            popTipView.dismissHandler = {popTip in self.popTipViewStatus = false}
+            let customView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 20))
+            let button:UIButton = UIButton(frame: customView.frame)
+            button.backgroundColor = .clear
+            button.setTitle("Remove", for: .normal)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
+            button.addTarget(self, action:#selector(buttonClicked), for: .touchUpInside)
+            button.tag = row
+            customView.addSubview(button)
+            if popTipViewStatus == false {
+                let frameY = self.selectedTableView.rectForRow(at: IndexPath(row: row, section: 0)).minY + selectedTableView.frame.minY + 5
+                let modifiedFrame = CGRect(x: frame.midX - 10, y: frameY, width: frame.width, height: frame.height)
+                popTipView.show(customView: customView, direction: .down, in: view, from: modifiedFrame, duration: 3)}
+            else {popTipView.hide()}
+        }
     }
     
     @objc func buttonClicked(sender:UIButton) {
@@ -215,7 +231,7 @@ extension GroupSearchController: UITableViewDelegate, UITableViewDataSource, Gro
     
     func removeUser(row:Int, userID: String) {
         DBRef.groupKasams.child(SavedData.kasamDict[kasamID]!.groupID!).child("Info").child("Team").child(userID).setValue(nil)
-        DBRef.userBase.child(userID).child("Group-Following").child(SavedData.kasamDict[kasamID]!.groupID!).setValue(nil)
+        DBRef.users.child(userID).child("Group-Following").child(SavedData.kasamDict[kasamID]!.groupID!).setValue(nil)
         SavedData.kasamDict[kasamID]?.groupTeam?[userID] = nil
         if let index = selectedUserArray.index(where: {$0.userID == userID}) {
             selectedUserArray.remove(at: index)
