@@ -78,7 +78,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLoad()
-        setupImageHolders()
         setupTwitterParallax()
         newKasamDescription.delegate = self
         benefitsTextView.delegate = self
@@ -95,7 +94,10 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         let backButtonBasicKasam = NSNotification.Name("BackButtonBasicKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(NewKasamController.backButtonBasicKasam), name: backButtonBasicKasam, object: nil)
         
-        //setup radius for kasam info block
+        //When click header, image picker popsup
+        headerClickView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBottomImagePicker)))
+        
+        //Setup radius for kasam info block
         self.hideKeyboardWhenTappedAround()
         profileViewRadius.layer.cornerRadius = 16.0
         profileViewRadius.clipsToBounds = true
@@ -346,7 +348,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     let headerHeight = UIScreen.main.bounds.width * 0.55        //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
     
     func setupTwitterParallax(){
-        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerViewHeight: headerViewHeight, headerHeightToSet: headerHeight, headerLabel: headerLabel, tableView: tableView)
+        headerBlurImageView = parallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerViewHeight: headerViewHeight, headerHeightToSet: headerHeight, headerLabel: headerLabel, tableView: tableView)
     }
     
     //executes when the user scrolls
@@ -354,22 +356,12 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         if scrollView != metricTypeCollection {
             let offsetHeaderStop:CGFloat = headerHeight - 100     // At this offset the Header stops its transformations
             let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
+            
             //Shrinks the headerClickWindow that opens the imagePicker
             let height = (tableView.convert(tableView.frame.origin, to: nil).y - 10)
             if height >= 0 {headerClickViewHeight.constant = height}
-            twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, shrinkingButton2: nil, mainTitle: newKasamTitle)
+            parallaxScrollDelegate(scrollView: scrollView, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButtons: nil, mainTitle: newKasamTitle)
         }
-    }
-    
-    //IMAGE PICKER----------------------------------------------------------------------------------------------------------------------------
-    
-    func setupImageHolders(){
-        headerClickView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(openImagePicker)))
-    }
-    
-    @objc func openImagePicker(_ sender:Any) {
-        // Open Image Picker
-        showChooseSourceTypeAlertController()
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------
@@ -481,7 +473,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
 
 //Sets the selected image as the kasam image in create view
 extension NewKasamController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    func showChooseSourceTypeAlertController() {
+    @objc func showBottomImagePicker() {
         showBottomButtonPopup(title: "Change Kasam Image", buttonText: ["Choose a Photo", "Take a new Photo"]) {(buttonPressed) in
             if buttonPressed == 0 {
                 self.showImagePickerController(sourceType: .photoLibrary)

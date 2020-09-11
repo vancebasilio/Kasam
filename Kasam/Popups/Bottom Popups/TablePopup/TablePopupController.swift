@@ -89,8 +89,7 @@ extension TablePopupController: UITableViewDelegate, UITableViewDataSource {
                         }
                     }
                 case 2:
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "GoToNotifications"), object: self)
-                    SwiftEntryKit.dismiss()
+                    showBottomNotificationsPopup()
                 case 3:
                     showCenterOptionsPopup(kasamID: nil, title: "Are you sure?", subtitle: nil, text: nil, type:"logout", button: "Logout") {(mainButtonPressed) in
                         SavedData.wipeAllData()

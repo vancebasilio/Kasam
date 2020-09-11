@@ -115,7 +115,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupTwitterParallax()
+        setupParallax()
         setupButtons()
         notificationCenter()
         self.playerView.delegate = self
@@ -340,13 +340,13 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         self.view.isUserInteractionEnabled = true
     }
     
-    //Twitter Parallax-------------------------------------------------------------------------------------------------------------------
+    //Parallax-------------------------------------------------------------------------------------------------------------------
     
     //CHANGE THIS VALUE TO MODIFY THE HEADER
     let headerHeight = UIScreen.main.bounds.height - (518 * (UIScreen.main.bounds.width / 375))
     
-    func setupTwitterParallax(){
-        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerViewHeight: headerViewHeight, headerHeightToSet: headerHeight, headerLabel: headerLabel, tableView: tableView)
+    func setupParallax(){
+        headerBlurImageView = parallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerViewHeight: headerViewHeight, headerHeightToSet: headerHeight, headerLabel: headerLabel, tableView: tableView)
         
         //Badge Constraints
         kasamBadgeHolder.translatesAutoresizingMaskIntoConstraints = false
@@ -354,10 +354,12 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        kasamBadgeHeight.constant = headerView.frame.height - 50
         let offsetHeaderStop:CGFloat = headerHeight - 100         //Thickness of navbar that appears when you scroll up
         let offsetLabelHeader:CGFloat = 60.0                      //Distance from top of screen that the headerlabel shows up at
-        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: addButtonText, shrinkingButton2: addButton, mainTitle: kasamTitle)
+        parallaxScrollDelegate(scrollView: scrollView, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButtons: [addButton, addButtonText, editKasamButton], mainTitle: kasamTitle)
+        
+        //Badge Constraints
+        kasamBadgeHeight.constant = headerView.frame.height - 50
     }
     
     //-----------------------------------------------------------------------------------------------------------------------------------

@@ -50,20 +50,12 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         
         let resetPersonalKasam = NSNotification.Name("ResetPersonalKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.getPersonalFollowing), name: resetPersonalKasam, object: nil)
-               
-        let goToNotifications = NSNotification.Name("GoToNotifications")
-        NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToNotifications), name: goToNotifications, object: nil)
-        
         let goToDiscover = NSNotification.Name("GoToDiscover")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToDiscover), name: goToDiscover, object: nil)
     }
     
     @objc func updateScrollViewSize(){
         self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.tableViewHeight, tableRowHeight: self.personalTableRowHeight, additionalTableHeight: nil, rowCount: SavedData.personalKasamBlocks.count, additionalHeight: 100)
-    }
-    
-    @objc func goToNotifications(){
-        performSegue(withIdentifier: "goToNotifications", sender: nil)
     }
     
     //-------------------------------------------------------------------------------------------------------
@@ -224,8 +216,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         } else if segue.identifier == "goToKasamHolder" {
             let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDforHolder
-        } else if segue.identifier == "goToNotifications" {
-            //No variables to set
         }
     }
 }

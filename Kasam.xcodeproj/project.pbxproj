@@ -79,6 +79,8 @@
 		BCA9A06222A9D22E008C5A7D /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06122A9D22E008C5A7D /* AppContainer.swift */; };
 		BCA9A06422A9D2AB008C5A7D /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA9A06322A9D2AB008C5A7D /* AppManager.swift */; };
 		BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */ = {isa = PBXBuildFile; fileRef = BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */; };
+		BCB68FDA250A9B3600E0C1E0 /* NotificationsController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCB68FD9250A9B3600E0C1E0 /* NotificationsController.xib */; };
+		BCB68FDC250A9D8900E0C1E0 /* NotificationsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCB68FDB250A9D8900E0C1E0 /* NotificationsCell.xib */; };
 		BCB7FFCE248BCF4900E41913 /* NotificationsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB7FFCD248BCF4900E41913 /* NotificationsController.swift */; };
 		BCB7FFD0248BD3F600E41913 /* NotificationsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB7FFCF248BD3F600E41913 /* NotificationsCell.swift */; };
 		BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */; };
@@ -188,6 +190,8 @@
 		BCA9A06122A9D22E008C5A7D /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		BCA9A06322A9D2AB008C5A7D /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
 		BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "fireworks-loading.json"; path = "Supporting Files/Lottie Animations/fireworks-loading.json"; sourceTree = SOURCE_ROOT; };
+		BCB68FD9250A9B3600E0C1E0 /* NotificationsController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NotificationsController.xib; sourceTree = "<group>"; };
+		BCB68FDB250A9D8900E0C1E0 /* NotificationsCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NotificationsCell.xib; sourceTree = "<group>"; };
 		BCB7FFCD248BCF4900E41913 /* NotificationsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsController.swift; sourceTree = "<group>"; };
 		BCB7FFCF248BD3F600E41913 /* NotificationsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsCell.swift; sourceTree = "<group>"; };
 		BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KasamTrackerCell.swift; sourceTree = "<group>"; };
@@ -271,7 +275,9 @@
 		BC1C8412248B531400797A20 /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
+				BCB68FD9250A9B3600E0C1E0 /* NotificationsController.xib */,
 				BCB7FFCD248BCF4900E41913 /* NotificationsController.swift */,
+				BCB68FDB250A9D8900E0C1E0 /* NotificationsCell.xib */,
 				BCB7FFCF248BD3F600E41913 /* NotificationsCell.swift */,
 			);
 			path = Notifications;
@@ -619,12 +625,14 @@
 				BCD213672460CEE10096A365 /* flagmountainBG.json in Resources */,
 				BCAE18AE23CD3BE300E47ED9 /* fireworks-loading.json in Resources */,
 				BC1FAF372269FAFA006A9245 /* LaunchScreen.storyboard in Resources */,
+				BCB68FDC250A9D8900E0C1E0 /* NotificationsCell.xib in Resources */,
 				BC1092A723A0553400575EDB /* AddKasamController.xib in Resources */,
 				BC1FAF342269FAFA006A9245 /* Assets.xcassets in Resources */,
 				BC83484C24450403001819DC /* crownSmooth.json in Resources */,
 				BC83484A2445034A001819DC /* crown.json in Resources */,
 				BC84F75C24F21A5C009AFDBD /* updateCircle.json in Resources */,
 				BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */,
+				BCB68FDA250A9B3600E0C1E0 /* NotificationsController.xib in Resources */,
 				BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */,
 				BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */,
 				BCE4B4B923666E0500C75480 /* TablePopupController.xib in Resources */,

@@ -90,13 +90,13 @@ class CoachHolder: UIViewController, UIScrollViewDelegate  {
     let headerHeight = UIScreen.main.bounds.width * 0.65            //Twitter Parallax -- CHANGE THIS VALUE TO MODIFY THE HEADER
     
     func setupTwitterParallax(){
-        headerBlurImageView = twitterParallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerViewHeight: headerViewHeight, headerHeightToSet: headerHeight, headerLabel: headerLabel, tableView: tableView)
+        headerBlurImageView = parallaxHeaderSetup(headerBlurImageView: headerBlurImageView, headerImageView: headerImageView, headerView: headerView, headerViewHeight: headerViewHeight, headerHeightToSet: headerHeight, headerLabel: headerLabel, tableView: tableView)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetHeaderStop:CGFloat = headerHeight - 100         // At this offset the Header stops its transformations
         let offsetLabelHeader:CGFloat = 60.0                  // The distance between the top of the screen and the top of the White Label
-        twitterParallaxScrollDelegate(scrollView: scrollView, headerHeight: headerHeight, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButton: nil, shrinkingButton2: nil, mainTitle: coachName)
+        parallaxScrollDelegate(scrollView: scrollView, headerView: headerView, headerBlurImageView: headerBlurImageView, headerLabel: headerLabel, offsetHeaderStop: offsetHeaderStop, offsetLabelHeader: offsetLabelHeader, shrinkingButtons: nil, mainTitle: coachName)
     }
     
     //Retrieves Coach Data using coachID selected

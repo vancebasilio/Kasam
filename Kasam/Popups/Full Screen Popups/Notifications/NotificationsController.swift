@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import SwiftEntryKit
+
 
 class NotificationsController: UIViewController {
     
@@ -18,6 +20,9 @@ class NotificationsController: UIViewController {
     @IBOutlet weak var kasamLogo: UIImageView!
     @IBOutlet weak var notificationsTable: UITableView!
     
+    init() {super.init(nibName: type(of: self).className, bundle: nil)}
+    required init?(coder aDecoder: NSCoder) {fatalError("init(coder:) has not been implemented")}
+    
     var didLayout = false
     var notificationArray = [(kasamID: String, notification: UNNotificationRequest?)]()
     
@@ -28,6 +33,9 @@ class NotificationsController: UIViewController {
         saveButton.layer.cornerRadius = 20.0
         closeButton?.setIcon(icon: .fontAwesomeSolid(.times), iconSize: 20, color: UIColor.init(hex: 0x79787e), forState: .normal)
         localNotifications(nil)
+        
+        let nib = UINib(nibName: "NotificationsCell", bundle: nil)
+        notificationsTable.register(nib, forCellReuseIdentifier: "NotificationsCell")
         
         let reloadNotification = NSNotification.Name("ReloadNotifications")
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationsController.localNotifications), name: reloadNotification, object: nil)
@@ -63,11 +71,11 @@ class NotificationsController: UIViewController {
     }
     
     @IBAction func closeButtonPressed(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
+        SwiftEntryKit.dismiss()
     }
     
     @IBAction func saveButtonPressed(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
+        SwiftEntryKit.dismiss()
     }
 }
 

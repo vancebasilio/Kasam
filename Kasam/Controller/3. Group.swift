@@ -193,8 +193,6 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         } else if segue.identifier == "goToKasamHolder" {
             let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDTransfer
-        } else if segue.identifier == "goToNotifications" {
-            //No variables to set
         }
     }
 }

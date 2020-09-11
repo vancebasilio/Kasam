@@ -674,36 +674,36 @@ extension UIViewController {
         return (convertedTime, convertedMetric)
     }
     
-    func twitterParallaxScrollDelegate(scrollView: UIScrollView, headerHeight: CGFloat, headerView: UIView, headerBlurImageView: UIView?, headerLabel: UILabel, offsetHeaderStop: CGFloat, offsetLabelHeader: CGFloat, shrinkingButton: UIButton?, shrinkingButton2: UIButton?, mainTitle: UIView){
+    func parallaxScrollDelegate(scrollView: UIScrollView, headerView: UIView, headerBlurImageView: UIView?, headerLabel: UILabel, offsetHeaderStop: CGFloat, offsetLabelHeader: CGFloat, shrinkingButtons: [UIButton]?, mainTitle: UIView){
         let offset = scrollView.contentOffset.y + headerView.bounds.height
         var avatarTransform = CATransform3DIdentity
         var headerTransform = CATransform3DIdentity
         
         //Controls the image white overlay, when it shows and when it disappears
         let alignToNameLabel = -offset + mainTitle.frame.origin.y + headerView.frame.height + offsetHeaderStop
-        headerBlurImageView?.alpha = min (1.0, (offset + 220 - alignToNameLabel)/(offsetLabelHeader + 50))
+        let scalingAlpha = min (1.0, (offset + 220 - alignToNameLabel)/(offsetLabelHeader + 50))
+        headerBlurImageView?.alpha = scalingAlpha
 
-        // PULL DOWN -----------------
+        //PULL DOWN-----------------
         if offset < 0 {
             let headerScaleFactor:CGFloat = -(offset) / headerView.bounds.height
             let headerSizevariation = ((headerView.bounds.height * (1.0 + headerScaleFactor)) - headerView.bounds.height)/2
             headerTransform = CATransform3DTranslate(headerTransform, 0, headerSizevariation, 0)
             headerTransform = CATransform3DScale(headerTransform, 1.0 + headerScaleFactor, 1.0 + headerScaleFactor, 0)
             
-            // Hide views if scrolled super fast
+            //Hide views if scrolled super fast
             headerView.layer.zPosition = 0
             headerLabel.isHidden = true
         }
-        // SCROLL UP/DOWN ------------
+        //SCROLL UP/DOWN--------------------
         else {
-            //Header -----------
-            headerTransform = CATransform3DTranslate(headerTransform, 0, max(-offsetHeaderStop, -offset), 0)
+            headerTransform = CATransform3DTranslate(headerTransform, 0, max(-offsetHeaderStop, -offset), 0)          //Header
             
-            //Label ------------
+            //Label------------
             headerLabel.isHidden = false
             headerLabel.frame.origin = CGPoint(x: headerLabel.frame.origin.x, y: max(alignToNameLabel, offsetLabelHeader + offsetHeaderStop))
             
-            //Blur ------------
+            //Blur------------
             if let navBar = self.navigationController?.navigationBar {
                 if alignToNameLabel - offsetLabelHeader > 0 {
                     let scrollPercentage = Double(min (1.0, (offset)/(alignToNameLabel - offsetLabelHeader)))
@@ -711,28 +711,27 @@ extension UIViewController {
                 }
             }
             
-            //Avatar -----------
-            var avatarScaleFactor = CGFloat(0)
-            avatarScaleFactor = (min(offsetHeaderStop, offset)) / (shrinkingButton?.bounds.height ?? 1) / 9.4 // Slow down the animation
-            let avatarSizeVariation = (1.0 + avatarScaleFactor) / 2.0
-            avatarTransform = CATransform3DTranslate(avatarTransform, 0, avatarSizeVariation, 0)
+            //Scaling & Fading-----------
+            let avatarScaleFactor = (min(offsetHeaderStop, offset)) / (shrinkingButtons?[0].bounds.height ?? 1) / 9.4
             avatarTransform = CATransform3DScale(avatarTransform, 1.0 - avatarScaleFactor, 1.0 - avatarScaleFactor, 0)
             
-            if offset <= offsetHeaderStop {
-                headerView.layer.zPosition = 0
-            } else {
-                headerView.layer.zPosition = 2
-            }
+            if offset <= offsetHeaderStop {headerView.layer.zPosition = 0}
+            else {headerView.layer.zPosition = 2}
         }
+        
         // Apply Transformations
         headerView.layer.transform = headerTransform
-        shrinkingButton?.layer.transform = avatarTransform
-        shrinkingButton2?.layer.transform = avatarTransform
+        if shrinkingButtons != nil {
+            for button in shrinkingButtons! {
+                button.layer.transform = avatarTransform
+                button.alpha = 1 - scalingAlpha
+            }
+        }
     }
     
-    func twitterParallaxHeaderSetup(headerBlurImageView: UIImageView?, headerImageView: UIImageView, headerView: UIView, headerViewHeight: NSLayoutConstraint, headerHeightToSet: CGFloat, headerLabel: UILabel, tableView: UITableView) -> UIImageView? {
-        headerView.layoutIfNeeded()
+    func parallaxHeaderSetup(headerBlurImageView: UIImageView?, headerImageView: UIImageView, headerView: UIView, headerViewHeight: NSLayoutConstraint, headerHeightToSet: CGFloat, headerLabel: UILabel, tableView: UITableView) -> UIImageView? {
         headerViewHeight.constant = headerHeightToSet
+        headerView.layoutIfNeeded()
         tableView.contentInset = UIEdgeInsets(top: headerHeightToSet, left: 0, bottom: 0, right: 0)       //setup floating header
         
         var headerBlurImageView = headerBlurImageView

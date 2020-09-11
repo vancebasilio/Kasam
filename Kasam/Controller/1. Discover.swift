@@ -12,11 +12,11 @@ import FirebaseDatabase
 
 class DiscoverViewController: UIViewController {
     
-    @IBOutlet weak var categoryCollection: UICollectionView!
+    @IBOutlet weak var featuredCollectionView: UICollectionView!
+    @IBOutlet weak var featuredCollectionHeight: NSLayoutConstraint!
     @IBOutlet weak var discoverTableView: UITableView!
     @IBOutlet weak var discoverTableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var expertPageControl: UIPageControl!
-    @IBOutlet weak var expertHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     
     var discoverKasamDict = [String:[discoverKasamFormat]]()
@@ -28,8 +28,8 @@ class DiscoverViewController: UIViewController {
     var userKasam = false
     
     var discoverFilledHeight = CGFloat(240)
-    var discoverEmptyHeight = CGFloat(0)
-    var featureViewHeight = CGFloat(0)
+    var discoverEmptyHeight = CGFloat(120)
+    var additionalHeight = CGFloat(0)
     var rowCount = 0
     
     override func viewDidLoad() {
@@ -54,8 +54,9 @@ class DiscoverViewController: UIViewController {
     }
     
     func setHeights(){
+        featuredCollectionHeight.constant = (view.bounds.size.width * (8/13))
         discoverFilledHeight = (view.bounds.size.width / 2.3) + 60
-        featureViewHeight = view.bounds.size.width * (8/13) + 61 + 10
+        additionalHeight = featuredCollectionHeight.constant + 61 + 10
         rowCount = Assets.discoverCriteria.count
     }
     
@@ -74,20 +75,20 @@ class DiscoverViewController: UIViewController {
     //Table Resizing----------------------------------------------------------------------
     
     func updateContentTableHeight(){
-        self.updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: discoverTableViewHeight, tableRowHeight: discoverFilledHeight, additionalTableHeight: discoverEmptyHeight, rowCount: rowCount, additionalHeight: featureViewHeight)
+        self.updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: discoverTableViewHeight, tableRowHeight: discoverFilledHeight, additionalTableHeight: discoverEmptyHeight, rowCount: rowCount, additionalHeight: additionalHeight)
     }
 
     //make the expert slider automatically scroll
     @objc func changeImage() {
         if counter < featuredKasamArray.count {
             let index = IndexPath.init(item: counter, section: 0)
-            self.categoryCollection.scrollToItem(at: index, at: .centeredHorizontally, animated: true)
+            self.featuredCollectionView.scrollToItem(at: index, at: .centeredHorizontally, animated: true)
             expertPageControl.currentPage = counter
             counter += 1
         } else {
             counter = 0
             let index = IndexPath.init(item: counter, section: 0)
-            self.categoryCollection.scrollToItem(at: index, at: .centeredHorizontally, animated: false)
+            self.featuredCollectionView.scrollToItem(at: index, at: .centeredHorizontally, animated: false)
             expertPageControl.currentPage = counter
             counter = 1
         }
@@ -116,7 +117,7 @@ class DiscoverViewController: UIViewController {
                     let value = snapshot.value as? Dictionary<String,Any>
                     let kasam = discoverKasamFormat(title: value?["Title"] as? String ?? "", image: URL(string: value?["Image"] as? String ?? "") ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, rating: value?["Rating"] as? String ?? "5", creator: value?["CreatorName"] as? String ?? "", kasamID: value?["KasamID"] as? String ?? "", genre: value?["Genre"] as? String ?? "Fitness")
                     self.featuredKasamArray.append(kasam)
-                    self.categoryCollection.reloadData()
+                    self.featuredCollectionView.reloadData()
                 }
             }
         }
@@ -223,7 +224,7 @@ extension DiscoverViewController: UITableViewDataSource, UITableViewDelegate {
 extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     //Number of cells
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == categoryCollection {
+        if collectionView == featuredCollectionView {
             let count = featuredKasamArray.count
             expertPageControl.numberOfPages = count
             expertPageControl.isHidden = !(count > 1)
@@ -240,7 +241,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
     
     //Populate cells
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == categoryCollection {
+        if collectionView == featuredCollectionView {
             let block = featuredKasamArray[indexPath.row]
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FeaturedKasamCell", for: indexPath) as! DiscoverCategoryCell
             cell.setBlock(cell: block)
@@ -258,7 +259,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == categoryCollection {
+        if collectionView == featuredCollectionView {
             let kasamID = featuredKasamArray[indexPath.row].kasamID
             let kasamName = featuredKasamArray[indexPath.row].title
             kasamTitleGlobal = kasamName
@@ -283,9 +284,8 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if collectionView == categoryCollection {
-            expertHeight.constant = (view.bounds.size.width * (8/13))
-            return CGSize(width: view.bounds.size.width, height: view.bounds.size.width * (8/13))
+        if collectionView == featuredCollectionView {
+            return CGSize(width: view.bounds.size.width, height: featuredCollectionView.frame.height)         //Featured section
         }
         else {
             //for TableView collection view:

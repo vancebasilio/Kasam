@@ -117,6 +117,14 @@ import FirebaseAuth
         SwiftEntryKit.display(entry: viewController, using: attributes)
     }
 
+    func showBottomNotificationsPopup() {
+        let viewController = NotificationsController()
+        var attributes = PopupAttributes.bottom()
+        attributes.positionConstraints.size = .init(width: .fill, height: .ratio(value: 0.9))
+        SwiftEntryKit.display(entry: viewController, using: attributes)
+    }
+    
+
     func showBottomButtonPopup(title: String, buttonText: [String], completion:@escaping (Int) -> ()) {
         let viewController = ButtonPopupController()
         viewController.buttonTextArray = buttonText
