@@ -48,8 +48,6 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         let refreshPersonalKasam = NSNotification.Name("RefreshPersonalKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.refreshPersonalKasam), name: refreshPersonalKasam, object: nil)
         
-        let resetPersonalKasam = NSNotification.Name("ResetPersonalKasam")
-        NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.getPersonalFollowing), name: resetPersonalKasam, object: nil)
         let goToDiscover = NSNotification.Name("GoToDiscover")
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToDiscover), name: goToDiscover, object: nil)
     }
@@ -114,6 +112,16 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             }
             self.showIconCheck()
         }
+        //If restarting a kasam
+        DBRef.userPersonalFollowing.observe(.childChanged) {(snapshot) in
+            if let index = SavedData.personalKasamBlocks.index(where: {($0.kasamID == snapshot.key)}) {
+                if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: index, section: 0)) as? TodayBlockCell {
+                    self.personalKasamCount -= 1
+                    cell.kasamName.text = "..."                     //to tell the singleKasamUpdate func to reload the block
+                    self.getPreferences(snapshot: snapshot)
+                }
+            }
+        }
     }
     
     //STEP 2
@@ -177,7 +185,11 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
             SavedData.personalKasamBlocks[kasamOrder] = (kasam.kasamID, block)
             if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-                cell.blockSubtitle.text = SavedData.personalKasamBlocks[kasamOrder].data.blockTitle
+                if cell.kasamName.text == "..." {
+                    self.getDayTracker(kasamID: block.kasamID, tableView: self.personalKasamTable, type: "personal")
+                } else {
+                    cell.blockSubtitle.text = SavedData.personalKasamBlocks[kasamOrder].data.blockTitle
+                }
             }
         } else {
             SavedData.personalKasamBlocks.append((kasam.kasamID, block))

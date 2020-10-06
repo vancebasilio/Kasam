@@ -293,7 +293,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             extendHolder.isHidden = true
             self.headerImageView.alpha = 1.0
         }
-        let ratioAdjust = 0.95 - ratio
+        let ratioAdjust = 1 - ratio + 0.15
         gradientLayer.locations = [NSNumber(value: 0.15), NSNumber(value: ratioAdjust), NSNumber(value: ratioAdjust), NSNumber(value: 1.0)]
     }
     
@@ -323,9 +323,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     @IBAction func coachNamePress(_ sender: Any) {
-        if kasamEditCheck == false {
-            self.performSegue(withIdentifier: "goToCoach", sender: self)
-        }
+//        if kasamEditCheck == false {
+//            self.performSegue(withIdentifier: "goToCoach", sender: self)
+//        }
     }
     
     @IBAction func previewButtonPressed(_ sender: Any) {
@@ -440,10 +440,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //OPENS THE POPUP TO ENTER PREFERENCES
         if registerCheck == 0 || reset == true {
             //Adding new Kasam
-            showButtomAddKasamPopup(kasamID: kasamID, state: "new", duration: chosenRepeat)
+            showBottomAddKasamPopup(kasamID: kasamID, state: "new", duration: chosenRepeat)
         } else {
             //Existing Kasam prefernces being updated
-            showButtomAddKasamPopup(kasamID: kasamID, state: "edit", duration: chosenRepeat)
+            showBottomAddKasamPopup(kasamID: kasamID, state: "edit", duration: chosenRepeat)
         }
         //If the user presses save:
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in

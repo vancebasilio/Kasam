@@ -225,7 +225,7 @@ import FirebaseAuth
         SwiftEntryKit.display(entry: contentView, using: attributes)
     }
 
-    func showButtomAddKasamPopup(kasamID: String, state: String, duration: Int) {
+    func showBottomAddKasamPopup(kasamID: String, state: String, duration: Int) {
         var attributes = PopupAttributes.bottom()
         if state != "edit" {attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 500))}
         else {attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 300))}
@@ -245,7 +245,7 @@ import FirebaseAuth
         let titleStyle = EKProperty.LabelStyle(font: UIFont.systemFont(ofSize: 18, weight: .semibold), color: EKColor(UIColor.darkGray), alignment: .center, displayMode: .light)
         let title = EKProperty.LabelContent(text: "Change Display Name", style: titleStyle)
         let textFields = FormFieldPresetFactory.fields(by: [.motivation], style: style)
-        let button = EKProperty.ButtonContent(label: .init(text: "Continue", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
+        let button = EKProperty.ButtonContent(label: .init(text: "Save", style: style.buttonTitle), backgroundColor: style.buttonBackground, highlightedBackgroundColor: style.buttonBackground.with(alpha: 0.8), displayMode: .light, accessibilityIdentifier: "continueButton") {
             let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
             changeRequest?.displayName = textFields[0].textContent
             changeRequest?.commitChanges {(error) in

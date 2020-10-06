@@ -81,7 +81,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     func updateContentTableHeight() {
         tableViewHeight.constant = setTableViewHeight
         contentViewHeight.constant = tableViewHeight.constant + topViewHeight.constant + 20
-        //elongates the entire scrollview, based on the tableview height
+        //Elongates the entire scrollview, based on the tableview height
         let frame = self.view.safeAreaLayoutGuide.layoutFrame
         if contentViewHeight.constant <= frame.height {
             let diff = frame.height - contentViewHeight.constant - navView.frame.height
@@ -106,67 +106,66 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
     
     @objc func getKasamStats(){
         var indieMetric = 0.0
+        totalDayCount = 0
         repeatDurationTotal = 0
         setTableViewHeight = 0
         self.tableViewData.removeAll()
         let metricType = self.transferArray!.metric
         DBRef.userPersonalHistory.child(transferArray!.kasamID).observeSingleEvent(of: .value) {(snapshot) in
-        //SECTIONS
+            //SECTIONS
             for snap in snapshot.children.allObjects as! [DataSnapshot]{
                 self.kasamHistoryArray.removeAll()
                 self.setTableViewHeight += self.sectionHeight
                 let startDate = snap.key.stringToDate()
-                if let joinDate = snap.value as? [String:Any] {
+                if let progressDate = snap.value as? [String:Any] {
                     //ROWS
                     var goalCheck = 0
                     var repeatDuration: Int?
-                    for individualDate in joinDate {
+                    for individualDate in progressDate {
                         if individualDate.key == "Goal" {
                             repeatDuration = individualDate.value as? Int; goalCheck = 1
                             self.repeatDurationTotal += repeatDuration ?? 0
                         } else {
-                        self.dayNo = (Calendar.current.dateComponents([.day], from: startDate, to: individualDate.key.stringToDate()).day ?? 0) + 1
-                        self.progressDayCount += 1
-                        var blockName = ""
-                        if let block = individualDate.value as? [String:Any] {
-                            indieMetric = block["Total Metric"] as? Double ?? -1.0
-                            if SavedData.kasamDict[self.transferArray!.kasamID]?.programDuration != nil {
-                                blockName = block["Block Name"] as? String ?? ""
+                            self.dayNo = (Calendar.current.dateComponents([.day], from: startDate, to: individualDate.key.stringToDate()).day ?? 0) + 1
+                            self.progressDayCount += 1
+                            var blockName = ""
+                            if let block = individualDate.value as? [String:Any] {
+                                indieMetric = block["Total Metric"] as? Double ?? -1.0
+                                if self.transferArray?.program == true {blockName = block["Block Name"] as? String ?? ""}   //load block name for program kasams
+                            } else if let block = individualDate.value as? Int {
+                                indieMetric = Double(block * 100)           //Kasam is only Checkmark
                             }
-                        } else if let block = individualDate.value as? Int {
-                            indieMetric = Double(block * 100)           //Kasam is only Checkmark
-                        }
-                        //Kasam is Reps or Timer
-                        var timeAndMetric = (0.0,"")
-                        if metricType == "Time" {
-                            timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
-                            indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
-                        } else if metricType == "Video" {
-                            indieMetric = (indieMetric / 60.0).rounded(toPlaces: 2)
-                        }
-                        self.metricTotal += Int(indieMetric)
-                        
-                        var metricAndType = ""
-                        var middleBold = self.convertLongDateToShort(date: individualDate.key)
-                        if SavedData.kasamDict[self.transferArray!.kasamID]?.programDuration == nil {
-                        //OPTION 1 - REPS
-                            if metricType == "Reps" {
-                                metricAndType = "\(indieMetric.removeZerosFromEnd()) \(metricType)"
-                        //OPTION 2 - TIME
-                            } else if metricType == "Time" {
-                                let tableTime = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
-                                metricAndType = "\(tableTime.0.removeZerosFromEnd()) \(tableTime.1)"
-                        //OPTION 3 - PERCENTAGE COMPLETED
-                            } else if metricType == "Checkmark" {
-                                metricAndType = "Complete"
+                            //Kasam is Reps or Timer
+                            var timeAndMetric = (0.0,"")
+                            if metricType == "Time" {
+                                timeAndMetric = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
+                                indieMetric = timeAndMetric.0.rounded(toPlaces: 2)
+                            } else if metricType == "Video" {
+                                indieMetric = (indieMetric / 60.0).rounded(toPlaces: 2)
                             }
-                        //OPTION 4 - PROGRAM KASAM
-                        } else {
-                            middleBold = blockName
-                            metricAndType = self.convertLongDateToShort(date: individualDate.key)
-                        }
-                        
-                        self.kasamHistoryArray.append(kasamFollowingFormat(day: self.dayNo, shortDate: middleBold, fullDate: individualDate.key, metric: indieMetric, metricAndType: metricAndType))
+                            self.metricTotal += Int(indieMetric)
+                            
+                            var metricAndType = ""
+                            var middleBold = self.convertLongDateToShort(date: individualDate.key)
+                            if self.transferArray?.program == false {
+                            //OPTION 1 - REPS
+                                if metricType == "Reps" {
+                                    metricAndType = "\(indieMetric.removeZerosFromEnd()) \(metricType)"
+                            //OPTION 2 - TIME
+                                } else if metricType == "Time" {
+                                    let tableTime = self.convertTimeAndMetric(time: indieMetric, metric: metricType)
+                                    metricAndType = "\(tableTime.0.removeZerosFromEnd()) \(tableTime.1)"
+                            //OPTION 3 - PERCENTAGE COMPLETED
+                                } else if metricType == "Checkmark" {
+                                    metricAndType = "Complete"
+                                }
+                            //OPTION 4 - PROGRAM KASAM
+                            } else {
+                                middleBold = blockName
+                                metricAndType = self.convertLongDateToShort(date: individualDate.key)
+                            }
+                            
+                            self.kasamHistoryArray.append(kasamFollowingFormat(day: self.dayNo, shortDate: middleBold, fullDate: individualDate.key, metric: indieMetric, metricAndType: metricAndType))
                         }
                         if self.kasamHistoryArray.count + goalCheck == snap.childrenCount {
                             self.kasamHistoryArray = self.kasamHistoryArray.sorted(by: { $0.day < $1.day })
@@ -178,34 +177,33 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                 }
                 if self.tableViewData.count == snapshot.childrenCount {
                     self.setAvgMetric()
-                    if self.totalDayCount != self.transferArray?.daysCompleted && self.totalDayCount != 0 {
-                        DBRef.userHistoryTotals.child(self.transferArray!.kasamID).child("Days").setValue(self.totalDayCount)
-                    }
-                    self.dayNoValue.text = self.totalDayCount.pluralUnit(unit: "Day")
+                    //Update Firebase history totals
+                    DBRef.userHistoryTotals.child(self.transferArray!.kasamID).setValue(["First": self.tableViewData.first?.sectionData.first?.fullDate as Any,"Last": self.tableViewData.last?.sectionData.last?.fullDate as Any, "Days": self.totalDayCount])
                     self.historyTableView.reloadData()
                 }
             }
         }
     }
        
-     //STEP 2 - IF ALL DAYS ACCOUNTED FOR, UPDATE TABLE AND CHART
+    //STEP 2 - IF ALL DAYS ACCOUNTED FOR, UPDATE TABLE AND CHART
     func setAvgMetric(){
+        self.dayNoValue.text = self.totalDayCount.pluralUnit(unit: "Day")
         let metricType = self.transferArray!.metric
         //OPTION 1 - REPS
-            if metricType == "Reps" {
-                self.avgMetric.text = "\(metricTotal) Total \(metricType)"
+        if metricType == "Reps" {
+            self.avgMetric.text = "\(metricTotal) Total \(metricType)"
         //OPTION 2 - TIME
-            } else if metricType == "Time" {
-                let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(metricTotal), metric: metricType)
-                self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) total \(avgTimeAndMetric.1)"
+        } else if metricType == "Time" {
+            let avgTimeAndMetric = self.convertTimeAndMetric(time: Double(metricTotal), metric: metricType)
+            self.avgMetric.text = "\(Int(avgTimeAndMetric.0)) total \(avgTimeAndMetric.1)"
         //OPTION 3 - PERCENTAGE COMPLETED
-            } else if metricType == "Checkmark" {
-                let avgMetric = ((totalDayCount * 100) / repeatDurationTotal)
-                self.avgMetric.text = "\(avgMetric)%\nGoal"
+        } else if metricType == "Checkmark" && repeatDurationTotal != 0 {
+            let avgMetric = ((totalDayCount * 100) / repeatDurationTotal)
+            self.avgMetric.text = "\(avgMetric)%\nGoal"
         //OPTION 4 - VIDEO
-            } else if metricType == "Video" {
-                self.avgMetric.text = "\(metricTotal) Total mins"
-            }
+        } else if metricType == "Video" {
+            self.avgMetric.text = "\(metricTotal) Total mins"
+        }
     }
     
     @IBAction func backButtonPressed(_ sender: Any) {
@@ -265,7 +263,7 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
             } else {
             //Opening the section
                 self.tableViewData[indexPath.section].opened = true
-                setTableViewHeight += chartHeight + rowHeight * CGFloat((tableViewData[indexPath.section].sectionData.count))
+                setTableViewHeight += chartHeight + (rowHeight * CGFloat((tableViewData[indexPath.section].sectionData.count)))
                 updateContentTableHeight()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.005) {
                     tableView.reloadSections(IndexSet.init(integer: indexPath.section), with: .none)
@@ -278,20 +276,28 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
         if orientation == .left {
             return nil
         } else {
+            let row = tableViewData[indexPath.section].sectionData[indexPath.row - 2]
             let delete = SwipeAction(style: .destructive, title: nil) { action, indexPath in
-                let popupImage = UIImage.init(icon: .fontAwesomeSolid(.eraser), size: CGSize(width: 30, height: 30), textColor: .colorFour)
-                showCenterPopupConfirmation(title: "Sure you want to delete your progress on \(self.kasamHistoryArray[indexPath.row].shortDate)?", description: "", image: popupImage, buttonText: "Delete") {(success) in
-                    DBRef.userPersonalHistory.child(self.transferArray!.kasamID).child(self.kasamHistoryArray[indexPath.row].fullDate).setValue(nil)
-                    self.kasamHistoryArray.remove(at: indexPath.row)
-                    self.historyTableView.reloadData()
-                    self.updateViewConstraints()
+                showCenterOptionsPopup(kasamID: nil, title: "Delete Progress?", subtitle: nil, text: "You will be permanently deleting your progress on \(row.shortDate)", type: "deleteHistory", button: "Delete") {(success) in
+                    DBRef.userPersonalHistory.child(self.transferArray!.kasamID).child(self.tableViewData[indexPath.section].title).child(row.fullDate).setValue(nil)
+                    self.metricTotal -= Int(self.tableViewData[indexPath.section].sectionData[indexPath.row - 2].metric)
+                    self.tableViewData[indexPath.section].sectionData.remove(at: indexPath.row - 2)
+                    self.historyTableView.deleteRows(at: [IndexPath(row: indexPath.row, section: indexPath.section)], with: .fade)
+                    self.setTableViewHeight -= self.rowHeight
+                    self.totalDayCount -= 1
+                    self.updateContentTableHeight()
+                    self.setAvgMetric()
+                    if let cell = self.historyTableView.cellForRow(at: IndexPath(item: 0, section: indexPath.section)) as? KasamHistoryTableCell {
+                        let count = String(self.tableViewData[indexPath.section].sectionData.count)
+                        cell.dayCount.setTitle(count, for: .normal)
+                    }
                     SwiftEntryKit.dismiss()
                 }
             }
             configure(action: delete, with: .trash)
 
             let edit = SwipeAction(style: .default, title: nil) { action, indexPath in
-                self.dateToLoadGlobal = self.kasamHistoryArray[indexPath.row].fullDate.stringToDate()
+                self.dateToLoadGlobal = row.fullDate.stringToDate()
                 self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: indexPath)
             }
             configure(action: edit, with: .edit)

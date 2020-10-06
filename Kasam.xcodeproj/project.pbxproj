@@ -48,10 +48,8 @@
 		BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD1226D6EF900D707CC /* 1. Discover.swift */; };
 		BC554BD6226D8BDB00D707CC /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD5226D8BDB00D707CC /* UIColor.swift */; };
 		BC554BD8226E079100D707CC /* 4. User-Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BD7226E079100D707CC /* 4. User-Profile.swift */; };
-		BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC554BDA226E0FBE00D707CC /* TableViewCell.swift */; };
-		BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC554BDB226E0FBE00D707CC /* KasamCell.xib */; };
 		BC55BFD722AEEF6200D77337 /* Custom Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55BFD622AEEF6200D77337 /* Custom Functions.swift */; };
-		BC55CC69232B4552003C87F6 /* WeeklyStatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55CC68232B4552003C87F6 /* WeeklyStatsCell.swift */; };
+		BC55CC69232B4552003C87F6 /* MoodCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC55CC68232B4552003C87F6 /* MoodCell.swift */; };
 		BC5C3C7A234D60E800C68238 /* PopupForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C3C79234D60E800C68238 /* PopupForm.swift */; };
 		BC5C499C228122BB00EC0EA8 /* KasamSquareCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */; };
 		BC5D1B0224BA1D4700A5E9A7 /* 3. Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5D1B0124BA1D4700A5E9A7 /* 3. Group.swift */; };
@@ -159,10 +157,8 @@
 		BC554BD1226D6EF900D707CC /* 1. Discover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "1. Discover.swift"; sourceTree = "<group>"; };
 		BC554BD5226D8BDB00D707CC /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
 		BC554BD7226E079100D707CC /* 4. User-Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "4. User-Profile.swift"; sourceTree = "<group>"; };
-		BC554BDA226E0FBE00D707CC /* TableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
-		BC554BDB226E0FBE00D707CC /* KasamCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KasamCell.xib; sourceTree = "<group>"; };
 		BC55BFD622AEEF6200D77337 /* Custom Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Custom Functions.swift"; sourceTree = "<group>"; };
-		BC55CC68232B4552003C87F6 /* WeeklyStatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyStatsCell.swift; sourceTree = "<group>"; };
+		BC55CC68232B4552003C87F6 /* MoodCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodCell.swift; sourceTree = "<group>"; };
 		BC5C3C79234D60E800C68238 /* PopupForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupForm.swift; sourceTree = "<group>"; };
 		BC5C499B228122BB00EC0EA8 /* KasamSquareCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KasamSquareCell.swift; sourceTree = "<group>"; };
 		BC5D1B0124BA1D4700A5E9A7 /* 3. Group.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "3. Group.swift"; sourceTree = "<group>"; };
@@ -339,15 +335,6 @@
 			path = MiddlePopup;
 			sourceTree = "<group>";
 		};
-		BC554BD9226E0F2700D707CC /* User Kasams Table */ = {
-			isa = PBXGroup;
-			children = (
-				BC554BDA226E0FBE00D707CC /* TableViewCell.swift */,
-				BC554BDB226E0FBE00D707CC /* KasamCell.xib */,
-			);
-			path = "User Kasams Table";
-			sourceTree = "<group>";
-		};
 		BC83484D24450468001819DC /* Badges */ = {
 			isa = PBXGroup;
 			children = (
@@ -383,7 +370,7 @@
 				BCF2A76A227F08F0009D2368 /* KasamBlocksCell.swift */,
 				BCBA69A12274F3200085E407 /* KasamTrackerCell.swift */,
 				BCCFE97F231ABB0D00B0AB6C /* SelfSizedTableView.swift */,
-				BC55CC68232B4552003C87F6 /* WeeklyStatsCell.swift */,
+				BC55CC68232B4552003C87F6 /* MoodCell.swift */,
 				BC12F1EB233FB07B00D93227 /* KasamFollowingCell.swift */,
 				BCE0232C23B092E2007B25A0 /* MetricTypeCell.swift */,
 				BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */,
@@ -476,7 +463,6 @@
 				BCE50BDE22D04A37000F2534 /* FXBlurView.m */,
 				BCE50BE322D04B26000F2534 /* Kasam-Bridging-Header.h */,
 				BC339E8D2376EB6D00E1D038 /* CustomSegmentedControl.swift */,
-				BC554BD9226E0F2700D707CC /* User Kasams Table */,
 				BC40365924B3DAB100661E7B /* Unused_Functions.swift */,
 			);
 			path = Model;
@@ -617,7 +603,6 @@
 			files = (
 				BC41D4E724DA458400CEC9A4 /* GroupSearchCell.xib in Resources */,
 				BC8348462445027A001819DC /* goldCup.json in Resources */,
-				BC554BDD226E0FBE00D707CC /* KasamCell.xib in Resources */,
 				BC41D4E224DA293800CEC9A4 /* GroupSearch.xib in Resources */,
 				BC51EB4324C14F50003771E0 /* crownSeptors.json in Resources */,
 				BC133A8D24D854BA00D90713 /* rocket-group.json in Resources */,
@@ -850,10 +835,9 @@
 				BC554BD8226E079100D707CC /* 4. User-Profile.swift in Sources */,
 				BCE0232D23B092E2007B25A0 /* MetricTypeCell.swift in Sources */,
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
-				BC554BDC226E0FBE00D707CC /* TableViewCell.swift in Sources */,
 				BCED0D87237285E80054E66B /* AlertService.swift in Sources */,
 				BCE09DEA2463B26E00A7A614 /* TrophiesAchieved.swift in Sources */,
-				BC55CC69232B4552003C87F6 /* WeeklyStatsCell.swift in Sources */,
+				BC55CC69232B4552003C87F6 /* MoodCell.swift in Sources */,
 				BC6E97852321DF7800698EB9 /* KasamViewer.swift in Sources */,
 				BC85E72C23B11EC500330F60 /* NewKasamPage.swift in Sources */,
 				BC12F1F0233FF1E900D93227 /* DetailedStatsCell.swift in Sources */,

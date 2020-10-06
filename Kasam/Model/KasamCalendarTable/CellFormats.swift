@@ -42,26 +42,6 @@ class kasamFollowingCellFormat {
     }
 }
 
-class weekStatsFormat {
-    var kasamID: String
-    var kasamTitle: String
-    var imageURL: URL
-    var daysLeft: Int
-    var metricType: String
-    var avgMetric: Int
-    var metricDictionary = [Int:Double]()
-    
-    init(kasamID: String, kasamTitle: String, imageURL: URL, daysLeft: Int, metricType: String, metricDictionary: [Int: Double], avgMetric: Int){
-        self.kasamID = kasamID
-        self.kasamTitle = kasamTitle
-        self.imageURL = imageURL
-        self.daysLeft = daysLeft
-        self.metricType = metricType
-        self.avgMetric = avgMetric
-        self.metricDictionary = metricDictionary
-    }
-}
-
 class SquareKasamFormat {
     var image: URL
     var title: String
@@ -151,8 +131,9 @@ class CompletedKasamFormat {
     var firstDate: String?
     var lastDate: String?
     var metric: String
+    var program: Bool
     
-    init(kasamID: String, kasamName: String, daysCompleted: Int, imageURL: URL, firstDate: String?, lastDate: String?, metric: String){
+    init(kasamID: String, kasamName: String, daysCompleted: Int, imageURL: URL, firstDate: String?, lastDate: String?, metric: String, program: Bool){
         self.kasamID = kasamID
         self.kasamName = kasamName
         self.daysCompleted = daysCompleted
@@ -160,6 +141,7 @@ class CompletedKasamFormat {
         self.firstDate = firstDate
         self.lastDate = lastDate
         self.metric = metric
+        self.program = program
     }
 }
 

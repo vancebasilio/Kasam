@@ -29,9 +29,11 @@ class AddKasamController: UIViewController {
     @IBOutlet weak var startDateTimeLabel: UILabel!
     @IBOutlet weak var startDayView: UIStackView!
     @IBOutlet weak var startDayPicker: UIPickerView!
-    @IBOutlet weak var startTimePicker: UIPickerView!
     @IBOutlet weak var durationView: UIStackView!
     @IBOutlet weak var durationPicker: UIPickerView!
+    
+    @IBOutlet weak var remindTimeView: UIView!
+    @IBOutlet weak var remindTimePicker: UIPickerView!
     @IBOutlet weak var reminderTimeSwitch: UISwitch!
     
     @IBOutlet weak var goalStackView: UIStackView!
@@ -68,6 +70,10 @@ class AddKasamController: UIViewController {
         cancelButton.layer.cornerRadius = 20
         slidingHandle.layer.cornerRadius = 3
         
+        startDayPicker.addBottomBorderWithColor(color: .lightGray, width: 1, widthRatio: 0.9)
+        durationPicker.addBottomBorderWithColor(color: .lightGray, width: 1, widthRatio: 0.9)
+        remindTimeView.addBottomBorderWithColor(color: .lightGray, width: 1, widthRatio: 0.9)
+        
         dayGoalBG.layer.cornerRadius = 20
         dayGoalOutline.layer.cornerRadius = 25
         dayGoalOutline.layer.borderColor = UIColor.init(hex: 0x66A058).cgColor
@@ -95,6 +101,7 @@ class AddKasamController: UIViewController {
         reminderTimeSwitch.layer.cornerRadius = reminderTimeSwitch.frame.height / 2
         reminderTimeSwitch.backgroundColor = .gray
         
+        dayGoaldayLabel.text = "Personal\nKasam"
         groupLabel.text = "Group\nKasam"
         
         setupTimePicker()
@@ -143,12 +150,12 @@ class AddKasamController: UIViewController {
     
     @IBAction func switchSelected(_ sender: Any) {
          if reminderTimeSwitch.isOn {
-            startTimePicker.alpha = 1
-            startTimePicker.isUserInteractionEnabled = true
+            remindTimePicker.alpha = 1
+            remindTimePicker.isUserInteractionEnabled = true
             notificationCheck = true
          } else {
-            startTimePicker.alpha = 0.5
-            startTimePicker.isUserInteractionEnabled = false
+            remindTimePicker.alpha = 0.5
+            remindTimePicker.isUserInteractionEnabled = false
             notificationCheck = false
          }
     }
@@ -172,15 +179,15 @@ class AddKasamController: UIViewController {
             }
             timeUnit = formattedTime.components(separatedBy: " ").last ?? "AM"
             let setAMPM = timeUnitArray.index(of: timeUnit) ?? 0
-            startTimePicker.selectRow(setAMPM, inComponent: 3, animated: false)
+            remindTimePicker.selectRow(setAMPM, inComponent: 3, animated: false)
             
             let setHourMin = formattedTime.components(separatedBy: " ").first
             hour = Int(setHourMin?.components(separatedBy: ":").first ?? "10") ?? 10
             min = Int(setHourMin?.components(separatedBy: ":").last ?? "30") ?? 0
-            if hour == 0 {startTimePicker.selectRow(11, inComponent: 0, animated: false)}
-            else {startTimePicker.selectRow(hour - 1, inComponent: 0, animated: false)}
+            if hour == 0 {remindTimePicker.selectRow(11, inComponent: 0, animated: false)}
+            else {remindTimePicker.selectRow(hour - 1, inComponent: 0, animated: false)}
             
-            startTimePicker.selectRow(timeMinArray.index(of:String(format:"%02d", min)) ?? 0, inComponent: 2, animated: false)
+            remindTimePicker.selectRow(timeMinArray.index(of:String(format:"%02d", min)) ?? 0, inComponent: 2, animated: false)
             baseDate = formattedDate.stringToDate()
              
             UNUserNotificationCenter.current().getPendingNotificationRequests {(notifications) in
@@ -199,8 +206,8 @@ class AddKasamController: UIViewController {
                 }
             }
        
-        //OPTION 2 - ADDING NEW KASAM, SET DEFAULT DATE AND TIME
-        } else if state == "new" {
+        //OPTION 2 - ADDING NEW KASAM or RESTARTING, SO SET DEFAULT DATE AND TIME
+        } else {
             DBRef.coachKasams.child(kasamID).child("Duration").observeSingleEvent(of: .value) {(snap) in
                 self.repeatDuration = snap.value as? Int ?? 30
             }
@@ -225,19 +232,19 @@ class AddKasamController: UIViewController {
                 tempHour += 1
             }
             min = Int(tempMin) * 30
-            startTimePicker.selectRow(Int(tempMin), inComponent: 2, animated: true)
+            remindTimePicker.selectRow(Int(tempMin), inComponent: 2, animated: true)
 
             //Set the hour
             if tempHour > 12 {
                 timeUnit = timeUnitArray[1]
                 hour = tempHour - 12
-                startTimePicker.selectRow(hour - 1, inComponent: 0, animated: true)
-                startTimePicker.selectRow(1, inComponent: 3, animated: true)
+                remindTimePicker.selectRow(hour - 1, inComponent: 0, animated: true)
+                remindTimePicker.selectRow(1, inComponent: 3, animated: true)
             } else {
                 timeUnit = timeUnitArray[0]
                 hour = tempHour
-                startTimePicker.selectRow(hour - 1, inComponent: 0, animated: true)
-                startTimePicker.selectRow(0, inComponent: 3, animated: true)
+                remindTimePicker.selectRow(hour - 1, inComponent: 0, animated: true)
+                remindTimePicker.selectRow(0, inComponent: 3, animated: true)
             }
         }
         formattedTime = String(format:"%d:%02d \(timeUnit)", hour, min)
@@ -286,7 +293,7 @@ class AddKasamController: UIViewController {
 
 extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        if pickerView == startTimePicker {
+        if pickerView == remindTimePicker {
             return 4
         } else {
             return 1
@@ -332,7 +339,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
                 let day = dateShortFormat(date: Calendar.current.date(byAdding: .day, value: row, to: baseDate ?? Date())!)
                 label.text = day
             }
-        } else if pickerView == startTimePicker {
+        } else if pickerView == remindTimePicker {
             if component == 0 {
                 label.text = "\(row + 1)"
             } else if component == 1 {
@@ -355,7 +362,7 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == startDayPicker {
             formattedDate = (Calendar.current.date(byAdding: .day, value: row, to: baseDate ?? Date())!).dateToString()
-        } else if pickerView == startTimePicker {
+        } else if pickerView == remindTimePicker {
             if component == 0 {
                 hour = row + 1
             } else if component == 2 {
@@ -368,14 +375,24 @@ extension AddKasamController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
-        if pickerView == startTimePicker {
+        if pickerView == remindTimePicker {
             if component == 1 {
                 return 4
             } else {
                 return 40
             }
         } else {
-            return startTimePicker.frame.width
+            return remindTimePicker.frame.width
         }
+    }
+}
+
+extension UIView {
+    func addBottomBorderWithColor(color: UIColor, width: CGFloat, widthRatio: Double) {
+        let border = CALayer()
+        border.backgroundColor = color.cgColor
+        let xAdjustment = CGFloat((1.0 - widthRatio) / 2.0)
+        border.frame = CGRect(x: self.frame.size.width * (xAdjustment), y: self.frame.size.height - width, width: self.frame.size.width * CGFloat(widthRatio), height: width)
+        self.layer.addSublayer(border)
     }
 }

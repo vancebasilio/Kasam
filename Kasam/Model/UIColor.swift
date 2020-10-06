@@ -20,6 +20,7 @@ extension UIColor {
     static let dayYesColor = UIColor.init(hex: 0x66A058)
     static let dayNoColor = UIColor.init(hex: 0xcd742c)
     static let cancelColor = UIColor.init(hex: 0xDB482D)
+    static let levelLineColor = UIColor.init(hex: 0xE1B29F)
     
     static let seemuBlue = UIColor(hex: 0x00adf7)
     static let transparentBlack = UIColor(hex: 0x000000, a: 0.5)

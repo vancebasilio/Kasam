@@ -69,7 +69,8 @@ class OptionsPopupController: UIViewController {
     
     @IBAction func mainButtonPressed(_ sender: Any) {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "MainButtonPressed"), object: self)
-        SwiftEntryKit.dismiss()
+        if transfer?.type == "complete" || transfer?.type == "completeTrophy" {}
+        else {SwiftEntryKit.dismiss()}
     }
     
     @IBAction func hiddenButtonPressed(_ sender: Any) {

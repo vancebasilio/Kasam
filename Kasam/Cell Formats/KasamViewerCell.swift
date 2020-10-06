@@ -320,7 +320,8 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
         instruction.isHidden = true
         resetButton.isHidden = true
         circularSlider.isHidden = true
-        if type != "rest" {bottomViewHeight = bottomViewHeight.constraintWithMultiplier(0.45, view: view)}
+        if type == "rest" {bottomViewHeight = bottomViewHeight.constraintWithMultiplier(0.25, view: view)}
+        else {bottomViewHeight = bottomViewHeight.constraintWithMultiplier(0.45, view: view)}
         
         if pastProgress > 0.0 {
             doneButton.setIcon(prefixText: "  ", prefixTextColor: .white, icon: .fontAwesomeRegular(.checkCircle), iconColor: .white, postfixText: "  Completed!", postfixTextColor: .white, backgroundColor: .dayYesColor, forState: .normal, textSize: 17, iconSize: 20)
@@ -365,7 +366,6 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     func setupRest(activity: KasamActivityCellFormat) {
         setupCheckmark()
         videoPlayerHolder.isHidden = true
-        bottomViewHeight = bottomViewHeight.constraintWithMultiplier(0.25, view: view)
         activityTitle.text = "Rest Day"
         activityDescription.text = "Take the day off. You've earned it!"
         animatedImageView.sd_setImage(with: URL(string: PlaceHolders.kasamActivityRestImageURL))

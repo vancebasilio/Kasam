@@ -14,6 +14,7 @@ import FBSDKLoginKit
 import SwiftEntryKit
 import GoogleSignIn
 import Lottie
+import Charts
 
 class ProfileViewController: UIViewController, UIPopoverPresentationControllerDelegate {
    
@@ -30,8 +31,13 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     @IBOutlet weak var levelLineBack: UIView!
     @IBOutlet weak var startLevel: UILabel!
     @IBOutlet weak var totalDays: UILabel!
-    @IBOutlet weak var weekStatsCollectionView: UICollectionView!
-    @IBOutlet weak var kasamStatsHeight: NSLayoutConstraint!
+    
+    @IBOutlet weak var moodViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var moodView: UIView!
+    @IBOutlet weak var moodCollectionView: UICollectionView!
+    @IBOutlet weak var moodPieChart: PieChartView!
+    @IBOutlet weak var moodTotalScore: UILabel!
+    
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
@@ -41,7 +47,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     @IBOutlet weak var completedKasamTableHeight: NSLayoutConstraint!
     @IBOutlet weak var completedLabel: UILabel!
     
-    var weeklyStats: [weekStatsFormat] = []
     var myKasamsArray: [EditMyKasamFormat] = []
     var completedStats: [CompletedKasamFormat] = []
     var totalKasamDays = 0
@@ -51,6 +56,8 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     var userKasamDBHandle: DatabaseHandle!
     var saveStorageRef = Storage.storage().reference()
     var completedTableRowHeight = CGFloat(90)
+    var moodStats = [Double]()
+    
     
     //Kasam Following
     var kasamIDGlobal: String = ""
@@ -67,7 +74,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         setupDateDictionary()
         getDetailedStats()
         viewSetup()
-        setupImageHolders()
+        getMoodStats()
         setupNavBar(clean: true)
     }
     
@@ -78,12 +85,13 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     func updateScrollViewSize(){
-        collectionViewHeight.constant = kasamStatsHeight.constant + CGFloat(57.5)       //57.5 is the collectionView Title height
-        updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: completedKasamTableHeight, tableRowHeight: completedTableRowHeight, additionalTableHeight: nil, rowCount: completedStats.count, additionalHeight: kasamStatsHeight.constant + 120 + topViewHeight.constant)
+        collectionViewHeight.constant = moodViewHeight.constant + CGFloat(57.5)       //57.5 is the collectionView Title height
+        updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: completedKasamTableHeight, tableRowHeight: completedTableRowHeight, additionalTableHeight: nil, rowCount: completedStats.count, additionalHeight: moodViewHeight.constant + 120 + topViewHeight.constant)
     }
     
     func viewSetup(){
-        kasamStatsHeight.constant = (view.bounds.size.width * (2/5))
+        moodView.layer.cornerRadius = 15.0
+        moodViewHeight.constant = (view.bounds.size.width * (2/5))
         levelLineBack.layer.cornerRadius = 4
         levelLineBack.clipsToBounds = true
         levelLine.layer.cornerRadius = 4
@@ -94,6 +102,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.showCompletionAnimation), name: showCompletionAnimation, object: nil)
         
         userFirstName.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(changeDisplayName)))
+        profileImageClickArea.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBottomImagePicker)))
     }
     
     @objc func changeDisplayName(){
@@ -113,23 +122,22 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     //STEP 1
     @objc func getDetailedStats() {
         completedStats.removeAll()
-        weeklyStats.removeAll()
         metricDictionary.removeAll()
     
         self.totalKasamDays = 0
         DBRef.userHistoryTotals.observe(.childAdded, with:{(snap) in
             let kasamID = snap.key
-            //History for kasams that aren't being followed right now
+            //OPTION 1 - History for kasams that aren't being followed right now
             if SavedData.kasamDict[kasamID] == nil {
                 DBRef.coachKasams.child(kasamID).child("Info").observeSingleEvent(of: .value) {(kasamInfo) in
                     if let value = kasamInfo.value as? [String:Any] {
-                        self.loadCompletedTable(kasamID: kasamID, kasamName: value["Title"] as? String ?? "Kasam", kasamImage: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, metric: value["Metric"] as? String ?? "", historySnap: snap)
+                        self.loadCompletedTable(kasamID: kasamID, kasamName: value["Title"] as? String ?? "Kasam", kasamImage: URL(string: value["Image"] as! String) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, metric: value["Metric"] as? String ?? "", program: (value[
+                            "Program"] != nil), historySnap: snap)
                     }
                 }
-            //History for kasams that ARE being followed
+            //OPTION 2 - History for kasams that ARE being followed
             } else {
-//                self.getWeeklyStats(kasamID: kasamID, snap: snap)
-                self.loadCompletedTable(kasamID: kasamID, kasamName: SavedData.kasamDict[kasamID]?.kasamName ?? "Kasam", kasamImage: URL(string: SavedData.kasamDict[kasamID]?.image ?? "") ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, metric: SavedData.kasamDict[kasamID]?.metricType ?? "", historySnap: snap)
+                self.loadCompletedTable(kasamID: kasamID, kasamName: SavedData.kasamDict[kasamID]?.kasamName ?? "Kasam", kasamImage: URL(string: SavedData.kasamDict[kasamID]?.image ?? "") ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, metric: SavedData.kasamDict[kasamID]?.metricType ?? "", program: SavedData.kasamDict[kasamID]?.programDuration != nil, historySnap: snap)
             }
         })
         DBRef.userHistoryTotals.observe(.childChanged, with:{(snap) in
@@ -153,11 +161,11 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         }
     }
     
-    func loadCompletedTable(kasamID: String, kasamName: String, kasamImage: URL, metric: String, historySnap: DataSnapshot){
+    func loadCompletedTable(kasamID: String, kasamName: String, kasamImage: URL, metric: String, program: Bool, historySnap: DataSnapshot){
         if let value = historySnap.value as? [String: Any] {
             let daysCompleted = value["Days"] as? Int ?? 0
             self.totalKasamDays += daysCompleted
-            self.completedStats.append(CompletedKasamFormat(kasamID: kasamID, kasamName: kasamName, daysCompleted: daysCompleted , imageURL: kasamImage, firstDate: value["First"] as? String, lastDate: value["Last"] as? String, metric: metric))
+            self.completedStats.append(CompletedKasamFormat(kasamID: kasamID, kasamName: kasamName, daysCompleted: daysCompleted , imageURL: kasamImage, firstDate: value["First"] as? String, lastDate: value["Last"] as? String, metric: metric, program: program))
             
             //Order the table by #days completed
             self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
@@ -182,45 +190,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         }
     }
     
-    //STEP 2
-    func getWeeklyStats(kasamID: String, snap: DataSnapshot) {
-        let kasam = SavedData.kasamDict[kasamID]!
-        var metricMatrix = 0
-        var checkerCount = 0
-        let imageURL = URL(string:kasam.image)
-        for x in 1...7 {
-            checkerCount += 1
-            self.metricDictionary[x] = 0                                      //To set the base as zero for each day
-            var avgMetric = 0
-            for kasamStats in snap.children {
-                let kasamStats = kasamStats as! DataSnapshot
-                if kasamStats.key == self.dayDictionary[x]! {
-                    //OPTION 1 - BASIC Kasam
-                    if let value = kasamStats.value as? Int {
-                        self.metricDictionary[x] = Double(value)
-                        metricMatrix += 1
-                    }
-                    //OPTION 2 - COMPLEX KASAM
-                    else if let value = kasamStats.value as? [String: Any] {
-                        self.metricDictionary[x] = value["Metric Percent"] as? Double
-                        metricMatrix += Int(value["Total Metric"] as? Double ?? 0.0)
-                    }
-                }
-            }
-            if checkerCount == 7 {
-                if kasam.metricType == "Checkmark" {
-                    //For Basic Kasams, show avg %
-                    avgMetric = Int((Double(metricMatrix) / Double(Date().dayNumberOfWeek() ?? 7)) * 100)
-                } else {
-                    //For Complex Kasams, show total for the weeks
-                    avgMetric = (metricMatrix)
-                }
-                self.weeklyStats.append(weekStatsFormat(kasamID: kasam.kasamID, kasamTitle: kasam.kasamName, imageURL: imageURL ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, daysLeft: (kasam.repeatDuration - kasam.streakInfo.currentStreak.value), metricType: kasam.metricType, metricDictionary: self.metricDictionary, avgMetric: avgMetric))
-                weekStatsCollectionView.reloadData()
-            }
-        }
-    }
-    
     func setupDateDictionary(){
         let todayDay = Date().dayNumberOfWeek()
         if todayDay == 7 {
@@ -232,6 +201,50 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 self.dayDictionary[x] = (Calendar.current.date(byAdding: .day, value: x - (todayDay!), to: Date())!).dateToString()
             }
         }
+    }
+    
+    //MOOD SETUP-------------------------------------------------------------------------------------------------
+    
+    func getMoodStats(){
+        moodStats = [1,1,1,1,1,1,1,0]
+        moodPieChartSetup()
+    }
+    
+    func moodPieChartSetup() {
+        var moodScore = 0.0
+        var moodPieChartStats = [Double]()
+        var count = 0
+        for stat in moodStats {
+            count += 1
+            let moodPercent = (stat / 8.0)
+            moodScore += moodPercent
+            if count % 2 != 0 {moodPieChartStats.append(moodPercent)}
+            else {moodPieChartStats[(count / 2) - 1] = moodPieChartStats[(count / 2) - 1] + moodPercent}
+        }
+        moodPieChartStats.append(1.0 - moodScore)
+        let entries = (0..<moodPieChartStats.count).map {(i) -> PieChartDataEntry in
+            return PieChartDataEntry(value: moodPieChartStats[i], label: nil, icon: nil)
+        }
+        moodTotalScore.text = "\(Int(moodScore * 100))%"
+        
+        let set = PieChartDataSet(entries: entries, label: "")
+        set.colors = [UIColor.darkGray, UIColor.darkGray, UIColor.darkGray, UIColor.darkGray, UIColor.clear]
+        
+        let data = PieChartData(dataSet: set)
+        moodPieChart.data = data
+        moodPieChart.highlightValues(nil)
+        
+        for set in moodPieChart.data!.dataSets {set.drawValuesEnabled = false}
+        moodPieChart.holeColor = .clear
+        moodPieChart.legend.enabled = false
+        moodPieChart.drawSlicesUnderHoleEnabled = false
+        moodPieChart.chartDescription?.enabled = false
+        moodPieChart.drawCenterTextEnabled = false
+        moodPieChart.drawHoleEnabled = true
+        moodPieChart.rotationEnabled = false
+        moodPieChart.holeRadiusPercent = 1.5
+        moodPieChart.setExtraOffsets(left: 5, top: 0, right: 5, bottom: 0)
+        moodPieChart.highlightPerTapEnabled = false
     }
     
     //PROFILE SETUP-------------------------------------------------------------------------------------------------
@@ -292,44 +305,21 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
 
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if weeklyStats.count == 0 {
-            return 1                                                     //user not following any kasams
-        } else {
-            return weeklyStats.count                                     //user following active kasams
-        }
+        return 8
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "KasamStatsCell", for: indexPath) as! WeeklyStatsCell
-        cell.height = kasamStatsHeight.constant
-        if weeklyStats.count == 0 {
-//                let blankStat = detailedStats[indexPath.row]
-//                cell.setBlankBlock(cell: blankStat)                                       //user following kasams that aren't active yet
-        } else {
-            let stat = weeklyStats[indexPath.row]
-            cell.setBlock(cell: stat)                                                 //user following active kasams
-        }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MoodCell", for: indexPath) as! MoodCell
+        cell.setBlock(position: indexPath.row, value: 1)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: (view.frame.size.width - 30), height: view.frame.size.width * (2/5))
+        return CGSize(width: (moodCollectionView.frame.size.width / 8), height: (moodCollectionView.frame.size.height))
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //OPTION 1 - User not following any kasams
-        if weeklyStats.count == 0 {
-//                if let index = completedStats.index(where: {($0.kasamID == detailedStats[indexPath.row].kasamID)}) {
-//                    userHistoryTransfer = completedStats[index]; currentKasamTransfer = true
-//                }
-//                self.performSegue(withIdentifier: "goToStats", sender: indexPath)
-    //OPTION 3 - User following active kasam
-        } else {
-//                if let index = completedStats.index(where: {($0.kasamID == detailedStats[indexPath.row].kasamID)}) {
-//                    userHistoryTransfer = completedStats[index]; currentKasamTransfer = true
-//                }
-//                self.performSegue(withIdentifier: "goToStats", sender: indexPath)
-        }
+        
     }
 }
 
@@ -363,32 +353,23 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
 
 extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    func setupImageHolders(){
-        profileImageClickArea.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(openImagePicker)))
-    }
-    
-    @objc func openImagePicker(_ sender:Any) {
-        // Open Image Picker
-        showChooseSourceTypeAlertController()
-    }
-    
-    func showChooseSourceTypeAlertController() {
-        let photoLibraryAction = UIAlertAction(title: "Choose a Photo", style: .default) { (action) in
-            self.showImagePickerController(sourceType: .photoLibrary)
+    @objc func showBottomImagePicker() {
+        showBottomButtonPopup(title: "Change Kasam Image", buttonText: ["Choose a Photo", "Take a new Photo"]) {(buttonPressed) in
+            if buttonPressed == 0 {
+                self.showImagePickerController(sourceType: .photoLibrary)
+            } else {
+                self.showImagePickerController(sourceType: .camera)
+            }
         }
-        let cameraAction = UIAlertAction(title: "Take a New Photo", style: .default) { (action) in
-            self.showImagePickerController(sourceType: .camera)
-        }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        AlertService.showAlert(style: .actionSheet, title: nil, message: nil, actions: [photoLibraryAction, cameraAction, cancelAction], completion: nil)
     }
     
     func showImagePickerController(sourceType: UIImagePickerController.SourceType) {
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.delegate = self
-        imagePickerController.allowsEditing = true
-        imagePickerController.sourceType = sourceType
-        present(imagePickerController, animated: true, completion: nil)
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = true
+        imagePicker.sourceType = sourceType
+        SwiftEntryKit.dismiss()
+        present(imagePicker, animated: true, completion: nil)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {

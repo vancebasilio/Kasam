@@ -80,28 +80,8 @@ extension UIViewController {
         }
     }
     
-    func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String) {
-        tableView.reloadData()
-        var block = SavedData.personalKasamBlocks
-        if type == "group" {block = SavedData.groupKasamBlocks}
-        if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-            tableView.beginUpdates()
-            if (cell.kasamName.text == "") {
-                if type == "personal" {cell.type = "personal"; cell.setBlock(block: block[kasamOrder].data)}
-                else {cell.type = "group"; cell.setBlock(block: block[kasamOrder].data)}
-                cell.centerCollectionView()
-                cell.collectionCoverUpdate()
-            } else if (cell.blockSubtitle.text != block[kasamOrder].data.blockTitle)  {
-                cell.blockSubtitle.text = block[kasamOrder].data.blockTitle
-            }
-            cell.statusUpdate(nil)
-            cell.dayTrackerCollectionView.reloadData()
-            tableView.endUpdates()
-        }
-        print("Step 6 - Update \(block[kasamOrder].data.blockTitle)")
-    }
-    
     func getDayTracker(kasamID: String, tableView: UITableView, type: String) {
+        print("Step 5 - Get day tracker hell6 \(String(describing: SavedData.kasamDict[kasamID]?.kasamName))")
         //For the active Kasams on the Personal or Group page
         if let kasam = SavedData.kasamDict[kasamID] {
             //Gets the DayTracker info - only goes into this loop if the user has kasam history
@@ -123,7 +103,7 @@ extension UIViewController {
                     
                     for history in snap.children.allObjects as! [DataSnapshot] {
                         internalCount += 1
-                        if history.key != "Goal" {
+                        if history.key != "Goal" {          //last entry in Firebase that indicates the duration of the kasam
                             let kasamDate = history.key.stringToDate()
                             order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
                             dayPercent = self.statusPercentCalc(snapshot: history).0
@@ -167,6 +147,26 @@ extension UIViewController {
                 }
             })
         }
+    }
+    
+    func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String) {
+        tableView.reloadData()
+        var block = SavedData.personalKasamBlocks
+        if type == "group" {block = SavedData.groupKasamBlocks}
+        if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
+            tableView.beginUpdates()
+            if cell.kasamName.text == "" || cell.kasamName.text == "..." {
+                if type == "personal" {cell.type = "personal"; cell.setBlock(block: block[kasamOrder].data)}
+                else {cell.type = "group"; cell.setBlock(block: block[kasamOrder].data); cell.collectionCoverUpdate()}
+                cell.centerCollectionView()
+            } else if (cell.blockSubtitle.text != block[kasamOrder].data.blockTitle)  {
+                cell.blockSubtitle.text = block[kasamOrder].data.blockTitle
+            }
+            cell.statusUpdate(nil)
+            cell.dayTrackerCollectionView.reloadData()
+            tableView.endUpdates()
+        }
+        print("Step 5B - Update \(block[kasamOrder].data.blockTitle)")
     }
     
     //STEP 6

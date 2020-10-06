@@ -67,7 +67,7 @@ class KasamActivityViewer: UIViewController {
     }
     
     func setupButtons() {
-        UIApplication.shared.endIgnoringInteractionEvents()
+        if viewOnlyCheck == false {UIApplication.shared.endIgnoringInteractionEvents()}
         closeButton.setIcon(icon: .fontAwesomeSolid(.timesCircle), iconSize: 23, color: .darkGray, forState: .normal)
     }
     

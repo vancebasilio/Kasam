@@ -143,7 +143,11 @@ class TodayBlockCell: UITableViewCell {
     func extendButtonPressed(_ complete: Bool){
         var type = "complete"
         if complete == true {type = "completeTrophy"}
-        showCenterOptionsPopup(kasamID: kasamID, title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Congrats on completing the kasam. \nGo another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Restart' or close off the kasam by pressing 'Finish'", type: type, button: "Restart") {(mainButtonPressed) in}
+        showCenterOptionsPopup(kasamID: kasamID, title: "Kasam Completed!", subtitle: SavedData.kasamDict[kasamID]!.kasamName, text: "Go another \(SavedData.kasamDict[kasamID]!.repeatDuration) days by pressing 'Restart' or close off the kasam by pressing 'Finish'", type: type, button: "Restart") {(completion) in
+            if completion == true {
+                self.restartKasam()
+            }
+        }
     }
     
     @objc func showBenefit(){
@@ -156,15 +160,14 @@ class TodayBlockCell: UITableViewCell {
                 extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
             } else if SavedData.kasamDict[kasamID]?.benefitsThresholds != nil {
                 let benefit = currentDayStat.nearestElement(array: (SavedData.kasamDict[kasamID]?.benefitsThresholds)!)
-                showCenterOptionsPopup(kasamID: kasamID, title: "Day \(benefit!.0)", subtitle: nil, text: benefit?.1, type: "benefit", button: "Awesome!") {(mainButtonPressed) in}
+                showCenterOptionsPopup(kasamID: kasamID, title: "Day \(benefit!.0)", subtitle: nil, text: benefit?.1, type: "benefit", button: "Awesome!") {(completion) in}
             } else {
-                showCenterOptionsPopup(kasamID: kasamID, title: "Day \(currentDayStat)", subtitle: nil, text: nil, type: "benefit", button: "Done") {(mainButtonPressed) in}
+                showCenterOptionsPopup(kasamID: kasamID, title: "Day \(currentDayStat)", subtitle: nil, text: nil, type: "benefit", button: "Done") {(completion) in}
             }
         }
     }
     
     func collectionCoverUpdate(){
-        print("step 6A2 collectionCoverUpdate hell2")
         let gradient = CAGradientLayer()
         gradient.frame = dayTrackerCollectionView.superview?.bounds ?? CGRect.zero
         gradient.colors = [UIColor.white.withAlphaComponent(0).cgColor, UIColor.white.cgColor, UIColor.white.cgColor, UIColor.white.withAlphaComponent(0).cgColor]
@@ -246,12 +249,15 @@ class TodayBlockCell: UITableViewCell {
     }
     
     @IBAction func restartButtonPressed(_ sender: Any) {
+        restartKasam()
+    }
+    
+    func restartKasam(){
         var saveTimeObserver: NSObjectProtocol?
-        showButtomAddKasamPopup(kasamID: kasamID, state:"restart", duration: SavedData.kasamDict[kasamID]!.repeatDuration)
+        showBottomAddKasamPopup(kasamID: kasamID, state:"restart", duration: SavedData.kasamDict[kasamID]!.repeatDuration)
         saveTimeObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveTime\(kasamID)"), object: nil, queue: OperationQueue.main) {(notification) in
             let timeVC = notification.object as! AddKasamController
             DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Date Joined": timeVC.formattedDate, "Repeat": timeVC.repeatDuration, "Time": timeVC.formattedTime]) {(error, reference) in
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "ResetPersonalKasam"), object: self, userInfo: ["kasamID": self.kasamID])
                 NotificationCenter.default.removeObserver(saveTimeObserver as Any)
             }
         }
@@ -305,7 +311,7 @@ class TodayBlockCell: UITableViewCell {
                 
             //STEP 2 - Update Percentage complete and Checkmark
                 if tempBlock?.dayOrder ?? 0 >= block!.repeatDuration {
-                    //STEP 2 - COMPLETED KASAMS
+                    //COMPLETED KASAM
                     bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.flagCheckered), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
                     blockSubtitle.frame.size.height = 20
                     blockSubtitle.text = "Complete!"
@@ -403,7 +409,6 @@ extension TodayBlockCell: UITableViewDelegate, UITableViewDataSource {
         
         //New user added to group kasam
         DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childAdded) {(snap) in
-            print("hell5 add")
             SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = snap.value as? Double
             DBRef.users.child(snap.key).child("Info").child("Name").observeSingleEvent(of: .value) {(userName) in
                 self.groupStatsList.append((userID: snap.key, name: userName.value as? String ?? "", status: snap.value as? Double ?? 0.0))
