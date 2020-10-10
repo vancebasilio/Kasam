@@ -191,6 +191,13 @@ import FirebaseAuth
         SwiftEntryKit.display(entry: vc, using: attributes)
     }
 
+    func showCenterMoodChange(){
+        var attributes = PopupAttributes.bottom()
+        attributes.positionConstraints.size = .init(width: .ratio(value: 1), height: .intrinsic)
+        let vc = ChangeMoodController()
+        SwiftEntryKit.display(entry: vc, using: attributes)
+    }
+
     func showCenterSaveKasamPopup(level: Int, completion:@escaping (Int) -> ()) {
         var attributes = PopupAttributes.center()
         attributes.positionConstraints.maxSize = .init(width: .ratio(value: 0.7), height: .intrinsic)
@@ -251,7 +258,7 @@ import FirebaseAuth
             changeRequest?.commitChanges {(error) in
               completion(true)
             }
-            DBRef.currentUser.child("Name").setValue(textFields[0].textContent)
+            DBRef.userInfo.child("Name").setValue(textFields[0].textContent)
             SwiftEntryKit.dismiss()
         }
         let contentView = EKFormMessageView(with: title, textFieldsContent: textFields, buttonContent: button)

@@ -15,8 +15,9 @@ import SwiftEntryKit
 import GoogleSignIn
 import Lottie
 import Charts
+import AMPopTip
 
-class ProfileViewController: UIViewController, UIPopoverPresentationControllerDelegate {
+class ProfileViewController: UIViewController, UIPopoverPresentationControllerDelegate, MoodCellDelegate {
    
     @IBOutlet weak var userFirstName: UILabel!
     @IBOutlet weak var profileImage: UIImageView!
@@ -34,9 +35,11 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
     @IBOutlet weak var moodViewHeight: NSLayoutConstraint!
     @IBOutlet weak var moodView: UIView!
+    @IBOutlet weak var moodDate: UILabel!
     @IBOutlet weak var moodCollectionView: UICollectionView!
     @IBOutlet weak var moodPieChart: PieChartView!
     @IBOutlet weak var moodTotalScore: UILabel!
+    @IBOutlet weak var moodSettings: UIButton!
     
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionViewHeight: NSLayoutConstraint!
@@ -56,8 +59,8 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     var userKasamDBHandle: DatabaseHandle!
     var saveStorageRef = Storage.storage().reference()
     var completedTableRowHeight = CGFloat(90)
-    var moodStats = [Double]()
-    
+    let popTip = PopTip()
+    var popTipStatus = false
     
     //Kasam Following
     var kasamIDGlobal: String = ""
@@ -206,15 +209,50 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     //MOOD SETUP-------------------------------------------------------------------------------------------------
     
     func getMoodStats(){
-        moodStats = [1,1,1,1,1,1,1,0]
-        moodPieChartSetup()
+        moodSettings.setIcon(icon: .fontAwesomeSolid(.cog), iconSize: 16, color: .darkGray, backgroundColor: .clear, forState: .normal)
+        DBRef.userMood.child("current").observeSingleEvent(of: .value) {(snap) in
+            if let currentDeets = snap.value as? [String:Any] {
+                if let values = currentDeets["value"] as? [Double] {
+                    SavedData.moodStats = values
+                    self.setupMoodChart()
+                    self.loadMoodPieChart{self.moodCollectionView.reloadData()}
+                }
+                if let date = currentDeets["date"] as? String {
+                    self.moodDate.text = date.shortDateToLongDate()
+                }
+            }
+        }
+        DBRef.userMood.child("current").child("value").observe(.childChanged) {(snap) in
+            if let stat = snap.value as? Double {
+                let row = Int(snap.key)!
+                SavedData.moodStats[row] = stat
+                if let cell = self.moodCollectionView.cellForItem(at: IndexPath(item: row, section: 0)) as? MoodCell {
+                    cell.setLevel(value: stat)
+                    self.loadMoodPieChart {}
+                    self.moodDate.text = self.getCurrentDate().shortDateToLongDate()
+                }
+            }
+        }
     }
     
-    func moodPieChartSetup() {
+    func setupMoodChart(){
+        moodPieChart.holeColor = .clear
+        moodPieChart.legend.enabled = false
+        moodPieChart.drawSlicesUnderHoleEnabled = false
+        moodPieChart.chartDescription?.enabled = false
+        moodPieChart.drawCenterTextEnabled = true
+        moodPieChart.drawHoleEnabled = false
+        moodPieChart.rotationEnabled = false
+        moodPieChart.holeRadiusPercent = 1.5
+        moodPieChart.setExtraOffsets(left: 0, top: 0, right: 0, bottom: 0)
+        moodPieChart.highlightPerTapEnabled = false
+    }
+    
+    func loadMoodPieChart (completion:@escaping () -> ()) {
         var moodScore = 0.0
         var moodPieChartStats = [Double]()
         var count = 0
-        for stat in moodStats {
+        for stat in SavedData.moodStats {
             count += 1
             let moodPercent = (stat / 8.0)
             moodScore += moodPercent
@@ -228,23 +266,29 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         moodTotalScore.text = "\(Int(moodScore * 100))%"
         
         let set = PieChartDataSet(entries: entries, label: "")
-        set.colors = [UIColor.darkGray, UIColor.darkGray, UIColor.darkGray, UIColor.darkGray, UIColor.clear]
-        
-        let data = PieChartData(dataSet: set)
-        moodPieChart.data = data
-        moodPieChart.highlightValues(nil)
-        
+        let fillColor = UIColor.darkGray.withAlphaComponent(0.7)
+        set.colors = [fillColor, fillColor, fillColor, fillColor, UIColor.clear]
+        moodPieChart.data = PieChartData(dataSet: set)
         for set in moodPieChart.data!.dataSets {set.drawValuesEnabled = false}
-        moodPieChart.holeColor = .clear
-        moodPieChart.legend.enabled = false
-        moodPieChart.drawSlicesUnderHoleEnabled = false
-        moodPieChart.chartDescription?.enabled = false
-        moodPieChart.drawCenterTextEnabled = false
-        moodPieChart.drawHoleEnabled = true
-        moodPieChart.rotationEnabled = false
-        moodPieChart.holeRadiusPercent = 1.5
-        moodPieChart.setExtraOffsets(left: 5, top: 0, right: 5, bottom: 0)
-        moodPieChart.highlightPerTapEnabled = false
+        moodPieChart.animate(xAxisDuration: 1, easingOption: .easeOutBack)
+        completion()
+    }
+    
+    @IBAction func changeMoodPressed(_ sender: Any) {
+        showCenterMoodChange()
+    }
+    
+    func showPopTipInfo(row: Int, frame: CGRect, type: String){
+        popTip.shouldDismissOnTapOutside = true
+        popTip.shouldDismissOnTap = true
+        popTip.shouldDismissOnSwipeOutside = true
+        popTip.bubbleColor = .darkGray
+        popTip.appearHandler = {popTip in self.popTipStatus = true}
+        popTip.dismissHandler = {popTip in self.popTipStatus = false}
+        let frameX = self.moodCollectionView.layoutAttributesForItem(at: IndexPath(row: row, section: 0))!.frame.minX + 5
+        let modifiedFrame = CGRect(x: frameX, y: frame.minY - 5, width: frame.width, height: frame.height)
+        if popTipStatus == false {popTip.show(text: type, direction: .autoVertical, maxWidth: 80, in: moodCollectionView, from: modifiedFrame, duration: 2)}
+        else {popTip.hide()}
     }
     
     //PROFILE SETUP-------------------------------------------------------------------------------------------------
@@ -271,8 +315,8 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     func profilePicture() {
         if let user = Auth.auth().currentUser {
             let storageRef = Storage.storage().reference(forURL: "gs://kasam-coach.appspot.com")
-            //check if user has manually set a profile image
-            DBRef.currentUser.child("ProfilePic").observeSingleEvent(of: .value, with:{(snap) in
+            //Check if user has manually set a profile image
+            DBRef.userInfo.child("ProfilePic").observeSingleEvent(of: .value, with:{(snap) in
                 if snap.exists() {
                     //get the manually set Image
                     self.profileImage.sd_setImage(with: URL(string:snap.value as! String), completed: nil)
@@ -305,21 +349,18 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
 
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 8
+        return SavedData.moodStats.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MoodCell", for: indexPath) as! MoodCell
-        cell.setBlock(position: indexPath.row, value: 1)
+        cell.cellDelegate = self
+        cell.setBlock(position: indexPath.row, value: SavedData.moodStats[indexPath.row])
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: (moodCollectionView.frame.size.width / 8), height: (moodCollectionView.frame.size.height))
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
     }
 }
 
@@ -381,7 +422,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
                 }
                 saveImage(image: self.profileImage!.image!, location: "users/"+Auth.auth().currentUser!.uid+"/manual_profile_pic.jpg", completion: {uploadedProfileImageURL in
                     if uploadedProfileImageURL != nil {
-                        DBRef.currentUser.child("ProfilePic").setValue(uploadedProfileImageURL)
+                        DBRef.userInfo.child("ProfilePic").setValue(uploadedProfileImageURL)
                     }
                 })
             }
@@ -393,7 +434,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
                 }
                 saveImage(image: self.profileImage!.image!, location: "users/"+Auth.auth().currentUser!.uid+"/manual_profile_pic.jpg", completion: {uploadedProfileImageURL in
                     if uploadedProfileImageURL != nil {
-                        DBRef.currentUser.child("ProfilePic").setValue(uploadedProfileImageURL)
+                        DBRef.userInfo.child("ProfilePic").setValue(uploadedProfileImageURL)
                     }
                 })
             }

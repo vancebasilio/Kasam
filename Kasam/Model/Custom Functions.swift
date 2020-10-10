@@ -841,7 +841,7 @@ extension UIViewController {
         if Auth.auth().currentUser != nil {
             SavedData.userID = Auth.auth().currentUser!.uid
             DBRef.resetDBs()
-            DBRef.currentUser.child("Type").observeSingleEvent(of: .value, with:{(snap) in
+            DBRef.userInfo.child("Type").observeSingleEvent(of: .value, with:{(snap) in
                 SavedData.userType = snap.value as? String ?? "Basic"
             })
         }
@@ -1002,6 +1002,22 @@ extension UIButton {
             default: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
         }
         return button
+    }
+    
+    func setMoodIcon(position: Int) -> String {
+        var type = ""
+        switch position {
+            case 0: self.setIcon(icon: .fontAwesomeSolid(.smile), iconSize: 16, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Mental Health"
+            case 1: self.setIcon(icon: .fontAwesomeSolid(.dumbbell), iconSize: 16, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Physical Health"
+            case 2: self.setIcon(icon: .fontAwesomeSolid(.university), iconSize: 18, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "School/Work"
+            case 3: self.setIcon(icon: .icofont(.money), iconSize: 18, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Finances"
+            case 4: self.setIcon(icon: .icofont(.usersAlt5), iconSize: 18, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Friends"
+            case 5: self.setImage(UIImage(named:"family_restroom")?.withRenderingMode(.alwaysTemplate), for:.normal); type = "Family"
+            case 6: self.setIcon(icon: .icofont(.heart), iconSize: 18, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Emotional Connection"
+            case 7: self.setImage(UIImage(named:"high-five")?.withRenderingMode(.alwaysTemplate), for:.normal); type = "Physical Connection"
+            default: self.setIcon(icon: .icofont(.usersAlt5), iconSize: 18, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Friends"
+        }
+        return type
     }
 }
 

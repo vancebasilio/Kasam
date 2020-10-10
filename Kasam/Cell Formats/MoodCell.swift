@@ -9,31 +9,39 @@
 import UIKit
 import SwiftIcons
 
+protocol MoodCellDelegate : class {
+    func showPopTipInfo(row: Int, frame: CGRect, type: String)
+}
+
 class MoodCell: UICollectionViewCell {
     
     @IBOutlet weak var viewHolder: UIView!
     @IBOutlet weak var levelLine: UIView!
     @IBOutlet weak var levelLineHeight: NSLayoutConstraint!
-    @IBOutlet weak var moodLabel: UILabel!
-    
-    override func awakeFromNib() {
-        
-    }
+    @IBOutlet weak var moodIcon: UIButton!
+
+    var cellDelegate: MoodCellDelegate?
+    var positionInternal = 0
+    var type = ""
+    var lineHeightMax = CGFloat(0)
     
     func setBlock(position: Int, value: Double) {
-        let iconSize = CGFloat(18)
-        switch position {
-            case 0: moodLabel.setIcon(icon: .icofont(.brain), iconSize: iconSize, color: .darkGray, bgColor: .clear)
-            case 1: moodLabel.setIcon(icon: .icofont(.muscle), iconSize: iconSize, color: .darkGray, bgColor: .clear)
-            case 2: moodLabel.setIcon(icon: .icofont(.university), iconSize: iconSize, color: .darkGray, bgColor: .clear)
-            case 3: moodLabel.setIcon(icon: .icofont(.money), iconSize: iconSize, color: .darkGray, bgColor: .clear)
-            case 4: moodLabel.setIcon(icon: .icofont(.usersAlt5), iconSize: iconSize, color: .darkGray, bgColor: .clear)
-            case 5: moodLabel.setIcon(icon: .icofont(.home), iconSize: iconSize, color: .darkGray, bgColor: .clear)
-            case 6: moodLabel.setIcon(icon: .icofont(.heart), iconSize: iconSize, color: .darkGray, bgColor: .clear)
-            case 7: moodLabel.setIcon(icon: .fontAwesomeSolid(.fire), iconSize: iconSize - 3, color: .darkGray, bgColor: .clear)
-            default: moodLabel.setIcon(icon: .icofont(.heart), iconSize: iconSize, color: .darkGray, bgColor: .clear)
-        }
-        levelLineHeight.constant = CGFloat(value) * (viewHolder.frame.height - 20)
+        positionInternal = position
+        let width =  NSLayoutConstraint(item: moodIcon, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: viewHolder.frame.width)
+        let height = NSLayoutConstraint(item: moodIcon, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 18)
+        NSLayoutConstraint.activate([height,width])
+        
+        lineHeightMax = (viewHolder.frame.height - 20)
+        levelLineHeight.constant = CGFloat(value) * lineHeightMax
         levelLine.layer.cornerRadius = 5
+        type = moodIcon.setMoodIcon(position: position)
+    }
+    
+    func setLevel(value: Double){
+        levelLineHeight.constant = CGFloat(value) * lineHeightMax
+    }
+    
+    @IBAction func moodIconPressed(_ sender: Any) {
+        cellDelegate?.showPopTipInfo(row: positionInternal, frame: moodIcon.frame, type: type)
     }
 }

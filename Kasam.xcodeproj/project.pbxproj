@@ -71,6 +71,10 @@
 		BC89B8CA23F86A4800EA3813 /* DiscoverTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC89B8C923F86A4800EA3813 /* DiscoverTableCell.swift */; };
 		BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */; };
 		BC96F8482292085200E161FC /* TodayBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC96F8462292085200E161FC /* TodayBlockCell.swift */; };
+		BC99A5EF252FBCBE00B3A37A /* ChangeMood.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC99A5ED252FBCBE00B3A37A /* ChangeMood.swift */; };
+		BC99A5F0252FBCBE00B3A37A /* ChangeMood.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC99A5EE252FBCBE00B3A37A /* ChangeMood.xib */; };
+		BC99A5F3252FC5ED00B3A37A /* ChangeMoodCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC99A5F1252FC5ED00B3A37A /* ChangeMoodCell.swift */; };
+		BC99A5F4252FC5ED00B3A37A /* ChangeMoodCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC99A5F2252FC5ED00B3A37A /* ChangeMoodCell.xib */; };
 		BC9C2424226FD6FF00E7B64B /* -NewKasam.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */; };
 		BC9C7841228CD2DB000C8D0A /* 2. Personal.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9C7840228CD2DB000C8D0A /* 2. Personal.swift */; };
 		BC9EC1D92390DD0400637C94 /* CompletedKasamCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */; };
@@ -180,6 +184,10 @@
 		BC89B8C923F86A4800EA3813 /* DiscoverTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverTableCell.swift; sourceTree = "<group>"; };
 		BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+constraints.swift"; sourceTree = "<group>"; };
 		BC96F8462292085200E161FC /* TodayBlockCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayBlockCell.swift; sourceTree = "<group>"; };
+		BC99A5ED252FBCBE00B3A37A /* ChangeMood.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChangeMood.swift; sourceTree = "<group>"; };
+		BC99A5EE252FBCBE00B3A37A /* ChangeMood.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChangeMood.xib; sourceTree = "<group>"; };
+		BC99A5F1252FC5ED00B3A37A /* ChangeMoodCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChangeMoodCell.swift; sourceTree = "<group>"; };
+		BC99A5F2252FC5ED00B3A37A /* ChangeMoodCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChangeMoodCell.xib; sourceTree = "<group>"; };
 		BC9C2423226FD6FF00E7B64B /* -NewKasam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-NewKasam.swift"; sourceTree = "<group>"; };
 		BC9C7840228CD2DB000C8D0A /* 2. Personal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "2. Personal.swift"; sourceTree = "<group>"; };
 		BC9EC1D82390DD0400637C94 /* CompletedKasamCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedKasamCell.swift; sourceTree = "<group>"; };
@@ -328,6 +336,7 @@
 		BC4DE60224B023E400763B32 /* MiddlePopup */ = {
 			isa = PBXGroup;
 			children = (
+				BC99A5EC252FBC7B00B3A37A /* Change Mood */,
 				BC41D4DE24DA28CB00CEC9A4 /* GroupUserSearch */,
 				BCF8A2FF246436140030C323 /* TrophiesAchieved */,
 				BCBCA42C2507D3ED00E0219A /* Options Popup */,
@@ -350,6 +359,17 @@
 				BC834847244502AF001819DC /* oneMedal.json */,
 			);
 			path = Badges;
+			sourceTree = "<group>";
+		};
+		BC99A5EC252FBC7B00B3A37A /* Change Mood */ = {
+			isa = PBXGroup;
+			children = (
+				BC99A5ED252FBCBE00B3A37A /* ChangeMood.swift */,
+				BC99A5EE252FBCBE00B3A37A /* ChangeMood.xib */,
+				BC99A5F1252FC5ED00B3A37A /* ChangeMoodCell.swift */,
+				BC99A5F2252FC5ED00B3A37A /* ChangeMoodCell.xib */,
+			);
+			path = "Change Mood";
 			sourceTree = "<group>";
 		};
 		BCADFBAD229CC5CC00A9EAFA /* Cell Formats */ = {
@@ -617,6 +637,7 @@
 				BC83484A2445034A001819DC /* crown.json in Resources */,
 				BC84F75C24F21A5C009AFDBD /* updateCircle.json in Resources */,
 				BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */,
+				BC99A5F4252FC5ED00B3A37A /* ChangeMoodCell.xib in Resources */,
 				BCB68FDA250A9B3600E0C1E0 /* NotificationsController.xib in Resources */,
 				BC1FAF322269FAFA006A9245 /* Main.storyboard in Resources */,
 				BC7042C0239861A100649D01 /* GoogleService-Info.plist in Resources */,
@@ -625,6 +646,7 @@
 				BCF8A9AF24B1690F00751CC9 /* diamond.json in Resources */,
 				BC2B4C8123A70437005F2255 /* rocket-fast.json in Resources */,
 				BCD824D323D7C0B40051C499 /* success.json in Resources */,
+				BC99A5F0252FBCBE00B3A37A /* ChangeMood.xib in Resources */,
 				BCBCA43B2507D4CA00E0219A /* ButtonPopup.xib in Resources */,
 				BC01664722D5790B0073186D /* UIImageViewAligned in Resources */,
 				BC2B4C8223A70437005F2255 /* checkmark.json in Resources */,
@@ -808,6 +830,7 @@
 				BC554BD6226D8BDB00D707CC /* UIColor.swift in Sources */,
 				BC1414EB2493397F0073E577 /* SwipeTable.swift in Sources */,
 				BCBA69A22274F3200085E407 /* KasamTrackerCell.swift in Sources */,
+				BC99A5EF252FBCBE00B3A37A /* ChangeMood.swift in Sources */,
 				BC96F8482292085200E161FC /* TodayBlockCell.swift in Sources */,
 				BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */,
 				BC41D4E024DA28FB00CEC9A4 /* GroupSearch.swift in Sources */,
@@ -832,6 +855,7 @@
 				BC42C6C72354EA8F008F0A6D /* NewBlockCell.swift in Sources */,
 				BCCFE980231ABB0D00B0AB6C /* SelfSizedTableView.swift in Sources */,
 				BC4DE60524B0241A00763B32 /* OptionsPopup.swift in Sources */,
+				BC99A5F3252FC5ED00B3A37A /* ChangeMoodCell.swift in Sources */,
 				BC554BD8226E079100D707CC /* 4. User-Profile.swift in Sources */,
 				BCE0232D23B092E2007B25A0 /* MetricTypeCell.swift in Sources */,
 				BC554BD2226D6EF900D707CC /* 1. Discover.swift in Sources */,
