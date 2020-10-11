@@ -56,8 +56,8 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var progressBar: UIView!
     @IBOutlet weak var dayTrackerCollectionView: UICollectionView!
     @IBOutlet weak var dayTrackerCollectionHolderHeight: NSLayoutConstraint!
-    @IBOutlet weak var dayTrackerCollectionTopConstraint: NSLayoutConstraint!
     
+    @IBOutlet weak var dayTrackerCollectionTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var hideDayTrackerButton: UIButton!
     @IBOutlet weak var restartButton: UIButton!
     @IBOutlet weak var groupStatsTable: UITableView!
@@ -224,6 +224,7 @@ class TodayBlockCell: UITableViewCell {
         if isDayTrackerHidden == true {
             if type != "group" {
                 dayTrackerCollectionHolderHeight.constant = 50
+                dayTrackerCollectionView.frame.size = CGSize(width: dayTrackerCollectionView.frame.width, height: 50)
                 if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 0}
                 overallLabel.isHidden = true
                 UIView.performWithoutAnimation {

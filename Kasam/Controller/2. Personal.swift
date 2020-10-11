@@ -299,7 +299,7 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
                 return CGSize(width: 16, height: 20)    //shrink day tracker
             }
         } else {
-            return CGSize(width: 36, height: 50)    //day tracker
+            return CGSize(width: 36, height: 50)        //expand day tracker
         }
     }
     
