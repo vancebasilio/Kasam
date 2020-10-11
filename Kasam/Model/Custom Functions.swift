@@ -158,7 +158,7 @@ extension UIViewController {
             if cell.kasamName.text == "" || cell.kasamName.text == "..." {
                 if type == "personal" {cell.type = "personal"; cell.setBlock(block: block[kasamOrder].data)}
                 else {cell.type = "group"; cell.setBlock(block: block[kasamOrder].data); cell.collectionCoverUpdate()}
-                cell.centerCollectionView()
+//                cell.centerCollectionView()
             } else if (cell.blockSubtitle.text != block[kasamOrder].data.blockTitle)  {
                 cell.blockSubtitle.text = block[kasamOrder].data.blockTitle
             }

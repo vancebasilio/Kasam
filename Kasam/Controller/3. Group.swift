@@ -98,7 +98,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
                 self.groupKasamCount -= 1
                 SavedData.groupKasamBlocks.remove(at: index)
                 self.groupKasamTable.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
-                self.groupFollowingLabel.text = "You have \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
+                self.groupFollowingLabel.text = "You have \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "kasam")) for today"
             }
             self.showIconCheck()
         }
@@ -177,7 +177,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         //Only does the below after all Kasams loaded
         if groupKasamCount == SavedData.groupKasamBlocks.count {
             print("Step 4b - Reload Group table with \(groupKasamCount) kasams hell6")
-            self.groupFollowingLabel.text = "You have \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
+            self.groupFollowingLabel.text = "You have \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "kasam")) for today"
             self.updateScrollViewSize()
         }
     }
@@ -259,7 +259,11 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 37, height: 50)    //day tracker
+        return CGSize(width: 36, height: 50)    //day tracker
+    }
+    
+    func unhideDayTracker(kasamID: String) {
+        //
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

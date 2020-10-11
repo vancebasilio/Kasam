@@ -107,7 +107,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                 SavedData.personalKasamBlocks.remove(at: index)
                 self.personalKasamTable.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
                 self.updateScrollViewSize()
-                self.personalFollowingLabel.text = "You have \(SavedData.personalKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
+                self.personalFollowingLabel.text = "You have \(SavedData.personalKasamBlocks.count.pluralUnit(unit: "kasam")) for today"
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "PopDiscoverToRoot"), object: self)
             }
             self.showIconCheck()
@@ -199,7 +199,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         //Only does the below after all Kasams loaded
         if personalKasamCount == SavedData.personalKasamBlocks.count {
             print("Step 4b - Reload Personal table with \(personalKasamCount) kasams hell6")
-            self.personalFollowingLabel.text = "You have \(SavedData.personalKasamBlocks.count.pluralUnit(unit: "kasam")) to complete"
+            self.personalFollowingLabel.text = "You have \(SavedData.personalKasamBlocks.count.pluralUnit(unit: "kasam")) for today"
             self.updateScrollViewSize()
         }
     }
@@ -292,13 +292,24 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 37, height: 50)    //day tracker
+        if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: collectionView.tag, section: 0)) as? TodayBlockCell {
+            if cell.overallLabel.isHidden == true {
+                return CGSize(width: 36, height: 50)    //expand day tracker
+            } else {
+                return CGSize(width: 16, height: 20)    //shrink day tracker
+            }
+        } else {
+            return CGSize(width: 36, height: 50)    //day tracker
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let tableCell = self.personalKasamTable.cellForRow(at: IndexPath(item: collectionView.tag, section: 0)) as? TodayBlockCell
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayTrackerCell", for: indexPath) as! DayTrackerCollectionCell
         if SavedData.personalKasamBlocks.count > collectionView.tag {
             cell.dayTrackerDelegate = self
+            if tableCell?.overallLabel.isHidden == true {cell.cellButton.titleLabel?.layer.opacity = 100; cell.dayTrackerDate.isHidden = false}
+            else {cell.cellButton.titleLabel?.layer.opacity = 0; cell.dayTrackerDate.isHidden = true}
             let kasamBlock = SavedData.personalKasamBlocks[collectionView.tag]
             let day = indexPath.row + 1
             let today = Int(kasamBlock.data.dayOrder)
@@ -309,7 +320,7 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
     }
 }
     
-extension PersonalViewController: DayTrackerCellDelegate{
+extension PersonalViewController: DayTrackerCellDelegate {
     
     func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?) {
         if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
@@ -323,6 +334,14 @@ extension PersonalViewController: DayTrackerCellDelegate{
                     self.blockNameGlobal = blockName
                     self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
                 }
+            }
+        }
+    }
+    
+    func unhideDayTracker(kasamID: String){
+        if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
+            if let tableCell = self.personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
+                tableCell.hideDayTracker()
             }
         }
     }

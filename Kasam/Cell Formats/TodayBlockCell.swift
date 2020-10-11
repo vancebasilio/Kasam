@@ -100,7 +100,7 @@ class TodayBlockCell: UITableViewCell {
             levelLineBack.layer.cornerRadius = 4
             levelLineMask.layer.cornerRadius = 4
             levelLine.mask = levelLineBack
-            dayTrackerCollectionHolderHeight.constant = 5
+            dayTrackerCollectionHolderHeight.constant = 20
         }
     }
     
@@ -127,9 +127,6 @@ class TodayBlockCell: UITableViewCell {
         
         hideDayTrackerButton.setIcon(icon: .fontAwesomeRegular(.calendar), iconSize: 15, color: UIColor.darkGray, forState: .normal)
         restartButton.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 15, color: UIColor.colorFour, forState: .normal)
-        
-        let centerCollectionView = NSNotification.Name("CenterCollectionView")
-        NotificationCenter.default.addObserver(self, selector: #selector(TodayBlockCell.centerCollectionView), name: centerCollectionView, object: nil)
     
         blockImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBenefit)))
         kasamName.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(kasamNamePressed)))
@@ -229,7 +226,10 @@ class TodayBlockCell: UITableViewCell {
                 dayTrackerCollectionHolderHeight.constant = 50
                 if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 0}
                 overallLabel.isHidden = true
-                dayTrackerCollectionView.isHidden = false
+                UIView.performWithoutAnimation {
+                    dayTrackerCollectionView.reloadData()
+                }
+                centerCollectionView()
             } else {
                 dayTrackerCollectionTopConstraint.constant = 0
             }
@@ -237,10 +237,12 @@ class TodayBlockCell: UITableViewCell {
         //Hide more info on day tracker
         } else {
             if type != "group" {
-                dayTrackerCollectionHolderHeight.constant = 5
+                dayTrackerCollectionHolderHeight.constant = 20
                 if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 20}
                 overallLabel.isHidden = false
-                dayTrackerCollectionView.isHidden = true
+                UIView.performWithoutAnimation {
+                    dayTrackerCollectionView.reloadData()
+                }
             } else {
                 dayTrackerCollectionTopConstraint.constant = 10
             }
@@ -274,7 +276,7 @@ class TodayBlockCell: UITableViewCell {
                 indexPath = IndexPath(item: SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration - 1, section: 0)
             }
             self.dayTrackerCollectionView.collectionViewLayout.prepare()        //ensures the contentsize is accurate before centering cells
-            self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            self.dayTrackerCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
         }
     }
     

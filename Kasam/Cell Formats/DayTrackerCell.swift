@@ -10,6 +10,7 @@ import UIKit
 
 protocol DayTrackerCellDelegate : class {
     func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?)
+    func unhideDayTracker(kasamID: String)
 }
 
 class DayTrackerCollectionCell: UICollectionViewCell {
@@ -26,7 +27,8 @@ class DayTrackerCollectionCell: UICollectionViewCell {
     var dateInternal: Date?
     
     func setBlock(kasamID: String, day: Int, status: Double, date: Date, today: Bool, future: Bool){
-        cellButton.layer.cornerRadius = 12
+        cellButton.layer.cornerRadius = 10.8
+        cellButtonOutline.layer.cornerRadius = 14
         if day == 0 {
             cellButton.setTitle("", for: .normal)
         } else {
@@ -50,7 +52,6 @@ class DayTrackerCollectionCell: UICollectionViewCell {
             cellButton.setTitleColor(UIColor.black, for: .normal)           //black text buttons for today and past days
             cellButtonOutline.layer.borderColor = UIColor.colorFour.cgColor
             cellButtonOutline.layer.borderWidth = 2.0
-            cellButtonOutline.layer.cornerRadius = 15
             cellButtonOutline.isHidden = false
         } else {
             cellButtonOutline.isHidden = true
@@ -58,13 +59,14 @@ class DayTrackerCollectionCell: UICollectionViewCell {
         
         //Set Status Color
         if future == true {
-            cellButton.setTitleColor(UIColor.lightGray, for: .normal)       //greys out buttonBG that are in the future
-            cellButton.backgroundColor = UIColor.init(hex: 0xEFEFF4)        //greys out buttonText that are in the future
+            cellButton.setTitleColor(UIColor.lightGray.withAlphaComponent(0.5), for: .normal)
+            cellButton.backgroundColor = UIColor.init(hex: 0xEFEFF4)
+            dayTrackerDate.textColor = .lightGray
         } else if future != true {
             if status == 0.0 && today != true {
                 //Incomplete Kasams
-                cellButton.backgroundColor = UIColor.darkGray.lighter
-                cellButton.setTitleColor(UIColor.white, for: .normal)
+                cellButton.setTitleColor(UIColor.lightGray, for: .normal)
+                cellButton.backgroundColor = UIColor.init(hex: 0xEFEFF4)
             } else if status > 0.0 && status < 1.0 {
                 //Partially complete Kasams
                 if metricTypeInternal == "Video" && today != true {
@@ -89,8 +91,12 @@ class DayTrackerCollectionCell: UICollectionViewCell {
     }
     
     @IBAction func dayPressed(_ sender: UIButton) {
-        if SavedData.kasamDict[kasamIDInternal]!.groupStatus != "initiated" && futureInternal == false {
-            dayTrackerDelegate?.dayPressed(kasamID: kasamIDInternal, day: dayInternal, date: dateInternal ?? Date(), metricType: metricTypeInternal, viewOnly: futureInternal)
+        if cellButton.titleLabel?.layer.opacity != 0 {
+            if SavedData.kasamDict[kasamIDInternal]!.groupStatus != "initiated" && futureInternal == false {
+                dayTrackerDelegate?.dayPressed(kasamID: kasamIDInternal, day: dayInternal, date: dateInternal ?? Date(), metricType: metricTypeInternal, viewOnly: futureInternal)
+            }
+        } else {
+            dayTrackerDelegate?.unhideDayTracker(kasamID: kasamIDInternal)
         }
     }
 }
