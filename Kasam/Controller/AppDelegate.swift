@@ -35,7 +35,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         IQKeyboardManager.shared.enable = true
         let pushManager = PushNotificationManager()
         pushManager.registerForPushNotifications()
-
         UITabBar.appearance().tintColor = UIColor.colorFour
         Database.database().reference().child("Assets").observeSingleEvent(of: .value, with:{(snap) in
             if let value = snap.value as? [String:Any] {

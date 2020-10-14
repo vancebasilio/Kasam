@@ -75,9 +75,11 @@ class TodayBlockCell: UITableViewCell {
     var groupStatsList = [(userID: String, name: String, status: Double)]()
     
     func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
-        dayTrackerCollectionView.delegate = dataSourceDelegate
-        dayTrackerCollectionView.dataSource = dataSourceDelegate
-        dayTrackerCollectionView.tag = row
+        DispatchQueue.main.async {
+            self.dayTrackerCollectionView.delegate = dataSourceDelegate
+            self.dayTrackerCollectionView.dataSource = dataSourceDelegate
+            self.dayTrackerCollectionView.tag = row
+        }
     }
     
     func setBlock(block: PersonalBlockFormat) {
@@ -227,9 +229,8 @@ class TodayBlockCell: UITableViewCell {
                 dayTrackerCollectionView.frame.size = CGSize(width: dayTrackerCollectionView.frame.width, height: 50)
                 if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 0}
                 overallLabel.isHidden = true
-                UIView.performWithoutAnimation {
-                    dayTrackerCollectionView.reloadData()
-                }
+                dayTrackerCollectionView.reloadData()
+                dayTrackerCollectionView.performBatchUpdates(nil, completion: nil)
                 centerCollectionView()
             } else {
                 dayTrackerCollectionTopConstraint.constant = 0
@@ -241,9 +242,8 @@ class TodayBlockCell: UITableViewCell {
                 dayTrackerCollectionHolderHeight.constant = 20
                 if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 20}
                 overallLabel.isHidden = false
-                UIView.performWithoutAnimation {
-                    dayTrackerCollectionView.reloadData()
-                }
+                dayTrackerCollectionView.reloadData()
+                dayTrackerCollectionView.performBatchUpdates(nil, completion: nil)
             } else {
                 dayTrackerCollectionTopConstraint.constant = 10
             }
@@ -281,10 +281,10 @@ class TodayBlockCell: UITableViewCell {
         }
     }
     
-    func statusUpdate(_ day: String?){
+    func statusUpdate(day: String?){
         if tempBlock != nil && SavedData.kasamDict[kasamID] != nil {
             let block = SavedData.kasamDict[kasamID]
-            print("Step 5 - Block status update \(String(describing: block?.kasamName))")
+            print("Step 5B - Block status update \(String(describing: block?.kasamName))")
             if block?.groupStatus == "initiated" {
                 if block?.groupAdmin == SavedData.userID {
                     addButton.isHidden = false
@@ -370,7 +370,6 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func checkmarkAndPercentageUpdate(){
-        print("STEP 5C - CheckmarkAndPercentage")
         if SavedData.kasamDict[tempBlock!.kasamID]?.metricType != "Checkmark" {
             if let percent = ((SavedData.kasamDict[kasamID]?.percentComplete)) {
                 if percent >= 0 {bottomStatusText.isHidden = false; bottomStatusText.text = "\(Int(percent * 100))%"}
@@ -418,7 +417,7 @@ extension TodayBlockCell: UITableViewDelegate, UITableViewDataSource {
                 self.groupStatsList = self.groupStatsList.sorted(by: {$0.status > $1.status})
             }
             self.groupStatsTable.reloadData()
-            self.statusUpdate(nil)
+            self.statusUpdate(day: nil)
         }
         
         //To update the kasam stats table
@@ -435,7 +434,7 @@ extension TodayBlockCell: UITableViewDelegate, UITableViewDataSource {
             SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = nil
 //            self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
             self.groupStatsTable.reloadData()
-            self.statusUpdate(nil)
+            self.statusUpdate(day: nil)
         }
     }
     

@@ -84,13 +84,13 @@ extension UIViewController {
         print("Step 5 - Get day tracker hell6 \(String(describing: SavedData.kasamDict[kasamID]?.kasamName))")
         //For the active Kasams on the Personal or Group page
         if let kasam = SavedData.kasamDict[kasamID] {
-            //Gets the DayTracker info - only goes into this loop if the user has kasam history
             var db = DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString())
             var block = SavedData.personalKasamBlocks
             if type == "group" {
                 db = DBRef.groupKasams.child((kasam.groupID)!).child("History").child(Auth.auth().currentUser!.uid)
                 block = SavedData.groupKasamBlocks
             }
+            //Gets the DayTracker info - only goes into this loop if the user has kasam history
             db.observe(.value, with: {(snap) in
                 if snap.exists() {
                     var displayStatus = "Checkmark"
@@ -136,6 +136,7 @@ extension UIViewController {
                             }
                         }
                     }
+                //No kasam history
                 } else {
                     kasam.dayTrackerArray = nil
                     kasam.displayStatus = "Checkmark"
@@ -158,15 +159,14 @@ extension UIViewController {
             if cell.kasamName.text == "" || cell.kasamName.text == "..." {
                 if type == "personal" {cell.type = "personal"; cell.setBlock(block: block[kasamOrder].data)}
                 else {cell.type = "group"; cell.setBlock(block: block[kasamOrder].data); cell.collectionCoverUpdate()}
-//                cell.centerCollectionView()
             } else if (cell.blockSubtitle.text != block[kasamOrder].data.blockTitle)  {
                 cell.blockSubtitle.text = block[kasamOrder].data.blockTitle
             }
-            cell.statusUpdate(nil)
+            cell.statusUpdate(day:nil)
             cell.dayTrackerCollectionView.reloadData()
             tableView.endUpdates()
         }
-        print("Step 5B - Update \(block[kasamOrder].data.blockTitle)")
+        print("Step 5C - Update \(block[kasamOrder].data.blockTitle)")
     }
     
     //STEP 6

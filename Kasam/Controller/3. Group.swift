@@ -201,20 +201,12 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension GroupViewController: UITableViewDataSource, UITableViewDelegate, TableCellDelegate {
     
-    func reloadKasamBlock(kasamOrder: Int) {
-        if let cell = groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-            cell.setBlock(block: SavedData.groupKasamBlocks[kasamOrder].data)
-            cell.statusUpdate(nil)
-            cell.dayTrackerCollectionView.reloadData()
-        }
-    }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return SavedData.groupKasamBlocks.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as! TodayBlockCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as? TodayBlockCell else {return UITableViewCell()}
         cell.row = indexPath.row
         cell.cellDelegate = self
         return cell
@@ -234,6 +226,14 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
             kasamIDTransfer = SavedData.groupKasamBlocks[kasamOrder].1.kasamID
         }
         self.performSegue(withIdentifier: "goToKasamHolder", sender: kasamOrder)
+    }
+    
+    func reloadKasamBlock(kasamOrder: Int) {
+        if let cell = groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
+            cell.setBlock(block: SavedData.groupKasamBlocks[kasamOrder].data)
+            cell.statusUpdate(day: nil)
+            cell.dayTrackerCollectionView.reloadData()
+        }
     }
     
     func completeAndUnfollow(kasamOrder: Int) {

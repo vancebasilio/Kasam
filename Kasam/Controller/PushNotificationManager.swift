@@ -14,6 +14,7 @@ import UIKit
 import UserNotifications
 
 class PushNotificationManager: NSObject, MessagingDelegate, UNUserNotificationCenterDelegate {
+    
     func registerForPushNotifications() {
         if #available(iOS 10.0, *) {
             // For iOS 10 display notification (sent via APNS)
@@ -34,8 +35,10 @@ class PushNotificationManager: NSObject, MessagingDelegate, UNUserNotificationCe
     }
     
     func updateFirebasePushTokenIfNeeded() {
-        if let token = Messaging.messaging().fcmToken {
-            Database.database().reference().child("Users").child(SavedData.userID).child("Info").child("fcmToken").setValue(token)
+        if Auth.auth().currentUser?.uid != nil {
+            if let token = Messaging.messaging().fcmToken {
+                Database.database().reference().child("Users").child(SavedData.userID).child("Info").child("fcmToken").setValue(token)
+            }
         }
     }
     

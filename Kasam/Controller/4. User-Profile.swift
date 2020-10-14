@@ -159,6 +159,18 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 }
             }
         })
+        DBRef.userHistoryTotals.observe(.childRemoved, with:{(snap) in
+            if let index = self.completedStats.index(where: {$0.kasamID == snap.key}) {
+                self.totalKasamDays -= self.completedStats[index].daysCompleted
+                self.setKasamLevel()
+                self.completedStats.remove(at: index)
+                
+                //Order the table by #days completed
+                self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
+                self.completedKasamsTable.reloadData()
+                self.updateScrollViewSize()
+            }
+        })
         DispatchQueue.main.async {
             self.updateScrollViewSize()
         }

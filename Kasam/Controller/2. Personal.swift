@@ -182,6 +182,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         let kasamImage = value["Image"] as! String
         SavedData.kasamDict[kasam.kasamID]?.image = kasamImage
         let block = PersonalBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
+        //Modifying details of a kasam already loaded on the Today page
         if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
             SavedData.personalKasamBlocks[kasamOrder] = (kasam.kasamID, block)
             if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
@@ -191,6 +192,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                     cell.blockSubtitle.text = SavedData.personalKasamBlocks[kasamOrder].data.blockTitle
                 }
             }
+        //Adding a kasam for the first time to the Today page
         } else {
             SavedData.personalKasamBlocks.append((kasam.kasamID, block))
             self.getDayTracker(kasamID: block.kasamID, tableView: self.personalKasamTable, type: "personal")
@@ -241,7 +243,7 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as! TodayBlockCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as? TodayBlockCell else {return UITableViewCell()}
         cell.row = indexPath.row
         cell.cellDelegate = self
         return cell
@@ -265,7 +267,7 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
     
     func reloadKasamBlock(kasamOrder: Int) {
         if let cell = personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-            cell.statusUpdate(nil)
+            cell.statusUpdate(day: nil)
         }
     }
     

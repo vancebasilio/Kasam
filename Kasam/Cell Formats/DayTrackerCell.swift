@@ -29,22 +29,17 @@ class DayTrackerCollectionCell: UICollectionViewCell {
     func setBlock(kasamID: String, day: Int, status: Double, date: Date, today: Bool, future: Bool){
         cellButton.layer.cornerRadius = 10.8
         cellButtonOutline.layer.cornerRadius = 14
-        if day == 0 {
-            cellButton.setTitle("", for: .normal)
-        } else {
-            cellButton.setTitle("\(day)", for: .normal)
-        }
+        dayTrackerDate.textColor = UIColor.colorFive
+        
+        if day == 0 {cellButton.setTitle("", for: .normal)}
+        else {cellButton.setTitle("\(day)", for: .normal)}
+        
         if let sequenceDate = SavedData.kasamDict[kasamID]?.dayTrackerArray?[day]?.0 {
             dayTrackerDate.text = dateShortestFormat(date: sequenceDate)
         } else {
             dayTrackerDate.text = date.dateToShortString()
         }
-        dayTrackerDate.textColor = UIColor.colorFive
-        dayInternal = day
-        dateInternal = date
-        futureInternal = future
-        metricTypeInternal = SavedData.kasamDict[kasamID]!.metricType
-        kasamIDInternal = kasamID
+        dayInternal = day; dateInternal = date; futureInternal = future; metricTypeInternal = SavedData.kasamDict[kasamID]!.metricType; kasamIDInternal = kasamID
         
         //Set Today Button
         if today == true {

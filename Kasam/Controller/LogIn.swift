@@ -151,6 +151,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
     }
     
     func userLoginandRegistration(authResult: AuthDataResult?, error: Error?){
+        print("hell5")
         if let error = error {
             //error signing new user in
             showError(error)

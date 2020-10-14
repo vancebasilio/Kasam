@@ -113,6 +113,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
         let metricType = self.transferArray!.metric
         DBRef.userPersonalHistory.child(transferArray!.kasamID).observeSingleEvent(of: .value) {(snapshot) in
             //SECTIONS
+            if snapshot.exists(){
             for snap in snapshot.children.allObjects as! [DataSnapshot]{
                 self.kasamHistoryArray.removeAll()
                 self.setTableViewHeight += self.sectionHeight
@@ -126,6 +127,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                             repeatDuration = individualDate.value as? Int; goalCheck = 1
                             self.repeatDurationTotal += repeatDuration ?? 0
                         } else {
+                            self.repeatDurationTotal += 30
                             self.dayNo = (Calendar.current.dateComponents([.day], from: startDate, to: individualDate.key.stringToDate()).day ?? 0) + 1
                             self.progressDayCount += 1
                             var blockName = ""
@@ -181,6 +183,10 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                     DBRef.userHistoryTotals.child(self.transferArray!.kasamID).setValue(["First": self.tableViewData.first?.sectionData.first?.fullDate as Any,"Last": self.tableViewData.last?.sectionData.last?.fullDate as Any, "Days": self.totalDayCount])
                     self.historyTableView.reloadData()
                 }
+            }
+            //No user history
+            } else {
+                DBRef.userHistoryTotals.child(self.transferArray!.kasamID).setValue(nil)
             }
         }
     }
@@ -290,7 +296,11 @@ extension StatisticsViewController: UITableViewDelegate, UITableViewDataSource {
                     if let cell = self.historyTableView.cellForRow(at: IndexPath(item: 0, section: indexPath.section)) as? KasamHistoryTableCell {
                         let count = String(self.tableViewData[indexPath.section].sectionData.count)
                         cell.dayCount.setTitle(count, for: .normal)
+                        self.historyTableView.reloadRows(at: [IndexPath(item:1, section: indexPath.section)], with: .fade)
                     }
+                    var totalDays: Int? = self.totalDayCount
+                    if self.totalDayCount == 0 {totalDays = nil}
+                    DBRef.userHistoryTotals.child(self.transferArray!.kasamID).setValue(["First": self.tableViewData.first?.sectionData.first?.fullDate as Any,"Last": self.tableViewData.last?.sectionData.last?.fullDate as Any, "Days": totalDays as Any])
                     SwiftEntryKit.dismiss()
                 }
             }
