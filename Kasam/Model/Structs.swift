@@ -15,14 +15,8 @@ import SwiftEntryKit
 
 struct SavedData {
     static var personalKasamBlocks: [(kasamID: String, data: PersonalBlockFormat)] = []
-    static var personalCompletedList: [String] = []
-    
     static var groupKasamBlocks: [(kasamID: String, data: PersonalBlockFormat)] = []
-    static var groupCompletedList: [String] = []
-    
-    static var kasamDict: [String:KasamSavedFormat] = [:]           //KasamDict is used to update kasams when progress is made
-
-    static func addKasam(kasam: KasamSavedFormat) {self.kasamDict[kasam.kasamID] = kasam}
+    static var kasamDict: [String:KasamSavedFormat] = [:]
     
     static var trophiesAchieved: [String: (kasamName: String, kasamTrophies: [(completedDate: String, trophyThreshold: Int)])] = [:]
     static var trophiesCount = 0                                    //All badges achieved only
@@ -32,9 +26,7 @@ struct SavedData {
     
     static func wipeAllData(){
         personalKasamBlocks.removeAll()
-        personalCompletedList.removeAll()
         groupKasamBlocks.removeAll()
-        groupCompletedList.removeAll()
         kasamDict.removeAll()
         trophiesAchieved.removeAll()
         trophiesCount = 0

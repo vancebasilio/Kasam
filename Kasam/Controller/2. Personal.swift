@@ -130,7 +130,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: nil, groupAdmin: nil, groupStatus: nil, groupTeam: nil)
             DispatchQueue.main.async {snapshot.key.benefitThresholds()}
             print("Step 2 - Get preferences hell6 \(preference.kasamName)")
-            SavedData.addKasam(kasam: preference)
+            SavedData.kasamDict[preference.kasamID] = preference
             self.getBlockDetails(kasamID: preference.kasamID)
         }
     }

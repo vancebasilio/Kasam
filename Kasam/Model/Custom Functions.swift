@@ -156,6 +156,7 @@ extension UIViewController {
         if type == "group" {block = SavedData.groupKasamBlocks}
         if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
             tableView.beginUpdates()
+            //"" is New kasam and "..." is restarting kasam. In both cases, run SetBlock
             if cell.kasamName.text == "" || cell.kasamName.text == "..." {
                 if type == "personal" {cell.type = "personal"; cell.setBlock(block: block[kasamOrder].data)}
                 else {cell.type = "group"; cell.setBlock(block: block[kasamOrder].data); cell.collectionCoverUpdate()}
@@ -1120,6 +1121,21 @@ extension Date {
         formatter.dateFormat = "MMM d"
         let finalDate = formatter.string(from: self)
         return finalDate
+    }
+    
+    func daysBetween(date: Date) -> Int {
+        return Date.daysBetween(start: self, end: date)
+    }
+
+    static func daysBetween(start: Date, end: Date) -> Int {
+        let calendar = Calendar.current
+
+        // Replace the hour (time) of both dates with 00:00
+        let date1 = calendar.startOfDay(for: start)
+        let date2 = calendar.startOfDay(for: end)
+
+        let a = calendar.dateComponents([.day], from: date1, to: date2)
+        return a.value(for: .day)!
     }
 }
 

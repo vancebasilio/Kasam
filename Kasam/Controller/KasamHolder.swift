@@ -552,10 +552,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             self.registerCheck = 1
             self.initialRepeat = SavedData.kasamDict[self.kasamID]?.repeatDuration
             self.addButtonText.setIcon(icon: .fontAwesomeSolid(.cog), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
-        } else if SavedData.personalCompletedList.contains(kasamID) || SavedData.groupCompletedList.contains(kasamID) {
-            //OPTION 2 - User compeleted kasam in past, and may now want to rejoin
-            self.registerCheck = 0
-            self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
+//        } else if SavedData.personalCompletedList.contains(kasamID) || SavedData.groupCompletedList.contains(kasamID) {
+//            //OPTION 2 - User compeleted kasam in past, and may now want to rejoin
+//            self.registerCheck = 0
+//            self.addButtonText.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 25, color: .white, backgroundColor: .clear, forState: .normal)
         } else {
             //OPTION 3 - User not registered to kasam (PLUS ICON)
             self.registerCheck = 0
