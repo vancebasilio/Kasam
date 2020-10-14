@@ -63,7 +63,7 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var groupStatsTable: UITableView!
     
     var cellDelegate: TableCellDelegate?
-    var tempBlock: PersonalBlockFormat?
+    var tempBlock: TodayBlockFormat?
     var row = 0
     var type = ""
     var isDayTrackerHidden = true
@@ -82,7 +82,7 @@ class TodayBlockCell: UITableViewCell {
         }
     }
     
-    func setBlock(block: PersonalBlockFormat) {
+    func setBlock(block: TodayBlockFormat) {
         print("hell1 \(block.blockTitle)")
         kasamID = block.kasamID
         tempBlock = block
@@ -204,7 +204,7 @@ class TodayBlockCell: UITableViewCell {
                 showCenterOptionsPopup(kasamID: nil, title: "Start your group kasam", subtitle: nil, text: "You'll be starting on \(Date().dateToShortString()) \nwith \(SavedData.kasamDict[kasamID]!.groupTeam!.count.pluralUnit(unit: "member"))", type:"startGroupKasam", button: "Start!") {(mainButtonPressed) in
                     DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").updateChildValues(["Status":"active", "Date Joined":Date().dateToString()])
                     SavedData.kasamDict[self.kasamID]?.groupStatus = "active"
-                    SavedData.groupKasamBlocks[self.row].data.dayOrder = 1
+                    SavedData.todayKasamBlocks["group"]![self.row].data.dayOrder = 1
                     self.cellDelegate?.reloadKasamBlock(kasamOrder: self.row)
                     self.groupStatsTable.reloadData()
                 }

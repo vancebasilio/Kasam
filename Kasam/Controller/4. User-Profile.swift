@@ -319,7 +319,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     @objc func profileUpdate() {
-        let kasamcount = SavedData.personalKasamBlocks.count + SavedData.groupKasamBlocks.count
+        let kasamcount = SavedData.todayKasamBlocks["personal"]!.count + SavedData.todayKasamBlocks["group"]!.count
         kasamFollowingNo.text = String(kasamcount)
         if kasamcount == 1 {kasamFollowingLabel.text = "kasam"}
     }

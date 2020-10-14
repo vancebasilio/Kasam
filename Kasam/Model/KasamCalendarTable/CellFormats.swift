@@ -58,7 +58,7 @@ class SquareKasamFormat {
     }
 }
 
-class PersonalBlockFormat {
+class TodayBlockFormat {
     var kasamID: String
     var groupID: String?
     var blockID: String

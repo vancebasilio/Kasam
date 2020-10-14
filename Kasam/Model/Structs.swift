@@ -14,8 +14,7 @@ import Lottie
 import SwiftEntryKit
 
 struct SavedData {
-    static var personalKasamBlocks: [(kasamID: String, data: PersonalBlockFormat)] = []
-    static var groupKasamBlocks: [(kasamID: String, data: PersonalBlockFormat)] = []
+    static var todayKasamBlocks = ["personal": [(kasamID: String, data: TodayBlockFormat)](), "group": [(kasamID: String, data: TodayBlockFormat)]()]
     static var kasamDict: [String:KasamSavedFormat] = [:]
     
     static var trophiesAchieved: [String: (kasamName: String, kasamTrophies: [(completedDate: String, trophyThreshold: Int)])] = [:]
@@ -25,8 +24,7 @@ struct SavedData {
     static var moodStats = [Double]()
     
     static func wipeAllData(){
-        personalKasamBlocks.removeAll()
-        groupKasamBlocks.removeAll()
+        todayKasamBlocks.removeAll()
         kasamDict.removeAll()
         trophiesAchieved.removeAll()
         trophiesCount = 0

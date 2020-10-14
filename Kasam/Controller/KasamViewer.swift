@@ -80,9 +80,9 @@ class KasamActivityViewer: UIViewController {
             } else {
                 blockID = manualBlockID; blockName = manualBlock?.userInfo?["blockName"] as? String ?? ""
             }
-            if let kasamOrder = SavedData.personalKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
-                SavedData.personalKasamBlocks[kasamOrder].data.blockTitle = blockName
-                SavedData.personalKasamBlocks[kasamOrder].data.blockID = blockID
+            if let kasamOrder = SavedData.todayKasamBlocks["personal"]!.index(where: {($0.kasamID == kasamID)}) {
+                SavedData.todayKasamBlocks["personal"]![kasamOrder].data.blockTitle = blockName
+                SavedData.todayKasamBlocks["personal"]![kasamOrder].data.blockID = blockID
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshPersonalKasam"), object: self, userInfo: ["kasamOrder": kasamOrder])
             }
         }

@@ -59,13 +59,13 @@ class NotificationsCell: UITableViewCell {
             }
             self.kasamID.setupNotifications(kasamName: kasam!.kasamName, startDate: Date(), endDate: endDate, chosenTime: timeVC.formattedTime)
             
-            if SavedData.personalKasamBlocks.contains(where: {$0.kasamID == self.kasamID}) {
+            if SavedData.todayKasamBlocks["personal"]!.contains(where: {$0.kasamID == self.kasamID}) {
                 DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Time": timeVC.formattedTime]) {(error, reference) in
                     SavedData.kasamDict[self.kasamID]?.startTime = timeVC.formattedTime
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "ReloadNotifications"), object: self, userInfo: ["order": self.order])
                     NotificationCenter.default.removeObserver(saveTimeObserver as Any)
                 }
-            } else if SavedData.groupKasamBlocks.contains(where: {$0.kasamID == self.kasamID}) {
+            } else if SavedData.todayKasamBlocks["group"]!.contains(where: {$0.kasamID == self.kasamID}) {
                 DBRef.userGroupFollowing.child((SavedData.kasamDict[self.kasamID]?.groupID)!).updateChildValues(["Time": timeVC.formattedTime]) {(error, reference) in
                     SavedData.kasamDict[self.kasamID]?.startTime = timeVC.formattedTime
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "ReloadNotifications"), object: self, userInfo: ["order": self.order])

@@ -52,7 +52,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func updateScrollViewSize(){
-        self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.groupTableHeight, tableRowHeight: self.groupTableRowHeight, additionalTableHeight: nil, rowCount: SavedData.groupKasamBlocks.count, additionalHeight: 160)
+        self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.groupTableHeight, tableRowHeight: self.groupTableRowHeight, additionalTableHeight: nil, rowCount: SavedData.todayKasamBlocks["group"]!.count, additionalHeight: 160)
         self.initialLoad = true
     }
     
@@ -82,7 +82,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     //STEP 1
     func getGroupFollowing(){
         groupKasamCount = 0
-        SavedData.groupKasamBlocks.removeAll()
+        SavedData.todayKasamBlocks["group"]!.removeAll()
         showIconCheck()
         
         DBRef.userGroupFollowing.observe(.childAdded) {(groupID) in
@@ -94,11 +94,11 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         //If user unfollows a group kasam
         DBRef.userGroupFollowing.observe(.childRemoved) {(snapshot) in
             print("hell9 group kasam unfollowed")
-            if let index = SavedData.groupKasamBlocks.index(where: {($0.data.groupID == snapshot.key)}) {
+            if let index = SavedData.todayKasamBlocks["group"]!.index(where: {($0.data.groupID == snapshot.key)}) {
                 self.groupKasamCount -= 1
-                SavedData.groupKasamBlocks.remove(at: index)
+                SavedData.todayKasamBlocks["group"]!.remove(at: index)
                 self.groupKasamTable.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
-                self.groupFollowingLabel.text = "You have \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "kasam")) for today"
+                self.groupFollowingLabel.text = "You have \(SavedData.todayKasamBlocks["group"]!.count.pluralUnit(unit: "kasam")) for today"
             }
             self.showIconCheck()
         }
@@ -163,21 +163,21 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         print("Step 4 - Save Kasam Blocks hell6 \((kasam.kasamName))")
         let kasamImage = value["Image"] as! String
         SavedData.kasamDict[kasam.kasamID]?.image = kasamImage
-        let block = PersonalBlockFormat(kasamID: kasam.kasamID, groupID: SavedData.kasamDict[kasam.kasamID]?.groupID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
-        if let kasamOrder = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasam.kasamID)}) {
-            SavedData.groupKasamBlocks[kasamOrder] = (kasam.kasamID, block)
+        let block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: SavedData.kasamDict[kasam.kasamID]?.groupID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
+        if let kasamOrder = SavedData.todayKasamBlocks["group"]!.index(where: {($0.kasamID == kasam.kasamID)}) {
+            SavedData.todayKasamBlocks["group"]![kasamOrder] = (kasam.kasamID, block)
             if let cell = self.groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-                cell.blockSubtitle.text = SavedData.groupKasamBlocks[kasamOrder].data.blockTitle
+                cell.blockSubtitle.text = SavedData.todayKasamBlocks["group"]![kasamOrder].data.blockTitle
             }
         } else {
-            SavedData.groupKasamBlocks.append((kasam.kasamID, block))
+            SavedData.todayKasamBlocks["group"]!.append((kasam.kasamID, block))
             self.getDayTracker(kasamID: block.kasamID, tableView: groupKasamTable, type: "group")
         }
         
         //Only does the below after all Kasams loaded
-        if groupKasamCount == SavedData.groupKasamBlocks.count {
+        if groupKasamCount == SavedData.todayKasamBlocks["group"]!.count {
             print("Step 4b - Reload Group table with \(groupKasamCount) kasams hell6")
-            self.groupFollowingLabel.text = "You have \(SavedData.groupKasamBlocks.count.pluralUnit(unit: "kasam")) for today"
+            self.groupFollowingLabel.text = "You have \(SavedData.todayKasamBlocks["group"]!.count.pluralUnit(unit: "kasam")) for today"
             self.updateScrollViewSize()
         }
     }
@@ -202,7 +202,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
 extension GroupViewController: UITableViewDataSource, UITableViewDelegate, TableCellDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return SavedData.groupKasamBlocks.count
+        return SavedData.todayKasamBlocks["group"]!.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -222,15 +222,15 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
     }
     
     func goToKasamHolder(kasamOrder: Int) {
-        if SavedData.groupKasamBlocks.count > kasamOrder {
-            kasamIDTransfer = SavedData.groupKasamBlocks[kasamOrder].1.kasamID
+        if SavedData.todayKasamBlocks["group"]!.count > kasamOrder {
+            kasamIDTransfer = SavedData.todayKasamBlocks["group"]![kasamOrder].1.kasamID
         }
         self.performSegue(withIdentifier: "goToKasamHolder", sender: kasamOrder)
     }
     
     func reloadKasamBlock(kasamOrder: Int) {
         if let cell = groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-            cell.setBlock(block: SavedData.groupKasamBlocks[kasamOrder].data)
+            cell.setBlock(block: SavedData.todayKasamBlocks["group"]![kasamOrder].data)
             cell.statusUpdate(day: nil)
             cell.dayTrackerCollectionView.reloadData()
         }
@@ -239,7 +239,7 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
     func completeAndUnfollow(kasamOrder: Int) {
         let popupImage = UIImage.init(icon: .fontAwesomeSolid(.rocket), size: CGSize(width: 30, height: 30), textColor: .colorFour)
         showCenterPopupConfirmation(title: "Finish & Unfollow?", description: "You'll be unfollowing this Kasam, but your past progress and badges will be saved", image: popupImage, buttonText: "Finish & Unfollow", completion: {(success) in
-            let kasamID = SavedData.groupKasamBlocks[kasamOrder].1.kasamID
+            let kasamID = SavedData.todayKasamBlocks["group"]![kasamOrder].1.kasamID
             DBRef.userGroupFollowing.child(kasamID).child("Status").setValue("completed")
             self.getGroupFollowing()
         })
@@ -251,8 +251,8 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
 extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, DayTrackerCellDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if SavedData.groupKasamBlocks.count > collectionView.tag {        //ensures the kasam is loaded before reading the dayTracker
-            return SavedData.kasamDict[SavedData.groupKasamBlocks[collectionView.tag].kasamID]?.repeatDuration ?? 0
+        if SavedData.todayKasamBlocks["group"]!.count > collectionView.tag {        //ensures the kasam is loaded before reading the dayTracker
+            return SavedData.kasamDict[SavedData.todayKasamBlocks["group"]![collectionView.tag].kasamID]?.repeatDuration ?? 0
         } else {
             return 10
         }
@@ -268,12 +268,12 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayTrackerCell", for: indexPath) as! DayTrackerCollectionCell
-        if SavedData.groupKasamBlocks.count > collectionView.tag {
+        if SavedData.todayKasamBlocks["group"]!.count > collectionView.tag {
             cell.dayTrackerDelegate = self
-            let kasamBlock = SavedData.groupKasamBlocks[collectionView.tag]
+            let kasamBlock = SavedData.todayKasamBlocks["group"]![collectionView.tag]
             let day = indexPath.row + 1
             var today = Int(kasamBlock.data.dayOrder)
-            if SavedData.kasamDict[SavedData.groupKasamBlocks[collectionView.tag].kasamID]?.groupStatus == "initiated" {today = 1}
+            if SavedData.kasamDict[SavedData.todayKasamBlocks["group"]![collectionView.tag].kasamID]?.groupStatus == "initiated" {today = 1}
             let date = dayTrackerDateFormat(date: Date(), todayDay: today, row: indexPath.row + 1)
             cell.setBlock(kasamID: kasamBlock.kasamID, day: day, status: SavedData.kasamDict[kasamBlock.kasamID]?.dayTrackerArray?[indexPath.row + 1]?.progress ?? 0.0, date: date , today: day == today, future: day > today)
         }
@@ -282,7 +282,7 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
     
     func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?) {
         if day > 0 {
-            if let kasamOrder = SavedData.groupKasamBlocks.index(where: {($0.kasamID == kasamID)}) {
+            if let kasamOrder = SavedData.todayKasamBlocks["group"]!.index(where: {($0.kasamID == kasamID)}) {
                 if metricType == "Checkmark" {
                     updateKasamDayButtonPressed(type: "group", kasamOrder: kasamOrder, day: day)
                 } else {

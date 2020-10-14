@@ -50,7 +50,7 @@ class NotificationsController: UIViewController {
     @objc func localNotifications(_ notification: NSNotification?){
         notificationArray.removeAll()
         UNUserNotificationCenter.current().getPendingNotificationRequests {(notifications) in
-            for kasam in SavedData.personalKasamBlocks + SavedData.groupKasamBlocks {
+            for kasam in SavedData.todayKasamBlocks["personal"]! + SavedData.todayKasamBlocks["group"]! {
                 //Notification exists for kasamID
                 if let index = notifications.index(where: {$0.identifier == kasam.kasamID}) {
                     self.notificationArray.append((kasam.kasamID, notifications[(index)]))
