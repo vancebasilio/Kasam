@@ -128,53 +128,43 @@ extension UIViewController {
                                 if blockDeets != nil {SavedData.todayKasamBlocks[type]![index].data.blockTitle = blockDeets!.blockName; SavedData.todayKasamBlocks[type]![index].data.blockID = blockDeets!.blockID}
                                 kasam.streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: SavedData.todayKasamBlocks[type]![index].data.dayOrder)
                                 NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
-                                self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type)
+                                print("hell7a \(kasam.kasamName, 0, index)")
+                                self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type, level: 0)
                             }
                         }
                     }
                 //No kasam history
                 } else {
+                    var level = 0
                     kasam.dayTrackerArray = nil
                     if kasam.joinedDate.daysBetween(date: Date()) < 0 {
                         kasam.displayStatus = "Upcoming"
-                        if let index = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
-                            let temp = SavedData.todayKasamBlocks[type]![index]
-                            SavedData.todayKasamBlocks[type]!.remove(at: index)
-                            SavedData.todayKasamBlocks[type]?.append(temp)
+                        level = 1
+                        if let index = SavedData.upcomingKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
+                            print("hell7b \(kasam.kasamName, level, index)")
+                            self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type, level: level)
                         }
-                    }
-                    else {
+                    } else {
                         kasam.displayStatus = "Checkmark"
                         kasam.streakInfo = (currentStreak:(value:0, date:nil), daysWithAnyProgress:0, longestStreak:0)
                         kasam.percentComplete = 0
-                    }
-                    if let index = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
-                        self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type)
+                        if let index = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
+                            print("hell7c \(kasam.kasamName, level, index)")
+                            self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type, level: level)
+                        }
                     }
                 }
             })
         }
     }
     
-    func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String) {
-        print("hell5 \(kasamOrder)")
-        tableView.reloadData()
-        var block = SavedData.todayKasamBlocks["personal"]!
-        if type == "group" {block = SavedData.todayKasamBlocks["group"]!}
-        if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
+    func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String, level: Int) {
+        if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: level)) as? TodayBlockCell {
             tableView.beginUpdates()
-            //"" is New kasam and "..." is restarting kasam. In both cases, run SetBlock
-            if cell.kasamName.text == "" || cell.kasamName.text == "..." {
-                if type == "personal" {cell.type = "personal"; cell.setBlock(block: block[kasamOrder].data)}
-                else {cell.type = "group"; cell.setBlock(block: block[kasamOrder].data); cell.collectionCoverUpdate()}
-            } else if (cell.blockSubtitle.text != block[kasamOrder].data.blockTitle)  {
-                cell.blockSubtitle.text = block[kasamOrder].data.blockTitle
-            }
             cell.statusUpdate(day:nil)
-            cell.dayTrackerCollectionView.reloadData()
+            cell.updateDayTrackerCollection()
             tableView.endUpdates()
         }
-//        print("Step 5C - Update \(block[kasamOrder].data.blockTitle)")
     }
     
     //STEP 6
@@ -659,8 +649,7 @@ extension UIViewController {
     }
     
     func dayTrackerDateFormat(date: Date, todayDay: Int, row: Int) -> Date {
-        let substract = todayDay - row
-        let date = Calendar.current.date(byAdding: .day, value: -substract, to: date) ?? date
+        let date = Calendar.current.date(byAdding: .day, value: (row - todayDay), to: date) ?? date
         return date
     }
     
@@ -904,6 +893,24 @@ extension UIViewController {
                 }
             }
         }
+    }
+    
+    func sectionHeader(text: String, color: UIColor, leading: CGFloat) -> UIView {
+        let headerView = UIView()
+        headerView.backgroundColor = UIColor.clear
+        let newlabel = UILabel()
+        newlabel.textColor = color
+        newlabel.textAlignment = .left
+        newlabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        newlabel.adjustsFontSizeToFitWidth = true
+        newlabel.text = text
+        headerView.addSubview(newlabel)
+        newlabel.translatesAutoresizingMaskIntoConstraints = false
+        headerView.addConstraint(NSLayoutConstraint(item: newlabel, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: leading))
+        headerView.addConstraint(NSLayoutConstraint(item: newlabel, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.greaterThanOrEqual, toItem: headerView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 20.0))
+        headerView.addConstraint(NSLayoutConstraint(item: newlabel, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0))
+        headerView.addConstraint(NSLayoutConstraint(item: newlabel, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0))
+        return headerView
     }
 }
 
@@ -1284,10 +1291,10 @@ extension String {
     func restartExistingNotification() {
         let kasamID = self
         let kasam = SavedData.kasamDict[kasamID]
-        let startDate = kasam!.joinedDate
+        let startDate = kasam?.joinedDate
         var endDate: Date?
-        if kasam?.repeatDuration != 0 {
-            endDate = Calendar.current.date(byAdding: .day, value: kasam!.repeatDuration, to: startDate)!
+        if kasam?.repeatDuration != 0 && startDate != nil {
+            endDate = Calendar.current.date(byAdding: .day, value: kasam!.repeatDuration, to: startDate!)!
         }
         kasamID.setupNotifications(kasamName: kasam!.kasamName, startDate: Date(), endDate: endDate, chosenTime: kasam!.startTime)
     }
@@ -1315,9 +1322,10 @@ extension String {
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         
         // Create request
-        let uniqueID = "\(self)"        // Keep a record of this
+        let uniqueID = self
+        center.removePendingNotificationRequests(withIdentifiers: [uniqueID])                               //Remove duplicate
         let request = UNNotificationRequest(identifier: uniqueID, content: content, trigger: trigger)
-        center.add(request) {(error : Error?) in        // Add the notification request
+        center.add(request) {(error : Error?) in                                                            //Add notification request
         }
     }
     

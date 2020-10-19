@@ -10,7 +10,7 @@ import UIKit
 
 protocol DayTrackerCellDelegate : class {
     func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?)
-    func unhideDayTracker(kasamID: String)
+    func unhideDayTracker(section: Int, row: Int)
 }
 
 class DayTrackerCollectionCell: UICollectionViewCell {
@@ -22,11 +22,15 @@ class DayTrackerCollectionCell: UICollectionViewCell {
     var dayTrackerDelegate: DayTrackerCellDelegate?
     var dayInternal = 0
     var kasamIDInternal = ""
+    var rowInternal = 0
+    var sectionInternal = 0
     var metricTypeInternal = "Checkmark"
     var futureInternal: Bool?
     var dateInternal: Date?
     
-    func setBlock(kasamID: String, day: Int, status: Double, date: Date, today: Bool, future: Bool){
+    func setBlock(row: Int, section: Int, kasamID: String, day: Int, status: Double, date: Date, today: Bool, future: Bool){
+        sectionInternal = section
+        rowInternal = row
         cellButton.layer.cornerRadius = 10.8
         cellButtonOutline.layer.cornerRadius = 14
         dayTrackerDate.textColor = UIColor.colorFive
@@ -86,12 +90,14 @@ class DayTrackerCollectionCell: UICollectionViewCell {
     }
     
     @IBAction func dayPressed(_ sender: UIButton) {
+        //OPTION 1 - Open the day
         if cellButton.titleLabel?.layer.opacity != 0 {
             if SavedData.kasamDict[kasamIDInternal]!.groupStatus != "initiated" && futureInternal == false {
                 dayTrackerDelegate?.dayPressed(kasamID: kasamIDInternal, day: dayInternal, date: dateInternal ?? Date(), metricType: metricTypeInternal, viewOnly: futureInternal)
             }
+        //OPTION 2 - Unhide the day tracker
         } else {
-            dayTrackerDelegate?.unhideDayTracker(kasamID: kasamIDInternal)
+            dayTrackerDelegate?.unhideDayTracker(section: sectionInternal, row: rowInternal)
         }
     }
 }

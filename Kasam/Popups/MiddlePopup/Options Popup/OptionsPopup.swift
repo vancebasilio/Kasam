@@ -51,6 +51,7 @@ class OptionsPopupController: UIViewController {
     
     func setupImage(){
         switch transfer?.type {
+            case "waiting": optionsImage.animation = Animation.named("date-and-clock")
             case "logout": optionsImage.animation = Animation.named("flagmountainBG")
             case "goPro": optionsImage.animation = Animation.named("crown")
             case "benefit": optionsImage.animation = Animation.named("diamond")

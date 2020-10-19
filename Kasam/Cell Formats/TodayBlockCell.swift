@@ -15,7 +15,7 @@ import AMPopTip
 
 protocol TableCellDelegate : class {
     func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?)
-    func goToKasamHolder(kasamOrder: Int)
+    func goToKasamHolder(kasamOrder: Int, section: Int)
     func completeAndUnfollow(kasamOrder: Int)
     func reloadKasamBlock(kasamOrder: Int)
 }
@@ -62,13 +62,16 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var restartButton: UIButton!
     @IBOutlet weak var groupStatsTable: UITableView!
     
+    //Loaded in values
+    var row = 0
+    var section = 0
+    var type = ""
+    
     var cellDelegate: TableCellDelegate?
     var tempBlock: TodayBlockFormat?
-    var row = 0
-    var type = ""
+    var kasamID = ""
     var isDayTrackerHidden = true
     let iconSize = CGFloat(35)
-    var kasamID = ""
     var currentDayStat = 0
     let popTip = PopTip()
     var popTipStatus = false
@@ -83,6 +86,7 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func setBlock(block: TodayBlockFormat) {
+        if kasamName.text == "" || kasamName.text == "..." {
         print("hell1 \(block.blockTitle)")
         kasamID = block.kasamID
         tempBlock = block
@@ -103,6 +107,7 @@ class TodayBlockCell: UITableViewCell {
             levelLineMask.layer.cornerRadius = 4
             levelLine.mask = levelLineBack
             dayTrackerCollectionHolderHeight.constant = 20
+        }
         }
     }
     
@@ -136,7 +141,7 @@ class TodayBlockCell: UITableViewCell {
     }
     
     @objc func kasamNamePressed(){
-        cellDelegate?.goToKasamHolder(kasamOrder: row)
+        cellDelegate?.goToKasamHolder(kasamOrder: row, section: section)
     }
     
     func extendButtonPressed(_ complete: Bool){
@@ -155,13 +160,17 @@ class TodayBlockCell: UITableViewCell {
                 //
             }
         } else {
-            if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration {
-                extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
-            } else if SavedData.kasamDict[kasamID]?.benefitsThresholds != nil {
-                let benefit = currentDayStat.nearestElement(array: (SavedData.kasamDict[kasamID]?.benefitsThresholds)!)
-                showCenterOptionsPopup(kasamID: kasamID, title: "Day \(benefit!.0)", subtitle: nil, text: benefit?.1, type: "benefit", button: "Awesome!") {(completion) in}
+            if SavedData.kasamDict[kasamID]?.displayStatus == "Upcoming" {
+                showCenterOptionsPopup(kasamID: kasamID, title: kasamName.text, subtitle: nil, text: "This kasam starts tomorrow", type: "waiting", button: "Okay") {(completion) in}
             } else {
-                showCenterOptionsPopup(kasamID: kasamID, title: "Day \(currentDayStat)", subtitle: nil, text: nil, type: "benefit", button: "Done") {(completion) in}
+                if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration {
+                    extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
+                } else if SavedData.kasamDict[kasamID]?.benefitsThresholds != nil {
+                    let benefit = currentDayStat.nearestElement(array: (SavedData.kasamDict[kasamID]?.benefitsThresholds)!)
+                    showCenterOptionsPopup(kasamID: kasamID, title: "Day \(benefit!.0)", subtitle: nil, text: benefit?.1, type: "benefit", button: "Awesome!") {(completion) in}
+                } else {
+                    showCenterOptionsPopup(kasamID: kasamID, title: "Day \(currentDayStat)", subtitle: nil, text: nil, type: "benefit", button: "Done") {(completion) in}
+                }
             }
         }
     }
@@ -199,7 +208,7 @@ class TodayBlockCell: UITableViewCell {
             cellDelegate?.dayPressed(kasamID: kasamID, day: tempBlock?.dayOrder ?? 1, date: Date(), metricType: SavedData.kasamDict[tempBlock!.kasamID]!.metricType, viewOnly: false)
             centerCollectionView()
         //Group kasams that haven't started yet
-        } else {
+        } else if type == "group" {
             if SavedData.kasamDict[kasamID]?.groupAdmin == SavedData.userID {
                 showCenterOptionsPopup(kasamID: nil, title: "Start your group kasam", subtitle: nil, text: "You'll be starting on \(Date().dateToShortString()) \nwith \(SavedData.kasamDict[kasamID]!.groupTeam!.count.pluralUnit(unit: "member"))", type:"startGroupKasam", button: "Start!") {(mainButtonPressed) in
                     DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").updateChildValues(["Status":"active", "Date Joined":Date().dateToString()])
@@ -214,6 +223,9 @@ class TodayBlockCell: UITableViewCell {
                         DBRef.userGroupFollowing.child(SavedData.kasamDict[self.kasamID]!.groupID!).setValue(nil)
                 }
             }
+        //Kasam hasn't started
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Upcoming" {
+            showCenterOptionsPopup(kasamID: kasamID, title: kasamName.text, subtitle: nil, text: "This kasam starts tomorrow", type: "waiting", button: "Okay") {(completion) in}
         }
     }
     
@@ -338,7 +350,7 @@ class TodayBlockCell: UITableViewCell {
                         statsShadow.layer.shadowColor = UIColor.dayYesColor.cgColor
                         statsShadow.layer.shadowOpacity = 1
                     }
-                    statsContent.backgroundColor = UIColor.white
+                    if SavedData.kasamDict[kasamID]?.displayStatus != "Upcoming" {statsContent.backgroundColor = UIColor.white}
                     if block?.programDuration == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
                 }
                 
@@ -376,6 +388,7 @@ class TodayBlockCell: UITableViewCell {
                 else {bottomStatusText.isHidden = true}
             }}
         else {bottomStatusText.isHidden = true}
+        
         if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[kasamID]!.metricType == "Checkmark" {
             streakShadow.backgroundColor = .colorFour
             bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: .colorFour, forState: .normal)
@@ -391,6 +404,13 @@ class TodayBlockCell: UITableViewCell {
             streakShadow.backgroundColor = .dayYesColor
             bottomStatusText.textColor = .colorFive
             bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
+        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Upcoming" {
+            restartButton.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 15, color: .lightGray, forState: .normal)
+            streakShadow.backgroundColor = .lightGray
+            bottomStatusText.isHidden = true
+            statsShadow.layer.shadowColor = UIColor.lightGray.cgColor
+            statsShadow.layer.shadowOpacity = 0.6
+            bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.stopwatch), iconSize: iconSize, color: .lightGray, forState: .normal)
         }
     }
 }
@@ -422,7 +442,6 @@ extension TodayBlockCell: UITableViewDelegate, UITableViewDataSource {
         
         //To update the kasam stats table
         DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childChanged) {(snap) in
-            print("hell5 change")
             SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = snap.value as? Double
 //            self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
             self.groupStatsTable.reloadData()
@@ -430,7 +449,6 @@ extension TodayBlockCell: UITableViewDelegate, UITableViewDataSource {
         
         //User removed from group kasam
         DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("Info").child("Team").observe(.childRemoved) {(snap) in
-            print("hell5 remove")
             SavedData.kasamDict[self.kasamID]?.groupTeam?[snap.key] = nil
 //            self.groupStatsList = SavedData.kasamDict[self.kasamID]?.groupTeam?.sorted{ $0.value > $1.value }
             self.groupStatsTable.reloadData()

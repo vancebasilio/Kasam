@@ -127,7 +127,7 @@ class StatisticsViewController: UIViewController, SwipeTableViewCellDelegate {
                             repeatDuration = individualDate.value as? Int; goalCheck = 1
                             self.repeatDurationTotal += repeatDuration ?? 0
                         } else {
-                            self.repeatDurationTotal += 30
+                            self.repeatDurationTotal = 30
                             self.dayNo = (Calendar.current.dateComponents([.day], from: startDate, to: individualDate.key.stringToDate()).day ?? 0) + 1
                             self.progressDayCount += 1
                             var blockName = ""

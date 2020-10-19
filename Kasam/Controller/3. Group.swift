@@ -208,6 +208,7 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as? TodayBlockCell else {return UITableViewCell()}
         cell.row = indexPath.row
+        cell.section = indexPath.section
         cell.cellDelegate = self
         return cell
     }
@@ -221,9 +222,10 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
         return groupTableRowHeight
     }
     
-    func goToKasamHolder(kasamOrder: Int) {
+    func goToKasamHolder(kasamOrder: Int, section: Int) {
         if SavedData.todayKasamBlocks["group"]!.count > kasamOrder {
-            kasamIDTransfer = SavedData.todayKasamBlocks["group"]![kasamOrder].1.kasamID
+            if section == 0 {kasamIDTransfer = SavedData.todayKasamBlocks["group"]![kasamOrder].1.kasamID}
+            else {kasamIDTransfer = SavedData.upcomingKasamBlocks["group"]![kasamOrder].1.kasamID}
         }
         self.performSegue(withIdentifier: "goToKasamHolder", sender: kasamOrder)
     }
@@ -262,20 +264,25 @@ extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSou
         return CGSize(width: 36, height: 50)    //day tracker
     }
     
-    func unhideDayTracker(kasamID: String) {
-        //
+    func unhideDayTracker(section: Int, row: Int) {
+        if let tableCell = self.groupKasamTable.cellForRow(at: IndexPath(item: row, section: section)) as? TodayBlockCell {
+            tableCell.hideDayTracker()
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let row = collectionView.tag % 100
+        let section = (collectionView.tag - row)/100
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayTrackerCell", for: indexPath) as! DayTrackerCollectionCell
-        if SavedData.todayKasamBlocks["group"]!.count > collectionView.tag {
+        var block = SavedData.todayKasamBlocks["group"]!
+        if section == 1 {block = SavedData.upcomingKasamBlocks["group"]!}
+        if block.count > row {
             cell.dayTrackerDelegate = self
-            let kasamBlock = SavedData.todayKasamBlocks["group"]![collectionView.tag]
             let day = indexPath.row + 1
-            var today = Int(kasamBlock.data.dayOrder)
+            var today = Int(block[row].data.dayOrder)
             if SavedData.kasamDict[SavedData.todayKasamBlocks["group"]![collectionView.tag].kasamID]?.groupStatus == "initiated" {today = 1}
             let date = dayTrackerDateFormat(date: Date(), todayDay: today, row: indexPath.row + 1)
-            cell.setBlock(kasamID: kasamBlock.kasamID, day: day, status: SavedData.kasamDict[kasamBlock.kasamID]?.dayTrackerArray?[indexPath.row + 1]?.progress ?? 0.0, date: date , today: day == today, future: day > today)
+            cell.setBlock(row: row, section: section, kasamID: block[row].kasamID, day: day, status: SavedData.kasamDict[block[row].kasamID]?.dayTrackerArray?[indexPath.row + 1]?.progress ?? 0.0, date: date , today: day == today, future: day > today)
         }
         return cell
     }

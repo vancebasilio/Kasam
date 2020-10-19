@@ -68,6 +68,7 @@
 		BC83484C24450403001819DC /* crownSmooth.json in Resources */ = {isa = PBXBuildFile; fileRef = BC83484B24450403001819DC /* crownSmooth.json */; };
 		BC84F75C24F21A5C009AFDBD /* updateCircle.json in Resources */ = {isa = PBXBuildFile; fileRef = BC84F75B24F21A5C009AFDBD /* updateCircle.json */; };
 		BC85E72C23B11EC500330F60 /* NewKasamPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC85E72B23B11EC500330F60 /* NewKasamPage.swift */; };
+		BC88DD392537AFC7008EF132 /* date-and-clock.json in Resources */ = {isa = PBXBuildFile; fileRef = BC88DD382537AFC7008EF132 /* date-and-clock.json */; };
 		BC89B8CA23F86A4800EA3813 /* DiscoverTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC89B8C923F86A4800EA3813 /* DiscoverTableCell.swift */; };
 		BC8AFB4522873EEE003449F4 /* UIView+constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */; };
 		BC96F8482292085200E161FC /* TodayBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC96F8462292085200E161FC /* TodayBlockCell.swift */; };
@@ -181,6 +182,7 @@
 		BC83484B24450403001819DC /* crownSmooth.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = crownSmooth.json; sourceTree = "<group>"; };
 		BC84F75B24F21A5C009AFDBD /* updateCircle.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = updateCircle.json; path = "Supporting Files/updateCircle.json"; sourceTree = SOURCE_ROOT; };
 		BC85E72B23B11EC500330F60 /* NewKasamPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewKasamPage.swift; sourceTree = "<group>"; };
+		BC88DD382537AFC7008EF132 /* date-and-clock.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "date-and-clock.json"; sourceTree = "<group>"; };
 		BC89B8C923F86A4800EA3813 /* DiscoverTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverTableCell.swift; sourceTree = "<group>"; };
 		BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+constraints.swift"; sourceTree = "<group>"; };
 		BC96F8462292085200E161FC /* TodayBlockCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayBlockCell.swift; sourceTree = "<group>"; };
@@ -267,6 +269,7 @@
 				BC16A20323292ABD00FDF70C /* loading.json */,
 				BC84F75B24F21A5C009AFDBD /* updateCircle.json */,
 				BCAE18AD23CD3BE200E47ED9 /* fireworks-loading.json */,
+				BC88DD382537AFC7008EF132 /* date-and-clock.json */,
 				BCC1299624DDEC0F0003FB34 /* hand-waving.json */,
 				BC133A8C24D854BA00D90713 /* rocket-group.json */,
 				BC2B4C8023A70436005F2255 /* checkmark.json */,
@@ -636,6 +639,7 @@
 				BC83484C24450403001819DC /* crownSmooth.json in Resources */,
 				BC83484A2445034A001819DC /* crown.json in Resources */,
 				BC84F75C24F21A5C009AFDBD /* updateCircle.json in Resources */,
+				BC88DD392537AFC7008EF132 /* date-and-clock.json in Resources */,
 				BCC79A06226BD56000B72D65 /* Default-568h@2x.png in Resources */,
 				BC99A5F4252FC5ED00B3A37A /* ChangeMoodCell.xib in Resources */,
 				BCB68FDA250A9B3600E0C1E0 /* NotificationsController.xib in Resources */,

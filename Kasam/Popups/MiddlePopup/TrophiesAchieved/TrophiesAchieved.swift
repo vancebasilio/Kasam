@@ -68,38 +68,17 @@ extension TrophiesAchieved: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = UIView()
-        headerView.backgroundColor = UIColor.clear
-        let newlabel = UILabel()
-        newlabel.textColor = .colorFive
-        newlabel.textAlignment = .left
-        newlabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-        newlabel.adjustsFontSizeToFitWidth = true
+        var label: String?
         if kasamID != nil {
             if SavedData.trophiesAchieved[kasamID!] != nil {
-                newlabel.text = SavedData.trophiesAchieved[kasamID!]?.kasamName
-            } else {
-                newlabel.text = "No trophies achieved"
-            }
+                label = SavedData.trophiesAchieved[kasamID!]?.kasamName
+            } else {label = "No trophies achieved"}
         } else {
             if badgeNameArray != [""] {
-                newlabel.text = SavedData.trophiesAchieved[badgeNameArray[section]]?.kasamName
-            } else {
-                newlabel.text = "No trophies achieved"
-            }
+                label = SavedData.trophiesAchieved[badgeNameArray[section]]?.kasamName
+            } else {label = "No trophies achieved"}
         }
-        
-        headerView.addSubview(newlabel)
-        newlabel.translatesAutoresizingMaskIntoConstraints = false
-        headerView.addConstraint(NSLayoutConstraint(item: newlabel, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: 20.0))
-        
-        headerView.addConstraint(NSLayoutConstraint(item: newlabel, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.greaterThanOrEqual, toItem: headerView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 20.0))
-        
-        headerView.addConstraint(NSLayoutConstraint(item: newlabel, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0))
-        
-        headerView.addConstraint(NSLayoutConstraint(item: newlabel, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: headerView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0))
-      
-        return headerView
+        return sectionHeader(text: label ?? "", color: .colorFive, leading: 20)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

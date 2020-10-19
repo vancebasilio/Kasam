@@ -115,6 +115,10 @@ class AddKasamController: UIViewController {
         }
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        if state == "edit" {showBottomNotificationsPopup()}         //bring the notification view back when user closes the edit window
+    }
+    
     @objc func personalChallengeSelected(){
         joinType = "personal"
         groupOutline.isHidden = true
