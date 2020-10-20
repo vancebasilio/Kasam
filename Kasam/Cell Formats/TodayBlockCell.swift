@@ -63,9 +63,9 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var groupStatsTable: UITableView!
     
     //Loaded in values
-    var row = 0
-    var section = 0
-    var type = ""
+    var rowInternal = 0
+    var sectionInternal = 0
+    var typeInternal = ""
     
     var cellDelegate: TableCellDelegate?
     var tempBlock: TodayBlockFormat?
@@ -78,36 +78,37 @@ class TodayBlockCell: UITableViewCell {
     var groupStatsList = [(userID: String, name: String, status: Double)]()
     
     func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
-        DispatchQueue.main.async {
-            self.dayTrackerCollectionView.delegate = dataSourceDelegate
-            self.dayTrackerCollectionView.dataSource = dataSourceDelegate
-            self.dayTrackerCollectionView.tag = row
-        }
+        self.dayTrackerCollectionView.delegate = dataSourceDelegate
+        self.dayTrackerCollectionView.dataSource = dataSourceDelegate
+        self.dayTrackerCollectionView.tag = row
     }
     
-    func setBlock(block: TodayBlockFormat) {
+    func setBlock(block: TodayBlockFormat, row: Int, section: Int, type: String) {
         if kasamName.text == "" || kasamName.text == "..." {
-        print("hell1 \(block.blockTitle)")
-        kasamID = block.kasamID
-        tempBlock = block
-        kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
-        
-        //Show the block subtite if it's a PROGRAM kasam
-        if SavedData.kasamDict[kasamID]?.programDuration != nil {
-            blockSubtitle.text = "\(block.blockTitle)"
-        //Hide the block subtitle
-        } else {blockSubtitle.frame.size.height = 0}
-        
-        kasamImage.sd_setImage(with: block.image)
-        
-        if type == "group" {
-            setGroup()
-        } else {
-            levelLineBack.layer.cornerRadius = 4
-            levelLineMask.layer.cornerRadius = 4
-            levelLine.mask = levelLineBack
-            dayTrackerCollectionHolderHeight.constant = 20
-        }
+            print("hell1 \(block.blockTitle)")
+            rowInternal = row
+            sectionInternal = section
+            typeInternal = type
+            kasamID = block.kasamID
+            tempBlock = block
+            kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
+            
+            //Show the block subtite if it's a PROGRAM kasam
+            if SavedData.kasamDict[kasamID]?.programDuration != nil {
+                blockSubtitle.text = "\(block.blockTitle)"
+            //Hide the block subtitle
+            } else {blockSubtitle.frame.size.height = 0}
+            
+            kasamImage.sd_setImage(with: block.image)
+            
+            if type == "group" {
+                setGroup()
+            } else {
+                levelLineBack.layer.cornerRadius = 4
+                levelLineMask.layer.cornerRadius = 4
+                levelLine.mask = levelLineBack
+                dayTrackerCollectionHolderHeight.constant = 20
+            }
         }
     }
     
@@ -141,7 +142,7 @@ class TodayBlockCell: UITableViewCell {
     }
     
     @objc func kasamNamePressed(){
-        cellDelegate?.goToKasamHolder(kasamOrder: row, section: section)
+        cellDelegate?.goToKasamHolder(kasamOrder: rowInternal, section: sectionInternal)
     }
     
     func extendButtonPressed(_ complete: Bool){
@@ -155,7 +156,7 @@ class TodayBlockCell: UITableViewCell {
     }
     
     @objc func showBenefit(){
-        if type == "group" && SavedData.kasamDict[kasamID]?.groupStatus == "initiated" {
+        if typeInternal == "group" && SavedData.kasamDict[kasamID]?.groupStatus == "initiated" {
             showCenterGroupUserSearch(kasamID: kasamID) {
                 //
             }
@@ -208,13 +209,13 @@ class TodayBlockCell: UITableViewCell {
             cellDelegate?.dayPressed(kasamID: kasamID, day: tempBlock?.dayOrder ?? 1, date: Date(), metricType: SavedData.kasamDict[tempBlock!.kasamID]!.metricType, viewOnly: false)
             centerCollectionView()
         //Group kasams that haven't started yet
-        } else if type == "group" {
+        } else if typeInternal == "group" {
             if SavedData.kasamDict[kasamID]?.groupAdmin == SavedData.userID {
                 showCenterOptionsPopup(kasamID: nil, title: "Start your group kasam", subtitle: nil, text: "You'll be starting on \(Date().dateToShortString()) \nwith \(SavedData.kasamDict[kasamID]!.groupTeam!.count.pluralUnit(unit: "member"))", type:"startGroupKasam", button: "Start!") {(mainButtonPressed) in
                     DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").updateChildValues(["Status":"active", "Date Joined":Date().dateToString()])
                     SavedData.kasamDict[self.kasamID]?.groupStatus = "active"
-                    SavedData.todayKasamBlocks["group"]![self.row].data.dayOrder = 1
-                    self.cellDelegate?.reloadKasamBlock(kasamOrder: self.row)
+                    SavedData.todayKasamBlocks["group"]![self.rowInternal].data.dayOrder = 1
+                    self.cellDelegate?.reloadKasamBlock(kasamOrder: self.rowInternal)
                     self.groupStatsTable.reloadData()
                 }
             } else {
@@ -236,7 +237,7 @@ class TodayBlockCell: UITableViewCell {
     @objc func hideDayTracker(){
         //Show more info on day tracker
         if isDayTrackerHidden == true {
-            if type != "group" {
+            if typeInternal != "group" {
                 dayTrackerCollectionHolderHeight.constant = 50
                 dayTrackerCollectionView.frame.size = CGSize(width: dayTrackerCollectionView.frame.width, height: 50)
                 if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 0}
@@ -250,7 +251,7 @@ class TodayBlockCell: UITableViewCell {
             isDayTrackerHidden = false
         //Hide more info on day tracker
         } else {
-            if type != "group" {
+            if typeInternal != "group" {
                 dayTrackerCollectionHolderHeight.constant = 20
                 if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 20}
                 overallLabel.isHidden = false
@@ -317,7 +318,7 @@ class TodayBlockCell: UITableViewCell {
                 statsShadow.layer.shadowColor = UIColor.colorFive.cgColor
                 statsShadow.layer.shadowOpacity = 1
             } else {
-                if type == "group" {addButton.isHidden = true}
+                if typeInternal == "group" {addButton.isHidden = true}
             //STEP 1 - DAY COUNTER
                 currentDayStat = block!.streakInfo.daysWithAnyProgress
                 currentDayStreak.text = String(describing: currentDayStat)
@@ -357,7 +358,7 @@ class TodayBlockCell: UITableViewCell {
                 if block!.streakInfo.daysWithAnyProgress == 1 {streakPostText.text = "day completed"} else {streakPostText.text = "days completed"}
                 
             //STEP 3 - Set level line progress
-                if type == "personal" {
+                if typeInternal == "personal" {
                     let ratio = Double(currentDayStat) / Double(block!.repeatDuration)
                     if ratio <= 1 {self.levelLineProgress.constant = self.levelLineBack.frame.width * CGFloat(ratio)}
                     else {self.levelLineProgress.constant = self.levelLineBack.frame.size.width * CGFloat(1)}
@@ -457,7 +458,7 @@ extension TodayBlockCell: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if type == "personal" {
+        if typeInternal == "personal" {
             return 0
         } else {
             return groupStatsList.count 

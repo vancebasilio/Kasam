@@ -27,6 +27,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     var blockIDGlobal = ""
     var blockNameGlobal = ""
     var dateGlobal: Date?
+    let type = "group"
     var viewOnlyGlobal = false
     var groupTableRowHeight = CGFloat(80)
     var initialLoad = false
@@ -207,9 +208,10 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as? TodayBlockCell else {return UITableViewCell()}
-        cell.row = indexPath.row
-        cell.section = indexPath.section
         cell.cellDelegate = self
+        if indexPath.section == 0 {cell.setBlock(block: SavedData.todayKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)}
+        else {cell.setBlock(block: SavedData.upcomingKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)}
+        cell.statusUpdate(day:nil)
         return cell
     }
     
@@ -232,9 +234,7 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
     
     func reloadKasamBlock(kasamOrder: Int) {
         if let cell = groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-            cell.setBlock(block: SavedData.todayKasamBlocks["group"]![kasamOrder].data)
             cell.statusUpdate(day: nil)
-            cell.dayTrackerCollectionView.reloadData()
         }
     }
     

@@ -31,6 +31,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     let type = "personal"
     var sectionHeight = CGFloat(40)
     var personalTableRowHeight = CGFloat(80)
+    var personalKasamCount = 0
     
     let personalAnimationIcon = AnimationView()
     let animationView = AnimationView()
@@ -97,7 +98,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         SavedData.todayKasamBlocks[type]!.removeAll()
         showIconCheck()
         DBRef.userPersonalFollowing.observe(.value) {(snapshot) in
-            SavedData.personalKasamCount = Int(snapshot.childrenCount)
+            self.personalKasamCount = Int(snapshot.childrenCount)
         }
         //Kasam list loaded for first time + if new kasam is added
         DBRef.userPersonalFollowing.observe(.childAdded) {(snapshot) in
@@ -227,7 +228,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             self.getDayTracker(kasamID: block.kasamID, tableView: self.personalKasamTable, type: type)
         }
         
-        if SavedData.personalKasamCount == SavedData.todayKasamBlocks["personal"]!.count + SavedData.upcomingKasamBlocks["personal"]!.count {
+        if personalKasamCount == SavedData.todayKasamBlocks["personal"]!.count + SavedData.upcomingKasamBlocks["personal"]!.count {
             self.personalFollowingLabel.text = "You have \(SavedData.todayKasamBlocks[type]!.count.pluralUnit(unit: "kasam")) for today"
             self.updateScrollViewSize()
             personalKasamTable.reloadData()
@@ -285,16 +286,18 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as? TodayBlockCell else {return UITableViewCell()}
-        print("hell7 cell initial \(indexPath.section, indexPath.row)")
-        cell.row = indexPath.row
-        cell.section = indexPath.section
-        cell.type = type
         cell.cellDelegate = self
-        cell.setCollectionViewDataSourceDelegate(dataSourceDelegate: self, forRow: (indexPath.section * 100) + indexPath.row)
-        if indexPath.section == 0 {cell.setBlock(block: SavedData.todayKasamBlocks[type]![indexPath.row].data)}
-        else {cell.setBlock(block: SavedData.upcomingKasamBlocks[type]![indexPath.row].data)}
+        if indexPath.section == 0 {cell.setBlock(block: SavedData.todayKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)}
+        else {cell.setBlock(block: SavedData.upcomingKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)}
         cell.statusUpdate(day:nil)
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let cell = cell as? TodayBlockCell else { return }
+        DispatchQueue.main.async {
+            cell.setCollectionViewDataSourceDelegate(dataSourceDelegate: self, forRow: (indexPath.section * 100) + indexPath.row)
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

@@ -1295,8 +1295,8 @@ extension String {
         var endDate: Date?
         if kasam?.repeatDuration != 0 && startDate != nil {
             endDate = Calendar.current.date(byAdding: .day, value: kasam!.repeatDuration, to: startDate!)!
+            kasamID.setupNotifications(kasamName: kasam!.kasamName, startDate: startDate!, endDate: endDate, chosenTime: kasam!.startTime)
         }
-        kasamID.setupNotifications(kasamName: kasam!.kasamName, startDate: Date(), endDate: endDate, chosenTime: kasam!.startTime)
     }
     
     func setupNotifications(kasamName: String, startDate: Date, endDate: Date?, chosenTime: String) {
