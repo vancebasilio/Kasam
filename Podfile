@@ -16,7 +16,7 @@ pod 'Firebase/Messaging'
 pod 'Fabric'
 pod 'Crashlytics'
 pod 'GoogleSignIn'
-pod ‘youtube-ios-player-helper’
+pod 'youtube-ios-player-helper'
 
 pod 'FacebookCore'
 pod 'FacebookLogin'
@@ -39,13 +39,11 @@ pod 'AMPopTip'
 
 end
 
-post_install do |installer|
-    installer.pods_project.targets.each do |target|
-            if ['Gifu'].include? target.name
-                target.build_configurations.each do |config|
-                    config.build_settings['SWIFT_VERSION'] = '4.2'
-            end
-        end
+post_install do |pi|
+    pi.pods_project.targets.each do |t|
+      t.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
+      end
     end
 end
 

@@ -24,6 +24,7 @@ class TodayBlockCell: UITableViewCell {
     
     @IBOutlet weak var kasamName: UILabel!
     @IBOutlet weak var blockSubtitle: UILabel!
+    @IBOutlet weak var blockSubtitleHeight: NSLayoutConstraint!
     
     @IBOutlet weak var levelLineBack: UIView!
     @IBOutlet weak var levelLineMask: UIView!
@@ -66,11 +67,13 @@ class TodayBlockCell: UITableViewCell {
     var rowInternal = 0
     var sectionInternal = 0
     var typeInternal = ""
+    var state = ""
     
     var cellDelegate: TableCellDelegate?
     var tempBlock: TodayBlockFormat?
     var kasamID = ""
     var isDayTrackerHidden = true
+    var upcomingDuration = ""
     let iconSize = CGFloat(35)
     var currentDayStat = 0
     let popTip = PopTip()
@@ -84,7 +87,7 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func setBlock(block: TodayBlockFormat, row: Int, section: Int, type: String) {
-        if kasamName.text == "" || kasamName.text == "..." {
+        if state == "" || state == "restart" {
             print("hell1 \(block.blockTitle)")
             rowInternal = row
             sectionInternal = section
@@ -92,13 +95,6 @@ class TodayBlockCell: UITableViewCell {
             kasamID = block.kasamID
             tempBlock = block
             kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
-            
-            //Show the block subtite if it's a PROGRAM kasam
-            if SavedData.kasamDict[kasamID]?.programDuration != nil {
-                blockSubtitle.text = "\(block.blockTitle)"
-            //Hide the block subtitle
-            } else {blockSubtitle.frame.size.height = 0}
-            
             kasamImage.sd_setImage(with: block.image)
             
             if type == "group" {
@@ -106,9 +102,20 @@ class TodayBlockCell: UITableViewCell {
             } else {
                 levelLineBack.layer.cornerRadius = 4
                 levelLineMask.layer.cornerRadius = 4
-                levelLine.mask = levelLineBack
-                dayTrackerCollectionHolderHeight.constant = 20
+                levelLine.mask = levelLineMask
             }
+            state = "loaded"
+        }
+    }
+    
+    func resetBlockName(){
+        print("hell8 \(blockSubtitle.text)")
+        //Show the block subtite if it's a PROGRAM kasam
+        if SavedData.kasamDict[kasamID]?.programDuration != nil && tempBlock != nil {
+            blockSubtitle.text = String(describing: tempBlock!.blockTitle)
+        //Hide the block subtitle
+        } else if SavedData.kasamDict[kasamID]?.displayStatus != "Upcoming" {
+            blockSubtitleHeight.constant = 0
         }
     }
     
@@ -132,6 +139,8 @@ class TodayBlockCell: UITableViewCell {
         streakShadow.layer.shadowOpacity = 0.2
         streakShadow.layer.shadowOffset = CGSize.zero
         streakShadow.layer.shadowRadius = 4
+        
+        dayTrackerCollectionHolderHeight.constant = 20
         
         hideDayTrackerButton.setIcon(icon: .fontAwesomeRegular(.calendar), iconSize: 15, color: UIColor.darkGray, forState: .normal)
         restartButton.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 15, color: UIColor.colorFour, forState: .normal)
@@ -226,7 +235,7 @@ class TodayBlockCell: UITableViewCell {
             }
         //Kasam hasn't started
         } else if SavedData.kasamDict[kasamID]?.displayStatus == "Upcoming" {
-            showCenterOptionsPopup(kasamID: kasamID, title: kasamName.text, subtitle: nil, text: "This kasam starts tomorrow", type: "waiting", button: "Okay") {(completion) in}
+            showCenterOptionsPopup(kasamID: kasamID, title: kasamName.text, subtitle: nil, text: "This kasam starts \(upcomingDuration)", type: "waiting", button: "Okay") {(completion) in}
         }
     }
     
@@ -240,27 +249,27 @@ class TodayBlockCell: UITableViewCell {
             if typeInternal != "group" {
                 dayTrackerCollectionHolderHeight.constant = 50
                 dayTrackerCollectionView.frame.size = CGSize(width: dayTrackerCollectionView.frame.width, height: 50)
-                if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 0}
+                if kasamName.calculateMaxLines() == 2 {blockSubtitleHeight.constant = 0}
                 overallLabel.isHidden = true
+                isDayTrackerHidden = false
                 dayTrackerCollectionView.reloadData()
                 dayTrackerCollectionView.performBatchUpdates(nil, completion: nil)
                 centerCollectionView()
             } else {
                 dayTrackerCollectionTopConstraint.constant = 0
             }
-            isDayTrackerHidden = false
         //Hide more info on day tracker
         } else {
             if typeInternal != "group" {
                 dayTrackerCollectionHolderHeight.constant = 20
-                if kasamName.numberOfLines == 2 {blockSubtitle.frame.size.height = 20}
+                if kasamName.calculateMaxLines() == 2 {blockSubtitleHeight.constant = 20}
                 overallLabel.isHidden = false
+                isDayTrackerHidden = true
                 dayTrackerCollectionView.reloadData()
                 dayTrackerCollectionView.performBatchUpdates(nil, completion: nil)
             } else {
                 dayTrackerCollectionTopConstraint.constant = 10
             }
-            isDayTrackerHidden = true
         }
     }
     
@@ -329,7 +338,7 @@ class TodayBlockCell: UITableViewCell {
                 if tempBlock?.dayOrder ?? 0 >= block!.repeatDuration {
                     //COMPLETED KASAM
                     bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.flagCheckered), iconSize: iconSize, color: UIColor.colorFour, forState: .normal)
-                    blockSubtitle.frame.size.height = 20
+                    blockSubtitleHeight.constant = 20
                     blockSubtitle.text = "Complete!"
                     if currentDayStat == block!.repeatDuration {
                         streakShadow.backgroundColor = .dayYesColor
@@ -346,13 +355,12 @@ class TodayBlockCell: UITableViewCell {
                     //ONGOING KASAM
                     checkmarkAndPercentageUpdate()
                     topStatusView.isHidden = true
-                    blockSubtitle.frame.size.height = 20
                     if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {
                         statsShadow.layer.shadowColor = UIColor.dayYesColor.cgColor
                         statsShadow.layer.shadowOpacity = 1
                     }
                     if SavedData.kasamDict[kasamID]?.displayStatus != "Upcoming" {statsContent.backgroundColor = UIColor.white}
-                    if block?.programDuration == nil {blockSubtitle.frame.size.height = 0; blockSubtitle.text = ""}
+                    if block?.programDuration == nil && block?.displayStatus != "Upcoming" {blockSubtitleHeight.constant = 0; blockSubtitle.text = ""} else {blockSubtitleHeight.constant = 20}
                 }
                 
                 if block!.streakInfo.daysWithAnyProgress == 1 {streakPostText.text = "day completed"} else {streakPostText.text = "days completed"}
@@ -383,35 +391,47 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func checkmarkAndPercentageUpdate(){
-        if SavedData.kasamDict[tempBlock!.kasamID]?.metricType != "Checkmark" {
-            if let percent = ((SavedData.kasamDict[kasamID]?.percentComplete)) {
-                if percent >= 0 {bottomStatusText.isHidden = false; bottomStatusText.text = "\(Int(percent * 100))%"}
-                else {bottomStatusText.isHidden = true}
-            }}
-        else {bottomStatusText.isHidden = true}
-        
-        if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[kasamID]!.metricType == "Checkmark" {
-            streakShadow.backgroundColor = .colorFour
-            bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: .colorFour, forState: .normal)
-        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Checkmark" && SavedData.kasamDict[kasamID]!.metricType != "Checkmark" {
-            streakShadow.backgroundColor = .colorFour
-            bottomStatusText.textColor = .colorFive
-            bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
-        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {
-            streakShadow.backgroundColor = .dayYesColor
-            bottomStatusText.textColor = .dayYesColor
-            bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
-        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Progress" {
-            streakShadow.backgroundColor = .dayYesColor
-            bottomStatusText.textColor = .colorFive
-            bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
-        } else if SavedData.kasamDict[kasamID]?.displayStatus == "Upcoming" {
+        //UPCOMING KASAM
+        if SavedData.kasamDict[kasamID]?.displayStatus == "Upcoming" {
+            progressBar.isHidden = true
             restartButton.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 15, color: .lightGray, forState: .normal)
+            let interval = -(SavedData.kasamDict[kasamID]!.joinedDate.daysBetween(date: Date()))
+            if interval == 1 {upcomingDuration = "tomorrow"}
+            else {upcomingDuration = "in \(interval.pluralUnit(unit: "day"))"}
+            blockSubtitle.text = "Starts \(upcomingDuration)";
             streakShadow.backgroundColor = .lightGray
             bottomStatusText.isHidden = true
             statsShadow.layer.shadowColor = UIColor.lightGray.cgColor
             statsShadow.layer.shadowOpacity = 0.6
             bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.stopwatch), iconSize: iconSize, color: .lightGray, forState: .normal)
+        } else {
+        //ACTIVE KASAM
+            progressBar.isHidden = false
+            restartButton.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 15, color: UIColor.colorFour, forState: .normal)
+            
+            if SavedData.kasamDict[kasamID]!.metricType == "Checkmark" {
+                bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.circle), iconSize: iconSize, color: .colorFour, forState: .normal)
+            } else if SavedData.kasamDict[kasamID]!.metricType != "Checkmark" {
+                if let percent = ((SavedData.kasamDict[kasamID]?.percentComplete)) {
+                    if percent >= 0 {bottomStatusText.isHidden = false; bottomStatusText.text = "\(Int(percent * 100))%"}
+                    else {bottomStatusText.isHidden = true}
+                }
+                bottomStatusText.textColor = .colorFive
+                bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
+            }
+            
+            if SavedData.kasamDict[kasamID]?.displayStatus == "NotStarted" {
+                streakShadow.backgroundColor = .colorFour
+                bottomStatusText.isHidden = true
+            } else if SavedData.kasamDict[kasamID]?.displayStatus == "Check" {
+                streakShadow.backgroundColor = .dayYesColor
+                bottomStatusText.textColor = .dayYesColor
+                bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.checkCircle), iconSize: iconSize, color: .dayYesColor, forState: .normal)
+            } else if SavedData.kasamDict[kasamID]?.displayStatus == "Progress" {
+                streakShadow.backgroundColor = .dayYesColor
+                bottomStatusText.textColor = .colorFive
+                bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
+            }
         }
     }
 }

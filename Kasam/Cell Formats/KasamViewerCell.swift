@@ -288,7 +288,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
             animatedImageView.stopAnimating()
             buttoncheck = 0
         }
-        if type == "countdown" {
+        if type == "Countdown" {
             if !countdownTimerDidStart {
                 countdownTimer.start()
                 countdownTimerDidStart = true
@@ -298,7 +298,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
                 countdownTimerDidStart = false
                 timerStartStop.text = "tap to start"
             }
-        } else if type == "timer" {
+        } else if type == "Timer" {
             if !countdownTimerDidStart {
                 countdownTimer.startTimer()
                 countdownTimerDidStart = true
@@ -320,7 +320,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
         instruction.isHidden = true
         resetButton.isHidden = true
         circularSlider.isHidden = true
-        if type == "rest" {bottomViewHeight = bottomViewHeight.constraintWithMultiplier(0.25, view: view)}
+        if type == "Rest" {bottomViewHeight = bottomViewHeight.constraintWithMultiplier(0.25, view: view)}
         else {bottomViewHeight = bottomViewHeight.constraintWithMultiplier(0.45, view: view)}
         
         if pastProgress > 0.0 {
@@ -376,13 +376,13 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
     @IBAction func doneButton(_ sender: UIButton) {             //for regular kasam done + rest done
         if currentOrder == totalOrder {
             if viewOnlyCheck == false {
-                if type == "checkmark" {
+                if type == "Checkmark" {
                     if pastProgress == 0.0 {
                         delegate?.sendCompletedMatrix(activityNo: currentOrder, value: 100.0, max: 100.0)
                         delegate?.removeAnimations()
                     }
                     delegate?.dismissViewController()
-                } else if type == "video" {
+                } else if type == "Video" {
                     if pastProgress == 0.0 {
                         delegate?.sendCompletedMatrix(activityNo: currentOrder, value: videoDuration, max: videoDuration)
                         delegate?.removeAnimations()
@@ -392,7 +392,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
                     } else {
                         delegate?.dismissViewController()
                     }
-                } else if type == "rest" {
+                } else if type == "Rest" {
                     delegate?.setRestDay()
                     delegate?.dismissViewController()
                 } else {

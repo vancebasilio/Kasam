@@ -87,8 +87,8 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func refreshPersonalKasam(_ kasamOrderTransfer: NSNotification?){
-        if let kasamOrder = kasamOrderTransfer?.userInfo?["kasamOrder"] as? Int {
-            singleKasamUpdate(kasamOrder: kasamOrder, tableView: personalKasamTable, type: type, level: 0)
+        if let index = kasamOrderTransfer?.userInfo?["kasamOrder"] as? Int {
+            singleKasamUpdate(tableView: personalKasamTable, row: index, section: 0, reset: false)
         }
     }
     
@@ -118,18 +118,17 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         //If restarting a kasam
         DBRef.userPersonalFollowing.observe(.childChanged) {(snapshot) in
-            
             //If changing current kasam to start in the future
             if let index = SavedData.todayKasamBlocks[self.type]!.index(where: {($0.kasamID == snapshot.key)}) {
                 if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: index, section: 0)) as? TodayBlockCell {
-                    cell.kasamName.text = "..."                     //to tell the singleKasamUpdate func to reload the block
+                    cell.state = "restart"                     //to tell the singleKasamUpdate func to reload the block
                     self.getPreferences(snapshot: snapshot)
                 }
             }
             //If changing upcoing kasam to start today
             if let index = SavedData.upcomingKasamBlocks[self.type]!.index(where: {($0.kasamID == snapshot.key)}) {
                 if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: index, section: 1)) as? TodayBlockCell {
-                    cell.kasamName.text = "..."                     //to tell the singleKasamUpdate func to reload the block
+                    cell.state = "restart"                    //to tell the singleKasamUpdate func to reload the block
                     self.getPreferences(snapshot: snapshot)
                 }
             }
@@ -139,7 +138,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     //STEP 2
     func getPreferences(snapshot: DataSnapshot){
         if let value = snapshot.value as? [String: Any] {
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "Checkmark", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: nil, groupAdmin: nil, groupStatus: nil, groupTeam: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "NotStarted", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: nil, groupAdmin: nil, groupStatus: nil, groupTeam: nil)
             DispatchQueue.main.async {snapshot.key.benefitThresholds()}
             print("Step 2 - Get preferences hell6 \(preference.kasamName)")
             SavedData.kasamDict[preference.kasamID] = preference
@@ -200,7 +199,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             } else {
                 SavedData.todayKasamBlocks[type]![kasamOrder] = (kasam.kasamID, block)
                 if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-                    if cell.kasamName.text == "..." {
+                    if cell.state == "restart" {
                         self.getDayTracker(kasamID: block.kasamID, tableView: self.personalKasamTable, type: type)
                     } else {
                         cell.blockSubtitle.text = SavedData.todayKasamBlocks[type]![kasamOrder].data.blockTitle
@@ -361,7 +360,7 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
         if section == 1 {block = SavedData.upcomingKasamBlocks[type]!}
         if block.count > row {
             cell.dayTrackerDelegate = self
-            if tableCell?.overallLabel.isHidden == true {cell.cellButton.titleLabel?.layer.opacity = 100; cell.dayTrackerDate.isHidden = false}
+            if tableCell?.isDayTrackerHidden != true {cell.cellButton.titleLabel?.layer.opacity = 100; cell.dayTrackerDate.isHidden = false}
             else {cell.cellButton.titleLabel?.layer.opacity = 0; cell.dayTrackerDate.isHidden = true}
             let day = indexPath.row + 1
             let today = Int(block[row].data.dayOrder)

@@ -115,10 +115,8 @@ extension NewActivity: UICollectionViewDelegate, UICollectionViewDataSource, UIC
         if NewKasam.chosenMetric == "Reps" {
             cell.setupPicker(reps: entryTransfer?.reps, interval: entryTransfer?.interval)
         } else if NewKasam.chosenMetric == "Timer" {
-            print("timer")
             cell.setupTimer(hour: entryTransfer?.hour, min: entryTransfer?.min, sec: entryTransfer?.sec)
         } else if NewKasam.chosenMetric == "Checkmark" {
-            print("checkmark")
             cell.setupCheckmark()
         } else if NewKasam.chosenMetric == "Rest" {
             cell.setupRest()

@@ -182,23 +182,19 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
         cell.kasamIDTransfer["kasamID"] = kasamID
         cell.setKasamViewer(activity: activity)
         cell.pastProgress = activityBlocks[indexPath.row].currentMetric ?? 0
+        cell.type = activity.type
         
         if activity.type == "Reps" {
             cell.setupPicker()
         } else if activity.type == "Countdown" {
-            cell.type = "countdown"
             cell.setupCountdown(maxtime: activity.totalMetric)
         } else if activity.type == "Timer" {
-            cell.type = "timer"
             cell.setupTimer(maxtime: activity.totalMetric)
         } else if activity.type == "Checkmark" {
-            cell.type = "checkmark"
             cell.setupCheckmark()
         } else if activity.type == "Video" {
-            cell.type = "video"
             cell.setVideoPlayer()
         } else if activity.type == "Rest" {
-            cell.type = "rest"
             cell.setupRest(activity: activity)
         }
         cell.delegate = self

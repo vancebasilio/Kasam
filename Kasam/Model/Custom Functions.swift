@@ -89,13 +89,15 @@ extension UIViewController {
             //Gets the DayTracker info - only goes into this loop if the user has kasam history
             db.observe(.value, with: {(snap) in
                 if snap.exists() {
-                    var displayStatus = "Checkmark"
+                    var displayStatus = "NotStarted"
                     var order = 0
                     var dayTrackerArrayInternal = [Int:(Date,Double)]()
                     var dayPercent = 1.0
                     var percentComplete = 0.0
                     var internalCount = 0
                     var blockDeets: (blockID: String, blockName: String)? = nil
+                    var reset = false
+                    if kasam.programDuration != nil {reset = true}
                     
                     for history in snap.children.allObjects as! [DataSnapshot] {
                         internalCount += 1
@@ -128,8 +130,7 @@ extension UIViewController {
                                 if blockDeets != nil {SavedData.todayKasamBlocks[type]![index].data.blockTitle = blockDeets!.blockName; SavedData.todayKasamBlocks[type]![index].data.blockID = blockDeets!.blockID}
                                 kasam.streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: SavedData.todayKasamBlocks[type]![index].data.dayOrder)
                                 NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
-                                print("hell7a \(kasam.kasamName, 0, index)")
-                                self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type, level: 0)
+                                self.singleKasamUpdate(tableView: tableView, row:index, section: 0, reset: reset)
                             }
                         }
                     }
@@ -141,16 +142,14 @@ extension UIViewController {
                         kasam.displayStatus = "Upcoming"
                         level = 1
                         if let index = SavedData.upcomingKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
-                            print("hell7b \(kasam.kasamName, level, index)")
-                            self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type, level: level)
+                            self.singleKasamUpdate(tableView: tableView, row:index, section: level, reset: false)
                         }
                     } else {
-                        kasam.displayStatus = "Checkmark"
+                        kasam.displayStatus = "NotStarted"
                         kasam.streakInfo = (currentStreak:(value:0, date:nil), daysWithAnyProgress:0, longestStreak:0)
                         kasam.percentComplete = 0
                         if let index = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
-                            print("hell7c \(kasam.kasamName, level, index)")
-                            self.singleKasamUpdate(kasamOrder: index, tableView: tableView, type: type, level: level)
+                            self.singleKasamUpdate(tableView: tableView, row:index, section: level, reset: false)
                         }
                     }
                 }
@@ -158,9 +157,12 @@ extension UIViewController {
         }
     }
     
-    func singleKasamUpdate(kasamOrder: Int, tableView: UITableView, type: String, level: Int) {
-        if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: level)) as? TodayBlockCell {
+    func singleKasamUpdate(tableView: UITableView, row: Int, section: Int, reset: Bool) {
+        if let cell = tableView.cellForRow(at: IndexPath(item: row, section: section)) as? TodayBlockCell {
             tableView.beginUpdates()
+            if reset == true {
+                cell.resetBlockName()
+            }
             cell.statusUpdate(day:nil)
             cell.updateDayTrackerCollection()
             tableView.endUpdates()
@@ -206,7 +208,7 @@ extension UIViewController {
     
     func statusPercentCalc (snapshot: DataSnapshot) -> (percent: Double, displayStatus: String){
         var percent = 0.0
-        var displayStatus = "Checkmark"
+        var displayStatus = "NotStarted"
         //COMPLEX KASAM
         if let dictionary = snapshot.value as? Dictionary<String,Any> {
             if dictionary["Block Name"] as? String ?? "" == "Rest Day" {
@@ -228,7 +230,7 @@ extension UIViewController {
             Analytics.logEvent("completed_Kasam", parameters: nil)
         } else if snapshot.value as? Int == 0 {
             percent = 0.0
-            displayStatus = "Checkmark"
+            displayStatus = "NotStarted"
         }
         return (percent, displayStatus)
     }

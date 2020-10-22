@@ -472,6 +472,7 @@
 				BC554BD5226D8BDB00D707CC /* UIColor.swift */,
 				BCC4F44723406BBE00EF2FBA /* BalloonMarker.swift */,
 				BC520BBA227413E100553C6B /* Transitions.swift */,
+				BCF99A6A25045DC0009B39FA /* PushNotificationManager.swift */,
 				BC8AFB4322873EEE003449F4 /* UIView+constraints.swift */,
 				BC74E1F22336748E00653381 /* CountdownTimer.swift */,
 				BC55BFD622AEEF6200D77337 /* Custom Functions.swift */,
@@ -502,7 +503,6 @@
 			children = (
 				BC1FAF2C2269FAFA006A9245 /* AppDelegate.swift */,
 				BCA9A06122A9D22E008C5A7D /* AppContainer.swift */,
-				BCF99A6A25045DC0009B39FA /* PushNotificationManager.swift */,
 				BC01664422D53E970073186D /* CoachHolder.swift */,
 				BC554BD1226D6EF900D707CC /* 1. Discover.swift */,
 				BC9C7840228CD2DB000C8D0A /* 2. Personal.swift */,
