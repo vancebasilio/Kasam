@@ -8,7 +8,7 @@
 
 import UIKit
 import Foundation
-import FirebaseDatabase
+import Firebase
 import SDWebImage
 import SwiftEntryKit
 import Lottie
@@ -55,7 +55,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToDiscover), name: goToDiscover, object: nil)
     }
     
-    @objc func updateScrollViewSize(){
+    func updateScrollViewSize(){
         self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.tableViewHeight, tableRowHeight: self.personalTableRowHeight, additionalTableHeight: sectionHeight, rowCount: SavedData.todayKasamBlocks[type]!.count + SavedData.upcomingKasamBlocks[type]!.count, additionalHeight: 100)
     }
     
@@ -152,85 +152,35 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         let kasam = SavedData.kasamDict[kasamID]!
         print("Step 3 - Get Block Data hell6 \(kasam.kasamName)")
         //Seeing which blocks are needed for the day
-        let dayOrder = kasam.joinedDate.daysBetween(date: Date()) + 1
+        let dayOrder = kasam.joinedDate.daysBetween(endDate: Date()) + 1
         SavedData.kasamDict[kasam.kasamID]?.currentDay = dayOrder
         
         //OPTION 1 - Load blocks based on day (PROGRAM KASAMS) e.g. Insanity
         if kasam.programDuration != nil {
             DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observeSingleEvent(of: .value) {(snapshot) in
                 var blockDayToLoad = kasam.currentDay % Int(snapshot.childrenCount)
-                if blockDayToLoad == 0 {blockDayToLoad = Int(snapshot.childrenCount - 1)} //change this
+                if blockDayToLoad == 0 {blockDayToLoad = Int(snapshot.childrenCount)}
                 if let value = snapshot.value as? [String: String] {
                     DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"] ?? "").observeSingleEvent(of: .value) {(snapshot) in
-                        print("Step 3 - Get Block Data hell6 Option 1B \(kasam.kasamName)")
-                        self.savePersonalKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam)
+                        print("Step 3B - Get Block Data hell6 Option 1 \(kasam.kasamName)")
+                        self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                     }
                 }
             }
         //OPTION 2 - Load Kasam as Block (BASIC KASAMS)
         } else if kasam.metricType == "Checkmark" {
             DBRef.coachKasams.child(kasam.kasamID).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
-                print("Step 3 - Get Block Data hell6 Option 2 \(kasam.kasamName)")
+                print("Step 3B - Get Block Data hell6 Option 2 \(kasam.kasamName)")
                 if let snapshot = snapshot.value as? Dictionary<String,Any> {
-                    self.savePersonalKasamBlocks(value: snapshot, dayOrder: dayOrder, kasam: kasam)
+                    self.saveKasamBlocks(value: snapshot, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                 }
             })
         //OPTION 3 - Load single repeated block (CHALLENGE KASAMS) e.g. 200 Push-ups
         } else {
-            DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in //childAdded needed
-                print("Step 3 - Get Block Data hell6 Option 3 \(kasam.kasamName)")
-                self.savePersonalKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam)
+            DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in
+                print("Step 3B - Get Block Data hell6 Option 3 \(kasam.kasamName)")
+                self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
             })
-        }
-    }
-    
-    //STEP 4
-    func savePersonalKasamBlocks(value: Dictionary<String,Any>, dayOrder: Int, kasam: KasamSavedFormat){
-        print("Step 4 - Save Kasam Blocks hell6 \((kasam.kasamName))")
-        let kasamImage = value["Image"] as! String
-        SavedData.kasamDict[kasam.kasamID]?.image = kasamImage
-        let block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
-        //Modifying details of a current kasam
-        if let kasamOrder = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
-            if kasam.joinedDate.daysBetween(date: Date()) < 0 {
-                SavedData.todayKasamBlocks[type]!.remove(at: kasamOrder)
-                SavedData.upcomingKasamBlocks[type]!.append((kasam.kasamID, block))
-                self.getDayTracker(kasamID: block.kasamID, tableView: self.personalKasamTable, type: type)
-            } else {
-                SavedData.todayKasamBlocks[type]![kasamOrder] = (kasam.kasamID, block)
-                if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-                    if cell.state == "restart" {
-                        self.getDayTracker(kasamID: block.kasamID, tableView: self.personalKasamTable, type: type)
-                    } else {
-                        cell.blockSubtitle.text = SavedData.todayKasamBlocks[type]![kasamOrder].data.blockTitle
-                    }
-                }
-            }
-        //Modifying details of an upcoming kasam
-        } else if let kasamOrder = SavedData.upcomingKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
-            if kasam.joinedDate.daysBetween(date: Date()) < 0 {
-                SavedData.upcomingKasamBlocks[type]!.remove(at: kasamOrder)
-                SavedData.upcomingKasamBlocks[type]!.append((kasam.kasamID, block))
-                self.getDayTracker(kasamID: block.kasamID, tableView: self.personalKasamTable, type: type)
-            } else {
-                SavedData.upcomingKasamBlocks[type]!.remove(at: kasamOrder)
-                SavedData.todayKasamBlocks[type]!.append((kasam.kasamID, block))
-                self.getDayTracker(kasamID: block.kasamID, tableView: self.personalKasamTable, type: type)
-            }
-        //Adding a kasam for the first time to the Today page
-        } else {
-            if kasam.joinedDate.daysBetween(date: Date()) < 0 {
-                SavedData.upcomingKasamBlocks[type]!.append((kasam.kasamID, block))
-            } else {
-                SavedData.todayKasamBlocks[type]!.append((kasam.kasamID, block))
-            }
-            self.getDayTracker(kasamID: block.kasamID, tableView: self.personalKasamTable, type: type)
-        }
-        
-        if personalKasamCount == SavedData.todayKasamBlocks["personal"]!.count + SavedData.upcomingKasamBlocks["personal"]!.count {
-            self.personalFollowingLabel.text = "You have \(SavedData.todayKasamBlocks[type]!.count.pluralUnit(unit: "kasam")) for today"
-            self.updateScrollViewSize()
-            personalKasamTable.reloadData()
         }
     }
     
@@ -283,6 +233,7 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
         if section == 0 || (section == 1 && SavedData.upcomingKasamBlocks[type]!.count == 0) {return 0}
         else {return sectionHeight}
     }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as? TodayBlockCell else {return UITableViewCell()}
         cell.cellDelegate = self

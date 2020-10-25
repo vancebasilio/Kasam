@@ -83,6 +83,7 @@ class DayTrackerCollectionCell: UICollectionViewCell {
                 cellButton.setTitleColor(UIColor.black, for: .normal)
             } else if status < 0 {
                 //Rest Days
+                print("hell6 set rest daytracker")
                 cellButton.backgroundColor = UIColor.dayNoColor
                 cellButton.setTitleColor(UIColor.white, for: .normal)
             }

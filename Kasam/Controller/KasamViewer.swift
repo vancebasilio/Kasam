@@ -75,20 +75,21 @@ class KasamActivityViewer: UIViewController {
         activityBlocks.removeAll()
         //User manually changing kasam block from the Kasam Viewer Cell
         if let manualBlockID = manualBlock?.userInfo?["blockID"] as? String {
-            if manualBlockID == "rest" {
-                blockName = "Rest Day"
-            } else {
-                blockID = manualBlockID; blockName = manualBlock?.userInfo?["blockName"] as? String ?? ""
-            }
-            if let kasamOrder = SavedData.todayKasamBlocks["personal"]!.index(where: {($0.kasamID == kasamID)}) {
-                SavedData.todayKasamBlocks["personal"]![kasamOrder].data.blockTitle = blockName
-                SavedData.todayKasamBlocks["personal"]![kasamOrder].data.blockID = blockID
-                NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshPersonalKasam"), object: self, userInfo: ["kasamOrder": kasamOrder])
+            if manualBlockID == "Rest" {blockName = "Rest Day"}
+            else {blockID = manualBlockID; blockName = manualBlock?.userInfo?["blockName"] as? String ?? ""}
+            
+            //If changing the block for today, update the todayKasamBlocks data
+            if dateToLoad?.daysBetween(endDate: Date()) == 0 {
+                if let kasamOrder = SavedData.todayKasamBlocks["personal"]!.index(where: {($0.kasamID == kasamID)}) {
+                    SavedData.todayKasamBlocks["personal"]![kasamOrder].data.blockTitle = blockName
+                    SavedData.todayKasamBlocks["personal"]![kasamOrder].data.blockID = blockID
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshPersonalKasam"), object: self, userInfo: ["kasamOrder": kasamOrder])
+                }
             }
         }
         self.statusDate = dateToLoad?.dateToString() ?? Date().dateToString()
         var count = 0
-        if blockName != "Rest Day" {
+        if blockID != "Rest" {
         //STEP 1 - GET ALL THE BLOCK ACTIVITIES
             self.activityRef = DBRef.coachKasams.child(kasamID).child("Blocks").child(blockID).child("Activity")
             self.activityRefHandle = activityRef.observe(.childAdded) {(snapshot) in

@@ -80,6 +80,63 @@ extension UIViewController {
         }
     }
     
+    //STEP 4
+    func saveKasamBlocks(value: Dictionary<String,Any>?, dayOrder: Int, kasam: KasamSavedFormat, type: String, tableView: UITableView, kasamCount: Int, followingLabel: UILabel, completion: @escaping (Bool) -> ()){
+        print("Step 4 - Save Kasam Blocks hell6 \((kasam.kasamName))")
+        var block: TodayBlockFormat!
+        if value != nil {
+            //Kasam block to complete
+            let kasamImage = value!["Image"] as! String
+            SavedData.kasamDict[kasam.kasamID]?.image = kasamImage
+            block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: value!["BlockID"] as? String ?? "", blockTitle: value!["Title"] as! String, dayOrder: dayOrder, duration: value!["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
+        } else {
+            //Rest Day
+            block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: "Rest", blockTitle: "Rest Day", dayOrder: dayOrder, duration: nil, image: URL(string: PlaceHolders.kasamActivityPlaceholderURL)!)
+        }
+        //Modifying details of a current kasam
+        if let kasamOrder = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
+            if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
+                SavedData.todayKasamBlocks[type]!.remove(at: kasamOrder)
+                SavedData.upcomingKasamBlocks[type]!.append((kasam.kasamID, block))
+                getDayTracker(kasamID: kasam.kasamID, tableView: tableView, type: type)
+            } else {
+                SavedData.todayKasamBlocks[type]![kasamOrder] = (kasam.kasamID, block)
+                if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
+                    if cell.state == "restart" {
+                        getDayTracker(kasamID: kasam.kasamID, tableView: tableView, type: type)
+                    } else {
+                        cell.blockSubtitle.text = SavedData.todayKasamBlocks[type]![kasamOrder].data.blockTitle
+                    }
+                }
+            }
+        //Modifying details of an upcoming kasam
+        } else if let kasamOrder = SavedData.upcomingKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
+            if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
+                SavedData.upcomingKasamBlocks[type]!.remove(at: kasamOrder)
+                SavedData.upcomingKasamBlocks[type]!.append((kasam.kasamID, block))
+                getDayTracker(kasamID: kasam.kasamID, tableView: tableView, type: type)
+            } else {
+                SavedData.upcomingKasamBlocks[type]!.remove(at: kasamOrder)
+                SavedData.todayKasamBlocks[type]!.append((kasam.kasamID, block))
+                getDayTracker(kasamID: kasam.kasamID, tableView: tableView, type: type)
+            }
+        //Adding a kasam for the first time to the Today page
+        } else {
+            if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
+                SavedData.upcomingKasamBlocks[type]!.append((kasam.kasamID, block))
+            } else {
+                SavedData.todayKasamBlocks[type]!.append((kasam.kasamID, block))
+            }
+            getDayTracker(kasamID: kasam.kasamID, tableView: tableView, type: type)
+        }
+        
+        if kasamCount == SavedData.todayKasamBlocks[type]!.count + SavedData.upcomingKasamBlocks[type]!.count {
+            followingLabel.text = "You have \(SavedData.todayKasamBlocks[type]!.count.pluralUnit(unit: "kasam")) for today"
+            tableView.reloadData()
+            completion(true)
+        }
+    }
+    
     func getDayTracker(kasamID: String, tableView: UITableView, type: String) {
         print("Step 5 - Get day tracker hell6 \(String(describing: SavedData.kasamDict[kasamID]?.kasamName))")
         //For the active Kasams on the Personal or Group page
@@ -97,7 +154,6 @@ extension UIViewController {
                     var internalCount = 0
                     var blockDeets: (blockID: String, blockName: String)? = nil
                     var reset = false
-                    if kasam.programDuration != nil {reset = true}
                     
                     for history in snap.children.allObjects as! [DataSnapshot] {
                         internalCount += 1
@@ -115,8 +171,8 @@ extension UIViewController {
                                 //Manually set the block title and ID if the user changed it manually
                                 if kasam.programDuration != nil {
                                     if let value = history.value as? [String:Any] {
-                                        blockDeets = (blockID: value["BlockID"] as? String ?? "", blockName: value["Block Name"] as! String)}
-                                    if blockDeets?.blockName == "Rest Day" {displayStatus = "Check"; percentComplete = -1}
+                                        blockDeets = (blockID: value["BlockID"] as? String ?? "", blockName: value["Block Name"] as! String); reset = true
+                                    }
                                 }
                             }
                         }
@@ -138,7 +194,7 @@ extension UIViewController {
                 } else {
                     var level = 0
                     kasam.dayTrackerArray = nil
-                    if kasam.joinedDate.daysBetween(date: Date()) < 0 {
+                    if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
                         kasam.displayStatus = "Upcoming"
                         level = 1
                         if let index = SavedData.upcomingKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
@@ -241,7 +297,8 @@ extension UIViewController {
         var block = SavedData.todayKasamBlocks["personal"]!; if type == "group" {block = SavedData.todayKasamBlocks["group"]!}
         let kasamID = block[kasamOrder].kasamID
         var blockIDGlobal = block[kasamOrder].data.blockID
-        var blockNameGlobal = block[kasamOrder].data.blockTitle    //DAY TRACKER FUNC WILL LOAD MANUALLY CHANGED BLOCKS FOR PROGRAM KASAMS
+        var blockNameGlobal = block[kasamOrder].data.blockTitle
+        print("hell8 \(blockNameGlobal)")
         
         var db = DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!)
         if type == "group" {db = DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid)}
@@ -257,15 +314,14 @@ extension UIViewController {
                         completion((blockIDGlobal, blockNameGlobal))
                    }
                 } else {
-                    DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with: {(blockCountSnapshot) in
-                        let blockCount = Int(blockCountSnapshot.childrenCount)
-                        var blockOrder = 1
                         if SavedData.kasamDict[kasamID]?.programDuration != nil {
                             //OPTION 1A - Day in past, so find the correct block to show
-                            blockOrder = day! & blockCount
-                            if blockOrder == 0 {blockOrder = blockCount}
-                            DBRef.coachKasams.child(kasamID).child("Timeline").observe(.value, with: {(snapshot) in
-                                if let value = snapshot.value as? [String:String] {
+                            DBRef.coachKasams.child(kasamID).child("Timeline").observeSingleEvent(of: .value, with: {(snapshot) in
+                                let blockCount = Int(snapshot.childrenCount)
+                                var blockOrder = 1
+                                blockOrder = day! % blockCount
+                                if blockOrder == 0 {blockOrder = blockCount}
+                                if let value = snapshot.value as? [String: String] {
                                     blockIDGlobal = value["D\(blockOrder)"]!
                                     self.definesPresentationContext = true
                                     completion((blockIDGlobal, blockNameGlobal))
@@ -273,15 +329,13 @@ extension UIViewController {
                             })
                         } else {
                             //OPTION 1B - Day in past and Kasam has only 1 block, so no point finding the correct block
-                            if day! <= blockCount {blockOrder = day!}
-                            else {blockOrder = (blockCount / day!) + 1}
                             completion((blockIDGlobal, blockNameGlobal))
                         }
-                    })
                 }
             }
         //OPTION 2 - Open Today's block
         } else {
+            print("hell8 today block \(blockNameGlobal)")
             completion((blockIDGlobal, blockNameGlobal))
         }
     }
@@ -1139,16 +1193,12 @@ extension Date {
         return finalDate
     }
     
-    func daysBetween(date: Date) -> Int {
-        return Date.daysBetween(start: self, end: date)
-    }
-
-    static func daysBetween(start: Date, end: Date) -> Int {
+    func daysBetween(endDate: Date) -> Int {
         let calendar = Calendar.current
 
         // Replace the hour (time) of both dates with 00:00
-        let date1 = calendar.startOfDay(for: start)
-        let date2 = calendar.startOfDay(for: end)
+        let date1 = calendar.startOfDay(for: self)
+        let date2 = calendar.startOfDay(for: endDate)
 
         let a = calendar.dateComponents([.day], from: date1, to: date2)
         return a.value(for: .day)!

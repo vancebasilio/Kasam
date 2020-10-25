@@ -83,18 +83,19 @@ class TodayBlockCell: UITableViewCell {
     func setCollectionViewDataSourceDelegate(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate, forRow row: Int) {
         self.dayTrackerCollectionView.delegate = dataSourceDelegate
         self.dayTrackerCollectionView.dataSource = dataSourceDelegate
-        self.dayTrackerCollectionView.tag = row
     }
     
     func setBlock(block: TodayBlockFormat, row: Int, section: Int, type: String) {
         if state == "" || state == "restart" {
-            print("hell1 \(block.blockTitle)")
+            print("hell8 set block title \(block.blockTitle)")
             rowInternal = row
             sectionInternal = section
+            dayTrackerCollectionView.tag = ((section * 100) + row)
             typeInternal = type
             kasamID = block.kasamID
             tempBlock = block
             kasamName.text = SavedData.kasamDict[kasamID]?.kasamName
+            blockSubtitle.text = String(describing: block.blockTitle)
             kasamImage.sd_setImage(with: block.image)
             
             if type == "group" {
@@ -109,14 +110,18 @@ class TodayBlockCell: UITableViewCell {
     }
     
     func resetBlockName(){
-        print("hell8 \(blockSubtitle.text)")
         //Show the block subtite if it's a PROGRAM kasam
         if SavedData.kasamDict[kasamID]?.programDuration != nil && tempBlock != nil {
             blockSubtitle.text = String(describing: tempBlock!.blockTitle)
+            if blockSubtitle.text == "Rest Day" {
+                SavedData.kasamDict[kasamID]?.displayStatus = "Rest"
+                SavedData.kasamDict[kasamID]?.percentComplete = -1
+            }
         //Hide the block subtitle
         } else if SavedData.kasamDict[kasamID]?.displayStatus != "Upcoming" {
             blockSubtitleHeight.constant = 0
         }
+        print("hell8 reset block title to \(blockSubtitle.text)")
     }
     
     override func awakeFromNib() {
@@ -246,30 +251,23 @@ class TodayBlockCell: UITableViewCell {
     @objc func hideDayTracker(){
         //Show more info on day tracker
         if isDayTrackerHidden == true {
-            if typeInternal != "group" {
-                dayTrackerCollectionHolderHeight.constant = 50
-                dayTrackerCollectionView.frame.size = CGSize(width: dayTrackerCollectionView.frame.width, height: 50)
-                if kasamName.calculateMaxLines() == 2 {blockSubtitleHeight.constant = 0}
-                overallLabel.isHidden = true
-                isDayTrackerHidden = false
-                dayTrackerCollectionView.reloadData()
-                dayTrackerCollectionView.performBatchUpdates(nil, completion: nil)
-                centerCollectionView()
-            } else {
-                dayTrackerCollectionTopConstraint.constant = 0
-            }
+            dayTrackerCollectionHolderHeight.constant = 50
+            dayTrackerCollectionView.frame.size = CGSize(width: dayTrackerCollectionView.frame.width, height: 50)
+            if kasamName.calculateMaxLines() == 2 && SavedData.kasamDict[kasamID]?.displayStatus != "Upcoming" {blockSubtitleHeight.constant = 0}
+            if typeInternal == "personal" {overallLabel.isHidden = true}
+            isDayTrackerHidden = false
+            dayTrackerCollectionView.reloadData()
+            dayTrackerCollectionView.performBatchUpdates(nil, completion: nil)
+            centerCollectionView()
         //Hide more info on day tracker
         } else {
-            if typeInternal != "group" {
-                dayTrackerCollectionHolderHeight.constant = 20
-                if kasamName.calculateMaxLines() == 2 {blockSubtitleHeight.constant = 20}
-                overallLabel.isHidden = false
-                isDayTrackerHidden = true
-                dayTrackerCollectionView.reloadData()
-                dayTrackerCollectionView.performBatchUpdates(nil, completion: nil)
-            } else {
-                dayTrackerCollectionTopConstraint.constant = 10
-            }
+            dayTrackerCollectionHolderHeight.constant = 20
+            if kasamName.calculateMaxLines() == 2 {blockSubtitleHeight.constant = 20}
+            if typeInternal == "personal" {overallLabel.isHidden = false}
+            isDayTrackerHidden = true
+            dayTrackerCollectionView.reloadData()
+            dayTrackerCollectionView.performBatchUpdates(nil, completion: nil)
+            centerCollectionView()
         }
     }
     
@@ -395,7 +393,7 @@ class TodayBlockCell: UITableViewCell {
         if SavedData.kasamDict[kasamID]?.displayStatus == "Upcoming" {
             progressBar.isHidden = true
             restartButton.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 15, color: .lightGray, forState: .normal)
-            let interval = -(SavedData.kasamDict[kasamID]!.joinedDate.daysBetween(date: Date()))
+            let interval = -(SavedData.kasamDict[kasamID]!.joinedDate.daysBetween(endDate: Date()))
             if interval == 1 {upcomingDuration = "tomorrow"}
             else {upcomingDuration = "in \(interval.pluralUnit(unit: "day"))"}
             blockSubtitle.text = "Starts \(upcomingDuration)";
@@ -431,6 +429,8 @@ class TodayBlockCell: UITableViewCell {
                 streakShadow.backgroundColor = .dayYesColor
                 bottomStatusText.textColor = .colorFive
                 bottomStatusButton?.setIcon(icon: .fontAwesomeRegular(.playCircle), iconSize: iconSize, color: .colorFour, forState: .normal)
+            } else if SavedData.kasamDict[kasamID]?.displayStatus == "Rest" {
+                bottomStatusButton?.setIcon(icon: .fontAwesomeSolid(.moon), iconSize: iconSize, color: .dayNoColor, forState: .normal)
             }
         }
     }

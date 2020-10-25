@@ -9,8 +9,6 @@
 import UIKit
 import Foundation
 import Firebase
-import FirebaseDatabase
-import FirebaseAuth
 import SDWebImage
 import SwiftEntryKit
 import Lottie
@@ -23,7 +21,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var groupKasamTable: SelfSizedTableView!
     @IBOutlet weak var groupTableHeight: NSLayoutConstraint!
     
-    var kasamIDTransfer = ""
+    var kasamIDforViewer = ""
     var blockIDGlobal = ""
     var blockNameGlobal = ""
     var dateGlobal: Date?
@@ -32,6 +30,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     var groupTableRowHeight = CGFloat(80)
     var initialLoad = false
     
+    var sectionHeight = CGFloat(40)
     let groupAnimationIcon = AnimationView()
     let animationView = AnimationView()
     var groupKasamCount = 0
@@ -52,7 +51,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func updateScrollViewSize(){
-        self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.groupTableHeight, tableRowHeight: self.groupTableRowHeight, additionalTableHeight: nil, rowCount: SavedData.todayKasamBlocks[type]!.count + SavedData.upcomingKasamBlocks[type]!.count, additionalHeight: 160)
+        self.updateContentViewHeight(contentViewHeight: self.contentViewHeight, tableViewHeight: self.groupTableHeight, tableRowHeight: self.groupTableRowHeight, additionalTableHeight: sectionHeight, rowCount: SavedData.todayKasamBlocks[type]!.count + SavedData.upcomingKasamBlocks[type]!.count, additionalHeight: 160)
         self.initialLoad = true
     }
     
@@ -135,63 +134,39 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
                 let blockDayToLoad = kasam.currentDay % Int(snapshot.childrenCount)
                 if let value = snapshot.value as? [String: String] {
                     DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"] ?? "").observeSingleEvent(of: .value) {(snapshot) in
-                        print("Step 3 - Get Block Data hell6 Option 1B \(kasam.kasamName)")
-                        self.saveGroupKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam)
+                        print("Step 3B - Get Block Data hell6 Option 1 \(kasam.kasamName)")
+                        self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                     }
                 }
             }
         //OPTION 2 - Load Kasam as Block (BASIC KASAMS)
         } else if kasam.metricType == "Checkmark" {
             DBRef.coachKasams.child(kasam.kasamID).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
-                print("Step 3 - Get Block Data hell6 Option 2 \(kasam.kasamName)")
+                print("Step 3B - Get Block Data hell6 Option 2 \(kasam.kasamName)")
                 if let snapshot = snapshot.value as? Dictionary<String,Any> {
-                    self.saveGroupKasamBlocks(value: snapshot, dayOrder: dayOrder, kasam: kasam)
+                    self.saveKasamBlocks(value: snapshot, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                 }
             })
         //OPTION 3 - Load single repeated block (CHALLENGE KASAMS) e.g. 200 Push-ups
         } else {
-            DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in //childAdded needed
-                print("Step 3 - Get Block Data hell6 Option 3 \(kasam.kasamName)")
-                self.saveGroupKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam)
+            DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in
+                print("Step 3B - Get Block Data hell6 Option 3 \(kasam.kasamName)")
+                self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
             })
-        }
-    }
-    
-    //STEP 4
-    func saveGroupKasamBlocks(value: Dictionary<String,Any>, dayOrder: Int, kasam: KasamSavedFormat){
-        print("Step 4 - Save Kasam Blocks hell6 \((kasam.kasamName))")
-        let kasamImage = value["Image"] as! String
-        SavedData.kasamDict[kasam.kasamID]?.image = kasamImage
-        let block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: SavedData.kasamDict[kasam.kasamID]?.groupID, blockID: value["BlockID"] as? String ?? "", blockTitle: value["Title"] as! String, dayOrder: dayOrder, duration: value["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
-        if let kasamOrder = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
-            SavedData.todayKasamBlocks[type]![kasamOrder] = (kasam.kasamID, block)
-            if let cell = self.groupKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
-                cell.blockSubtitle.text = SavedData.todayKasamBlocks[type]![kasamOrder].data.blockTitle
-            }
-        } else {
-            SavedData.todayKasamBlocks[type]!.append((kasam.kasamID, block))
-            self.getDayTracker(kasamID: block.kasamID, tableView: groupKasamTable, type: type)
-        }
-        
-        //Only does the below after all Kasams loaded
-        if groupKasamCount == SavedData.todayKasamBlocks[type]!.count + SavedData.upcomingKasamBlocks[type]!.count {
-            self.groupFollowingLabel.text = "You have \(SavedData.todayKasamBlocks[type]!.count.pluralUnit(unit: "kasam")) for today"
-            self.updateScrollViewSize()
-            self.groupKasamTable.reloadData()
         }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToKasamActivityViewer" {
             let kasamViewer = segue.destination as! KasamActivityViewer
-            kasamViewer.kasamID = kasamIDTransfer
+            kasamViewer.kasamID = kasamIDforViewer
             kasamViewer.blockID = blockIDGlobal
             kasamViewer.type = type
             kasamViewer.blockName = blockNameGlobal
             kasamViewer.dateToLoad = dateGlobal
         } else if segue.identifier == "goToKasamHolder" {
             let kasamTransferHolder = segue.destination as! KasamHolder
-            kasamTransferHolder.kasamID = kasamIDTransfer
+            kasamTransferHolder.kasamID = kasamIDforViewer
         }
     }
 }
@@ -200,8 +175,22 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension GroupViewController: UITableViewDataSource, UITableViewDelegate, TableCellDelegate {
     
+    func numberOfSections(in tableView: UITableView) -> Int {
+        2
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return SavedData.todayKasamBlocks[type]!.count
+        if section == 0 { return SavedData.todayKasamBlocks[type]!.count }
+        else { return SavedData.upcomingKasamBlocks[type]!.count }
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return sectionHeader(text: "Upcoming", color: .colorFive, leading: 10)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if section == 0 || (section == 1 && SavedData.upcomingKasamBlocks[type]!.count == 0) {return 0}
+        else {return sectionHeight}
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -214,8 +203,10 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let tableCell = cell as? TodayBlockCell else { return }
-        tableCell.setCollectionViewDataSourceDelegate(dataSourceDelegate: self, forRow: indexPath.row)
+        guard let cell = cell as? TodayBlockCell else { return }
+        DispatchQueue.main.async {
+            cell.setCollectionViewDataSourceDelegate(dataSourceDelegate: self, forRow: (indexPath.section * 100) + indexPath.row)
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -224,8 +215,8 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
     
     func goToKasamHolder(kasamOrder: Int, section: Int) {
         if SavedData.todayKasamBlocks[type]!.count > kasamOrder {
-            if section == 0 {kasamIDTransfer = SavedData.todayKasamBlocks[type]![kasamOrder].1.kasamID}
-            else {kasamIDTransfer = SavedData.upcomingKasamBlocks[type]![kasamOrder].1.kasamID}
+            if section == 0 {kasamIDforViewer = SavedData.todayKasamBlocks[type]![kasamOrder].1.kasamID}
+            else {kasamIDforViewer = SavedData.upcomingKasamBlocks[type]![kasamOrder].1.kasamID}
         }
         self.performSegue(withIdentifier: "goToKasamHolder", sender: kasamOrder)
     }
@@ -248,58 +239,69 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
 
 //COLLECTIONVIEW------------------------------------------------------------------------
 
-extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, DayTrackerCellDelegate {
+extension GroupViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if SavedData.todayKasamBlocks[type]!.count > collectionView.tag {        //ensures the kasam is loaded before reading the dayTracker
-            return SavedData.kasamDict[SavedData.todayKasamBlocks[type]![collectionView.tag].kasamID]?.repeatDuration ?? 0
+        let tableRow = collectionView.tag % 100
+        let tableSection = (collectionView.tag - tableRow)/100
+        var block = SavedData.todayKasamBlocks[type]!
+        if tableSection == 1 { block = SavedData.upcomingKasamBlocks[type]!}
+        if block.count > tableRow {                 //ensures kasam is loaded before reading the dayTracker
+            return SavedData.kasamDict[block[tableRow].kasamID]?.repeatDuration ?? 0
         } else {
-            return 10
+            return 10                               //in case the daytracker can't get any info
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 36, height: 50)    //day tracker
-    }
-    
-    func unhideDayTracker(section: Int, row: Int) {
-        if let tableCell = self.groupKasamTable.cellForRow(at: IndexPath(item: row, section: section)) as? TodayBlockCell {
-            tableCell.hideDayTracker()
+        if collectionView.frame.height > 40 {
+            return CGSize(width: 36, height: 50)    //expand day tracker
+        } else {
+            return CGSize(width: 16, height: 20)    //shrink day tracker
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let row = collectionView.tag % 100
         let section = (collectionView.tag - row)/100
+        let tableCell = self.groupKasamTable.cellForRow(at: IndexPath(item: row, section: section)) as? TodayBlockCell
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DayTrackerCell", for: indexPath) as! DayTrackerCollectionCell
         var block = SavedData.todayKasamBlocks[type]!
         if section == 1 {block = SavedData.upcomingKasamBlocks[type]!}
         if block.count > row {
             cell.dayTrackerDelegate = self
+            if tableCell?.isDayTrackerHidden != true {cell.cellButton.titleLabel?.layer.opacity = 100; cell.dayTrackerDate.isHidden = false}
+            else {cell.cellButton.titleLabel?.layer.opacity = 0; cell.dayTrackerDate.isHidden = true}
             let day = indexPath.row + 1
-            var today = Int(block[row].data.dayOrder)
-            if SavedData.kasamDict[SavedData.todayKasamBlocks[type]![collectionView.tag].kasamID]?.groupStatus == "initiated" {today = 1}
+            let today = Int(block[row].data.dayOrder)
             let date = dayTrackerDateFormat(date: Date(), todayDay: today, row: indexPath.row + 1)
             cell.setBlock(row: row, section: section, kasamID: block[row].kasamID, day: day, status: SavedData.kasamDict[block[row].kasamID]?.dayTrackerArray?[indexPath.row + 1]?.progress ?? 0.0, date: date , today: day == today, future: day > today)
         }
         return cell
     }
+}
+    
+extension GroupViewController: DayTrackerCellDelegate {
     
     func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?) {
-        if day > 0 {
-            if let kasamOrder = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasamID)}) {
-                if metricType == "Checkmark" {
-                    updateKasamDayButtonPressed(type: type, kasamOrder: kasamOrder, day: day)
-                } else {
-                    openKasamBlock(type: type, kasamOrder: kasamOrder, day: day, date: date, viewOnly: viewOnly, animationView: animationView) {(blockID, blockName) in
-                        self.kasamIDTransfer = kasamID
-                        self.dateGlobal = date
-                        self.blockIDGlobal = blockID
-                        self.blockNameGlobal = blockName
-                        self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
-                    }
+        if let kasamOrder = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasamID)}) {
+            if metricType == "Checkmark" {
+                updateKasamDayButtonPressed(type: type, kasamOrder: kasamOrder, day: day)
+            } else {
+                openKasamBlock(type: type, kasamOrder: kasamOrder, day: day, date: date, viewOnly: viewOnly, animationView: animationView) {(blockID, blockName) in
+                    self.kasamIDforViewer = kasamID
+                    self.dateGlobal = date
+                    self.blockIDGlobal = blockID
+                    self.blockNameGlobal = blockName
+                    self.performSegue(withIdentifier: "goToKasamActivityViewer", sender: kasamOrder)
                 }
             }
+        }
+    }
+    
+    func unhideDayTracker(section: Int, row: Int){
+        if let tableCell = self.groupKasamTable.cellForRow(at: IndexPath(item: row, section: section)) as? TodayBlockCell {
+            tableCell.hideDayTracker()
         }
     }
 }

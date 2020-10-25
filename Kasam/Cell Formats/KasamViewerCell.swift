@@ -153,7 +153,7 @@ class KasamViewerCell: UICollectionViewCell, CountdownTimerDelegate, YTPlayerVie
                 for blockIDRef in 1...value.count {
                     if let blockID = value["D\(blockIDRef)"] {
                         if blockID == "Rest" {
-                            blockArray.append((blockIDRef, "rest", "Rest"))
+                            blockArray.append((blockIDRef, "Rest", "Rest"))
                         } else {
                             DBRef.coachKasams.child(self.kasamID).child("Blocks").child(blockID).child("Title").observeSingleEvent(of: .value) {(blockName) in
                                 blockArray.append((blockIDRef, blockID, blockName.value as! String))
