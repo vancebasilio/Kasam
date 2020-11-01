@@ -152,18 +152,17 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         let kasam = SavedData.kasamDict[kasamID]!
         print("Step 3 - Get Block Data hell6 \(kasam.kasamName)")
         //Seeing which blocks are needed for the day
-        let dayOrder = kasam.joinedDate.daysBetween(endDate: Date()) + 1
-        SavedData.kasamDict[kasam.kasamID]?.currentDay = dayOrder
+        SavedData.kasamDict[kasam.kasamID]?.currentDay = kasam.joinedDate.daysBetween(endDate: Date()) + 1
         
         //OPTION 1 - Load blocks based on day (PROGRAM KASAMS) e.g. Insanity
         if kasam.programDuration != nil {
             DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observeSingleEvent(of: .value) {(snapshot) in
                 var blockDayToLoad = kasam.currentDay % Int(snapshot.childrenCount)
-                if blockDayToLoad == 0 {blockDayToLoad = Int(snapshot.childrenCount)}
+                if blockDayToLoad <= 0 {blockDayToLoad = Int(snapshot.childrenCount)}
                 if let value = snapshot.value as? [String: String] {
                     DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"] ?? "").observeSingleEvent(of: .value) {(snapshot) in
                         print("Step 3B - Get Block Data hell6 Option 1 \(kasam.kasamName)")
-                        self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
+                        self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                     }
                 }
             }
@@ -172,14 +171,14 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
             DBRef.coachKasams.child(kasam.kasamID).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
                 print("Step 3B - Get Block Data hell6 Option 2 \(kasam.kasamName)")
                 if let snapshot = snapshot.value as? Dictionary<String,Any> {
-                    self.saveKasamBlocks(value: snapshot, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
+                    self.saveKasamBlocks(value: snapshot, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                 }
             })
         //OPTION 3 - Load single repeated block (CHALLENGE KASAMS) e.g. 200 Push-ups
         } else {
             DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in
                 print("Step 3B - Get Block Data hell6 Option 3 \(kasam.kasamName)")
-                self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
+                self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
             })
         }
     }
@@ -239,7 +238,6 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
         cell.cellDelegate = self
         if indexPath.section == 0 {cell.setBlock(block: SavedData.todayKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)}
         else {cell.setBlock(block: SavedData.upcomingKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)}
-        cell.statusUpdate(day:nil)
         return cell
     }
     

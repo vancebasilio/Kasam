@@ -62,12 +62,12 @@ class TodayBlockFormat {
     var kasamID: String
     var groupID: String?
     var blockID: String
-    var image: URL
+    var image: URL?
     var blockTitle: String
     var dayOrder: Int
     var duration: String?
     
-    init(kasamID: String, groupID: String?, blockID: String, blockTitle: String, dayOrder: Int, duration: String?, image: URL){
+    init(kasamID: String, groupID: String?, blockID: String, blockTitle: String, dayOrder: Int, duration: String?, image: URL?){
         self.kasamID = kasamID
         self.groupID = groupID
         self.blockID = blockID

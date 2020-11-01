@@ -57,8 +57,7 @@ class TodayBlockCell: UITableViewCell {
     @IBOutlet weak var progressBar: UIView!
     @IBOutlet weak var dayTrackerCollectionView: UICollectionView!
     @IBOutlet weak var dayTrackerCollectionHolderHeight: NSLayoutConstraint!
-    
-    @IBOutlet weak var dayTrackerCollectionTopConstraint: NSLayoutConstraint!
+
     @IBOutlet weak var hideDayTrackerButton: UIButton!
     @IBOutlet weak var restartButton: UIButton!
     @IBOutlet weak var groupStatsTable: UITableView!
@@ -87,7 +86,6 @@ class TodayBlockCell: UITableViewCell {
     
     func setBlock(block: TodayBlockFormat, row: Int, section: Int, type: String) {
         if state == "" || state == "restart" {
-            print("hell8 set block title \(block.blockTitle)")
             rowInternal = row
             sectionInternal = section
             dayTrackerCollectionView.tag = ((section * 100) + row)
@@ -121,7 +119,6 @@ class TodayBlockCell: UITableViewCell {
         } else if SavedData.kasamDict[kasamID]?.displayStatus != "Upcoming" {
             blockSubtitleHeight.constant = 0
         }
-        print("hell8 reset block title to \(blockSubtitle.text)")
     }
     
     override func awakeFromNib() {
@@ -176,7 +173,7 @@ class TodayBlockCell: UITableViewCell {
             }
         } else {
             if SavedData.kasamDict[kasamID]?.displayStatus == "Upcoming" {
-                showCenterOptionsPopup(kasamID: kasamID, title: kasamName.text, subtitle: nil, text: "This kasam starts tomorrow", type: "waiting", button: "Okay") {(completion) in}
+                showCenterOptionsPopup(kasamID: kasamID, title: kasamName.text, subtitle: nil, text: "This kasam starts \(upcomingDuration)", type: "waiting", button: "Okay") {(completion) in}
             } else {
                 if currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration {
                     extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
@@ -396,7 +393,8 @@ class TodayBlockCell: UITableViewCell {
             let interval = -(SavedData.kasamDict[kasamID]!.joinedDate.daysBetween(endDate: Date()))
             if interval == 1 {upcomingDuration = "tomorrow"}
             else {upcomingDuration = "in \(interval.pluralUnit(unit: "day"))"}
-            blockSubtitle.text = "Starts \(upcomingDuration)";
+            blockSubtitle.text = "Starts \(upcomingDuration)"
+            blockSubtitle.textColor = .lightGray
             streakShadow.backgroundColor = .lightGray
             bottomStatusText.isHidden = true
             statsShadow.layer.shadowColor = UIColor.lightGray.cgColor
@@ -405,6 +403,7 @@ class TodayBlockCell: UITableViewCell {
         } else {
         //ACTIVE KASAM
             progressBar.isHidden = false
+            blockSubtitle.textColor = .colorFive
             restartButton.setIcon(icon: .fontAwesomeSolid(.sync), iconSize: 15, color: UIColor.colorFour, forState: .normal)
             
             if SavedData.kasamDict[kasamID]!.metricType == "Checkmark" {
@@ -458,7 +457,6 @@ extension TodayBlockCell: UITableViewDelegate, UITableViewDataSource {
                 self.groupStatsList = self.groupStatsList.sorted(by: {$0.status > $1.status})
             }
             self.groupStatsTable.reloadData()
-            self.statusUpdate(day: nil)
         }
         
         //To update the kasam stats table

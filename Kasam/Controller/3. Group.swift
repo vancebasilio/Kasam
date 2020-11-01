@@ -198,7 +198,6 @@ extension GroupViewController: UITableViewDataSource, UITableViewDelegate, Table
         cell.cellDelegate = self
         if indexPath.section == 0 {cell.setBlock(block: SavedData.todayKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)}
         else {cell.setBlock(block: SavedData.upcomingKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)}
-        cell.statusUpdate(day:nil)
         return cell
     }
     

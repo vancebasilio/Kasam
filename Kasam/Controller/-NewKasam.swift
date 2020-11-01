@@ -191,9 +191,9 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         }
         if level != 3 {
             showCenterSaveKasamPopup(level: level) {(result) in
-                if result == 0 {DispatchQueue.main.async {self.saveBasicKasam()}}                   //saveButton
-                else if result == 1 {}                                                              //keepEditing
-                else {self.dismiss(animated: true, completion: nil)}                                //discard
+                if result == 0 {DispatchQueue.main.async {self.saveBasicKasam()}}                  //saveButton
+                else if result == 1 {self.dismiss(animated: true, completion: nil)}                //keepEditing
+                else {self.dismiss(animated: true, completion: nil)}                               //discard
             }
         }
     }
@@ -364,7 +364,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
         }
     }
 
-    //------------------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------------------------------------------
     
     //Retrieves Kasam Data using Kasam ID selected
     func loadKasam(){

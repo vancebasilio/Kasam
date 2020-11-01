@@ -85,13 +85,12 @@ extension UIViewController {
         print("Step 4 - Save Kasam Blocks hell6 \((kasam.kasamName))")
         var block: TodayBlockFormat!
         if value != nil {
-            //Kasam block to complete
-            let kasamImage = value!["Image"] as! String
-            SavedData.kasamDict[kasam.kasamID]?.image = kasamImage
-            block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: value!["BlockID"] as? String ?? "", blockTitle: value!["Title"] as! String, dayOrder: dayOrder, duration: value!["Duration"] as? String, image: URL(string: kasamImage) ?? URL(string:PlaceHolders.kasamLoadingImageURL)!)
+            //Kasam block to complete today
+            SavedData.kasamDict[kasam.kasamID]?.image = value!["Image"] as! String
+            block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: value!["BlockID"] as? String ?? "", blockTitle: value!["Title"] as! String, dayOrder: dayOrder, duration: value!["Duration"] as? String, image: URL(string: SavedData.kasamDict[kasam.kasamID]!.image))
         } else {
-            //Rest Day
-            block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: "Rest", blockTitle: "Rest Day", dayOrder: dayOrder, duration: nil, image: URL(string: PlaceHolders.kasamActivityPlaceholderURL)!)
+            //Rest Day or Upcoming Kasam
+            block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: "Rest", blockTitle: "Rest Day", dayOrder: dayOrder, duration: nil, image: nil)
         }
         //Modifying details of a current kasam
         if let kasamOrder = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
@@ -214,14 +213,14 @@ extension UIViewController {
     }
     
     func singleKasamUpdate(tableView: UITableView, row: Int, section: Int, reset: Bool) {
-        if let cell = tableView.cellForRow(at: IndexPath(item: row, section: section)) as? TodayBlockCell {
-            tableView.beginUpdates()
-            if reset == true {
-                cell.resetBlockName()
+        DispatchQueue.main.async {
+            if let cell = tableView.cellForRow(at: IndexPath(item: row, section: section)) as? TodayBlockCell {
+                tableView.beginUpdates()
+                if reset == true {cell.resetBlockName()}
+                cell.statusUpdate(day:nil)
+                cell.updateDayTrackerCollection()
+                tableView.endUpdates()
             }
-            cell.statusUpdate(day:nil)
-            cell.updateDayTrackerCollection()
-            tableView.endUpdates()
         }
     }
     
@@ -298,7 +297,6 @@ extension UIViewController {
         let kasamID = block[kasamOrder].kasamID
         var blockIDGlobal = block[kasamOrder].data.blockID
         var blockNameGlobal = block[kasamOrder].data.blockTitle
-        print("hell8 \(blockNameGlobal)")
         
         var db = DBRef.userPersonalHistory.child(kasamID).child((SavedData.kasamDict[kasamID]?.joinedDate.dateToString())!)
         if type == "group" {db = DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid)}
@@ -335,7 +333,6 @@ extension UIViewController {
             }
         //OPTION 2 - Open Today's block
         } else {
-            print("hell8 today block \(blockNameGlobal)")
             completion((blockIDGlobal, blockNameGlobal))
         }
     }

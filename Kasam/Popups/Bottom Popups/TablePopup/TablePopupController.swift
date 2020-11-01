@@ -78,7 +78,6 @@ extension TablePopupController: UITableViewDelegate, UITableViewDataSource {
             switch indexPath.row {
                 case 0:
                     goToCreateNewKasam(type: "basic")
-                    SwiftEntryKit.dismiss()
                 case 1:
                     if SavedData.userType == "Pro" {
                         goToCreateNewKasam(type: "complex")
