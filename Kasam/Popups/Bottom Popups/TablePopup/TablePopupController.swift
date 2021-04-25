@@ -49,10 +49,9 @@ extension TablePopupController: UITableViewDelegate, UITableViewDataSource {
         cell.selectionStyle = .none
         if popupType == "userOptions" {
             switch indexPath.row {
-                case 0: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.gift), postfixText: "  Create a Basic Kasam", size: 20)
-                case 1: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.cubes), postfixText: "  Create a Complex Kasam", size: 20)
-                case 2: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.bell), postfixText: "  Notifications", size: 20)
-                case 3: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.signOutAlt), postfixText: "  Log Out", size: 20)
+                case 0: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.gift), postfixText: "  Create a Kasam", size: 20)
+                case 1: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.bell), postfixText: "  Notifications", size: 20)
+                case 2: cell.textLabel?.setIcon(prefixText: "  ", icon: .fontAwesomeSolid(.signOutAlt), postfixText: "  Log Out", size: 20)
                 default: cell.textLabel?.text = ""
             }
         } else if popupType == "categoryOptions" {
@@ -79,17 +78,8 @@ extension TablePopupController: UITableViewDelegate, UITableViewDataSource {
                 case 0:
                     goToCreateNewKasam(type: "basic")
                 case 1:
-                    if SavedData.userType == "Pro" {
-                        goToCreateNewKasam(type: "complex")
-                        SwiftEntryKit.dismiss()
-                    } else {
-                        showCenterOptionsPopup(kasamID: nil, title: nil, subtitle: nil, text: "You'll need to go Pro to create a complex kasam", type:"goPro", button: "Go Pro!") {(mainButtonPressed) in
-                            print("Go Pro Page")
-                        }
-                    }
-                case 2:
                     showBottomNotificationsPopup()
-                case 3:
+                case 2:
                     showCenterOptionsPopup(kasamID: nil, title: "Are you sure?", subtitle: nil, text: nil, type:"logout", button: "Logout") {(mainButtonPressed) in
                         SavedData.wipeAllData()
                         AppManager.shared.logoout()

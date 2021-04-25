@@ -37,7 +37,6 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loginUser()
         setupNavBar(clean: false)                   //global function
         groupTableRowHeight = (groupKasamTable.frame.width / 1.8) + 15
         getGroupFollowing()
@@ -99,7 +98,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
             if let index = SavedData.todayKasamBlocks[self.type]!.index(where: {($0.data.groupID == snapshot.key)}) {
                 SavedData.todayKasamBlocks[self.type]!.remove(at: index)
                 self.groupKasamTable.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
-                self.groupFollowingLabel.text = "You have \(SavedData.todayKasamBlocks[self.type]!.count.pluralUnit(unit: "kasam")) for today"
+                self.groupFollowingLabel.text = "You have \(SavedData.todayKasamBlocks[self.type]!.count.pluralUnit(unit: "kasam")) to complete"
             }
             self.showIconCheck()
         }
@@ -135,7 +134,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
                 if let value = snapshot.value as? [String: String] {
                     DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"] ?? "").observeSingleEvent(of: .value) {(snapshot) in
                         print("Step 3B - Get Block Data hell6 Option 1 \(kasam.kasamName)")
-                        self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
+                        self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                     }
                 }
             }

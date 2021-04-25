@@ -57,7 +57,7 @@ class NotificationsController: UIViewController {
                 if let index = notifications.index(where: {$0.identifier == kasam.kasamID}) {
                     self.notificationArray[type]!.append((kasam.kasamID, notifications[(index)]))
                     let format = DateFormatter(); format.timeZone = .current; format.dateFormat = "yyyy-MM-dd' 'HH:mm"
-                    print("hell7 \((SavedData.kasamDict[notifications[index].identifier]!.kasamName, format.string(from: (notifications[index].trigger as! UNCalendarNotificationTrigger).nextTriggerDate()!)))")
+                    print("Notification Log: \((SavedData.kasamDict[notifications[index].identifier]!.kasamName, format.string(from: (notifications[index].trigger as! UNCalendarNotificationTrigger).nextTriggerDate()!)))")
                 } else {
                 //No Notification for kasamID
                     self.notificationArray[type]!.append((kasam.kasamID, nil))

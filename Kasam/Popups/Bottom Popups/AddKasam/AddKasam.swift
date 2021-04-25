@@ -106,17 +106,13 @@ class AddKasamController: UIViewController {
         
         setupTimePicker()
         if state == "edit" {
-            startDateTimeLabel.text = "Edit Reminder Time"
+            startDateTimeLabel.text = "Edit kasam"
             goalStackView.isHidden = true
             startDayView.isHidden = true
-            durationView.isHidden = true
+            durationView.isHidden = false
             fillerStackView.isHidden = false
-            fillerStackViewTop.isHidden = false
+            fillerStackViewTop.isHidden = true
         }
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        if state == "edit" {showBottomNotificationsPopup()}         //bring the notification view back when user closes the edit window
     }
     
     @objc func personalChallengeSelected(){
@@ -278,9 +274,11 @@ class AddKasamController: UIViewController {
                         //manually set date to allow below func to run with updated date
                         SavedData.kasamDict[self.kasamID]?.joinedDate = self.formattedDate.stringToDate()
                         SavedData.kasamDict[self.kasamID]?.startTime = self.formattedTime
-                        self.kasamID.restartExistingNotification()
+//                        self.kasamID.restartExistingNotification()        //create a local notification
                     }
-                    else {UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [self.kasamID])}
+                    else {
+                        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [self.kasamID])
+                    }
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "SaveTime\(self.kasamID)"), object: self)
                 }
                 SwiftEntryKit.dismiss()

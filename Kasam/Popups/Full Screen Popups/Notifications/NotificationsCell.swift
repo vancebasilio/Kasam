@@ -38,7 +38,7 @@ class NotificationsCell: UITableViewCell {
     
     @IBAction func switchClicked(_ sender: Any) {
         if preferenceSwitch.isOn {
-            kasamID.restartExistingNotification()
+//            kasamID.restartExistingNotification()         //create a local notification
         } else {
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
         }
@@ -52,12 +52,12 @@ class NotificationsCell: UITableViewCell {
             
             let timeVC = notification.object as! AddKasamController
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers:[self.kasamID])
-            var endDate: Date?
-            let kasam = SavedData.kasamDict[self.kasamID]
-            if kasam!.repeatDuration != 0 {
-                endDate = Calendar.current.date(byAdding: .day, value: kasam!.repeatDuration, to: kasam!.joinedDate)!
-            }
-            self.kasamID.setupNotifications(kasamName: kasam!.kasamName, startDate: Date(), endDate: endDate, chosenTime: timeVC.formattedTime)
+//            var endDate: Date?
+//            let kasam = SavedData.kasamDict[self.kasamID]
+//            if kasam!.repeatDuration != 0 {
+//                endDate = Calendar.current.date(byAdding: .day, value: kasam!.repeatDuration, to: kasam!.joinedDate)!
+//            }
+//            self.kasamID.setupNotifications(kasamName: kasam!.kasamName, startDate: Date(), endDate: endDate, chosenTime: timeVC.formattedTime)
             
             if SavedData.todayKasamBlocks["personal"]!.contains(where: {$0.kasamID == self.kasamID}) || SavedData.upcomingKasamBlocks["personal"]!.contains(where: {$0.kasamID == self.kasamID})  {
                 DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Time": timeVC.formattedTime]) {(error, reference) in

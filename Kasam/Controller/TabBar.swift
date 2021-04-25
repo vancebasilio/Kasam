@@ -19,12 +19,10 @@ class TabBar: UITabBarController {
         super.viewDidLoad()
         setReachabilityNotifier()
         tabBar.items?[0].setIcon(icon: .fontAwesomeSolid(.seedling), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
-        tabBar.items?[1].setIcon(icon: .fontAwesomeSolid(.user), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
-        tabBar.items?[2].setIcon(icon: .fontAwesomeSolid(.userFriends), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
-        tabBar.items?[3].setIcon(icon: .fontAwesomeSolid(.featherAlt), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
+        tabBar.items?[1].image = UIImage(named: "TabBarIconGrey")?.withRenderingMode(UIImage.RenderingMode.alwaysOriginal)
+        tabBar.items?[1].selectedImage = UIImage(named: "TabBarIcon")?.withRenderingMode(UIImage.RenderingMode.alwaysOriginal)
+        tabBar.items?[2].setIcon(icon: .fontAwesomeSolid(.user), size: nil, textColor: .lightGray, selectedTextColor: .colorFour)
         self.delegate = self
-        self.tabBarController?.selectedIndex = 1
-        self.tabBarController?.selectedIndex = 2
     }
     
     private func setReachabilityNotifier() {

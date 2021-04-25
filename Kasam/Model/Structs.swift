@@ -22,43 +22,38 @@ struct SavedData {
     static var trophiesCount = 0                                    //All badges achieved only
     static var userType = "Basic"
     static var userID = Auth.auth().currentUser?.uid ?? ""
-    static var moodStats = [Double]()
     
     static func wipeAllData(){
-        todayKasamBlocks.removeAll()
-        kasamDict.removeAll()
-        trophiesAchieved.removeAll()
+        todayKasamBlocks = [:]
+        kasamDict = [:]
+        trophiesAchieved = [:]
         trophiesCount = 0
         userType = "Basic"
-        moodStats = [Double]()
     }
 }
 
 struct DBRef {
-    static var userPersonalFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Kasam-Following")
-    static var userTrophies = Database.database().reference().child("Users").child(SavedData.userID).child("Trophies")
-    
     static let coachKasams = Database.database().reference().child("Coach-Kasams")
+    static let groupKasams = Database.database().reference().child("Group-Kasams")
     static let coachKasamIndex = Database.database().reference().child("Coach-Kasam-Index")
     static let users = Database.database().reference().child("Users")
     static let userEmails = Database.database().reference().child("User-Emails")
     
+    static var userPersonalFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Kasam-Following")
+    static var userTrophies = Database.database().reference().child("Users").child(SavedData.userID).child("Trophies")
     static var userInfo = Database.database().reference().child("Users").child(SavedData.userID).child("Info")
-    static var userMood = Database.database().reference().child("Users").child(SavedData.userID).child("Mood")
     static var userKasams = Database.database().reference().child("Users").child(SavedData.userID).child("Kasams")
     static var userPersonalHistory = Database.database().reference().child("Users").child(SavedData.userID).child("History")
     static var userHistoryTotals = Database.database().reference().child("Users").child(SavedData.userID).child("History-Totals")
-    
-    static let groupKasams = Database.database().reference().child("Group-Kasams")
     static var userGroupFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Group-Following")
     
     static func resetDBs(){         //for when a user logs out and logs back into a different account
         DBRef.userPersonalFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Kasam-Following")
         DBRef.userTrophies = Database.database().reference().child("Users").child(SavedData.userID).child("Trophies")
         DBRef.userInfo = Database.database().reference().child("Users").child(SavedData.userID).child("Info")
-        DBRef.userMood = Database.database().reference().child("Users").child(SavedData.userID).child("Mood")
         DBRef.userKasams = Database.database().reference().child("Users").child(SavedData.userID).child("Kasams")
         DBRef.userPersonalHistory = Database.database().reference().child("Users").child(SavedData.userID).child("History")
+        DBRef.userHistoryTotals = Database.database().reference().child("Users").child(SavedData.userID).child("History-Totals")
         DBRef.userGroupFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Group-Following")
     }
 }

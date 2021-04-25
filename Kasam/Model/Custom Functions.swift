@@ -12,6 +12,7 @@ import Firebase
 import FirebaseAuth
 import FirebaseStorage
 import FirebaseDatabase
+import FirebaseAnalytics
 import AVKit
 import Lottie
 import var CommonCrypto.CC_MD5_DIGEST_LENGTH
@@ -93,44 +94,44 @@ extension UIViewController {
             block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: "Rest", blockTitle: "Rest Day", dayOrder: dayOrder, duration: nil, image: nil)
         }
         //Modifying details of a current kasam
-        if let kasamOrder = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
+        if let kasamOrder = SavedData.todayKasamBlocks[type]?.index(where: {($0.kasamID == kasam.kasamID)}) {
             if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
-                SavedData.todayKasamBlocks[type]!.remove(at: kasamOrder)
-                SavedData.upcomingKasamBlocks[type]!.append((kasam.kasamID, block))
+                SavedData.todayKasamBlocks[type]?.remove(at: kasamOrder)
+                SavedData.upcomingKasamBlocks[type]?.append((kasam.kasamID, block))
                 getDayTracker(kasamID: kasam.kasamID, tableView: tableView, type: type)
             } else {
-                SavedData.todayKasamBlocks[type]![kasamOrder] = (kasam.kasamID, block)
+                SavedData.todayKasamBlocks[type]?[kasamOrder] = (kasam.kasamID, block)
                 if let cell = tableView.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
                     if cell.state == "restart" {
                         getDayTracker(kasamID: kasam.kasamID, tableView: tableView, type: type)
                     } else {
-                        cell.blockSubtitle.text = SavedData.todayKasamBlocks[type]![kasamOrder].data.blockTitle
+                        cell.blockSubtitle.text = SavedData.todayKasamBlocks[type]?[kasamOrder].data.blockTitle
                     }
                 }
             }
         //Modifying details of an upcoming kasam
-        } else if let kasamOrder = SavedData.upcomingKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
+        } else if let kasamOrder = SavedData.upcomingKasamBlocks[type]?.index(where: {($0.kasamID == kasam.kasamID)}) {
             if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
-                SavedData.upcomingKasamBlocks[type]!.remove(at: kasamOrder)
-                SavedData.upcomingKasamBlocks[type]!.append((kasam.kasamID, block))
+                SavedData.upcomingKasamBlocks[type]?.remove(at: kasamOrder)
+                SavedData.upcomingKasamBlocks[type]?.append((kasam.kasamID, block))
                 getDayTracker(kasamID: kasam.kasamID, tableView: tableView, type: type)
             } else {
-                SavedData.upcomingKasamBlocks[type]!.remove(at: kasamOrder)
-                SavedData.todayKasamBlocks[type]!.append((kasam.kasamID, block))
+                SavedData.upcomingKasamBlocks[type]?.remove(at: kasamOrder)
+                SavedData.todayKasamBlocks[type]?.append((kasam.kasamID, block))
                 getDayTracker(kasamID: kasam.kasamID, tableView: tableView, type: type)
             }
         //Adding a kasam for the first time to the Today page
         } else {
             if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
-                SavedData.upcomingKasamBlocks[type]!.append((kasam.kasamID, block))
+                SavedData.upcomingKasamBlocks[type]?.append((kasam.kasamID, block))
             } else {
-                SavedData.todayKasamBlocks[type]!.append((kasam.kasamID, block))
+                SavedData.todayKasamBlocks[type]?.append((kasam.kasamID, block))
             }
             getDayTracker(kasamID: kasam.kasamID, tableView: tableView, type: type)
         }
         
-        if kasamCount == SavedData.todayKasamBlocks[type]!.count + SavedData.upcomingKasamBlocks[type]!.count {
-            followingLabel.text = "You have \(SavedData.todayKasamBlocks[type]!.count.pluralUnit(unit: "kasam")) for today"
+        if kasamCount == (SavedData.todayKasamBlocks[type]?.count ?? 0) + (SavedData.upcomingKasamBlocks[type]?.count ?? 0) {
+            followingLabel.text = "You have \(SavedData.todayKasamBlocks[type]!.count.pluralUnit(unit: "kasam")) to complete"
             tableView.reloadData()
             completion(true)
         }
@@ -181,9 +182,9 @@ extension UIViewController {
                             kasam.percentComplete = percentComplete         //only for COMPLEX kasams
                             kasam.dayTrackerArray = dayTrackerArrayInternal
                             
-                            if let index = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
-                                if blockDeets != nil {SavedData.todayKasamBlocks[type]![index].data.blockTitle = blockDeets!.blockName; SavedData.todayKasamBlocks[type]![index].data.blockID = blockDeets!.blockID}
-                                kasam.streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: SavedData.todayKasamBlocks[type]![index].data.dayOrder)
+                            if let index = SavedData.todayKasamBlocks[type]?.index(where: {($0.kasamID == kasam.kasamID)}) {
+                                if blockDeets != nil {SavedData.todayKasamBlocks[type]?[index].data.blockTitle = blockDeets!.blockName; SavedData.todayKasamBlocks[type]?[index].data.blockID = blockDeets!.blockID}
+                                kasam.streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: SavedData.todayKasamBlocks[type]?[index].data.dayOrder ?? 0)
                                 NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
                                 self.singleKasamUpdate(tableView: tableView, row:index, section: 0, reset: reset)
                             }
@@ -196,14 +197,14 @@ extension UIViewController {
                     if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
                         kasam.displayStatus = "Upcoming"
                         level = 1
-                        if let index = SavedData.upcomingKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
+                        if let index = SavedData.upcomingKasamBlocks[type]?.index(where: {($0.kasamID == kasam.kasamID)}) {
                             self.singleKasamUpdate(tableView: tableView, row:index, section: level, reset: false)
                         }
                     } else {
                         kasam.displayStatus = "NotStarted"
                         kasam.streakInfo = (currentStreak:(value:0, date:nil), daysWithAnyProgress:0, longestStreak:0)
                         kasam.percentComplete = 0
-                        if let index = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasam.kasamID)}) {
+                        if let index = SavedData.todayKasamBlocks[type]?.index(where: {($0.kasamID == kasam.kasamID)}) {
                             self.singleKasamUpdate(tableView: tableView, row:index, section: level, reset: false)
                         }
                     }
@@ -1070,22 +1071,6 @@ extension UIButton {
             default: button.setIcon(prefixText: "", prefixTextFont: UIFont.systemFont(ofSize: 15, weight:.regular), prefixTextColor: UIColor.white, icon: .fontAwesomeSolid(.dumbbell), iconColor: iconColor, postfixText: "", postfixTextFont: UIFont.systemFont(ofSize: 15, weight:.medium), postfixTextColor: UIColor.white, backgroundColor: background, forState: .normal, iconSize: iconSize)
         }
         return button
-    }
-    
-    func setMoodIcon(position: Int) -> String {
-        var type = ""
-        switch position {
-            case 0: self.setIcon(icon: .fontAwesomeSolid(.smile), iconSize: 16, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Mental Health"
-            case 1: self.setIcon(icon: .fontAwesomeSolid(.dumbbell), iconSize: 16, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Physical Health"
-            case 2: self.setIcon(icon: .fontAwesomeSolid(.university), iconSize: 18, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "School/Work"
-            case 3: self.setIcon(icon: .icofont(.money), iconSize: 18, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Finances"
-            case 4: self.setIcon(icon: .icofont(.usersAlt5), iconSize: 18, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Friends"
-            case 5: self.setImage(UIImage(named:"family_restroom")?.withRenderingMode(.alwaysTemplate), for:.normal); type = "Family"
-            case 6: self.setIcon(icon: .icofont(.heart), iconSize: 18, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Emotional Connection"
-            case 7: self.setImage(UIImage(named:"high-five")?.withRenderingMode(.alwaysTemplate), for:.normal); type = "Physical Connection"
-            default: self.setIcon(icon: .icofont(.usersAlt5), iconSize: 18, color: .darkGray, backgroundColor: .clear, forState: .normal); type = "Friends"
-        }
-        return type
     }
 }
 

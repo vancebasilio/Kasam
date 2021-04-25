@@ -13,10 +13,11 @@ import SDWebImage
 import SwiftEntryKit
 import Lottie
 
-class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
+class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var personalFollowingLabel: UILabel!
     @IBOutlet weak var personalKasamTable: SelfSizedTableView!
+    @IBOutlet weak var addKasamButton: UIButton!
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var contentViewHeight: NSLayoutConstraint!
@@ -38,21 +39,23 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        personalTableRowHeight = (personalKasamTable.frame.width / 2.4) + 15
+        loginUser()
+        personalTableRowHeight = (personalKasamTable.frame.width / 3) + 15      //height of today cell
         self.getPersonalFollowing()
-        setupNavBar(clean: false)                   //global function
+        setupNavBar(clean: false)                                               //global function
         setupNotifications()
+        addKasamButton.setIcon(icon: .fontAwesomeSolid(.plus), iconSize: 30, color: .darkGray, backgroundColor: .clear, forState: .normal)
     }
     
     func setupNotifications(){
         let stopLoadingAnimation = NSNotification.Name("RemovePersonalLoadingAnimation")
-        NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayViewController.stopLoadingAnimation), name: stopLoadingAnimation, object: nil)
         
         let refreshPersonalKasam = NSNotification.Name("RefreshPersonalKasam")
-        NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.refreshPersonalKasam), name: refreshPersonalKasam, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayViewController.refreshPersonalKasam), name: refreshPersonalKasam, object: nil)
         
         let goToDiscover = NSNotification.Name("GoToDiscover")
-        NotificationCenter.default.addObserver(self, selector: #selector(PersonalViewController.goToDiscover), name: goToDiscover, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(TodayViewController.goToDiscover), name: goToDiscover, object: nil)
     }
     
     func updateScrollViewSize(){
@@ -78,7 +81,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         DBRef.userPersonalFollowing.observeSingleEvent(of: .value) {(snap) in
             if snap.exists() {} else {
                 self.personalAnimationIcon.isHidden = false
-                self.personalFollowingLabel.text = "You're not in any personal kasams"
+                self.personalFollowingLabel.text = "You don't have any kasams"
                 self.personalAnimationIcon.loadingAnimation(view: self.contentView, animation: "flagmountainBG", width: 200, overlayView: nil, loop: false, buttonText: "Add a Kasam", completion: nil)
                 self.personalAnimationIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.iconTapped)))
                 self.updateScrollViewSize()
@@ -94,8 +97,8 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     
     //STEP 1
     @objc func getPersonalFollowing(){
-        print("Step 1 - Get personal following hell6")
-        SavedData.todayKasamBlocks[type]!.removeAll()
+        print("Step 1 - Get personal following")
+        SavedData.todayKasamBlocks[type] = []
         showIconCheck()
         DBRef.userPersonalFollowing.observe(.value) {(snapshot) in
             self.personalKasamCount = Int(snapshot.childrenCount)
@@ -111,7 +114,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
                 SavedData.todayKasamBlocks[self.type]!.remove(at: index)
                 self.personalKasamTable.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
                 self.updateScrollViewSize()
-                self.personalFollowingLabel.text = "You have \(SavedData.todayKasamBlocks[self.type]!.count.pluralUnit(unit: "kasam")) for today"
+                self.personalFollowingLabel.text = "You have \(SavedData.todayKasamBlocks[self.type]!.count.pluralUnit(unit: "kasam")) to complete"
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "PopDiscoverToRoot"), object: self)
             }
             self.showIconCheck()
@@ -150,7 +153,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     func getBlockDetails(kasamID: String) {
         //STEP 3 - Finds out which block should be called based on the day of the kasam the user is on
         let kasam = SavedData.kasamDict[kasamID]!
-        print("Step 3 - Get Block Data hell6 \(kasam.kasamName)")
+        print("Step 3 - Get Block Data \(kasam.kasamName)")
         //Seeing which blocks are needed for the day
         SavedData.kasamDict[kasam.kasamID]?.currentDay = kasam.joinedDate.daysBetween(endDate: Date()) + 1
         
@@ -169,7 +172,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         //OPTION 2 - Load Kasam as Block (BASIC KASAMS)
         } else if kasam.metricType == "Checkmark" {
             DBRef.coachKasams.child(kasam.kasamID).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
-                print("Step 3B - Get Block Data hell6 Option 2 \(kasam.kasamName)")
+                print("Step 3B - Get Block Data Option 2 \(kasam.kasamName)")
                 if let snapshot = snapshot.value as? Dictionary<String,Any> {
                     self.saveKasamBlocks(value: snapshot, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                 }
@@ -177,7 +180,7 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
         //OPTION 3 - Load single repeated block (CHALLENGE KASAMS) e.g. 200 Push-ups
         } else {
             DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in
-                print("Step 3B - Get Block Data hell6 Option 3 \(kasam.kasamName)")
+                print("Step 3B - Get Block Data Option 3 \(kasam.kasamName)")
                 self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
             })
         }
@@ -194,6 +197,10 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
+    }
+    
+    @IBAction func addKasamButtonPressed(_ sender: Any) {
+        goToCreateNewKasam(type: "basic")
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -213,14 +220,14 @@ class PersonalViewController: UIViewController, UIGestureRecognizerDelegate {
 
 //TABLEVIEW-----------------------------------------------------------------------------------------------
 
-extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, TableCellDelegate {
+extension TodayViewController: UITableViewDataSource, UITableViewDelegate, TableCellDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         2
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 { return SavedData.todayKasamBlocks[type]!.count }
+        if section == 0 { return SavedData.todayKasamBlocks[type]?.count ?? 0 }
         else { return SavedData.upcomingKasamBlocks[type]!.count }
     }
     
@@ -278,7 +285,7 @@ extension PersonalViewController: UITableViewDataSource, UITableViewDelegate, Ta
 
 //COLLECTIONVIEW------------------------------------------------------------------------
 
-extension PersonalViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension TodayViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let tableRow = collectionView.tag % 100
@@ -320,7 +327,7 @@ extension PersonalViewController: UICollectionViewDelegate, UICollectionViewData
     }
 }
     
-extension PersonalViewController: DayTrackerCellDelegate {
+extension TodayViewController: DayTrackerCellDelegate {
     
     func dayPressed(kasamID: String, day: Int, date: Date, metricType: String, viewOnly: Bool?) {
         if let kasamOrder = SavedData.todayKasamBlocks[type]!.index(where: {($0.kasamID == kasamID)}) {

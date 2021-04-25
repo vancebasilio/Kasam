@@ -17,7 +17,7 @@ import Lottie
 import Charts
 import AMPopTip
 
-class ProfileViewController: UIViewController, UIPopoverPresentationControllerDelegate, MoodCellDelegate {
+class ProfileViewController: UIViewController, UIPopoverPresentationControllerDelegate {
    
     @IBOutlet weak var userFirstName: UILabel!
     @IBOutlet weak var profileImage: UIImageView!
@@ -33,16 +33,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     @IBOutlet weak var startLevel: UILabel!
     @IBOutlet weak var totalDays: UILabel!
     
-    @IBOutlet weak var moodViewHeight: NSLayoutConstraint!
-    @IBOutlet weak var moodView: UIView!
-    @IBOutlet weak var moodDate: UILabel!
-    @IBOutlet weak var moodCollectionView: UICollectionView!
-    @IBOutlet weak var moodPieChart: PieChartView!
-    @IBOutlet weak var moodTotalScore: UILabel!
-    @IBOutlet weak var moodSettings: UIButton!
-    
     @IBOutlet weak var topViewHeight: NSLayoutConstraint!
-    @IBOutlet weak var collectionViewHeight: NSLayoutConstraint!
     @IBOutlet weak var contentView: NSLayoutConstraint!
     @IBOutlet weak var badgesView: UIStackView!
     
@@ -77,7 +68,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         setupDateDictionary()
         getDetailedStats()
         viewSetup()
-        getMoodStats()
         setupNavBar(clean: true)
     }
     
@@ -88,13 +78,10 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     func updateScrollViewSize(){
-        collectionViewHeight.constant = moodViewHeight.constant + CGFloat(57.5)       //57.5 is the collectionView Title height
-        updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: completedKasamTableHeight, tableRowHeight: completedTableRowHeight, additionalTableHeight: nil, rowCount: completedStats.count, additionalHeight: moodViewHeight.constant + 120 + topViewHeight.constant)
+        updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: completedKasamTableHeight, tableRowHeight: completedTableRowHeight, additionalTableHeight: nil, rowCount: completedStats.count, additionalHeight: topViewHeight.constant)
     }
     
     func viewSetup(){
-        moodView.layer.cornerRadius = 15.0
-        moodViewHeight.constant = (view.bounds.size.width * (2/5))
         levelLineBack.layer.cornerRadius = 4
         levelLineBack.clipsToBounds = true
         levelLine.layer.cornerRadius = 4
@@ -124,9 +111,8 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
     //STEP 1
     @objc func getDetailedStats() {
-        completedStats.removeAll()
-        metricDictionary.removeAll()
-    
+        completedStats = []
+        metricDictionary = [:]
         self.totalKasamDays = 0
         DBRef.userHistoryTotals.observe(.childAdded, with:{(snap) in
             let kasamID = snap.key
@@ -180,8 +166,9 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         if let value = historySnap.value as? [String: Any] {
             let daysCompleted = value["Days"] as? Int ?? 0
             self.totalKasamDays += daysCompleted
-            self.completedStats.append(CompletedKasamFormat(kasamID: kasamID, kasamName: kasamName, daysCompleted: daysCompleted , imageURL: kasamImage, firstDate: value["First"] as? String, lastDate: value["Last"] as? String, metric: metric, program: program))
-            
+            if daysCompleted > 0 {
+                self.completedStats.append(CompletedKasamFormat(kasamID: kasamID, kasamName: kasamName, daysCompleted: daysCompleted , imageURL: kasamImage, firstDate: value["First"] as? String, lastDate: value["Last"] as? String, metric: metric, program: program))
+            }
             //Order the table by #days completed
             self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
             self.completedKasamsTable.reloadData()
@@ -218,91 +205,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         }
     }
     
-    //MOOD SETUP-------------------------------------------------------------------------------------------------
-    
-    func getMoodStats(){
-        moodSettings.setIcon(icon: .fontAwesomeSolid(.cog), iconSize: 16, color: .darkGray, backgroundColor: .clear, forState: .normal)
-        DBRef.userMood.child("current").observeSingleEvent(of: .value) {(snap) in
-            if let currentDeets = snap.value as? [String:Any] {
-                if let values = currentDeets["value"] as? [Double] {
-                    SavedData.moodStats = values
-                    self.setupMoodChart()
-                    self.loadMoodPieChart{self.moodCollectionView.reloadData()}
-                }
-                if let date = currentDeets["date"] as? String {
-                    self.moodDate.text = date.shortDateToLongDate()
-                }
-            }
-        }
-        DBRef.userMood.child("current").child("value").observe(.childChanged) {(snap) in
-            if let stat = snap.value as? Double {
-                let row = Int(snap.key)!
-                SavedData.moodStats[row] = stat
-                if let cell = self.moodCollectionView.cellForItem(at: IndexPath(item: row, section: 0)) as? MoodCell {
-                    cell.setLevel(value: stat)
-                    self.loadMoodPieChart {}
-                    self.moodDate.text = self.getCurrentDate().shortDateToLongDate()
-                }
-            }
-        }
-    }
-    
-    func setupMoodChart(){
-        moodPieChart.holeColor = .clear
-        moodPieChart.legend.enabled = false
-        moodPieChart.drawSlicesUnderHoleEnabled = false
-        moodPieChart.chartDescription?.enabled = false
-        moodPieChart.drawCenterTextEnabled = true
-        moodPieChart.drawHoleEnabled = false
-        moodPieChart.rotationEnabled = false
-        moodPieChart.holeRadiusPercent = 1.5
-        moodPieChart.setExtraOffsets(left: 0, top: 0, right: 0, bottom: 0)
-        moodPieChart.highlightPerTapEnabled = false
-    }
-    
-    func loadMoodPieChart (completion:@escaping () -> ()) {
-        var moodScore = 0.0
-        var moodPieChartStats = [Double]()
-        var count = 0
-        for stat in SavedData.moodStats {
-            count += 1
-            let moodPercent = (stat / 8.0)
-            moodScore += moodPercent
-            if count % 2 != 0 {moodPieChartStats.append(moodPercent)}
-            else {moodPieChartStats[(count / 2) - 1] = moodPieChartStats[(count / 2) - 1] + moodPercent}
-        }
-        moodPieChartStats.append(1.0 - moodScore)
-        let entries = (0..<moodPieChartStats.count).map {(i) -> PieChartDataEntry in
-            return PieChartDataEntry(value: moodPieChartStats[i], label: nil, icon: nil)
-        }
-        moodTotalScore.text = "\(Int(moodScore * 100))%"
-        
-        let set = PieChartDataSet(entries: entries, label: "")
-        let fillColor = UIColor.darkGray.withAlphaComponent(0.7)
-        set.colors = [fillColor, fillColor, fillColor, fillColor, UIColor.clear]
-        moodPieChart.data = PieChartData(dataSet: set)
-        for set in moodPieChart.data!.dataSets {set.drawValuesEnabled = false}
-        moodPieChart.animate(xAxisDuration: 1, easingOption: .easeOutBack)
-        completion()
-    }
-    
-    @IBAction func changeMoodPressed(_ sender: Any) {
-        showCenterMoodChange()
-    }
-    
-    func showPopTipInfo(row: Int, frame: CGRect, type: String){
-        popTip.shouldDismissOnTapOutside = true
-        popTip.shouldDismissOnTap = true
-        popTip.shouldDismissOnSwipeOutside = true
-        popTip.bubbleColor = .darkGray
-        popTip.appearHandler = {popTip in self.popTipStatus = true}
-        popTip.dismissHandler = {popTip in self.popTipStatus = false}
-        let frameX = self.moodCollectionView.layoutAttributesForItem(at: IndexPath(row: row, section: 0))!.frame.minX + 5
-        let modifiedFrame = CGRect(x: frameX, y: frame.minY - 5, width: frame.width, height: frame.height)
-        if popTipStatus == false {popTip.show(text: type, direction: .autoVertical, maxWidth: 80, in: moodCollectionView, from: modifiedFrame, duration: 2)}
-        else {popTip.hide()}
-    }
-    
     //PROFILE SETUP-------------------------------------------------------------------------------------------------
     
     func profileSetup(){
@@ -319,7 +221,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     @objc func profileUpdate() {
-        let kasamcount = SavedData.todayKasamBlocks["personal"]!.count + SavedData.todayKasamBlocks["group"]!.count
+        let kasamcount = (SavedData.todayKasamBlocks["personal"]?.count ?? 0) + (SavedData.todayKasamBlocks["group"]?.count ?? 0)
         kasamFollowingNo.text = String(kasamcount)
         if kasamcount == 1 {kasamFollowingLabel.text = "kasam"}
     }
@@ -354,25 +256,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             NewKasam.editKasamCheck = true
             NewKasam.kasamID = kasamIDGlobal
         }
-    }
-}
-
-//CollectionView---------------------------------------------------------------------------------------------------
-
-extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return SavedData.moodStats.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MoodCell", for: indexPath) as! MoodCell
-        cell.cellDelegate = self
-        cell.setBlock(position: indexPath.row, value: SavedData.moodStats[indexPath.row])
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: (moodCollectionView.frame.size.width / 8), height: (moodCollectionView.frame.size.height))
     }
 }
 

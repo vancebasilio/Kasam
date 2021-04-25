@@ -457,9 +457,9 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             self.notificationCheck = timeVC.notificationCheck
             
             if self.registerCheck == 0 {
-                self.registerUserToKasam()                          //only gets executed once user presses save
+                self.registerUserToKasam()                              //only gets executed once user presses save
             } else {
-                self.addUserPreferncestoKasam(restart: reset)         //updating kasam that user is already following
+                self.addUserPreferncestoKasam(restart: reset)           //updating kasam that user is already following
                 //manually change values below so if the user opens this window again, the values are updated. Can't rely on the personalKasamReload, since it takes too long and if the user opens this window earlier, it'll show old values
                 SavedData.kasamDict[self.kasamID]?.repeatDuration = self.chosenRepeat
                 SavedData.kasamDict[self.kasamID]?.startTime = self.chosenTime
@@ -479,21 +479,11 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     func registerUserToKasam() {
-        var endDate: Date?
-        let startDateConverted = startDate.stringToDate()
-        if self.chosenRepeat != 0 {endDate = Calendar.current.date(byAdding: .day, value: self.chosenRepeat, to: startDateConverted)!}
-        if notificationCheck == true {
-            kasamID.setupNotifications(kasamName: kasamGTitle, startDate: startDateConverted, endDate: endDate, chosenTime: self.chosenTime)
-        }
-        
         //STEP 1: Adds the user to the Kasam-following list
         DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
-        
-        //STEP 2: Adds the user to the Coach-following list
-        DBRef.users.child(coachIDGlobal).child("Info").child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         countFollowers()
                 
-        //STEP 3: Adds the user preferences to the Kasam they just followed
+        //STEP 2: Adds the user preferences to the Kasam they just followed
         self.addUserPreferncestoKasam(restart: false)
     }
     
@@ -510,8 +500,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
             DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Program Duration": programDuration as Any]) {(error, reference) in
             Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
             self.refreshBadge()
-        }
-        
+            }
         }
     }
     
@@ -524,9 +513,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         
         //Removes the user from the Coach following
         DBRef.users.child(coachIDGlobal).child("Info").child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
-        
-        //Remove notification
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [kasamID])
         
         //Removes the kasam from the user's following list
         DBRef.userPersonalFollowing.child(kasamID).setValue(nil) {(error, reference) in
@@ -667,12 +653,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToCoach" {
-            let coachTransferHolder = segue.destination as! CoachHolder
-            coachTransferHolder.coachID = self.coachIDGlobal
-            coachTransferHolder.coachGName = self.coachNameGlobal
-            coachTransferHolder.previousWindow = self.kasamTitle.text!
-        } else if segue.identifier == "goToKasamActivityViewer" {
+        if segue.identifier == "goToKasamActivityViewer" {
             let kasamActivityHolder = segue.destination as! KasamActivityViewer
             kasamActivityHolder.kasamID = kasamID
             kasamActivityHolder.blockID = blockIDGlobal

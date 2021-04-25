@@ -41,7 +41,6 @@ class ButtonPopupController: UIViewController {
         NotificationCenter.default.post(name: Notification.Name(rawValue: "SecondButtonPressed"), object: self)
     }
     
-    
     @IBAction func cancelButtonPressed(_ sender: Any) {
         SwiftEntryKit.dismiss()
     }

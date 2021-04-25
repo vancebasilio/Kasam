@@ -43,7 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 Assets.discoverCriteria = (value["DiscoverCriteria"] as? String)?.components(separatedBy: ";") ?? ["Fitness", "Health", "Basic"]
                 PlaceHolders.kasamHeaderPlaceholderURL = value["Placeholder-header"] as! String
                 let kasamPlaceholderImage = UIImageView()
-                kasamPlaceholderImage.sd_setImage(with: URL(string: PlaceHolders.kasamHeaderPlaceholderURL)) { (image, error, cache, URL) in
+                kasamPlaceholderImage.sd_setImage(with: URL(string: PlaceHolders.kasamHeaderPlaceholderURL)) {(img, err, cache, URL) in
                     PlaceHolders.kasamHeaderPlaceholderImage = kasamPlaceholderImage.image ?? UIImage(named: "placeholder")!
                 }
             }

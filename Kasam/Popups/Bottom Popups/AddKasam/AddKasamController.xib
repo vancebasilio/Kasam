@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -45,7 +45,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Asv-AG-Loh">
-                    <rect key="frame" x="0.0" y="21.5" width="414" height="449.5"/>
+                    <rect key="frame" x="0.0" y="173" width="414" height="298"/>
                     <subviews>
                         <view clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EXQ-6a-70W" userLabel="SlidingHandle">
                             <rect key="frame" x="192" y="0.0" width="30" height="5"/>
@@ -55,7 +55,7 @@
                                 <constraint firstAttribute="height" constant="5" id="bpi-bL-wDo"/>
                             </constraints>
                         </view>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add new Kasam" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a64-8D-jWN">
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add a new kasam" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a64-8D-jWN">
                             <rect key="frame" x="10" y="10" width="394" height="50"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
@@ -66,13 +66,13 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="uCW-IF-dnj" userLabel="Vertical View">
-                            <rect key="frame" x="30" y="70" width="354" height="294.5"/>
+                            <rect key="frame" x="30" y="70" width="354" height="133"/>
                             <subviews>
                                 <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GwF-vD-HQV">
                                     <rect key="frame" x="0.0" y="-16.5" width="354" height="16.5"/>
                                 </stackView>
-                                <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yJd-LL-whv" userLabel="Goal">
-                                    <rect key="frame" x="0.0" y="0.0" width="354" height="95"/>
+                                <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yJd-LL-whv" userLabel="Goal">
+                                    <rect key="frame" x="0.0" y="-95" width="354" height="95"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Type:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nHz-9K-g3v">
                                             <rect key="frame" x="0.0" y="0.0" width="100" height="95"/>
@@ -183,7 +183,7 @@
                                     </constraints>
                                 </stackView>
                                 <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Asq-mp-tww" userLabel="Start Day">
-                                    <rect key="frame" x="0.0" y="95" width="354" height="66.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="354" height="66.5"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Start:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GaA-AM-hOb">
                                             <rect key="frame" x="0.0" y="0.0" width="100" height="66.5"/>
@@ -204,7 +204,7 @@
                                     </constraints>
                                 </stackView>
                                 <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ulZ-vF-uIO" userLabel="Repeat">
-                                    <rect key="frame" x="0.0" y="161.5" width="354" height="66.5"/>
+                                    <rect key="frame" x="0.0" y="66.5" width="354" height="66.5"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Duration:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="t7s-mG-OWC">
                                             <rect key="frame" x="0.0" y="0.0" width="100" height="66.5"/>
@@ -221,8 +221,8 @@
                                         </pickerView>
                                     </subviews>
                                 </stackView>
-                                <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="A25-Yk-ZmL" userLabel="Reminder Time">
-                                    <rect key="frame" x="0.0" y="228" width="354" height="66.5"/>
+                                <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="A25-Yk-ZmL" userLabel="Reminder Time">
+                                    <rect key="frame" x="0.0" y="133" width="354" height="66.5"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Reminder time:" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="v6d-Lx-9bg">
                                             <rect key="frame" x="0.0" y="0.0" width="100" height="66.5"/>
@@ -260,7 +260,7 @@
                                     </subviews>
                                 </stackView>
                                 <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BM1-fi-aIF">
-                                    <rect key="frame" x="0.0" y="294.5" width="354" height="16.5"/>
+                                    <rect key="frame" x="0.0" y="133" width="354" height="16.5"/>
                                 </stackView>
                             </subviews>
                             <constraints>
@@ -275,9 +275,9 @@
                             </constraints>
                         </stackView>
                         <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="0FN-tA-R4b" userLabel="Buttons">
-                            <rect key="frame" x="27" y="394.5" width="360" height="40"/>
+                            <rect key="frame" x="27" y="243" width="360" height="40"/>
                             <subviews>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yYI-gH-vwg">
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yYI-gH-vwg">
                                     <rect key="frame" x="0.0" y="0.0" width="170" height="40"/>
                                     <color key="backgroundColor" red="0.88235294117647056" green="0.61960784313725492" blue="0.14509803921568626" alpha="1" colorSpace="calibratedRGB"/>
                                     <constraints>
@@ -291,7 +291,7 @@
                                         <action selector="cancelButtonPressed:" destination="-1" eventType="touchUpInside" id="dFg-4a-24O"/>
                                     </connections>
                                 </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FRi-wC-d4n">
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FRi-wC-d4n">
                                     <rect key="frame" x="190" y="0.0" width="170" height="40"/>
                                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
@@ -328,10 +328,11 @@
                         <constraint firstAttribute="bottom" secondItem="0FN-tA-R4b" secondAttribute="bottom" constant="15" id="tkJ-t4-Bta"/>
                         <constraint firstItem="EXQ-6a-70W" firstAttribute="top" secondItem="Asv-AG-Loh" secondAttribute="top" id="uwO-I5-vjw"/>
                         <constraint firstItem="uCW-IF-dnj" firstAttribute="top" secondItem="a64-8D-jWN" secondAttribute="bottom" constant="10" id="znB-xD-bvy"/>
-                        <constraint firstItem="0FN-tA-R4b" firstAttribute="top" secondItem="uCW-IF-dnj" secondAttribute="bottom" constant="30" id="zxX-bv-drT"/>
+                        <constraint firstItem="0FN-tA-R4b" firstAttribute="top" secondItem="uCW-IF-dnj" secondAttribute="bottom" constant="40" id="zxX-bv-drT"/>
                     </constraints>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="w1W-DB-gQN"/>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="w1W-DB-gQN" firstAttribute="trailing" secondItem="Asv-AG-Loh" secondAttribute="trailing" id="WmJ-oA-Pxi"/>
@@ -339,7 +340,6 @@
                 <constraint firstItem="Asv-AG-Loh" firstAttribute="leading" secondItem="w1W-DB-gQN" secondAttribute="leading" id="skA-co-bvc"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <viewLayoutGuide key="safeArea" id="w1W-DB-gQN"/>
             <point key="canvasLocation" x="137.68115942028987" y="282.92410714285711"/>
         </view>
     </objects>

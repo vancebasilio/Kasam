@@ -106,7 +106,7 @@ import FirebaseAuth
         if type == "changeKasamBlock" {
             noOfRows = programKasamArray?.count ?? 1
         } else if type == "userOptions" {
-            noOfRows = 4
+            noOfRows = 3
         } else if type == "categoryOptions" {
             noOfRows = Icons.categoryIcons.count
         }
@@ -191,13 +191,6 @@ import FirebaseAuth
         SwiftEntryKit.display(entry: vc, using: attributes)
     }
 
-    func showCenterMoodChange(){
-        var attributes = PopupAttributes.bottom()
-        attributes.positionConstraints.size = .init(width: .ratio(value: 1), height: .intrinsic)
-        let vc = ChangeMoodController()
-        SwiftEntryKit.display(entry: vc, using: attributes)
-    }
-
     func showCenterSaveKasamPopup(level: Int, completion:@escaping (Int) -> ()) {
         var attributes = PopupAttributes.center()
         attributes.positionConstraints.maxSize = .init(width: .ratio(value: 0.7), height: .intrinsic)
@@ -217,7 +210,7 @@ import FirebaseAuth
             case 0: buttonList = [badButton]
             case 1:
                 buttonList = [secondButton, badButton]
-                title = "Your Kasam isn't complete"
+                title = "Your kasam isn't complete"
                 description = "Do you want to keep working on it?"
             case 2: buttonList = [firstButton, secondButton, badButton]
             default: buttonList = [badButton]
@@ -234,7 +227,7 @@ import FirebaseAuth
 
     func showBottomAddKasamPopup(kasamID: String, state: String, duration: Int) {
         var attributes = PopupAttributes.bottom()
-        if state != "edit" {attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 500))}
+        if state != "edit" {attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 350))}
         else {attributes.positionConstraints.size = .init(width: .fill, height: .constant(value: 300))}
         attributes.positionConstraints.safeArea = .overridden
         attributes.statusBar = .dark

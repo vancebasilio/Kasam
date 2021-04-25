@@ -1,10 +1,7 @@
-platform :ios, '9.0'
+
 
 target 'Kasam' do
-  # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
-
-  # Pods for Kasam
 
 pod 'Firebase'
 pod 'Firebase/Auth'
@@ -25,9 +22,9 @@ pod 'FacebookShare'
 pod 'SVProgressHUD'
 pod 'ChameleonFramework'
 pod 'SDWebImage'
-
-pod 'Cosmos'
 pod 'SwiftIcons'
+pod 'Cosmos'
+
 pod 'lottie-ios'
 pod 'HGCircularSlider'
 pod 'SkyFloatingLabelTextField'

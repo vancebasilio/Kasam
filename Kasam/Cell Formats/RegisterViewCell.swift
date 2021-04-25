@@ -36,10 +36,11 @@ class RegisterViewCell: UICollectionViewCell {
     }
     
     @IBAction func registerButtonPressed(_ sender: Any) {
-        Auth.auth().createUser(withEmail: emailTextfield.text!, password: passwordTextfield.text!) { (user, error) in
+        Auth.auth().createUser(withEmail: emailTextfield.text!, password: passwordTextfield.text!) {(user, error) in
             if error != nil {
                 self.delegate?.showError(error!)
             } else {
+                
                 let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
                 let userDictionary = ["Name": self.usernameTextfield.text!, "Bio": "", "ProfileImage": "", "Score": "0", "History" : "", "UserID": Auth.auth().currentUser?.uid, "Type": "Basic"]
                 
@@ -61,6 +62,8 @@ class RegisterViewCell: UICollectionViewCell {
                         //username update successful
                     }
                 }
+                
+                
             }
         }
     }
