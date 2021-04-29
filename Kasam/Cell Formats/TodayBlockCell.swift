@@ -199,7 +199,7 @@ class TodayBlockCell: UITableViewCell {
     
     @IBAction func bottomStatusButtonPressed(_ sender: Any) {
         //Completed Kasam
-        if tempBlock!.dayOrder >= SavedData.kasamDict[(tempBlock!.kasamID)]!.repeatDuration {
+        if tempBlock?.dayOrder ?? 0 >= SavedData.kasamDict[(tempBlock!.kasamID)]?.repeatDuration ?? 0 {
             extendButtonPressed(currentDayStat >= SavedData.kasamDict[(kasamID)]!.repeatDuration)
         //Regular completion
         } else if tempBlock?.dayOrder ?? 0 > 0 {

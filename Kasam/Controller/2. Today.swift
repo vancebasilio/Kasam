@@ -53,9 +53,6 @@ class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
         
         let refreshPersonalKasam = NSNotification.Name("RefreshPersonalKasam")
         NotificationCenter.default.addObserver(self, selector: #selector(TodayViewController.refreshPersonalKasam), name: refreshPersonalKasam, object: nil)
-        
-        let goToDiscover = NSNotification.Name("GoToDiscover")
-        NotificationCenter.default.addObserver(self, selector: #selector(TodayViewController.goToDiscover), name: goToDiscover, object: nil)
     }
     
     func updateScrollViewSize(){
@@ -72,17 +69,12 @@ class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
         personalAnimationIcon.play()
     }
     
-    @objc func goToDiscover(){
-        animateTabBarChange(tabBarController: self.tabBarController!, to: self.tabBarController!.viewControllers![0])
-        self.tabBarController?.selectedIndex = 0
-    }
-    
     func showIconCheck(){
         DBRef.userPersonalFollowing.observeSingleEvent(of: .value) {(snap) in
             if snap.exists() {} else {
                 self.personalAnimationIcon.isHidden = false
                 self.personalFollowingLabel.text = "You don't have any kasams"
-                self.personalAnimationIcon.loadingAnimation(view: self.contentView, animation: "flagmountainBG", width: 200, overlayView: nil, loop: false, buttonText: "Add a Kasam", completion: nil)
+                self.personalAnimationIcon.loadingAnimation(view: self.contentView, animation: "flagmountainBG", width: 200, overlayView: nil, loop: false, buttonText: nil, completion: nil)
                 self.personalAnimationIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.iconTapped)))
                 self.updateScrollViewSize()
             }

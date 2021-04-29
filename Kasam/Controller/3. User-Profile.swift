@@ -37,12 +37,17 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     @IBOutlet weak var contentView: NSLayoutConstraint!
     @IBOutlet weak var badgesView: UIStackView!
     
-    @IBOutlet weak var completedKasamsTable: SelfSizedTableView!
-    @IBOutlet weak var completedKasamTableHeight: NSLayoutConstraint!
-    @IBOutlet weak var completedLabel: UILabel!
+    @IBOutlet weak var kasamLabel: UILabel!
+    @IBOutlet weak var kasamStatsTable: SelfSizedTableView!
+    @IBOutlet weak var kasamStatsTableHeight: NSLayoutConstraint!
+    
+    @IBOutlet weak var friendsLabel: UILabel!
+    @IBOutlet weak var friendsTable: SelfSizedTableView!
+    @IBOutlet weak var friendsTableHeight: NSLayoutConstraint!
     
     var myKasamsArray: [EditMyKasamFormat] = []
     var completedStats: [CompletedKasamFormat] = []
+    var friendsCount: [String] = []
     var totalKasamDays = 0
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
@@ -52,6 +57,11 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     var completedTableRowHeight = CGFloat(90)
     let popTip = PopTip()
     var popTipStatus = false
+    
+    let kasamsPlaceholderImg = UILabel()
+    let kasamsPlaceholderLabel = UILabel()
+    let friendsPlaceholderImg = UILabel()
+    let friendsPlaceholderLabel = UILabel()
     
     //Kasam Following
     var kasamIDGlobal: String = ""
@@ -78,7 +88,31 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     func updateScrollViewSize(){
-        updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: completedKasamTableHeight, tableRowHeight: completedTableRowHeight, additionalTableHeight: nil, rowCount: completedStats.count, additionalHeight: topViewHeight.constant)
+        //sets the height of the whole tableview, based on the numnber of rows
+        if completedStats.count == 0 {
+            kasamStatsTableHeight.constant = 150
+            setPlaceholderLabel(text: "You aren't following any kasams", underLabel: kasamLabel, img: kasamsPlaceholderImg, label: kasamsPlaceholderLabel)
+        } else {
+            kasamStatsTableHeight.constant = (completedTableRowHeight * CGFloat(completedStats.count))
+            kasamsPlaceholderImg.removeFromSuperview()
+            kasamsPlaceholderLabel.removeFromSuperview()
+        }
+        if friendsCount.count == 0 {
+            friendsTableHeight.constant = 150
+            setPlaceholderLabel(text: "Add some new friends", underLabel: friendsLabel, img: friendsPlaceholderImg, label: friendsPlaceholderLabel)
+        } else {
+            friendsPlaceholderImg.removeFromSuperview()
+            friendsPlaceholderLabel.removeFromSuperview()
+        }
+        //elongates the entire scrollview, based on the tableview height
+        let frameHeight = self.view.safeAreaLayoutGuide.layoutFrame.height
+        let contentHeightToSet = kasamStatsTableHeight.constant + friendsTableHeight.constant + topViewHeight.constant + 30
+        if contentHeightToSet > frameHeight {
+            contentView.constant = contentHeightToSet
+        } else if contentHeightToSet <= frameHeight {
+            let diff = frameHeight - contentHeightToSet
+            contentView.constant = contentHeightToSet + diff + 1
+        }
     }
     
     func viewSetup(){
@@ -128,6 +162,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             } else {
                 self.loadCompletedTable(kasamID: kasamID, kasamName: SavedData.kasamDict[kasamID]?.kasamName ?? "Kasam", kasamImage: URL(string: SavedData.kasamDict[kasamID]?.image ?? "") ?? URL(string:PlaceHolders.kasamLoadingImageURL)!, metric: SavedData.kasamDict[kasamID]?.metricType ?? "", program: SavedData.kasamDict[kasamID]?.programDuration != nil, historySnap: snap)
             }
+            self.updateScrollViewSize()
         })
         DBRef.userHistoryTotals.observe(.childChanged, with:{(snap) in
             if let value = snap.value as? [String: Any] {
@@ -141,7 +176,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                     
                     //Order the table by #days completed
                     self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
-                    self.completedKasamsTable.reloadData()
+                    self.kasamStatsTable.reloadData()
                 }
             }
         })
@@ -153,13 +188,10 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 
                 //Order the table by #days completed
                 self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
-                self.completedKasamsTable.reloadData()
+                self.kasamStatsTable.reloadData()
                 self.updateScrollViewSize()
             }
         })
-        DispatchQueue.main.async {
-            self.updateScrollViewSize()
-        }
     }
     
     func loadCompletedTable(kasamID: String, kasamName: String, kasamImage: URL, metric: String, program: Bool, historySnap: DataSnapshot){
@@ -171,7 +203,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             }
             //Order the table by #days completed
             self.completedStats = self.completedStats.sorted(by: { $0.daysCompleted > $1.daysCompleted })
-            self.completedKasamsTable.reloadData()
+            self.kasamStatsTable.reloadData()
             updateScrollViewSize()
             self.setKasamLevel()
         }
@@ -263,8 +295,8 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
 
 extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if completedStats.count > 0 {
-            completedLabel.isHidden = false
+        if completedStats.count == 0 {
+            
         }
         return completedStats.count
     }
@@ -335,5 +367,31 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
             }
         }
         dismiss(animated: true, completion: nil)
+    }
+    
+    func setPlaceholderLabel(text: String, underLabel: UILabel, img: UILabel, label: UILabel){
+        let screenSize: CGRect = UIScreen.main.bounds
+        let placeHolderHeight = CGFloat(150)    //change these values to adjust
+        let imgSize = CGFloat(30)               //change these values to adjust
+        let imgTC = (placeHolderHeight / 2) - imgSize
+        img.setIcon(icon: .fontAwesomeSolid(.plusCircle), iconSize: imgSize, color: .lightGray, bgColor: .clear)
+        label.text = text
+        label.textAlignment = .center
+        label.textColor = .lightGray
+        label.font = UIFont.systemFont(ofSize: 17)
+        self.view.addSubview(label)
+        self.view.addSubview(img)
+        img.translatesAutoresizingMaskIntoConstraints = false
+        label.translatesAutoresizingMaskIntoConstraints = false
+        let imgHC = NSLayoutConstraint(item: img, attribute: NSLayoutConstraint.Attribute.centerX, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.centerX, multiplier: 1, constant: 0)
+        let imgBC = NSLayoutConstraint(item: img, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: underLabel, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: imgTC)
+        let imgWC = NSLayoutConstraint(item: img, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: imgSize)
+        let imgHeC = NSLayoutConstraint(item: img, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: imgSize)
+        self.view.addConstraints([imgHC, imgBC, imgWC, imgHeC])
+        let labelHC = NSLayoutConstraint(item: label, attribute: NSLayoutConstraint.Attribute.centerX, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.centerX, multiplier: 1, constant: 0)
+        let labelTC = NSLayoutConstraint(item: label, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: img, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1, constant: 0)
+        let labelWC = NSLayoutConstraint(item: label, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: screenSize.width)
+        let labelHeC = NSLayoutConstraint(item: label, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: imgSize)
+        view.addConstraints([labelHC, labelTC, labelWC, labelHeC])
     }
 }
