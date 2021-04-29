@@ -192,7 +192,7 @@ class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @IBAction func addKasamButtonPressed(_ sender: Any) {
-        goToCreateNewKasam(type: "basic")
+        goToCreateNewKasam()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

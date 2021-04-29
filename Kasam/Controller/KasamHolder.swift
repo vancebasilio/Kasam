@@ -230,7 +230,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         //STEP 1 - TROPHIES ACHIEVED
         kasamTrophiesAchieved()
         
-        if SavedData.todayKasamBlocks["personal"]!.contains(where: {$0.kasamID == kasamID}) || SavedData.todayKasamBlocks["group"]!.contains(where: {$0.kasamID == kasamID})  {
+        if SavedData.todayKasamBlocks["personal"]!.contains(where: {$0.kasamID == kasamID}) {
             //STEP 2 - Header Badge & Info (if Kasam is being followed and is a repeat Kasam)
             headerBadge()
             

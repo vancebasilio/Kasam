@@ -88,6 +88,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     func updateScrollViewSize(){
+        print("UserProfile - Update Scroll View")
         //sets the height of the whole tableview, based on the numnber of rows
         if completedStats.count == 0 {
             kasamStatsTableHeight.constant = 150
@@ -145,6 +146,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
     //STEP 1
     @objc func getDetailedStats() {
+        self.updateScrollViewSize()
         completedStats = []
         metricDictionary = [:]
         self.totalKasamDays = 0
@@ -381,6 +383,12 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
         label.font = UIFont.systemFont(ofSize: 17)
         self.view.addSubview(label)
         self.view.addSubview(img)
+        img.isUserInteractionEnabled = true
+        if img == kasamsPlaceholderImg {
+            img.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(goToCreateNewKasam)))
+        } else {
+            img.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(addFriend)))
+        }
         img.translatesAutoresizingMaskIntoConstraints = false
         label.translatesAutoresizingMaskIntoConstraints = false
         let imgHC = NSLayoutConstraint(item: img, attribute: NSLayoutConstraint.Attribute.centerX, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.centerX, multiplier: 1, constant: 0)
@@ -393,5 +401,11 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
         let labelWC = NSLayoutConstraint(item: label, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: screenSize.width)
         let labelHeC = NSLayoutConstraint(item: label, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: imgSize)
         view.addConstraints([labelHC, labelTC, labelWC, labelHeC])
+    }
+    
+    @objc func addFriend(){
+        showCenterOptionsPopup(kasamID: nil, title: "Feautre coming soon!", subtitle: nil, text: nil, type:"logout", button: "Okay") {(mainButtonPressed) in
+
+        }
     }
 }

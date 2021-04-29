@@ -362,10 +362,10 @@ extension UIViewController {
         }
     }
     
-    func goToCreateNewKasam(type: String) {
+    @objc func goToCreateNewKasam() {
         NewKasam.resetKasam()
         let vc = NewKasamPageController()
-        vc.kasamType = type
+        vc.kasamType = "basic"
         vc.modalPresentationStyle = .fullScreen
         let navController = UINavigationController(rootViewController: vc)
         navController.modalPresentationStyle = .fullScreen

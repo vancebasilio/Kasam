@@ -268,7 +268,7 @@ extension DiscoverViewController: UICollectionViewDelegate, UICollectionViewData
         } else {
             //Creating a new kasam
             if Assets.discoverCriteria[collectionView.tag] == "My Kasams" && discoverKasamDict["My Kasams"]?.count == 0 {
-                goToCreateNewKasam(type: "basic")
+                goToCreateNewKasam()
             } else {
                 //User kasam
                 if Assets.discoverCriteria[collectionView.tag] == "My Kasams" && discoverKasamDict["My Kasams"] != nil {userKasam = true}

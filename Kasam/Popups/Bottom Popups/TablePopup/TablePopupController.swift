@@ -76,7 +76,7 @@ extension TablePopupController: UITableViewDelegate, UITableViewDataSource {
         if popupType == "userOptions" {
             switch indexPath.row {
                 case 0:
-                    goToCreateNewKasam(type: "basic")
+                    goToCreateNewKasam()
                 case 1:
                     showBottomNotificationsPopup()
                 case 2:
