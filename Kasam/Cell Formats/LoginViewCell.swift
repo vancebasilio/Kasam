@@ -15,6 +15,7 @@ protocol LoginViewCellDelegate {
     func showError(_ error: Error)
     func CustomFBLogin()
     func CustomGoogleLogin()
+    func CustomAppleLogin()
 }
 
 class LoginViewCell: UICollectionViewCell {
@@ -24,6 +25,7 @@ class LoginViewCell: UICollectionViewCell {
     @IBOutlet weak var manualLogin: UIButton!
     @IBOutlet weak var facebookLogin: UIButton!
     @IBOutlet weak var googleLogin: UIButton!
+    @IBOutlet weak var appleLogin: UIButton!
     
     var delegate: LoginViewCellDelegate?
     
@@ -35,12 +37,13 @@ class LoginViewCell: UICollectionViewCell {
     func initializeButtons(){
         manualLogin.backgroundColor = UIColor.colorFive
         manualLogin.layer.cornerRadius = manualLogin.frame.height / 2
+        
         facebookLogin.setIcon(icon: .fontAwesomeBrands(.facebookF), iconSize: 25, color: UIColor.white, backgroundColor: UIColor.darkGray, forState: .normal)
         facebookLogin.layer.cornerRadius = facebookLogin.frame.width / 2
-        facebookLogin.clipsToBounds = true
         googleLogin.setIcon(icon: .fontAwesomeBrands(.google), iconSize: 25, color: UIColor.white, backgroundColor: UIColor.darkGray, forState: .normal)
         googleLogin.layer.cornerRadius = facebookLogin.frame.width / 2
-        googleLogin.clipsToBounds = true
+        appleLogin.setIcon(icon: .fontAwesomeBrands(.apple), iconSize: 25, color: UIColor.white, backgroundColor: UIColor.darkGray, forState: .normal)
+        appleLogin.layer.cornerRadius = facebookLogin.frame.width / 2
     }
     
     @IBAction func facebookLoginPressed(_ sender: Any) {
@@ -51,6 +54,9 @@ class LoginViewCell: UICollectionViewCell {
         delegate?.CustomGoogleLogin()
     }
     
+    @IBAction func appleLoginPressed(_ sender: Any) {
+        delegate?.CustomAppleLogin()
+    }
     
     @IBAction func loginPressed(_ sender: Any) {
         guard let email = emailTextfield.text, let password = passwordTextfield.text else {return}

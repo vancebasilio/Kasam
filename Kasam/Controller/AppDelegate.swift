@@ -14,7 +14,7 @@ import FirebaseMessaging
 import FirebaseDatabase
 import UserNotifications
 import GoogleSignIn
-import FBSDKCoreKit
+import FacebookCore
 import IQKeyboardManagerSwift
 
 @UIApplicationMain

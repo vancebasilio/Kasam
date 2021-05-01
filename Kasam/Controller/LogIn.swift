@@ -7,13 +7,13 @@
 //
 
 import UIKit
-import FirebaseAuth
+import FirebaseUI
 import FirebaseDatabase
 import FirebaseStorage
 import FBSDKLoginKit
 import GoogleSignIn
 
-class ViewController: UIViewController, GIDSignInDelegate {
+class ViewController: UIViewController, GIDSignInDelegate, FUIAuthDelegate {
     
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var scrollView: UIScrollView!
@@ -150,12 +150,34 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
         }
     }
     
+    func CustomAppleLogin(){
+        if let authUI = FUIAuth.defaultAuthUI() {
+            if #available(iOS 13.0, *) {
+                authUI.providers = [FUIOAuth.appleAuthProvider()]
+                authUI.delegate = self
+                let authViewController = authUI.authViewController()
+                self.present(authViewController, animated: true)
+            } else {
+                // Fallback on earlier versions
+            }
+        }
+    }
+    
+    func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, error: Error?) {
+        if let user = authDataResult?.user {
+            self.userLoginandRegistration(authResult: authDataResult, error: error)
+            print("Apple signed in as \(user.uid), with name \(String(describing: user.displayName)) and email \(String(describing: user.email))")
+        }
+    }
+    
     func userLoginandRegistration(authResult: AuthDataResult?, error: Error?){
+        print("trying to logged in")
         if let error = error {
             //error signing new user in
             showError(error)
             return
         } else {
+            print("Logged in user")
             DBRef.users.observeSingleEvent(of: .value, with: {(snapshot) in
                 //If the user exists, don't add data
                 if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {

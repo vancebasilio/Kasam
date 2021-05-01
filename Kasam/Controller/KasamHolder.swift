@@ -105,6 +105,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     let gradientLayer = CAGradientLayer()
     var setupCheck = false
     
+    var kasamDB = DatabaseReference()
     let keypath = AnimationKeypath(keypath: "**.Color")
     let colorProvider = ColorValueProvider(UIColor.lightGray.lighter.lottieColorValue)
     
@@ -210,6 +211,71 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         @objc func kasamTrophiesPopup() {
             showCenterTrophiesPopup(kasamID: kasamID)
         }
+    
+    //Retrieves Kasam Data using Kasam ID selected------------------------------------------------------
+    
+    func getKasamData(){
+        if userKasam == true {kasamDB = DBRef.userKasams.child(kasamID)}
+        else {kasamDB = DBRef.coachKasams.child(kasamID)}
+        kasamDB.child("Info").observe(.value, with: {(snapshot) in
+            if let value = snapshot.value as? [String: Any] {
+                self.kasamGTitle = value["Title"] as? String ?? "Kasam"
+                self.headerLabel.text! = self.kasamGTitle
+                self.kasamTitle.text! = self.kasamGTitle
+                self.kasamDescription.text! = value["Description"] as? String ?? ""
+                self.coachIDGlobal = value["CreatorID"] as! String
+                DBRef.users.child(self.coachIDGlobal).child("Info").child("Name").observeSingleEvent(of: .value) {(creator) in
+                    self.coachName.setTitle(creator.value as? String ?? "Coach", for: .normal)
+                }
+                
+                if self.coachIDGlobal == Auth.auth().currentUser?.uid {
+                    self.editKasamButton.layer.cornerRadius = self.editKasamButton.frame.height / 2
+                    self.editKasamButton.isHidden = false
+                } else {
+                    self.editKasamButton.isHidden = true
+                }
+                self.kasamGenre.text! = value["Genre"] as? String ?? ""
+                self.kasamLevel.text! = Assets.levelsArray[value["Level"] as? Int ?? 1]
+                self.benefitsArray = (value["Benefits"] as? String ?? "").components(separatedBy: ";")
+                self.kasamMetric = value["Metric"] as? String ?? "Checkmark"
+                self.chosenRepeat = (value["Duration"] as? Int ?? 30)
+                if self.kasamMetric == "Checkmark" {self.tableView.allowsSelection = false; self.tableView.reloadData()}
+                if let duration = value["Duration"] as? Int {self.programDuration = duration}
+                
+                //Set icons
+                self.TypeIcon = self.TypeIcon.setKasamTypeIcon(kasamType: self.kasamGenre.text!, button: self.TypeIcon, location: "kasamHolder")
+                self.kasamLevelIcon = self.kasamLevelIcon.setKasamTypeIcon(kasamType: self.kasamLevel.text!, button: self.kasamLevelIcon, location: "kasamHolder")
+        
+                let headerURL = URL(string: value["Image"] as? String ?? "")
+                self.previewLink = value["Preview"] as? String ?? ""
+                if self.previewLink != "" {self.previewButton.isHidden = false}
+                self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: PlaceHolders.kasamHeaderPlaceholderImage)
+                DispatchQueue.main.asyncAfter(deadline: .now()) {
+                    self.setupKasamBadge()
+                }
+            }
+        })
+    }
+    
+    //Retrieves Blocks based on Kasam selected
+    func getBlocksData() {
+        kasamDB.child("Blocks").observeSingleEvent(of: .value, with:{(snap) in
+            if snap.childrenCount > 1 {self.singleBlock = false}
+            var dayNumber = 1
+            self.kasamDB.child("Blocks").observe(.childAdded, with: {(snapshot) in
+                if let value = snapshot.value as? [String: Any] {
+                    let blockID = snapshot.key
+                    let blockURL = URL(string: value["Image"] as? String ?? "")
+                    let block = BlockFormat(blockID: blockID, title: value["Title"] as? String ?? "", order: String(dayNumber), duration: value["Duration"] as? String ?? "", imageURL: blockURL ?? URL(string:PlaceHolders.kasamLoadingImageURL), image: nil)
+                    dayNumber += 1
+                    self.personalKasamBlocks.append(block)
+                    self.tableView.reloadData()
+                    self.tableView.beginUpdates()
+                    self.tableView.endUpdates()
+                }
+            })
+        })
+    }
     
     //KASAM BADGE------------------------------------------------------------------------------------
     
@@ -362,73 +428,6 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         kasamBadgeHeight.constant = headerView.frame.height - 50
     }
     
-    //-----------------------------------------------------------------------------------------------------------------------------------
-    
-    //Retrieves Kasam Data using Kasam ID selected
-    func getKasamData(){
-        var kasamDB = DatabaseReference()
-        if userKasam == true {kasamDB = DBRef.userKasams.child(kasamID).child("Info")}
-        else {kasamDB = DBRef.coachKasams.child(kasamID).child("Info")}
-        kasamDB.observe(.value, with: {(snapshot) in
-            if let value = snapshot.value as? [String: Any] {
-                self.kasamGTitle = value["Title"] as? String ?? "Kasam"
-                self.headerLabel.text! = self.kasamGTitle
-                self.kasamTitle.text! = self.kasamGTitle
-                self.kasamDescription.text! = value["Description"] as? String ?? ""
-                self.coachIDGlobal = value["CreatorID"] as! String
-                DBRef.users.child(self.coachIDGlobal).child("Info").child("Name").observeSingleEvent(of: .value) {(creator) in
-                    self.coachName.setTitle(creator.value as? String ?? "Coach", for: .normal)
-                }
-                
-                if self.coachIDGlobal == Auth.auth().currentUser?.uid {
-                    self.editKasamButton.layer.cornerRadius = self.editKasamButton.frame.height / 2
-                    self.editKasamButton.isHidden = false
-                } else {
-                    self.editKasamButton.isHidden = true
-                }
-                self.kasamGenre.text! = value["Genre"] as? String ?? ""
-                self.kasamLevel.text! = Assets.levelsArray[value["Level"] as? Int ?? 1]
-                self.benefitsArray = (value["Benefits"] as? String ?? "").components(separatedBy: ";")
-                self.kasamMetric = value["Metric"] as? String ?? "Checkmark"
-                self.chosenRepeat = (value["Duration"] as? Int ?? 30)
-                if self.kasamMetric == "Checkmark" {self.tableView.allowsSelection = false; self.tableView.reloadData()}
-                if let duration = value["Duration"] as? Int {self.programDuration = duration}
-                
-                //Set icons
-                self.TypeIcon = self.TypeIcon.setKasamTypeIcon(kasamType: self.kasamGenre.text!, button: self.TypeIcon, location: "kasamHolder")
-                self.kasamLevelIcon = self.kasamLevelIcon.setKasamTypeIcon(kasamType: self.kasamLevel.text!, button: self.kasamLevelIcon, location: "kasamHolder")
-        
-                let headerURL = URL(string: value["Image"] as? String ?? "")
-                self.previewLink = value["Preview"] as? String ?? ""
-                if self.previewLink != "" {self.previewButton.isHidden = false}
-                self.headerImageView?.sd_setImage(with: headerURL, placeholderImage: PlaceHolders.kasamHeaderPlaceholderImage)
-                DispatchQueue.main.asyncAfter(deadline: .now()) {
-                    self.setupKasamBadge()
-                }
-            }
-        })
-    }
-    
-    //Retrieves Blocks based on Kasam selected
-    func getBlocksData() {
-        DBRef.coachKasams.child(kasamID).child("Blocks").observeSingleEvent(of: .value, with:{(snap) in
-            if snap.childrenCount > 1 {self.singleBlock = false}
-            var dayNumber = 1
-            DBRef.coachKasams.child(self.kasamID).child("Blocks").observe(.childAdded, with: {(snapshot) in
-                if let value = snapshot.value as? [String: Any] {
-                    let blockID = snapshot.key
-                    let blockURL = URL(string: value["Image"] as? String ?? "")
-                    let block = BlockFormat(blockID: blockID, title: value["Title"] as? String ?? "", order: String(dayNumber), duration: value["Duration"] as? String ?? "", imageURL: blockURL ?? URL(string:PlaceHolders.kasamLoadingImageURL), image: nil)
-                    dayNumber += 1
-                    self.personalKasamBlocks.append(block)
-                    self.tableView.reloadData()
-                    self.tableView.beginUpdates()
-                    self.tableView.endUpdates()
-                }
-            })
-        })
-    }
-    
 //REGISTER TO KASAM-------------------------------------------------------------------------------------------------
     
     //Add Kasam to Following List of user
@@ -480,7 +479,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func registerUserToKasam() {
         //STEP 1: Adds the user to the Kasam-following list
-        DBRef.coachKasams.child(kasamID).child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
+        kasamDB.child("Followers").updateChildValues([(Auth.auth().currentUser?.uid)!: (Auth.auth().currentUser?.displayName)!])
         countFollowers()
                 
         //STEP 2: Adds the user preferences to the Kasam they just followed
@@ -489,15 +488,15 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func addUserPreferncestoKasam(restart: Bool){
         if joinType == "group" {
-            let groupID = DBRef.groupKasams.childByAutoId()
+            let groupID = DBRef.userKasams.childByAutoId()
         //Create the Group Kasam
-            DBRef.groupKasams.child(groupID.key!).updateChildValues(["Info": ["KasamID": kasamID, "Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Admin": Auth.auth().currentUser!.uid,"Status": "initiated", "Metric": kasamMetric, "Program Duration": programDuration as Any, "Team": [Auth.auth().currentUser?.uid: 0]]]) {(error, reference) in
+            DBRef.userKasams.child(groupID.key!).updateChildValues(["Info": ["KasamID": kasamID, "Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Admin": Auth.auth().currentUser!.uid,"Status": "initiated", "Metric": kasamMetric, "Program Duration": programDuration as Any, "Team": [Auth.auth().currentUser?.uid: 0]]]) {(error, reference) in
                 self.refreshBadge()
             }
         //Add the GroupID to the user following
             DBRef.userGroupFollowing.child(groupID.key!).child("Time").setValue(self.chosenTime)
         } else {
-            DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Program Duration": programDuration as Any]) {(error, reference) in
+            DBRef.userPersonalFollowing.child(self.kasamID).updateChildValues(["Kasam Name" : self.kasamTitle.text!, "Date Joined": self.startDate, "Repeat": self.chosenRepeat, "Time": self.chosenTime, "Metric": kasamMetric, "Program Duration": programDuration as Any, "User Kasam": userKasam]) {(error, reference) in
             Analytics.logEvent("following_Kasam", parameters: ["kasam_name":self.kasamTitle.text ?? "Kasam Name"])
             self.refreshBadge()
             }
@@ -509,10 +508,10 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
         self.initialRepeat = nil    //set to nil so that all kasams will be reloaded when user re-follows kasam (look at if function in above function)
         
         //Removes the user from the Kasam following
-        DBRef.coachKasams.child(kasamID).child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+        kasamDB.child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         
         //Removes the user from the Coach following
-        DBRef.users.child(coachIDGlobal).child("Info").child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
+//        DBRef.users.child(coachIDGlobal).child("Info").child("Followers").child((Auth.auth().currentUser?.uid)!).setValue(nil)
         
         //Removes the kasam from the user's following list
         DBRef.userPersonalFollowing.child(kasamID).setValue(nil) {(error, reference) in
@@ -525,7 +524,7 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
     
     func countFollowers(){
         var count = 0
-        DBRef.coachKasams.child(kasamID).child("Followers").observe(.childAdded) {(snapshot) in
+        kasamDB.child("Followers").observe(.childAdded) {(snapshot) in
             count += 1
             self.followersNo.text = count.pluralUnit(unit: "Follower")
         }

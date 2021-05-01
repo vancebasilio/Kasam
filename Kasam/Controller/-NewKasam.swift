@@ -42,6 +42,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     @IBOutlet weak var newCategoryChosenLabel: UILabel!
     @IBOutlet weak var deleteKasamButton: UIButton!
     
+    var kasamIDforHolder = ""
     var imagePicker: UIImagePickerController!
     var headerBlurImageView: UIImageView!
     var headerImageView: UIImageView!
@@ -237,7 +238,6 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 benefitsArray.append(benefits.replacingOccurrences(of: "\u{2022} ", with: "", options: NSString.CompareOptions.literal, range: nil))
             }
             NewKasam.benefits = benefitsArray.joined(separator:";")
-            
             NewKasam.chosenGenre = self.newCategoryChosenLabel.text!
             NewKasam.kasamDescription = newKasamDescription.text
             NewKasam.chosenMetric = "Checkmark"
@@ -245,15 +245,24 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 NewKasam.kasamImageToSave = self.headerImageView.image!
             }
             self.animationView.loadingAnimation(view: view, animation: "rocket-fast", width: 200, overlayView: self.animationOverlay, loop: true, buttonText: nil, completion: nil)
-            createKasam(existingKasamID: NewKasam.kasamID, basicKasam: false, userKasam: userKasam) {(success) in
+            createKasam(existingKasamID: NewKasam.kasamID, basicKasam: true, userKasam: userKasam) {(success) in
                 if success == true {
+                    print("Successfully created kasam")
                     self.animationView.removeFromSuperview()
                     self.animationOverlay.removeFromSuperview()
                     if self.kasamHolderKasamEdit == false {self.dismiss(animated: true, completion: nil)}
                     else {self.navigationController?.popViewController(animated: true)}
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "ShowCompletionAnimation"), object: self)
+                    self.kasamIDforHolder = NewKasam.kasamID
                 }
             }
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToKasamHolder" {
+            let kasamTransferHolder = segue.destination as! KasamHolder
+            kasamTransferHolder.kasamID = kasamIDforHolder
+            kasamTransferHolder.userKasam = userKasam
         }
     }
     

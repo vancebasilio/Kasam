@@ -170,9 +170,9 @@
                                                                                     </connections>
                                                                                 </button>
                                                                                 <stackView opaque="NO" contentMode="scaleToFill" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="L11-yF-UOq">
-                                                                                    <rect key="frame" x="42.333333333333329" y="60" width="114.99999999999999" height="50"/>
+                                                                                    <rect key="frame" x="10" y="60" width="180" height="50"/>
                                                                                     <subviews>
-                                                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UQM-9j-rXg">
+                                                                                        <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UQM-9j-rXg">
                                                                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                                                             <color key="backgroundColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                             <constraints>
@@ -185,8 +185,8 @@
                                                                                                 <action selector="facebookLoginPressed:" destination="cJQ-k2-xDq" eventType="touchUpInside" id="28o-XD-TD6"/>
                                                                                             </connections>
                                                                                         </button>
-                                                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kF4-ip-3Da">
-                                                                                            <rect key="frame" x="65" y="0.0" width="50" height="50"/>
+                                                                                        <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kF4-ip-3Da">
+                                                                                            <rect key="frame" x="64.999999999999986" y="0.0" width="50" height="50"/>
                                                                                             <color key="backgroundColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                             <constraints>
                                                                                                 <constraint firstAttribute="width" constant="50" id="6NR-AB-uB0"/>
@@ -196,6 +196,19 @@
                                                                                             <state key="normal" title="G"/>
                                                                                             <connections>
                                                                                                 <action selector="googleLoginPressed:" destination="cJQ-k2-xDq" eventType="touchUpInside" id="zgl-DH-VVO"/>
+                                                                                            </connections>
+                                                                                        </button>
+                                                                                        <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QSL-IR-dcD" userLabel="Apple">
+                                                                                            <rect key="frame" x="130" y="0.0" width="50" height="50"/>
+                                                                                            <color key="backgroundColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                                            <constraints>
+                                                                                                <constraint firstAttribute="width" constant="50" id="3FJ-Fp-ItQ"/>
+                                                                                                <constraint firstAttribute="height" constant="50" id="PU8-1q-fRo"/>
+                                                                                            </constraints>
+                                                                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
+                                                                                            <state key="normal" title="A"/>
+                                                                                            <connections>
+                                                                                                <action selector="appleLoginPressed:" destination="cJQ-k2-xDq" eventType="touchUpInside" id="Om1-RK-Xu5"/>
                                                                                             </connections>
                                                                                         </button>
                                                                                     </subviews>
@@ -224,6 +237,7 @@
                                                         </constraints>
                                                         <size key="customSize" width="375" height="367"/>
                                                         <connections>
+                                                            <outlet property="appleLogin" destination="QSL-IR-dcD" id="5GP-Hn-vq3"/>
                                                             <outlet property="emailTextfield" destination="JsI-KM-rnP" id="g24-j3-RAu"/>
                                                             <outlet property="facebookLogin" destination="UQM-9j-rXg" id="plh-6O-1LB"/>
                                                             <outlet property="googleLogin" destination="kF4-ip-3Da" id="IxG-Qd-pcQ"/>
@@ -927,7 +941,7 @@
                                                     <constraint firstAttribute="height" constant="150" id="fZU-nz-Tps"/>
                                                 </constraints>
                                             </view>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Kasams" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HKb-cS-NJQ">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Progress" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HKb-cS-NJQ">
                                                 <rect key="frame" x="15" y="160" width="384" height="25.333333333333343"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="21"/>
                                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -3442,7 +3456,7 @@
                                                             </constraints>
                                                         </button>
                                                         <textField opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" verticalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="8Mi-Vl-hcD" customClass="SkyFloatingLabelTextField" customModule="SkyFloatingLabelTextField">
-                                                            <rect key="frame" x="60" y="6" width="314" height="44"/>
+                                                            <rect key="frame" x="60" y="16" width="314" height="34"/>
                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
                                                             <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
                                                             <userDefinedRuntimeAttributes>

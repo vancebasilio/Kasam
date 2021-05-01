@@ -4,7 +4,7 @@ target 'Kasam' do
   use_frameworks!
 
 pod 'Firebase'
-pod 'Firebase/Auth'
+pod 'FirebaseUI'
 pod 'Firebase/Database'
 pod 'Firebase/Storage'
 pod 'Firebase/Performance'

@@ -88,7 +88,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
         
         DBRef.userGroupFollowing.observe(.childAdded) {(groupID) in
             self.groupAnimationIcon.isHidden = true
-            DBRef.groupKasams.child(groupID.key).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
+            DBRef.userKasams.child(groupID.key).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
                 self.getPreferences(snapshot: snapshot, groupID: groupID.key, reminderTime: (groupID.value as? [String:String])?["Time"] ?? "")
             })
         }
@@ -106,13 +106,13 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
     
     //STEP 2
     func getPreferences(snapshot: DataSnapshot, groupID: String, reminderTime: String){
-        if let value = snapshot.value as? [String: Any] {
-            let preference = KasamSavedFormat(kasamID: value["KasamID"] as? String ?? "", kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: reminderTime, currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil,  metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "NotStarted", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: groupID, groupAdmin: value["Admin"] as? String, groupStatus: value["Status"] as? String, groupTeam: value["Team"] as? [String:Double])
-            DispatchQueue.main.async {snapshot.key.benefitThresholds()}
-            print("Step 2 - Get preferences hell6 \(preference.kasamName)")
-            SavedData.kasamDict[preference.kasamID] = preference
-            self.getBlockDetails(kasamID: preference.kasamID)
-        }
+//        if let value = snapshot.value as? [String: Any] {
+//            let preference = KasamSavedFormat(kasamID: value["KasamID"] as? String ?? "", kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: reminderTime, currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil,  metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "NotStarted", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: groupID, groupAdmin: value["Admin"] as? String, groupStatus: value["Status"] as? String, groupTeam: value["Team"] as? [String:Double])
+//            DispatchQueue.main.async {snapshot.key.benefitThresholds()}
+//            print("Step 2 - Get preferences hell6 \(preference.kasamName)")
+//            SavedData.kasamDict[preference.kasamID] = preference
+//            self.getBlockDetails(kasamID: preference.kasamID)
+//        }
     }
     
     //STEP 3
@@ -134,7 +134,7 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
                 if let value = snapshot.value as? [String: String] {
                     DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"] ?? "").observeSingleEvent(of: .value) {(snapshot) in
                         print("Step 3B - Get Block Data hell6 Option 1 \(kasam.kasamName)")
-                        self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
+//                        self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                     }
                 }
             }
@@ -143,14 +143,14 @@ class GroupViewController: UIViewController, UIGestureRecognizerDelegate {
             DBRef.coachKasams.child(kasam.kasamID).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
                 print("Step 3B - Get Block Data hell6 Option 2 \(kasam.kasamName)")
                 if let snapshot = snapshot.value as? Dictionary<String,Any> {
-                    self.saveKasamBlocks(value: snapshot, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
+//                    self.saveKasamBlocks(value: snapshot, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                 }
             })
         //OPTION 3 - Load single repeated block (CHALLENGE KASAMS) e.g. 200 Push-ups
         } else {
             DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in
                 print("Step 3B - Get Block Data hell6 Option 3 \(kasam.kasamName)")
-                self.saveKasamBlocks(value: snapshot.value as! Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
+//                self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: dayOrder, kasam: kasam, type: self.type, tableView: self.groupKasamTable, kasamCount: self.groupKasamCount, followingLabel: self.groupFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
             })
         }
     }

@@ -9,6 +9,7 @@
 import UIKit
 import Foundation
 import Firebase
+import FirebaseAnalytics
 import SDWebImage
 import SwiftEntryKit
 import Lottie
@@ -25,6 +26,7 @@ class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
     //Tranfer variables
     var kasamIDforViewer = ""
     var kasamIDforHolder = ""
+    var userKasam = false
     var blockIDGlobal = ""
     var blockNameGlobal = ""
     var dateGlobal: Date?
@@ -83,7 +85,7 @@ class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @objc func refreshPersonalKasam(_ kasamOrderTransfer: NSNotification?){
         if let index = kasamOrderTransfer?.userInfo?["kasamOrder"] as? Int {
-            singleKasamUpdate(tableView: personalKasamTable, row: index, section: 0, reset: false)
+            singleKasamUpdate(row: index, section: 0, reset: false)
         }
     }
     
@@ -103,7 +105,11 @@ class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
         //If user unfollows a kasam
         DBRef.userPersonalFollowing.observe(.childRemoved) {(snapshot) in
             if let index = SavedData.todayKasamBlocks[self.type]!.index(where: {($0.kasamID == snapshot.key)}) {
+                print("Unfollowed kasam \(String(describing: SavedData.todayKasamBlocks[self.type]?[index].data.blockTitle))")
                 SavedData.todayKasamBlocks[self.type]!.remove(at: index)
+                if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: index, section: 0)) as? TodayBlockCell {
+                    cell.state = ""                     //If a new kasam is added, setting the state to "" allows it to be reloaded
+                }
                 self.personalKasamTable.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
                 self.updateScrollViewSize()
                 self.personalFollowingLabel.text = "You have \(SavedData.todayKasamBlocks[self.type]!.count.pluralUnit(unit: "kasam")) to complete"
@@ -120,7 +126,7 @@ class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
                     self.getPreferences(snapshot: snapshot)
                 }
             }
-            //If changing upcoing kasam to start today
+            //If changing upcoming kasam to start today
             if let index = SavedData.upcomingKasamBlocks[self.type]!.index(where: {($0.kasamID == snapshot.key)}) {
                 if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: index, section: 1)) as? TodayBlockCell {
                     cell.state = "restart"                    //to tell the singleKasamUpdate func to reload the block
@@ -133,9 +139,9 @@ class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
     //STEP 2
     func getPreferences(snapshot: DataSnapshot){
         if let value = snapshot.value as? [String: Any] {
-            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "NotStarted", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, groupID: nil, groupAdmin: nil, groupStatus: nil, groupTeam: nil)
+            let preference = KasamSavedFormat(kasamID: snapshot.key, kasamName: value["Kasam Name"] as? String ?? "", joinedDate: (value["Date Joined"] as? String ?? "").stringToDate(), startTime: value["Time"] as? String ?? "", currentDay: 1, repeatDuration: value["Repeat"] as? Int ?? 30, image: nil, metricType: value["Metric"] as? String ?? "Checkmark", programDuration: value["Program Duration"] as? Int, streakInfo: (currentStreak:(value: 0,date: nil), daysWithAnyProgress:0, longestStreak:0), displayStatus: "NotStarted", percentComplete: 0.0, badgeList: nil, benefitsThresholds: nil, dayTrackerArray: nil, userKasam: value["User Kasam"] as? Bool ?? false, groupID: nil, groupAdmin: nil, groupStatus: nil, groupTeam: nil)
             DispatchQueue.main.async {snapshot.key.benefitThresholds()}
-            print("Step 2 - Get preferences hell6 \(preference.kasamName)")
+            print("Step 2 - Get preferences \((preference.kasamName, preference.kasamID))")
             SavedData.kasamDict[preference.kasamID] = preference
             self.getBlockDetails(kasamID: preference.kasamID)
         }
@@ -145,37 +151,252 @@ class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
     func getBlockDetails(kasamID: String) {
         //STEP 3 - Finds out which block should be called based on the day of the kasam the user is on
         let kasam = SavedData.kasamDict[kasamID]!
+        var kasamDB = DatabaseReference()
+        if kasam.userKasam == true {kasamDB = DBRef.userKasams.child(kasamID)}
+        else {kasamDB = DBRef.coachKasams.child(kasamID)}
         print("Step 3 - Get Block Data \(kasam.kasamName)")
         //Seeing which blocks are needed for the day
         SavedData.kasamDict[kasam.kasamID]?.currentDay = kasam.joinedDate.daysBetween(endDate: Date()) + 1
         
         //OPTION 1 - Load blocks based on day (PROGRAM KASAMS) e.g. Insanity
         if kasam.programDuration != nil {
-            DBRef.coachKasams.child(kasam.kasamID).child("Timeline").observeSingleEvent(of: .value) {(snapshot) in
+            kasamDB.child("Timeline").observeSingleEvent(of: .value) {(snapshot) in
                 var blockDayToLoad = kasam.currentDay % Int(snapshot.childrenCount)
                 if blockDayToLoad <= 0 {blockDayToLoad = Int(snapshot.childrenCount)}
                 if let value = snapshot.value as? [String: String] {
-                    DBRef.coachKasams.child(kasam.kasamID).child("Blocks").child(value["D\(blockDayToLoad)"] ?? "").observeSingleEvent(of: .value) {(snapshot) in
-                        print("Step 3B - Get Block Data hell6 Option 1 \(kasam.kasamName)")
-                        self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
+                    kasamDB.child("Blocks").child(value["D\(blockDayToLoad)"] ?? "").observeSingleEvent(of: .value) {(snapshot) in
+                        print("Step 3B - Get Block Data Option 1 \(kasam.kasamName)")
+                        self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                     }
                 }
             }
         //OPTION 2 - Load Kasam as Block (BASIC KASAMS)
         } else if kasam.metricType == "Checkmark" {
-            DBRef.coachKasams.child(kasam.kasamID).child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
+            kasamDB.child("Info").observeSingleEvent(of: .value, with: {(snapshot) in
                 print("Step 3B - Get Block Data Option 2 \(kasam.kasamName)")
                 if let snapshot = snapshot.value as? Dictionary<String,Any> {
-                    self.saveKasamBlocks(value: snapshot, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
+                    self.saveKasamBlocks(value: snapshot, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
                 }
             })
         //OPTION 3 - Load single repeated block (CHALLENGE KASAMS) e.g. 200 Push-ups
         } else {
-            DBRef.coachKasams.child(kasam.kasamID).child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in
+            kasamDB.child("Blocks").observeSingleEvent(of: .childAdded, with: {(snapshot) in
                 print("Step 3B - Get Block Data Option 3 \(kasam.kasamName)")
-                self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, tableView: self.personalKasamTable, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
+                self.saveKasamBlocks(value: snapshot.value as? Dictionary<String,Any>, dayOrder: SavedData.kasamDict[kasam.kasamID]!.currentDay, kasam: kasam, type: self.type, kasamCount: self.personalKasamCount, followingLabel: self.personalFollowingLabel){(status) in if status == true {self.updateScrollViewSize()}}
             })
         }
+    }
+    
+    //STEP 4
+    func saveKasamBlocks(value: Dictionary<String,Any>?, dayOrder: Int, kasam: KasamSavedFormat, type: String, kasamCount: Int, followingLabel: UILabel, completion: @escaping (Bool) -> ()){
+        print("Step 4 - Save Kasam Blocks \((kasam.kasamName))")
+        var block: TodayBlockFormat!
+        if value != nil {
+            //Kasam block to complete today
+            SavedData.kasamDict[kasam.kasamID]?.image = value!["Image"] as! String
+            block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: value!["BlockID"] as? String ?? "", blockTitle: value!["Title"] as! String, dayOrder: dayOrder, duration: value!["Duration"] as? String, image: URL(string: SavedData.kasamDict[kasam.kasamID]!.image))
+        } else {
+            //Rest Day or Upcoming Kasam
+            block = TodayBlockFormat(kasamID: kasam.kasamID, groupID: nil, blockID: "Rest", blockTitle: "Rest Day", dayOrder: dayOrder, duration: nil, image: nil)
+        }
+        //Modifying details of a current kasam
+        if let kasamOrder = SavedData.todayKasamBlocks[type]?.index(where: {($0.kasamID == kasam.kasamID)}) {
+            if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
+                SavedData.todayKasamBlocks[type]?.remove(at: kasamOrder)
+                SavedData.upcomingKasamBlocks[type]?.append((kasam.kasamID, block))
+                getDayTracker(kasamID: kasam.kasamID, type: type)
+            } else {
+                SavedData.todayKasamBlocks[type]?[kasamOrder] = (kasam.kasamID, block)
+                if let cell = personalKasamTable.cellForRow(at: IndexPath(item: kasamOrder, section: 0)) as? TodayBlockCell {
+                    if cell.state == "restart" {
+                        getDayTracker(kasamID: kasam.kasamID, type: type)
+                    } else {
+                        print("Followed new kasam \(String(describing: SavedData.todayKasamBlocks[type]?[kasamOrder].data.blockTitle))")
+                        cell.blockSubtitle.text = SavedData.todayKasamBlocks[type]?[kasamOrder].data.blockTitle
+                    }
+                }
+            }
+        //Modifying details of an upcoming kasam
+        } else if let kasamOrder = SavedData.upcomingKasamBlocks[type]?.index(where: {($0.kasamID == kasam.kasamID)}) {
+            if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
+                SavedData.upcomingKasamBlocks[type]?.remove(at: kasamOrder)
+                SavedData.upcomingKasamBlocks[type]?.append((kasam.kasamID, block))
+                getDayTracker(kasamID: kasam.kasamID, type: type)
+            } else {
+                SavedData.upcomingKasamBlocks[type]?.remove(at: kasamOrder)
+                SavedData.todayKasamBlocks[type]?.append((kasam.kasamID, block))
+                getDayTracker(kasamID: kasam.kasamID, type: type)
+            }
+        //Adding a kasam for the first time to the Today page
+        } else {
+            if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
+                SavedData.upcomingKasamBlocks[type]?.append((kasam.kasamID, block))
+            } else {
+                SavedData.todayKasamBlocks[type]?.append((kasam.kasamID, block))
+            }
+            getDayTracker(kasamID: kasam.kasamID, type: type)
+        }
+        
+        if kasamCount == (SavedData.todayKasamBlocks[type]?.count ?? 0) + (SavedData.upcomingKasamBlocks[type]?.count ?? 0) {
+            followingLabel.text = "You have \(SavedData.todayKasamBlocks[type]!.count.pluralUnit(unit: "kasam")) to complete"
+            personalKasamTable.reloadData()
+            completion(true)
+        }
+    }
+    
+    func getDayTracker(kasamID: String, type: String) {
+        print("Step 5 - Get day tracker \(String(describing: SavedData.kasamDict[kasamID]?.kasamName))")
+        //For the active Kasams on the Personal or Group page
+        if let kasam = SavedData.kasamDict[kasamID] {
+            var db = DBRef.userPersonalHistory.child(kasam.kasamID).child(kasam.joinedDate.dateToString())
+            if type == "group" {db = DBRef.userKasams.child((kasam.groupID)!).child("History").child(Auth.auth().currentUser!.uid)}
+            //Gets the DayTracker info - only goes into this loop if the user has kasam history
+            db.observe(.value, with: {(snap) in
+                if snap.exists() {
+                    var displayStatus = "NotStarted"
+                    var order = 0
+                    var dayTrackerArrayInternal = [Int:(Date,Double)]()
+                    var dayPercent = 1.0
+                    var percentComplete = 0.0
+                    var internalCount = 0
+                    var blockDeets: (blockID: String, blockName: String)? = nil
+                    var reset = false
+                    
+                    for history in snap.children.allObjects as! [DataSnapshot] {
+                        internalCount += 1
+                        if history.key != "Goal" {          //last entry in Firebase that indicates the duration of the kasam
+                            let kasamDate = history.key.stringToDate()
+                            order = (Calendar.current.dateComponents([.day], from: kasam.joinedDate, to: kasamDate)).day! + 1
+                            dayPercent = self.statusPercentCalc(snapshot: history).0
+                            dayTrackerArrayInternal[order] = (kasamDate, dayPercent)
+                            
+                            //Status for Current day
+                            if history.key == self.getCurrentDate() {
+                                percentComplete = dayPercent
+                                if dayPercent == 1 {displayStatus = "Check"}
+                                else if dayPercent < 1 && dayPercent > 0 {displayStatus = "Progress"}
+                                //Manually set the block title and ID if the user changed it manually
+                                if kasam.programDuration != nil {
+                                    if let value = history.value as? [String:Any] {
+                                        blockDeets = (blockID: value["BlockID"] as? String ?? "", blockName: value["Block Name"] as! String); reset = true
+                                    }
+                                }
+                            }
+                        }
+                        if internalCount == snap.childrenCount {
+                            //DayTrackerArrayInternal adds the status of each day
+                            kasam.displayStatus = displayStatus
+                            kasam.percentComplete = percentComplete         //only for COMPLEX kasams
+                            kasam.dayTrackerArray = dayTrackerArrayInternal
+                            
+                            if let index = SavedData.todayKasamBlocks[type]?.index(where: {($0.kasamID == kasam.kasamID)}) {
+                                if blockDeets != nil {SavedData.todayKasamBlocks[type]?[index].data.blockTitle = blockDeets!.blockName; SavedData.todayKasamBlocks[type]?[index].data.blockID = blockDeets!.blockID}
+                                kasam.streakInfo = self.currentStreak(dictionary: dayTrackerArrayInternal, currentDay: SavedData.todayKasamBlocks[type]?[index].data.dayOrder ?? 0)
+                                NotificationCenter.default.post(name: Notification.Name(rawValue: "RefreshKasamHolderBadge"), object: self)
+                                self.singleKasamUpdate(row:index, section: 0, reset: reset)
+                            }
+                        }
+                    }
+                //No kasam history
+                } else {
+                    var level = 0
+                    kasam.dayTrackerArray = nil
+                    if kasam.joinedDate.daysBetween(endDate: Date()) < 0 {
+                        kasam.displayStatus = "Upcoming"
+                        level = 1
+                        if let index = SavedData.upcomingKasamBlocks[type]?.index(where: {($0.kasamID == kasam.kasamID)}) {
+                            self.singleKasamUpdate(row:index, section: level, reset: false)
+                        }
+                    } else {
+                        kasam.displayStatus = "NotStarted"
+                        kasam.streakInfo = (currentStreak:(value:0, date:nil), daysWithAnyProgress:0, longestStreak:0)
+                        kasam.percentComplete = 0
+                        if let index = SavedData.todayKasamBlocks[type]?.index(where: {($0.kasamID == kasam.kasamID)}) {
+                            self.singleKasamUpdate(row:index, section: level, reset: false)
+                        }
+                    }
+                }
+            })
+        }
+    }
+    
+    func singleKasamUpdate(row: Int, section: Int, reset: Bool) {
+        DispatchQueue.main.async {
+            if let cell = self.personalKasamTable.cellForRow(at: IndexPath(item: row, section: section)) as? TodayBlockCell {
+                print("Step 5B - Single Kasam Update")
+                self.personalKasamTable.beginUpdates()
+                if reset == true {cell.resetBlockName()}
+                cell.statusUpdate(day:nil)
+                cell.updateDayTrackerCollection()
+                self.personalKasamTable.endUpdates()
+            }
+        }
+    }
+    
+    //STEP 6
+    func currentStreak(dictionary: [Int:(Date, Double)], currentDay: Int) -> (currentStreak:(value:Int, date:Date?), daysWithAnyProgress:Int, longestStreak:Int) {
+        print("Step 6 - Streak Calc")
+        var daysWithAnyProgress = 0
+        var currentStreak = 0
+        var currentStreakDate: Date?
+        var anyProgressCheck = 0
+        var longestStreak = 0
+        var streak = [0]
+        var streakEndDate = [0]
+        for day in stride(from: currentDay, through: 1, by: -1) {
+            if dictionary[day] != nil {
+                streak[streak.count - 1] += 1
+                if dictionary[day]!.1 >= 0.0 {
+                    daysWithAnyProgress += 1                                        //all days with some progress
+                    if streakEndDate.count != streak.count {streakEndDate[streakEndDate.count - 1] = day}
+                } else {
+                    currentStreak = daysWithAnyProgress                             //current streak days with some progress
+                }
+            } else if day != currentDay {
+                streak += [0]
+                streakEndDate += [0]
+                if anyProgressCheck == 0 {
+                    currentStreak = daysWithAnyProgress                             //current streak days with some progress
+                }
+                anyProgressCheck = 1
+            }
+        }
+        longestStreak = streak.max() ?? 0
+        daysWithAnyProgress = streak.reduce(0, +)
+        if anyProgressCheck == 0 {                                                  //in case all days have some progress
+            currentStreak = daysWithAnyProgress
+        }
+        currentStreakDate = dictionary[30]?.0
+        return ((currentStreak,currentStreakDate), daysWithAnyProgress, longestStreak)
+    }
+    
+    func statusPercentCalc (snapshot: DataSnapshot) -> (percent: Double, displayStatus: String){
+        var percent = 0.0
+        var displayStatus = "NotStarted"
+        //COMPLEX KASAM
+        if let dictionary = snapshot.value as? Dictionary<String,Any> {
+            if dictionary["Block Name"] as? String ?? "" == "Rest Day" {
+                percent = -1.0
+                displayStatus = "Rest Day"
+            } else {
+                percent = dictionary["Metric Percent"] as? Double ?? 0.0
+                if percent < 1 {
+                    displayStatus = "Progress"
+                    Analytics.logEvent("working_Kasam", parameters: ["metric_percent": percent.rounded(toPlaces: 2) ])
+                } else {
+                    displayStatus = "Check"
+                }
+            }
+        //SIMPLE KASAM
+        } else if snapshot.value as? Int == 1 {
+            displayStatus = "Check"
+            percent = 1.0
+            Analytics.logEvent("completed_Kasam", parameters: nil)
+        } else if snapshot.value as? Int == 0 {
+            percent = 0.0
+            displayStatus = "NotStarted"
+        }
+        return (percent, displayStatus)
     }
     
     //---------------------------------------------------------------------------------------------------------
@@ -206,6 +427,7 @@ class TodayViewController: UIViewController, UIGestureRecognizerDelegate {
         } else if segue.identifier == "goToKasamHolder" {
             let kasamTransferHolder = segue.destination as! KasamHolder
             kasamTransferHolder.kasamID = kasamIDforHolder
+            kasamTransferHolder.userKasam = userKasam
         }
     }
 }
@@ -235,8 +457,12 @@ extension TodayViewController: UITableViewDataSource, UITableViewDelegate, Table
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "TodayKasamCell") as? TodayBlockCell else {return UITableViewCell()}
         cell.cellDelegate = self
-        if indexPath.section == 0 {cell.setBlock(block: SavedData.todayKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)}
-        else {cell.setBlock(block: SavedData.upcomingKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)}
+        if indexPath.section == 0 {
+            cell.setBlock(block: SavedData.todayKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)
+        }
+        else {
+            cell.setBlock(block: SavedData.upcomingKasamBlocks[type]![indexPath.row].data, row: indexPath.row, section: indexPath.section, type: type)
+        }
         return cell
     }
     
@@ -253,8 +479,12 @@ extension TodayViewController: UITableViewDataSource, UITableViewDelegate, Table
     
     func goToKasamHolder(kasamOrder: Int, section: Int) {
         if SavedData.todayKasamBlocks[type]!.count > kasamOrder {
-            if section == 0 {kasamIDforHolder = SavedData.todayKasamBlocks[type]![kasamOrder].1.kasamID}
-            else {kasamIDforHolder = SavedData.upcomingKasamBlocks[type]![kasamOrder].1.kasamID}
+            if section == 0 {
+                kasamIDforHolder = SavedData.todayKasamBlocks[type]![kasamOrder].1.kasamID
+                userKasam = SavedData.kasamDict[kasamIDforHolder]?.userKasam ?? false
+            } else {
+                kasamIDforHolder = SavedData.upcomingKasamBlocks[type]![kasamOrder].1.kasamID
+            }
         }
         self.performSegue(withIdentifier: "goToKasamHolder", sender: kasamOrder)
     }

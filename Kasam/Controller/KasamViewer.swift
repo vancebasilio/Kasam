@@ -100,7 +100,7 @@ class KasamActivityViewer: UIViewController {
                         var currentMetric = 0.0
                         var db = DBRef.userPersonalHistory.child(self.kasamID).child(SavedData.kasamDict[self.kasamID]!.joinedDate.dateToString()).child(self.statusDate).child("Metric Breakdown").child(String(count))
                         if self.type == "group" {
-                            db = DBRef.groupKasams.child((SavedData.kasamDict[self.kasamID]?.groupID)!).child("Team").child(Auth.auth().currentUser!.uid).child(self.statusDate).child("Metric Breakdown").child(String(count))
+                            db = DBRef.userKasams.child((SavedData.kasamDict[self.kasamID]?.groupID)!).child("Team").child(Auth.auth().currentUser!.uid).child(self.statusDate).child("Metric Breakdown").child(String(count))
                         }
                         db.observeSingleEvent(of: .value, with: {(snap) in
                             if snap.exists() && self.reviewOnly == false {
@@ -255,7 +255,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
                     db.setValue(["BlockID": self.blockID, "Block Name": self.blockName, "Time": self.getCurrentDateTime(), "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": self.achievedMatrix])
                 }
             } else {
-                DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": self.getCurrentDateTime(), "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": self.achievedMatrix])
+                DBRef.userKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(["BlockID": blockID, "Block Name": blockName, "Time": self.getCurrentDateTime(), "Metric Percent": transferAvg.rounded(toPlaces: 2), "Total Metric": sum, "Metric Breakdown": self.achievedMatrix])
             }
         //OPTION 2 - REMOVE PROGRESS
         } else {
@@ -263,7 +263,7 @@ extension KasamActivityViewer: UICollectionViewDelegate, UICollectionViewDataSou
                 db.setValue(nil)
                 setHistoryTotal(kasamID: kasamID, statusDate: statusDate, value: 0)
             } else {
-                DBRef.groupKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(nil)
+                DBRef.userKasams.child((SavedData.kasamDict[kasamID]?.groupID)!).child("History").child(Auth.auth().currentUser!.uid).child(statusDate).setValue(nil)
             }
         }
     }

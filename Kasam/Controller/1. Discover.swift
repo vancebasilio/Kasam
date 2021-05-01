@@ -75,6 +75,7 @@ class DiscoverViewController: UIViewController {
     //Table Resizing----------------------------------------------------------------------
     
     func updateContentTableHeight(){
+        print("Update content size for the discover page")
         self.updateContentViewHeight(contentViewHeight: contentView, tableViewHeight: discoverTableViewHeight, tableRowHeight: discoverFilledHeight, additionalTableHeight: discoverEmptyHeight, rowCount: rowCount, additionalHeight: additionalHeight)
     }
 
@@ -148,12 +149,14 @@ class DiscoverViewController: UIViewController {
         discoverKasamDict["My Kasams"] = []
         DBRef.userKasams.observeSingleEvent(of: .value) {(snap) in
             if snap.exists() {
+                print("User has personal kasams to load on discover page")
                 self.addUserKasam(snap: snap)
                 if self.discoverKasamDict.count == snap.childrenCount {
                     self.updateContentTableHeight()
                 }
             } else {
                 //Incase there was a user kasam, that's now being deleted, so this view needs to be reloaded
+                print("No user kasams to load on discover page")
                 if self.discoverKasamDict["My Kasams"]?.count == 0 {self.rowCount -= 1; self.discoverEmptyHeight = CGFloat(120)}
                 self.updateContentTableHeight()
                 self.discoverTableView.reloadRows(at: [IndexPath(item: Assets.discoverCriteria.count - 1, section: 0)], with: .fade)

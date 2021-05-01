@@ -89,6 +89,7 @@ class TodayBlockCell: UITableViewCell {
             kasamImage.sd_setImage(with: block.image)
             
             if type == "group" {
+                
             } else {
                 levelLineBack.layer.cornerRadius = 4
                 levelLineMask.layer.cornerRadius = 4
@@ -191,9 +192,9 @@ class TodayBlockCell: UITableViewCell {
     
     @IBAction func topStatusButtonPressed(_ sender: Any) {
         if SavedData.kasamDict[kasamID]?.groupTeam?[SavedData.userID] == -1 {
-            DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").child("Team").child(SavedData.userID).setValue(0)
+            DBRef.userKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").child("Team").child(SavedData.userID).setValue(0)
         } else if SavedData.kasamDict[kasamID]?.groupTeam?[SavedData.userID] == 0 {
-            DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").child("Team").child(SavedData.userID).setValue(-1)
+            DBRef.userKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").child("Team").child(SavedData.userID).setValue(-1)
         }
     }
     
@@ -209,14 +210,14 @@ class TodayBlockCell: UITableViewCell {
         } else if typeInternal == "group" {
             if SavedData.kasamDict[kasamID]?.groupAdmin == SavedData.userID {
                 showCenterOptionsPopup(kasamID: nil, title: "Start your group kasam", subtitle: nil, text: "You'll be starting on \(Date().dateToShortString()) \nwith \(SavedData.kasamDict[kasamID]!.groupTeam!.count.pluralUnit(unit: "member"))", type:"startGroupKasam", button: "Start!") {(mainButtonPressed) in
-                    DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").updateChildValues(["Status":"active", "Date Joined":Date().dateToString()])
+                    DBRef.userKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").updateChildValues(["Status":"active", "Date Joined":Date().dateToString()])
                     SavedData.kasamDict[self.kasamID]?.groupStatus = "active"
                     SavedData.todayKasamBlocks["group"]![self.rowInternal].data.dayOrder = 1
                     self.cellDelegate?.reloadKasamBlock(kasamOrder: self.rowInternal)
                 }
             } else {
                 showCenterOptionsPopup(kasamID: nil, title: "Leave the kasam?", subtitle: nil, text: "You'll be permanately removing the '\(String(describing: SavedData.kasamDict[kasamID]!.kasamName))' kasam from your Group following. You'll need to be re-invited to rejoin.", type:"leaveGroupKasam", button: "Leave") {(mainButtonPressed) in
-                        DBRef.groupKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").child("Team").child(SavedData.userID).setValue(nil)
+                        DBRef.userKasams.child(SavedData.kasamDict[self.kasamID]!.groupID!).child("Info").child("Team").child(SavedData.userID).setValue(nil)
                         DBRef.userGroupFollowing.child(SavedData.kasamDict[self.kasamID]!.groupID!).setValue(nil)
                 }
             }
@@ -292,7 +293,7 @@ class TodayBlockCell: UITableViewCell {
     func statusUpdate(day: String?){
         if tempBlock != nil && SavedData.kasamDict[kasamID] != nil {
             let block = SavedData.kasamDict[kasamID]
-            print("Step 5B - Block status update \(String(describing: block?.kasamName))")
+            print("Step 5C - Block status update \(String(describing: block?.kasamName))")
             if block?.groupStatus == "initiated" {
                 if block?.groupAdmin == SavedData.userID {
                     topStatusView.isHidden = true

@@ -34,7 +34,6 @@ struct SavedData {
 
 struct DBRef {
     static let coachKasams = Database.database().reference().child("Coach-Kasams")
-    static let groupKasams = Database.database().reference().child("Group-Kasams")
     static let coachKasamIndex = Database.database().reference().child("Coach-Kasam-Index")
     static let users = Database.database().reference().child("Users")
     static let userEmails = Database.database().reference().child("User-Emails")
@@ -42,7 +41,7 @@ struct DBRef {
     static var userPersonalFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Kasam-Following")
     static var userTrophies = Database.database().reference().child("Users").child(SavedData.userID).child("Trophies")
     static var userInfo = Database.database().reference().child("Users").child(SavedData.userID).child("Info")
-    static var userKasams = Database.database().reference().child("Users").child(SavedData.userID).child("Kasams")
+    static var userKasams = Database.database().reference().child("User-Kasams").child(SavedData.userID)
     static var userPersonalHistory = Database.database().reference().child("Users").child(SavedData.userID).child("History")
     static var userHistoryTotals = Database.database().reference().child("Users").child(SavedData.userID).child("History-Totals")
     static var userGroupFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Group-Following")
@@ -51,7 +50,7 @@ struct DBRef {
         DBRef.userPersonalFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Kasam-Following")
         DBRef.userTrophies = Database.database().reference().child("Users").child(SavedData.userID).child("Trophies")
         DBRef.userInfo = Database.database().reference().child("Users").child(SavedData.userID).child("Info")
-        DBRef.userKasams = Database.database().reference().child("Users").child(SavedData.userID).child("Kasams")
+        DBRef.userKasams = Database.database().reference().child("User-Kasams").child(SavedData.userID)
         DBRef.userPersonalHistory = Database.database().reference().child("Users").child(SavedData.userID).child("History")
         DBRef.userHistoryTotals = Database.database().reference().child("Users").child(SavedData.userID).child("History-Totals")
         DBRef.userGroupFollowing = Database.database().reference().child("Users").child(SavedData.userID).child("Group-Following")
@@ -103,8 +102,8 @@ struct PopupAttributes{
 
 struct Assets {
     static var levelsArray = ["Easy", "Medium", "Hard"]
-    static var featuredKasams: [String]?
-    static var discoverCriteria = [""]
+    static var featuredKasams: [String]? = ["-LqRRHDQuwf2tJmoNoaa"]
+    static var discoverCriteria = ["Fitness", "Health", "My Kasams"]
 }
 
 struct Icons {

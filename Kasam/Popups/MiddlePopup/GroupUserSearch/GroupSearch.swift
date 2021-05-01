@@ -188,7 +188,7 @@ extension GroupSearchController: UITableViewDelegate, UITableViewDataSource, Gro
             DBRef.users.child(userID).child("Group-Following").child(SavedData.kasamDict[kasamID]!.groupID!).child("Time").setValue(SavedData.kasamDict[kasamID]?.startTime)
             
             //Add user to group kasam
-            DBRef.groupKasams.child(SavedData.kasamDict[kasamID]!.groupID!).child("Info").child("Team").child(userID).setValue(-1.0)
+            DBRef.userKasams.child(SavedData.kasamDict[kasamID]!.groupID!).child("Info").child("Team").child(userID).setValue(-1.0)
             
             //Send notification invite
             DBRef.users.child(userID).child("Info").child("fcmToken").observeSingleEvent(of: .value) {(fcmTokenSnap) in
@@ -230,7 +230,7 @@ extension GroupSearchController: UITableViewDelegate, UITableViewDataSource, Gro
     }
     
     func removeUser(row:Int, userID: String) {
-        DBRef.groupKasams.child(SavedData.kasamDict[kasamID]!.groupID!).child("Info").child("Team").child(userID).setValue(nil)
+        DBRef.userKasams.child(SavedData.kasamDict[kasamID]!.groupID!).child("Info").child("Team").child(userID).setValue(nil)
         DBRef.users.child(userID).child("Group-Following").child(SavedData.kasamDict[kasamID]!.groupID!).setValue(nil)
         SavedData.kasamDict[kasamID]?.groupTeam?[userID] = nil
         if let index = selectedUserArray.index(where: {$0.userID == userID}) {

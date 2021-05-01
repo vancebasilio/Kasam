@@ -52,7 +52,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     var dayDictionary = [Int:String]()
     var metricDictionary = [Int:Double]()
     let animationView = AnimationView()
-    var userKasamDBHandle: DatabaseHandle!
     var saveStorageRef = Storage.storage().reference()
     var completedTableRowHeight = CGFloat(90)
     let popTip = PopTip()
@@ -67,9 +66,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     var kasamIDGlobal: String = ""
     var currentKasamTransfer: Bool!
     var userHistoryTransfer: CompletedKasamFormat?
-    
-    var tableViewHeight = CGFloat(0)
-    var noUserKasams = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -88,7 +84,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     }
     
     func updateScrollViewSize(){
-        print("UserProfile - Update Scroll View")
         //sets the height of the whole tableview, based on the numnber of rows
         if completedStats.count == 0 {
             kasamStatsTableHeight.constant = 150
@@ -114,6 +109,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
             let diff = frameHeight - contentHeightToSet
             contentView.constant = contentHeightToSet + diff + 1
         }
+        print("UserProfile - Update Scroll View to \((contentHeightToSet, frameHeight))")
     }
     
     func viewSetup(){
@@ -122,9 +118,6 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         levelLine.layer.cornerRadius = 4
         levelLine.clipsToBounds = true
         navigationController?.navigationBar.barTintColor = UIColor.init(red: 249, green: 249, blue: 249)
-        
-        let showCompletionAnimation = NSNotification.Name("ShowCompletionAnimation")
-               NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.showCompletionAnimation), name: showCompletionAnimation, object: nil)
         
         userFirstName.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(changeDisplayName)))
         profileImageClickArea.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showBottomImagePicker)))
@@ -136,20 +129,16 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
         }
     }
     
-    @objc func showCompletionAnimation(){
-        animationView.loadingAnimation(view: view, animation: "checkmark", width: 400, overlayView: nil, loop: false, buttonText: nil){
-            self.animationView.removeFromSuperview()
-        }
-    }
-    
     //GET ALL THE STATS-------------------------------------------------------------------------------------------------
     
     //STEP 1
     @objc func getDetailedStats() {
-        self.updateScrollViewSize()
         completedStats = []
         metricDictionary = [:]
         self.totalKasamDays = 0
+        DispatchQueue.main.async {
+            self.updateScrollViewSize()
+        }
         DBRef.userHistoryTotals.observe(.childAdded, with:{(snap) in
             let kasamID = snap.key
             //OPTION 1 - History for kasams that aren't being followed right now
@@ -194,6 +183,7 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
                 self.updateScrollViewSize()
             }
         })
+        
     }
     
     func loadCompletedTable(kasamID: String, kasamName: String, kasamImage: URL, metric: String, program: Bool, historySnap: DataSnapshot){
@@ -243,7 +233,11 @@ class ProfileViewController: UIViewController, UIPopoverPresentationControllerDe
     
     func profileSetup(){
         self.profileImage.layer.cornerRadius = self.profileImage.frame.width / 2
-        userFirstName.text =  Auth.auth().currentUser?.displayName
+        if let userName = Auth.auth().currentUser?.displayName {
+            userFirstName.text = userName
+        } else {
+            userFirstName.text = "Enter your name"
+        }
         if let truncUserFirst = Auth.auth().currentUser?.displayName?.split(separator: " ").first.map(String.init), let truncUserLast = Auth.auth().currentUser?.displayName?.split(separator: " ").last.map(String.init) {
             userFirstName.text = truncUserFirst + " " + truncUserLast
         }
@@ -404,7 +398,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate, UINavigationCo
     }
     
     @objc func addFriend(){
-        showCenterOptionsPopup(kasamID: nil, title: "Feautre coming soon!", subtitle: nil, text: nil, type:"logout", button: "Okay") {(mainButtonPressed) in
+        showCenterOptionsPopup(kasamID: nil, title: nil, subtitle: nil, text: "Feature coming soon!", type:"logout", button: "Okay") {(mainButtonPressed) in
 
         }
     }
