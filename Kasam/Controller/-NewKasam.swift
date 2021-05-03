@@ -8,6 +8,7 @@
 
 import UIKit
 import FirebaseDatabase
+import FirebaseAnalytics
 import FirebaseStorage
 import SwiftEntryKit
 import SkyFloatingLabelTextField
@@ -162,6 +163,7 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
     }
     
     @objc func categoryOptions(){
+        dismissKeyboard()
         showBottomTablePopup(type: "categoryOptions", programKasamArray: nil)
         saveCategoryObserver = NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "SaveCategory"), object: nil, queue: OperationQueue.main) {(notification) in
             let categoryVC = notification.object as! TablePopupController
@@ -245,11 +247,13 @@ class NewKasamController: UIViewController, UIScrollViewDelegate, UITextViewDele
                 NewKasam.kasamImageToSave = self.headerImageView.image!
             }
             self.animationView.loadingAnimation(view: view, animation: "rocket-fast", width: 200, overlayView: self.animationOverlay, loop: true, buttonText: nil, completion: nil)
-            createKasam(existingKasamID: NewKasam.kasamID, basicKasam: true, userKasam: userKasam) {(success) in
-                if success == true {
+            createKasam(existingKasamID: NewKasam.kasamID, basicKasam: true, userKasam: userKasam) {(returnKasamID) in
+                if returnKasamID != nil {
                     print("Successfully created kasam")
                     self.animationView.removeFromSuperview()
                     self.animationOverlay.removeFromSuperview()
+                    DBRef.userPersonalFollowing.child(returnKasamID!).updateChildValues(["Kasam Name" : NewKasam.kasamName, "Date Joined": Date().dateToString(), "Repeat": 30, "Metric": NewKasam.chosenMetric, "User Kasam": true])
+                    Analytics.logEvent("following_Kasam", parameters: ["kasam_name": NewKasam.kasamName])
                     if self.kasamHolderKasamEdit == false {self.dismiss(animated: true, completion: nil)}
                     else {self.navigationController?.popViewController(animated: true)}
                     self.kasamIDforHolder = NewKasam.kasamID

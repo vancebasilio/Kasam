@@ -12,6 +12,8 @@ import FirebaseDatabase
 import FirebaseStorage
 import FBSDKLoginKit
 import GoogleSignIn
+import AuthenticationServices
+import CryptoKit
 
 class ViewController: UIViewController, GIDSignInDelegate, FUIAuthDelegate {
     
@@ -19,6 +21,8 @@ class ViewController: UIViewController, GIDSignInDelegate, FUIAuthDelegate {
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var segmentedControl: CustomSegmentedControl!
     @IBOutlet weak var kasamLogo: UIImageView!
+    
+    var currentNonce: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,12 +58,9 @@ class ViewController: UIViewController, GIDSignInDelegate, FUIAuthDelegate {
     
     @IBAction func customSegmentValueChanged(_ sender: CustomSegmentedControl) {
         switch sender.selectedSegmentIndex {
-            case 0:
-                scrollToMenuIndex(menuIndex: 0)
-            case 1:
-                scrollToMenuIndex(menuIndex: 1)
-            default:
-                scrollToMenuIndex(menuIndex: 0)
+            case 0: scrollToMenuIndex(menuIndex: 0)
+            case 1: scrollToMenuIndex(menuIndex: 1)
+            default: scrollToMenuIndex(menuIndex: 0)
         }
     }
     
@@ -74,7 +75,6 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "LoginViewCell", for: indexPath) as! LoginViewCell
             cell.delegate = self
@@ -122,7 +122,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
         guard let auth = user.authentication else { return }
         let credentials = GoogleAuthProvider.credential(withIDToken: auth.idToken, accessToken: auth.accessToken)
         Auth.auth().signIn(with: credentials) {(authResult, error) in
-            self.userLoginandRegistration(authResult: authResult, error: error)
+            self.firebaseLoginandRegistration(authResult: authResult, appleName: nil, error: error)
             //Get the profile image for google
             self.getProfilePicture(googleUser:user)
         }
@@ -134,7 +134,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                 if result!.isCancelled {return}
                 let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.tokenString)
                 Auth.auth().signIn(with: credential) {(authResult, error) in
-                    self.userLoginandRegistration(authResult: authResult, error: error)
+                    self.firebaseLoginandRegistration(authResult: authResult, appleName: nil, error: error)
                     //get the profile image for facebook
                     self.getProfilePicture(googleUser:nil)
                 }
@@ -150,34 +150,78 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
         }
     }
     
+//Apple Login------------------------------------------------------------------------------------------------
+    
     func CustomAppleLogin(){
-        if let authUI = FUIAuth.defaultAuthUI() {
-            if #available(iOS 13.0, *) {
-                authUI.providers = [FUIOAuth.appleAuthProvider()]
-                authUI.delegate = self
-                let authViewController = authUI.authViewController()
-                self.present(authViewController, animated: true)
-            } else {
-                // Fallback on earlier versions
-            }
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        if #available(iOS 13.0, *) {
+            let appleIDProvider = ASAuthorizationAppleIDProvider()
+            let request = appleIDProvider.createRequest()
+            request.requestedScopes = [.fullName, .email]
+            request.nonce = sha256(nonce)
+            
+            let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+            authorizationController.delegate = self
+            authorizationController.presentationContextProvider = self
+            authorizationController.performRequests()
+        } else {
+            // Fallback on earlier versions
         }
     }
     
-    func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, error: Error?) {
-        if let user = authDataResult?.user {
-            self.userLoginandRegistration(authResult: authDataResult, error: error)
-            print("Apple signed in as \(user.uid), with name \(String(describing: user.displayName)) and email \(String(describing: user.email))")
-        }
+    @available(iOS 13, *)
+       private func sha256(_ input: String) -> String {
+           let inputData = Data(input.utf8)
+           let hashedData = SHA256.hash(data: inputData)
+           let hashString = hashedData.compactMap {
+               return String(format: "%02x", $0)
+           }.joined()
+        return hashString
     }
     
-    func userLoginandRegistration(authResult: AuthDataResult?, error: Error?){
-        print("trying to logged in")
+    private func randomNonceString(length: Int = 32) -> String {
+      precondition(length > 0)
+      let charset: Array<Character> =
+          Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+      var result = ""
+      var remainingLength = length
+
+      while remainingLength > 0 {
+        let randoms: [UInt8] = (0 ..< 16).map { _ in
+          var random: UInt8 = 0
+          let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
+          if errorCode != errSecSuccess {
+            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+          }
+          return random
+        }
+
+        randoms.forEach { random in
+          if remainingLength == 0 {
+            return
+          }
+
+          if random < charset.count {
+            result.append(charset[Int(random)])
+            remainingLength -= 1
+          }
+        }
+      }
+
+      return result
+    }
+    
+//Firebase Login------------------------------------------------------------------------------------------------
+    
+    func firebaseLoginandRegistration(authResult: AuthDataResult?, appleName: String?, error: Error?){
         if let error = error {
             //error signing new user in
             showError(error)
             return
         } else {
-            print("Logged in user")
+            var name = authResult?.user.displayName
+            if name == nil && appleName != nil {name = appleName!}
             DBRef.users.observeSingleEvent(of: .value, with: {(snapshot) in
                 //If the user exists, don't add data
                 if snapshot.hasChild(Auth.auth().currentUser?.uid ?? "") {
@@ -187,7 +231,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                 } else {
                     //User doesn't exist, so create a new profile for them
                     let newUser = Database.database().reference().child("Users").child((Auth.auth().currentUser?.uid)!)
-                    let userDictionary = ["Name": authResult?.user.displayName!, "UserID": Auth.auth().currentUser?.uid, "Type": "Basic"]
+                    let userDictionary = ["Name": name, "UserID": Auth.auth().currentUser?.uid, "Type": "Basic"]
                     
                     newUser.child("Info").setValue(userDictionary) {
                         (error, reference) in
@@ -198,7 +242,7 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                         }
                     }
                     let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
-                    changeRequest?.displayName = authResult?.user.displayName!
+                    changeRequest?.displayName = name
                     changeRequest?.commitChanges {(error) in
                         if error != nil{
                             print(error!)
@@ -264,6 +308,50 @@ extension ViewController: RegisterViewCellDelegate, LoginViewCellDelegate {
                 }
             }
         }
+    }
+}
+
+//Sign in with Apple------------------------------------------------------------------------------------------------
+
+@available(iOS 13.0, *)
+extension ViewController: ASAuthorizationControllerDelegate {
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            guard let nonce = currentNonce else {
+                fatalError("Invalid state: A login callback was received, but no login request was sent.")
+            }
+            guard let appleIDToken = appleIDCredential.identityToken else {
+                print("Unable to fetch identity token")
+                return
+            }
+            guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
+                print("Unable to serialize token string from data: \(appleIDToken.debugDescription)")
+                return
+            }
+            let credential = OAuthProvider.credential(withProviderID: "apple.com",
+                                                      idToken: idTokenString,
+                                                      rawNonce: nonce)
+            Auth.auth().signIn(with: credential) { (authResult, error) in
+                if (error != nil) {
+                    print(error?.localizedDescription ?? "")
+                    return
+                }
+                let appleFullName = "\(appleIDCredential.fullName?.givenName ?? "") \(appleIDCredential.fullName?.familyName ?? "")"
+                self.firebaseLoginandRegistration(authResult: authResult, appleName: appleFullName, error: error)
+            }
+        }
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        // Handle error.
+        print("Sign in with Apple errored: \(error)")
+    }
+}
+
+@available(iOS 13.0, *)
+extension ViewController : ASAuthorizationControllerPresentationContextProviding {
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        return self.view.window!
     }
 }
 

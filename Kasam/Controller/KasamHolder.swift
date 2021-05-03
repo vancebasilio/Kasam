@@ -604,8 +604,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 if NewKasam.loadedInKasamImage == UIImage() {
                     //creating a new kasam
                     self.animationView.loadingAnimation(view: self.view, animation: "rocket-fast", width: 200, overlayView: self.animationOverlay, loop: true, buttonText: nil, completion: nil)
-                    self.createKasam(existingKasamID: nil, basicKasam: false, userKasam: self.userKasam) {(success) in
-                        if success == true {
+                    self.createKasam(existingKasamID: nil, basicKasam: false, userKasam: self.userKasam) {(returnKasamID) in
+                        if returnKasamID != nil {
                             self.animationView.removeFromSuperview()
                             self.animationOverlay.removeFromSuperview()
                         }
@@ -613,8 +613,8 @@ class KasamHolder: UIViewController, UIScrollViewDelegate {
                 } else {
                     //updating an existing kasam
                     self.animationView.loadingAnimation(view: self.view, animation: "rocket-fast", width: 200, overlayView: self.animationOverlay, loop: true, buttonText: nil, completion: nil)
-                    self.createKasam(existingKasamID: NewKasam.kasamID, basicKasam: false, userKasam: self.userKasam) {(success) in
-                        if success == true {
+                    self.createKasam(existingKasamID: NewKasam.kasamID, basicKasam: false, userKasam: self.userKasam) {(returnKasamID) in
+                        if returnKasamID != nil {
                             self.animationView.removeFromSuperview()
                             self.animationOverlay.removeFromSuperview()
                         }

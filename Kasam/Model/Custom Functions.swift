@@ -162,7 +162,7 @@ extension UIViewController {
     }
     
     //STEP 1 - Saves Kasam Text Data
-    func createKasam(existingKasamID: String?, basicKasam: Bool, userKasam: Bool, completion: @escaping (Bool) -> ()) {
+    func createKasam(existingKasamID: String?, basicKasam: Bool, userKasam: Bool, completion: @escaping (String?) -> ()) {
         print("1. creating kasam hell1")
         //all fields filled, so can create the Kasam now
         let semaphore = DispatchSemaphore(value: 0)
@@ -218,7 +218,7 @@ extension UIViewController {
                 kasamDB.child("Info").updateChildValues(kasamDictionary as [AnyHashable : Any]) {(error, reference) in
                     //kasam successfully updated
                     if basicKasam == false {self.saveBlocks(userKasam: userKasam, kasamID: kasamDB, imageURL: imageURL)}
-                    else {completion(true)}
+                    else {completion(kasamDB.key)}
                 }
             } else {
                 //creating new kasam
@@ -226,7 +226,7 @@ extension UIViewController {
                     if error == nil {
                         //Kasam successfully created
                         if basicKasam == false {self.saveBlocks(userKasam: userKasam, kasamID: kasamDB, imageURL: imageURL)}
-                        else {completion(true)}
+                        else {completion(kasamDB.key)}
                     }
                 }
             }
@@ -253,7 +253,7 @@ extension UIViewController {
     }
     
     //STEP 4 - Save block info under Kasam
-    func saveBlocks(userKasam: Bool, kasamID: DatabaseReference, imageURL: String){
+    func saveBlocks(userKasam: Bool, kasamID: DatabaseReference, imageURL: String) {
         print("4. saving blocks hell1")
         var newBlockDB = DatabaseReference()
         if userKasam == true {newBlockDB = DBRef.userKasams.child(kasamID.key!).child("Blocks")}
@@ -684,6 +684,18 @@ extension UIViewController {
             DBRef.resetDBs()
             DBRef.userInfo.child("Type").observeSingleEvent(of: .value, with:{(snap) in
                 SavedData.userType = snap.value as? String ?? "Basic"
+            })
+            Database.database().reference().child("Assets").observeSingleEvent(of: .value, with:{(snap) in
+                if let value = snap.value as? [String:Any] {
+                    Assets.levelsArray = (value["Levels"] as? String)?.components(separatedBy: ";") ?? ["Easy","Medium","Hard"]
+                    Assets.featuredKasams = (value["Featured"] as? String)?.components(separatedBy: ";") ?? ["-LqRRHDQuwf2tJmoNoaa"]
+                    Assets.discoverCriteria = (value["DiscoverCriteria"] as? String)?.components(separatedBy: ";") ?? ["Fitness", "Health", "Basic"]
+                    PlaceHolders.kasamHeaderPlaceholderURL = value["Placeholder-header"] as! String
+                    let kasamPlaceholderImage = UIImageView()
+                    kasamPlaceholderImage.sd_setImage(with: URL(string: PlaceHolders.kasamHeaderPlaceholderURL)) {(img, err, cache, URL) in
+                        PlaceHolders.kasamHeaderPlaceholderImage = kasamPlaceholderImage.image ?? UIImage(named: "placeholder")!
+                    }
+                }
             })
         }
     }

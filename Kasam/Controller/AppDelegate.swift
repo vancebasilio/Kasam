@@ -33,21 +33,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         IQKeyboardManager.shared.enable = true
-        let pushManager = PushNotificationManager()
-        pushManager.registerForPushNotifications()
+//        let pushManager = PushNotificationManager()
+//        pushManager.registerForPushNotifications()
         UITabBar.appearance().tintColor = UIColor.colorFour
-        Database.database().reference().child("Assets").observeSingleEvent(of: .value, with:{(snap) in
-            if let value = snap.value as? [String:Any] {
-                Assets.levelsArray = (value["Levels"] as? String)?.components(separatedBy: ";") ?? ["Easy","Medium","Hard"]
-                Assets.featuredKasams = (value["Featured"] as? String)?.components(separatedBy: ";") ?? ["-LqRRHDQuwf2tJmoNoaa"]
-                Assets.discoverCriteria = (value["DiscoverCriteria"] as? String)?.components(separatedBy: ";") ?? ["Fitness", "Health", "Basic"]
-                PlaceHolders.kasamHeaderPlaceholderURL = value["Placeholder-header"] as! String
-                let kasamPlaceholderImage = UIImageView()
-                kasamPlaceholderImage.sd_setImage(with: URL(string: PlaceHolders.kasamHeaderPlaceholderURL)) {(img, err, cache, URL) in
-                    PlaceHolders.kasamHeaderPlaceholderImage = kasamPlaceholderImage.image ?? UIImage(named: "placeholder")!
-                }
-            }
-        })
         return true
     }
     
